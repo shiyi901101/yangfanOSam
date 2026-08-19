@@ -9,15 +9,15 @@
 <script src="dash_data.js"></script>
 <style>
   :root{
-    --navy:#0b2545;            /* 主标题深蓝 */
-    --pri:#13315c;             /* 主操作/强调蓝（修复：此前未定义导致月份选中态失效） */
-    --blue-900:#0b2545; --blue-800:#0f2a4d; --blue-700:#13315c; --blue-600:#1a4a86; --blue-500:#1b3a6b; --blue-300:#3a6ea5; --blue-200:#d9e6f2;
-    --cyan:#2a9d8f; --ice:#e8f1f8; --ice-2:#f3f8fc;
-    --line:#cdddec; --ink:#15263b; --muted:#5b7187; --warn:#c2410c; --ok:#0f7b6c;
-    --gold:#c8a04b;
+    --navy:#0f3b73;            /* 最深蓝，仅极个别强调 */
+    --pri:#1e6fd9;             /* 主操作/强调蓝（清爽亮蓝） */
+    --blue-900:#0f3b73; --blue-800:#16559e; --blue-700:#1e6fd9; --blue-600:#2c7be5; --blue-500:#48a6ff; --blue-300:#7fc4ff; --blue-200:#dbeafe;
+    --cyan:#16c2a3; --ice:#eaf3ff; --ice-2:#f6f9fd;
+    --line:#e2ebf5; --ink:#243b52; --muted:#7489a0; --warn:#f0883e; --ok:#12b886;
+    --gold:#e0a93e;
   }
   /* ===== 登录门禁 ===== */
-  #loginGate{position:fixed;inset:0;z-index:9999;background:linear-gradient(140deg,#0b2545 0%,#13315c 55%,#1b3a6b 100%);display:flex;align-items:center;justify-content:center}
+  #loginGate{position:fixed;inset:0;z-index:9999;background:linear-gradient(140deg,#0f3b73 0%,#1e6fd9 55%,#48a6ff 100%);display:flex;align-items:center;justify-content:center}
   #loginGate.hidden{display:none}
   .lg-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:42px 46px;width:340px;text-align:center;backdrop-filter:blur(6px);box-shadow:0 18px 50px rgba(0,0,0,.35)}
   .lg-logo{font-size:26px;font-weight:700;color:#fff;letter-spacing:6px;margin-bottom:4px}
@@ -25,8 +25,8 @@
   .lg-title{font-size:14px;color:#cfe0f0;margin-bottom:16px}
   .lg-box input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:15px;text-align:center;letter-spacing:3px;outline:none;font-family:inherit}
   .lg-box input::placeholder{color:#7d96b5;letter-spacing:1px}
-  .lg-box input:focus{border-color:var(--gold,#c8a04b);box-shadow:0 0 0 3px rgba(200,160,75,.25)}
-  .lg-box button{width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;background:linear-gradient(120deg,#c8a04b,#e0b95c);color:#0b2545;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:4px;font-family:inherit}
+  .lg-box input:focus{border-color:var(--gold,#e0a93e);box-shadow:0 0 0 3px rgba(200,160,75,.25)}
+  .lg-box button{width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;background:linear-gradient(120deg,#e0a93e,#f0c25a);color:#0f3b73;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:4px;font-family:inherit}
   .lg-box button:hover{filter:brightness(1.08)}
   .lg-err{color:#ffb4a0;font-size:12px;margin-top:10px;min-height:18px}
   .lg-tip{color:#7d96b5;font-size:11px;margin-top:12px;line-height:1.6}
@@ -258,20 +258,20 @@
 
   /* 数据看板 顶部条 + 更新入口 + 模态框 */
   .dash-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:4px}
-  .dash-title{font-size:19px;font-weight:800;color:var(--navy,#0b2545);letter-spacing:.5px;margin:2px 0 6px}
-  .up-enter{flex-shrink:0;background:linear-gradient(135deg,#13315c,#1b4a8a);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(19,49,92,.22);transition:.2s;margin-top:2px}
+  .dash-title{font-size:19px;font-weight:800;color:var(--navy,#0f3b73);letter-spacing:.5px;margin:2px 0 6px}
+  .up-enter{flex-shrink:0;background:linear-gradient(135deg,#1e6fd9,#2c7be5);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(19,49,92,.22);transition:.2s;margin-top:2px}
   .up-enter:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(19,49,92,.32)}
   .um-mask{position:fixed;inset:0;background:rgba(11,37,69,.45);backdrop-filter:blur(3px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
-  .um-modal{width:min(640px,94vw);background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(11,37,69,.38);padding:22px 24px;border-top:4px solid var(--pri,#13315c);max-height:88vh;overflow:auto}
+  .um-modal{width:min(640px,94vw);background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(11,37,69,.38);padding:22px 24px;border-top:4px solid var(--pri,#1e6fd9);max-height:88vh;overflow:auto}
   .um-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-  .um-head h3{margin:0;font-size:16px;color:var(--navy,#0b2545)}
+  .um-head h3{margin:0;font-size:16px;color:var(--navy,#0f3b73)}
   .um-x{background:none;border:none;font-size:16px;color:#8a97a8;cursor:pointer;padding:4px 6px}
   .um-x:hover{color:#b23a3a}
   .um-note{font-size:11.5px;color:#7a8ba0;background:#f3f7fb;border:1px solid #e2ecf5;border-radius:8px;padding:10px 12px;margin-top:12px;line-height:1.75}
   /* 看板样式微升级：KPI 与站点卡片 */
   .dash-kpis .kp{position:relative;overflow:hidden;border:1px solid #e3ecf5;background:linear-gradient(180deg,#fff 0%,#f7fafd 100%)}
-  .dash-kpis .kp::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue-700,#13315c),var(--cyan,#2a9d8f))}
-  .dash-kpis .kp .n{background:linear-gradient(135deg,#0b2545,#1b4a8a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .dash-kpis .kp::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue-700,#1e6fd9),var(--cyan,#16c2a3))}
+  .dash-kpis .kp .n{background:linear-gradient(135deg,#0f3b73,#2c7be5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .st{border:1px solid #e3ecf5;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)}
   .st:hover{border-color:var(--blue-300,#7fa8d0);box-shadow:0 8px 22px rgba(27,58,107,.14)}
   .st .nm{letter-spacing:1px}
@@ -318,7 +318,7 @@
   .fb-dacts{display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--ice);background:#fafcfe}
   .fb-like{background:none;border:1px solid var(--line);border-radius:20px;padding:5px 14px;font-size:12.5px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:.15s}
   .fb-like:hover{border-color:var(--gold);color:var(--gold)}
-  .fb-like.on{background:linear-gradient(120deg,#c8a04b,#e0b95c);border-color:transparent;color:#fff}
+  .fb-like.on{background:linear-gradient(120deg,#e0a93e,#f0c25a);border-color:transparent;color:#fff}
   /* 回复区 */
   .fb-rsec{margin-top:18px}
   .fb-rsec-title{font-size:14px;font-weight:700;color:var(--blue-800);margin-bottom:12px;display:flex;align-items:center;gap:6px}
@@ -334,7 +334,7 @@
   /* 回复表单 */
   .fb-rform{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
   .fb-rform-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-  .fb-rform-head .ravatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e0b95c);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+  .fb-rform-head .ravatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f0c25a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
   .fb-rform-head input{flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:20px;font-size:12.5px;font-family:inherit;background:var(--ice-2);outline:none}
   .fb-rform-head input:focus{border-color:var(--blue-300);background:#fff}
   .fb-rform-body{margin-bottom:10px}
@@ -371,7 +371,7 @@
   }
 
   /* ===== 热门帖子轮播 ===== */
-  .fb-hot{background:linear-gradient(135deg,#0b2545 0%,#13315c 50%,#1a4278 100%);border-radius:14px;padding:18px 18px 14px;margin-bottom:16px;position:relative;overflow:hidden}
+  .fb-hot{background:linear-gradient(135deg,#0f3b73 0%,#1e6fd9 50%,#2c7be5 100%);border-radius:14px;padding:18px 18px 14px;margin-bottom:16px;position:relative;overflow:hidden}
   .fb-hot::before{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;background:radial-gradient(circle,rgba(200,160,75,.12) 0%,transparent 70%);pointer-events:none}
   .fb-hot-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
   .fb-hot-icon{font-size:20px}
@@ -752,30 +752,30 @@ function exportXLSX(name,sheets){
 
 /* ============ 学习系统数据（图书式 + 深度 + 敏捷管理） ============ */
 const FIG={
-  matrix:`<svg viewBox="0 0 420 340"><rect x="20" y="20" width="380" height="300" fill="#fff" stroke="#cdddec"/><line x1="210" y1="20" x2="210" y2="320" stroke="#cdddec"/><line x1="20" y1="170" x2="400" y2="170" stroke="#cdddec"/><text x="215" y="38" fill="#5b7187" font-size="11">高权力</text><text x="215" y="312" fill="#5b7187" font-size="11">低权力</text><text x="28" y="165" fill="#5b7187" font-size="11">低利益</text><text x="330" y="165" fill="#5b7187" font-size="11">高利益</text>
-  <rect x="230" y="35" width="80" height="50" rx="6" fill="#13315c" fill-opacity=".15" stroke="#13315c"/><text x="270" y="64" font-size="11" fill="#0b2545" text-anchor="middle">重点管理·站长</text>
-  <rect x="230" y="195" width="80" height="50" rx="6" fill="#2a9d8f" fill-opacity=".15" stroke="#2a9d8f"/><text x="270" y="224" font-size="11" fill="#0f7b6c" text-anchor="middle">随时告知·家长</text>
-  <rect x="60" y="35" width="80" height="50" rx="6" fill="#c8a04b" fill-opacity=".2" stroke="#c8a04b"/><text x="100" y="64" font-size="11" fill="#7a5c10" text-anchor="middle">令其满意·监管</text>
-  <rect x="60" y="195" width="80" height="50" rx="6" fill="#e8f1f8" stroke="#cdddec"/><text x="100" y="224" font-size="11" fill="#5b7187" text-anchor="middle">监督·周边</text></svg>`,
-  wbs:`<svg viewBox="0 0 420 260"><rect x="20" y="20" width="120" height="34" rx="6" fill="#0b2545"/><text x="80" y="42" fill="#fff" font-size="12" text-anchor="middle">扬帆计划</text>
-  <line x1="80" y1="54" x2="80" y2="80" stroke="#cdddec"/><line x1="80" y1="80" x2="380" y2="80" stroke="#cdddec"/>
-  <g font-size="11"><rect x="40" y="84" width="90" height="30" rx="5" fill="#13315c" fill-opacity=".12" stroke="#13315c"/><text x="85" y="103" fill="#0b2545" text-anchor="middle">招募线</text>
-  <rect x="150" y="84" width="90" height="30" rx="5" fill="#13315c" fill-opacity=".12" stroke="#13315c"/><text x="195" y="103" fill="#0b2545" text-anchor="middle">培训线</text>
-  <rect x="260" y="84" width="90" height="30" rx="5" fill="#13315c" fill-opacity=".12" stroke="#13315c"/><text x="305" y="103" fill="#0b2545" text-anchor="middle">家长线</text>
-  <line x1="85" y1="114" x2="85" y2="140"/><rect x="40" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#cdddec"/><text x="85" y="162" text-anchor="middle">触达/面试</text>
-  <line x1="195" y1="114" x2="195" y2="140"/><rect x="150" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#cdddec"/><text x="195" y="162" text-anchor="middle">技能模块</text>
-  <line x1="305" y1="114" x2="305" y2="140"/><rect x="260" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#cdddec"/><text x="305" y="162" text-anchor="middle">社群/播报</text></g></svg>`,
-  risk:`<svg viewBox="0 0 420 320"><rect x="20" y="20" width="380" height="280" fill="#fff" stroke="#cdddec"/><line x1="210" y1="20" x2="210" y2="300" stroke="#cdddec"/><line x1="20" y1="160" x2="400" y2="160" stroke="#cdddec"/>
-  <text x="215" y="38" fill="#5b7187" font-size="11">高概率</text><text x="28" y="155" fill="#5b7187" font-size="11">低影响</text><text x="330" y="155" fill="#5b7187" font-size="11">高影响</text>
+  matrix:`<svg viewBox="0 0 420 340"><rect x="20" y="20" width="380" height="300" fill="#fff" stroke="#e2ebf5"/><line x1="210" y1="20" x2="210" y2="320" stroke="#e2ebf5"/><line x1="20" y1="170" x2="400" y2="170" stroke="#e2ebf5"/><text x="215" y="38" fill="#7489a0" font-size="11">高权力</text><text x="215" y="312" fill="#7489a0" font-size="11">低权力</text><text x="28" y="165" fill="#7489a0" font-size="11">低利益</text><text x="330" y="165" fill="#7489a0" font-size="11">高利益</text>
+  <rect x="230" y="35" width="80" height="50" rx="6" fill="#1e6fd9" fill-opacity=".15" stroke="#1e6fd9"/><text x="270" y="64" font-size="11" fill="#0f3b73" text-anchor="middle">重点管理·站长</text>
+  <rect x="230" y="195" width="80" height="50" rx="6" fill="#16c2a3" fill-opacity=".15" stroke="#16c2a3"/><text x="270" y="224" font-size="11" fill="#0f7b6c" text-anchor="middle">随时告知·家长</text>
+  <rect x="60" y="35" width="80" height="50" rx="6" fill="#e0a93e" fill-opacity=".2" stroke="#e0a93e"/><text x="100" y="64" font-size="11" fill="#7a5c10" text-anchor="middle">令其满意·监管</text>
+  <rect x="60" y="195" width="80" height="50" rx="6" fill="#e8f1f8" stroke="#e2ebf5"/><text x="100" y="224" font-size="11" fill="#7489a0" text-anchor="middle">监督·周边</text></svg>`,
+  wbs:`<svg viewBox="0 0 420 260"><rect x="20" y="20" width="120" height="34" rx="6" fill="#0f3b73"/><text x="80" y="42" fill="#fff" font-size="12" text-anchor="middle">扬帆计划</text>
+  <line x1="80" y1="54" x2="80" y2="80" stroke="#e2ebf5"/><line x1="80" y1="80" x2="380" y2="80" stroke="#e2ebf5"/>
+  <g font-size="11"><rect x="40" y="84" width="90" height="30" rx="5" fill="#1e6fd9" fill-opacity=".12" stroke="#1e6fd9"/><text x="85" y="103" fill="#0f3b73" text-anchor="middle">招募线</text>
+  <rect x="150" y="84" width="90" height="30" rx="5" fill="#1e6fd9" fill-opacity=".12" stroke="#1e6fd9"/><text x="195" y="103" fill="#0f3b73" text-anchor="middle">培训线</text>
+  <rect x="260" y="84" width="90" height="30" rx="5" fill="#1e6fd9" fill-opacity=".12" stroke="#1e6fd9"/><text x="305" y="103" fill="#0f3b73" text-anchor="middle">家长线</text>
+  <line x1="85" y1="114" x2="85" y2="140"/><rect x="40" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#e2ebf5"/><text x="85" y="162" text-anchor="middle">触达/面试</text>
+  <line x1="195" y1="114" x2="195" y2="140"/><rect x="150" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#e2ebf5"/><text x="195" y="162" text-anchor="middle">技能模块</text>
+  <line x1="305" y1="114" x2="305" y2="140"/><rect x="260" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#e2ebf5"/><text x="305" y="162" text-anchor="middle">社群/播报</text></g></svg>`,
+  risk:`<svg viewBox="0 0 420 320"><rect x="20" y="20" width="380" height="280" fill="#fff" stroke="#e2ebf5"/><line x1="210" y1="20" x2="210" y2="300" stroke="#e2ebf5"/><line x1="20" y1="160" x2="400" y2="160" stroke="#e2ebf5"/>
+  <text x="215" y="38" fill="#7489a0" font-size="11">高概率</text><text x="28" y="155" fill="#7489a0" font-size="11">低影响</text><text x="330" y="155" fill="#7489a0" font-size="11">高影响</text>
   <circle cx="300" cy="70" r="22" fill="#c2410c" fill-opacity=".2" stroke="#c2410c"/><text x="300" y="74" font-size="10" fill="#c2410c" text-anchor="middle">舆情</text>
-  <circle cx="305" cy="240" r="18" fill="#c8a04b" fill-opacity=".25" stroke="#c8a04b"/><text x="305" y="244" font-size="10" fill="#7a5c10" text-anchor="middle">招募</text>
-  <circle cx="110" cy="90" r="16" fill="#2a9d8f" fill-opacity=".2" stroke="#2a9d8f"/><text x="110" y="94" font-size="10" fill="#0f7b6c" text-anchor="middle">安全</text>
-  <circle cx="100" cy="245" r="14" fill="#e8f1f8" stroke="#cdddec"/><text x="100" y="249" font-size="9" fill="#5b7187" text-anchor="middle">物料</text></svg>`,
-  sprint:`<svg viewBox="0 0 460 220"><rect x="10" y="20" width="100" height="170" rx="6" fill="#e8f1f8" stroke="#cdddec"/><text x="60" y="38" font-size="11" fill="#0b2545" text-anchor="middle">产品待办</text><text x="60" y="70" font-size="9" fill="#5b7187" text-anchor="middle">招募</text><text x="60" y="92" font-size="9" fill="#5b7187" text-anchor="middle">培训</text><text x="60" y="114" font-size="9" fill="#5b7187" text-anchor="middle">义卖</text><text x="60" y="136" font-size="9" fill="#5b7187" text-anchor="middle">复盘</text>
-  <rect x="130" y="20" width="100" height="170" rx="6" fill="#13315c" fill-opacity=".1" stroke="#13315c"/><text x="180" y="38" font-size="11" fill="#0b2545" text-anchor="middle">冲刺待办</text><text x="180" y="70" font-size="9" fill="#5b7187" text-anchor="middle">本周动作</text><text x="180" y="92" font-size="9" fill="#5b7187" text-anchor="middle">每日站会</text>
-  <rect x="250" y="20" width="100" height="170" rx="6" fill="#fff" stroke="#cdddec"/><text x="300" y="38" font-size="11" fill="#0b2545" text-anchor="middle">进行中</text><text x="300" y="70" font-size="9" fill="#5b7187" text-anchor="middle">执行</text>
-  <rect x="370" y="20" width="78" height="170" rx="6" fill="#2a9d8f" fill-opacity=".15" stroke="#2a9d8f"/><text x="409" y="38" font-size="11" fill="#0f7b6c" text-anchor="middle">增量</text><text x="409" y="70" font-size="9" fill="#0f7b6c" text-anchor="middle">每期</text><text x="409" y="92" font-size="9" fill="#0f7b6c" text-anchor="middle">成果</text>
-  <path d="M110 105 L130 105 M230 105 L250 105 M350 105 L370 105" stroke="#3a6ea5" stroke-width="2"/></svg>`
+  <circle cx="305" cy="240" r="18" fill="#e0a93e" fill-opacity=".25" stroke="#e0a93e"/><text x="305" y="244" font-size="10" fill="#7a5c10" text-anchor="middle">招募</text>
+  <circle cx="110" cy="90" r="16" fill="#16c2a3" fill-opacity=".2" stroke="#16c2a3"/><text x="110" y="94" font-size="10" fill="#0f7b6c" text-anchor="middle">安全</text>
+  <circle cx="100" cy="245" r="14" fill="#e8f1f8" stroke="#e2ebf5"/><text x="100" y="249" font-size="9" fill="#7489a0" text-anchor="middle">物料</text></svg>`,
+  sprint:`<svg viewBox="0 0 460 220"><rect x="10" y="20" width="100" height="170" rx="6" fill="#e8f1f8" stroke="#e2ebf5"/><text x="60" y="38" font-size="11" fill="#0f3b73" text-anchor="middle">产品待办</text><text x="60" y="70" font-size="9" fill="#7489a0" text-anchor="middle">招募</text><text x="60" y="92" font-size="9" fill="#7489a0" text-anchor="middle">培训</text><text x="60" y="114" font-size="9" fill="#7489a0" text-anchor="middle">义卖</text><text x="60" y="136" font-size="9" fill="#7489a0" text-anchor="middle">复盘</text>
+  <rect x="130" y="20" width="100" height="170" rx="6" fill="#1e6fd9" fill-opacity=".1" stroke="#1e6fd9"/><text x="180" y="38" font-size="11" fill="#0f3b73" text-anchor="middle">冲刺待办</text><text x="180" y="70" font-size="9" fill="#7489a0" text-anchor="middle">本周动作</text><text x="180" y="92" font-size="9" fill="#7489a0" text-anchor="middle">每日站会</text>
+  <rect x="250" y="20" width="100" height="170" rx="6" fill="#fff" stroke="#e2ebf5"/><text x="300" y="38" font-size="11" fill="#0f3b73" text-anchor="middle">进行中</text><text x="300" y="70" font-size="9" fill="#7489a0" text-anchor="middle">执行</text>
+  <rect x="370" y="20" width="78" height="170" rx="6" fill="#16c2a3" fill-opacity=".15" stroke="#16c2a3"/><text x="409" y="38" font-size="11" fill="#0f7b6c" text-anchor="middle">增量</text><text x="409" y="70" font-size="9" fill="#0f7b6c" text-anchor="middle">每期</text><text x="409" y="92" font-size="9" fill="#0f7b6c" text-anchor="middle">成果</text>
+  <path d="M110 105 L130 105 M230 105 L250 105 M350 105 L370 105" stroke="#2c7be5" stroke-width="2"/></svg>`
 };
 const MODULES=[
  {grp:"导论", id:"why", title:"为什么项目负责人需要项目化思维", html:`
@@ -1664,7 +1664,7 @@ function toggleDashView(){
   toast(DASH_PUBLIC?'已切到对外视图（隐藏负责人信息）':'已切到管理视图（显示负责人信息）');
 }
 /* —— 图表（纯 SVG，无外部依赖）—— */
-const COL_PAL=['#13315c','#2a9d8f','#c8a04b','#3a6ea5','#7fb3d5','#5b7187'];
+const COL_PAL=['#1e6fd9','#16c2a3','#e0a93e','#2c7be5','#7fc4ff','#7489a0'];
 function svgDonut(segs,center){
   const sz=150,c=sz/2,r=54,C=2*Math.PI*r;
   const tot=segs.reduce((a,b)=>a+Math.max(0,b.value),0)||1;
@@ -1674,7 +1674,7 @@ function svgDonut(segs,center){
     arcs+='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+(s.color||'#ccc')+'" stroke-width="18" stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-acc).toFixed(2)+'"><title>'+(s.label||'')+'：'+(s.fmt?s.fmt(s.value):dashFmt(s.value))+'</title></circle>';
     acc+=len;
   });
-  const ct=center?('<text x="'+c+'" y="'+(c-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#15263b">'+center.main+'</text><text x="'+c+'" y="'+(c+15)+'" text-anchor="middle" font-size="11" fill="#5b7187">'+center.sub+'</text>'):'';
+  const ct=center?('<text x="'+c+'" y="'+(c-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#243b52">'+center.main+'</text><text x="'+c+'" y="'+(c+15)+'" text-anchor="middle" font-size="11" fill="#7489a0">'+center.sub+'</text>'):'';
   return '<svg class="donut" viewBox="0 0 '+sz+' '+sz+'" width="100%"><g transform="rotate(-90 '+c+' '+c+')">'+arcs+'</g>'+ct+'</svg>';
 }
 function svgCols(items,opt){
@@ -1689,14 +1689,14 @@ function svgCols(items,opt){
   const bw=Math.min(26,cw*0.58);
   let s='<svg class="colchart" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" style="max-height:'+(H+4)+'px">';
   for(let g=0;g<=4;g++){const gy=(padT+(H-padT-padB)*g/4).toFixed(1);s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#eef3f8" stroke-width="1"/>';}
-  s+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#cdddec"/>';
+  s+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#e2ebf5"/>';
   items.forEach((it,i)=>{
     const h=Math.max(3,Math.round(it.value/max*(H-padT-padB)));
     const x=padL+cw*i+(cw-bw)/2,y=H-padB-h,col=it.color||COL_PAL[i%COL_PAL.length];
     s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+col+'"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></rect>';
-    if(it.value>0){const tv=(it.fmt?it.fmt(it.value):dashFmt(it.value));s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15263b">'+tv+'</text>';}
+    if(it.value>0){const tv=(it.fmt?it.fmt(it.value):dashFmt(it.value));s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#243b52">'+tv+'</text>';}
     let lb=it.label;if(lb.length>5)lb=lb.slice(0,5);
-    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+13)+'" text-anchor="middle" font-size="9.5" fill="#5b7187">'+lb+'</text>';
+    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+13)+'" text-anchor="middle" font-size="9.5" fill="#7489a0">'+lb+'</text>';
   });
   s+='</svg>';
   return s;
@@ -1707,7 +1707,7 @@ function svgFunnel(items){
   const n=items.length;
   const segH=(H-padT-padB-(n-1)*gap)/n;
   const cx=W/2;
-  const cols=['#3a6ea5','#2a9d8f','#13315c'];
+  const cols=['#2c7be5','#16c2a3','#1e6fd9'];
   let s='<svg class="funnel" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" style="max-height:'+(H+4)+'px">';
   items.forEach((it,i)=>{
     const wTop=(it.value/max)*W*0.82;
@@ -1730,11 +1730,11 @@ function renderDashCharts(){
   const reg0=dCurTot('reg',0),reg1=dCurTot('reg',1),reg2=dCurTot('reg',2);
   const cm=dCurTot('camp',1),cf=dCurTot('camp',2);
   const parRate=dCurTot('par',1),parPpl=dCurTot('par',0);
-  const funnel=[{label:'报名',value:reg0,color:'#3a6ea5'},{label:'面试',value:reg1,color:'#2a9d8f'},{label:'入营',value:reg2,color:'#13315c'}];
-  const gender=[{label:'男',value:cm,color:'#13315c'},{label:'女',value:cf,color:'#c8a04b'}];
+  const funnel=[{label:'报名',value:reg0,color:'#2c7be5'},{label:'面试',value:reg1,color:'#16c2a3'},{label:'入营',value:reg2,color:'#1e6fd9'}];
+  const gender=[{label:'男',value:cm,color:'#1e6fd9'},{label:'女',value:cf,color:'#f5a623'}];
   const parPct=Math.min(1,Math.max(0,parRate));
-  const parDonut=[{label:'已参与',value:parPct,color:'#2a9d8f'},{label:'未参与',value:1-parPct,color:'#dbe5ee'}];
-  const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:COL_PAL[i%COL_PAL.length]}));
+  const parDonut=[{label:'已参与',value:parPct,color:'#16c2a3'},{label:'未参与',value:1-parPct,color:'#dbe5ee'}];
+  const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:'#1e6fd9'}));
   let h='<div class="chart-grid">'
     +'<div class="chart-card"><h3>招募转化漏斗 · '+C+'</h3><div class="csub">报名 → 面试 → 入营，看每一环流失</div><div class="chart-fill">'+svgFunnel(funnel)+'</div></div>'
     +'<div class="chart-card"><h3>入营性别结构</h3><div class="csub">'+C+'入营 '+dashFmt(cm+cf)+' 人</div><div class="chart-fill">'+svgDonut(gender,{main:dashFmt(cm+cf),sub:'合计'})+chartLegend(gender)+'</div></div>'
@@ -2210,11 +2210,11 @@ document.getElementById('dashFile').onchange=()=>{const f=document.getElementByI
 
 /* ============ 交流论坛 ============ */
 const BOARDS=[
-  {id:'recruit',n:'招募筹备',d:'报名·面试·宣传',c:'#1b3a6b'},
-  {id:'camp',n:'营期执行',d:'活动·小组·新卡',c:'#2a9d8f'},
-  {id:'review',n:'结营复盘',d:'数据·总结·改进',c:'#3a6ea5'},
+  {id:'recruit',n:'招募筹备',d:'报名·面试·宣传',c:'#48a6ff'},
+  {id:'camp',n:'营期执行',d:'活动·小组·新卡',c:'#16c2a3'},
+  {id:'review',n:'结营复盘',d:'数据·总结·改进',c:'#2c7be5'},
   {id:'parent',n:'家长沟通',d:'家长群·质疑应对',c:'#b0833a'},
-  {id:'cases',n:'经验案例',d:'标杆做法·避坑',c:'#c8a04b'},
+  {id:'cases',n:'经验案例',d:'标杆做法·避坑',c:'#e0a93e'},
   {id:'help',n:'问题求助',d:'卡点·急事·支招',c:'#c2410c'}
 ];
 const FORUM_KEY='yf_forum_v1';
