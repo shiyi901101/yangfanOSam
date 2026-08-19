@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扬帆计划运营中枢 · 同路生物</title>
+<script src="libs/pptxgen.bundle.js"></script>
+<script src="libs/xlsx.full.min.js"></script>
+<script src="dash_data.js"></script>
+<style>
+  :root{
+    --navy:#0b2545;            /* 主标题深蓝 */
+    --pri:#13315c;             /* 主操作/强调蓝（修复：此前未定义导致月份选中态失效） */
+    --blue-900:#0b2545; --blue-800:#0f2a4d; --blue-700:#13315c; --blue-600:#1a4a86; --blue-500:#1b3a6b; --blue-300:#3a6ea5; --blue-200:#d9e6f2;
+    --cyan:#2a9d8f; --ice:#e8f1f8; --ice-2:#f3f8fc;
+    --line:#cdddec; --ink:#15263b; --muted:#5b7187; --warn:#c2410c; --ok:#0f7b6c;
+    --gold:#c8a04b;
+  }
+  /* ===== 登录门禁 ===== */
+  #loginGate{position:fixed;inset:0;z-index:9999;background:linear-gradient(140deg,#0b2545 0%,#13315c 55%,#1b3a6b 100%);display:flex;align-items:center;justify-content:center}
+  #loginGate.hidden{display:none}
+  .lg-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:42px 46px;width:340px;text-align:center;backdrop-filter:blur(6px);box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .lg-logo{font-size:26px;font-weight:700;color:#fff;letter-spacing:6px;margin-bottom:4px}
+  .lg-sub{font-size:12px;color:#9fb8d6;letter-spacing:2px;margin-bottom:26px}
+  .lg-title{font-size:14px;color:#cfe0f0;margin-bottom:16px}
+  .lg-box input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:15px;text-align:center;letter-spacing:3px;outline:none;font-family:inherit}
+  .lg-box input::placeholder{color:#7d96b5;letter-spacing:1px}
+  .lg-box input:focus{border-color:var(--gold,#c8a04b);box-shadow:0 0 0 3px rgba(200,160,75,.25)}
+  .lg-box button{width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;background:linear-gradient(120deg,#c8a04b,#e0b95c);color:#0b2545;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:4px;font-family:inherit}
+  .lg-box button:hover{filter:brightness(1.08)}
+  .lg-err{color:#ffb4a0;font-size:12px;margin-top:10px;min-height:18px}
+  .lg-tip{color:#7d96b5;font-size:11px;margin-top:12px;line-height:1.6}
+  .logout-btn{position:fixed;right:14px;bottom:14px;z-index:888;background:var(--blue-900);color:#cfe0f0;border:1px solid var(--line);border-radius:20px;padding:5px 14px;font-size:11px;cursor:pointer;opacity:.75;font-family:inherit}
+  .logout-btn:hover{opacity:1;color:#fff}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Microsoft YaHei",-apple-system,sans-serif;color:var(--ink);background:var(--ice-2);line-height:1.7}
+  header{background:linear-gradient(120deg,var(--blue-900),var(--blue-500));color:#fff;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  header h1{margin:0;font-size:20px;letter-spacing:1px}
+  header .sub{font-size:12px;opacity:.8;margin-top:4px}
+  header .brand{font-size:12px;opacity:.7;border:1px solid rgba(255,255,255,.4);padding:3px 10px;border-radius:20px}
+  nav{display:flex;background:var(--blue-700);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+  nav button{flex:1;min-width:120px;background:none;border:none;color:#cfe0f0;padding:14px 8px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;font-family:inherit;white-space:nowrap}
+  nav button.active{color:#fff;border-bottom-color:var(--gold);background:rgba(255,255,255,.06)}
+  /* 移动端：菜单不换行，改横向滑动，杜绝错位 */
+  @media(max-width:820px){
+    nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    nav::-webkit-scrollbar{display:none}
+    nav button{flex:none;min-width:0;padding:12px 14px;font-size:13px}
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  section{display:none}
+  section.active{display:block}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(27,58,107,.05)}
+  h2{color:var(--blue-700);font-size:18px;margin:0 0 12px;border-left:4px solid var(--blue-300);padding-left:10px}
+  h3{color:var(--blue-500);font-size:15px;margin:16px 0 8px}
+  .muted{color:var(--muted);font-size:13px}
+  .pill{display:inline-block;background:var(--ice);color:var(--blue-700);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;margin:2px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .legend{font-size:12px;color:var(--muted);margin:4px 0 14px}
+  /* 数据看板上传卡片 */
+  .upcard{border:1px dashed var(--blue-300);background:linear-gradient(120deg,#f6fafd,#eef5fb)}
+  .up-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .up-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .up-btn{background:var(--blue-700);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  .up-btn:hover{background:var(--blue-500)}
+  .up-btn:disabled{background:#9db3cc;cursor:not-allowed}
+  .month-switch{display:flex;gap:8px;margin:10px 0 14px;align-items:center;flex-wrap:wrap}
+  .month-switch span{font-size:12px;color:var(--muted)}
+  .month-switch button{background:#fff;border:1px solid #d0dce8;border-radius:8px;padding:5px 14px;font-size:12.5px;color:#4a5c6e;cursor:pointer;transition:.15s;font-family:inherit}
+  .month-switch button.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+  .up-file{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer}
+  .up-file input{display:none}
+  .up-msg{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.8;min-height:0}
+  .up-msg b.ok{color:var(--ok)}.up-msg b.err{color:var(--warn)}
+  /* 学习系统 图书式 */
+  .learn{display:grid;grid-template-columns:240px 1fr;gap:18px}
+  @media(max-width:820px){.learn{grid-template-columns:1fr}}
+  .toc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;align-self:start;position:sticky;top:62px;max-height:calc(100vh - 80px);overflow:auto}
+  .toc a{display:block;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:13px;cursor:pointer}
+  .toc a:hover{background:var(--ice)}
+  .toc a.on{background:var(--blue-700);color:#fff}
+  .toc .grp{font-size:11px;color:var(--muted);margin:10px 8px 4px;letter-spacing:1px}
+  .mod p{margin:8px 0}
+  .fig{background:var(--ice-2);border:1px solid var(--line);border-radius:10px;padding:12px;margin:12px 0;text-align:center}
+  .fig svg{width:100%;max-width:480px;height:auto}
+  .fig .cap{font-size:12px;color:var(--muted);margin-top:6px}
+  .book{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+  @media(max-width:820px){.book{grid-template-columns:1fr}}
+  .kv{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;background:var(--ice-2);margin:10px 0}
+  .kv b{color:var(--blue-700)}
+  .case{border-left:4px solid var(--cyan);background:#eefaf8;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+  .case .who{font-weight:700;color:var(--ok)}
+  .tag-book{font-size:11px;background:var(--gold);color:#3a2c08;padding:2px 8px;border-radius:10px;margin-left:6px}
+  .quiz{background:#fff7ed;border:1px solid #fcd9b6;border-radius:10px;padding:14px;margin:12px 0}
+  .quiz .opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:13px}
+  .quiz .opt:hover{border-color:var(--blue-300)}
+  .quiz .opt.ok{background:#e7f6f1;border-color:var(--ok);color:var(--ok)}
+  .quiz .opt.no{background:#fdecec;border-color:#d9534f;color:#b42318}
+  .fb{font-size:13px;margin-top:8px;padding:8px 10px;border-radius:8px;display:none}
+  .fb.show{display:block}
+  .fb.good{background:#e7f6f1;color:var(--ok)}
+  .fb.bad{background:#fdecec;color:#b42318}
+  /* 效率工厂 */
+  .gen{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff}
+  label{font-size:12px;color:var(--muted);display:block;margin:10px 0 4px}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;color:var(--ink)}
+  textarea{min-height:70px;resize:vertical}
+  .btn{background:var(--blue-700);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:10px;margin-right:6px}
+  .btn:hover{background:var(--blue-500)}
+  .btn.ghost{background:#fff;color:var(--blue-700);border:1px solid var(--blue-300)}
+  .out{margin-top:12px;font-size:13px;background:var(--ice-2);border:1px solid var(--line);border-radius:8px;padding:12px;white-space:pre-wrap;max-height:340px;overflow:auto}
+  .ppt-row{display:flex;gap:12px;margin:4px 0}
+  .ppt-col{flex:1;min-width:0}
+  .ppt-col label{margin-top:10px}
+  .tag{font-size:11px;background:var(--blue-700);color:#fff;padding:2px 8px;border-radius:10px;margin-left:6px}
+  .note{font-size:12px;color:var(--warn);background:#fff7ed;border:1px solid #fcd9b6;border-radius:8px;padding:8px 10px;margin:8px 0}
+  /* 训战机器人 */
+  .bot{display:grid;grid-template-columns:1fr 320px;gap:18px}
+  @media(max-width:820px){.bot{grid-template-columns:1fr}}
+  .chat{background:linear-gradient(180deg,#f7fafd,#eef4fa);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:440px;max-height:620px;overflow-y:auto;scroll-behavior:smooth}
+  .msg{max-width:92%;margin:10px 0;font-size:14px;line-height:1.7;animation:msgIn .22s ease}
+  @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .msg.me{background:linear-gradient(135deg,var(--blue-700),var(--blue-500));color:#fff;margin-left:auto;text-align:right;border-radius:14px 14px 4px 14px;padding:9px 14px;max-width:70%;box-shadow:0 2px 8px rgba(19,49,92,.25);font-size:13.5px}
+  .msg.bot{background:#fff;border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:12px 14px;box-shadow:0 2px 10px rgba(27,58,107,.06);font-size:13.5px}
+  .msg.bot .kb-h{font-weight:700;color:var(--blue-900);margin:10px 0 5px;padding:2px 0 2px 10px;border-left:4px solid var(--cyan);font-size:14px}
+  .msg.bot .kb-h:first-child{margin-top:0}
+  .msg.bot .kb-sec{font-weight:700;color:var(--blue-700);margin:8px 0 3px;font-size:13.5px}
+  .msg.bot .kb-li{padding-left:16px;position:relative;margin:3px 0;color:var(--ink);line-height:1.7}
+  .msg.bot .kb-li:before{content:'▸';position:absolute;left:2px;color:var(--blue-300);font-size:12px;top:1px}
+  .msg.bot .kb-p{margin:3px 0;color:var(--ink)}
+  .msg.bot .kb-gap{height:7px}
+  .msg.bot .kb-src{font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);margin-top:10px;padding-top:7px}
+  .msg.full{background:#fff;border:1px solid var(--line);max-width:100%;white-space:pre-wrap}
+  .bubble-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .bubble{border:1px solid var(--blue-300);background:#fff;color:var(--blue-700);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:13px;font-family:inherit}
+  .bubble:hover{background:var(--ice)}
+  .side{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;align-self:start}
+  .side h3{margin-top:0}
+  .faq-item{border-bottom:1px solid var(--line);padding:9px 0;cursor:pointer;font-size:13px}
+  .faq-item:hover{color:var(--blue-700)}
+  .faq-a{display:none;font-size:13px;color:var(--muted);padding:6px 0 2px}
+  .faq-a.show{display:block}
+  .progress{height:6px;background:var(--ice);border-radius:6px;overflow:hidden;margin:8px 0}
+  .progress i{display:block;height:100%;background:var(--cyan);width:0;transition:width .4s}
+  .chat-input{display:flex;gap:8px;margin-top:10px}
+  .chat-input input{flex:1}
+  .mode-badge{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--ice);color:var(--muted)}
+  .mode-badge.live{background:#e7f6f1;color:var(--ok)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap}
+  .kpi .b{flex:1;min-width:120px;background:var(--ice);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+  .kpi .n{font-size:22px;color:var(--blue-700);font-weight:700}
+  /* ============ 数据看板（6-7月全站） ============ */
+  .dash-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+  @media(max-width:1100px){.dash-kpis{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:620px){.dash-kpis{grid-template-columns:repeat(2,1fr)}}
+  .dash-kpis .kp{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(27,58,107,.05)}
+  .dash-kpis .kp .n{font-size:23px;font-weight:800;color:var(--blue-700)}
+  .dash-kpis .kp .m{font-size:12px;color:var(--muted);margin-top:2px}
+  .dash-kpis .kp .s{font-size:11px;color:var(--muted);opacity:.8;margin-top:2px}
+  .dash-kpis .kp.hot .n{color:var(--gold)}
+  .dash-tabs{display:flex;gap:8px;margin-bottom:14px}
+  .dtab{background:#fff;border:1px solid var(--line);color:var(--blue-700);padding:8px 18px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:13px}
+  .dtab.active{background:var(--blue-700);color:#fff;border-color:var(--blue-700)}
+  .dash-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:1180px){.dash-grid{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:920px){.dash-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:640px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
+  .st{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;position:relative;box-shadow:0 2px 6px rgba(27,58,107,.04)}
+  .st:hover{border-color:var(--blue-300);transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,58,107,.12)}
+  .st .nm{font-size:16px;font-weight:800;color:var(--blue-900)}
+  .st .ow{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st .lv{position:absolute;top:10px;right:10px;font-size:10px;background:var(--ice);color:var(--blue-700);border:1px solid var(--line);padding:1px 7px;border-radius:10px}
+  .st .lv.none{display:none}
+  .st .row{display:flex;justify-content:space-between;font-size:12px;margin-top:8px;color:var(--ink)}
+  .st .row b{color:var(--blue-700);font-weight:700}
+  .st .bar{height:5px;background:var(--ice);border-radius:4px;margin-top:8px;overflow:hidden}
+  .st .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue-300),var(--cyan))}
+  .st .foot{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+  /* 排名视图 */
+  .rank-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:820px){.rank-wrap{grid-template-columns:1fr}}
+  .rank-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .rank-card h3{margin-top:0;font-size:14px}
+  .rank-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .rank-row:last-child{border-bottom:none}
+  .rank-no{width:22px;height:22px;border-radius:50%;background:var(--ice);color:var(--blue-700);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .rank-row:nth-child(-n+4) .rank-no{background:var(--gold);color:#3a2c08}
+  .rank-row .rnm{font-weight:700;width:52px;flex-shrink:0}
+  .rank-bar{flex:1;height:10px;background:var(--ice);border-radius:6px;overflow:hidden}
+  .rank-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue-300),var(--cyan));border-radius:6px}
+  .rank-val{width:56px;text-align:right;color:var(--blue-700);font-weight:700;font-size:12px;flex-shrink:0}
+  /* 单站详情 */
+  .back{background:#fff;border:1px solid var(--line);color:var(--blue-700);padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-family:inherit;margin-bottom:14px}
+  .back:hover{background:var(--ice)}
+  .dd-head{background:linear-gradient(120deg,var(--blue-900),var(--blue-500));color:#fff;border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .dd-head .t{font-size:20px;font-weight:800}
+  .dd-head .sub{font-size:12px;opacity:.85;margin-top:4px}
+  .dd-head .badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);padding:3px 12px;border-radius:16px;font-size:12px}
+  .dd-cols{display:grid;grid-template-columns:360px 1fr;gap:16px;margin-top:16px;align-items:start}
+  @media(max-width:920px){.dd-cols{grid-template-columns:1fr}}
+  .dd-panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .dd-panel h3{margin-top:0;font-size:14px;color:var(--blue-700);border-left:4px solid var(--blue-300);padding-left:8px}
+  .dd-panel .prow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .dd-panel .prow:last-child{border-bottom:none}
+  .dd-panel .prow .k{color:var(--muted)}
+  .dd-panel .prow .v{font-weight:700;color:var(--ink)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tags span{background:var(--ice);color:var(--blue-700);border:1px solid var(--line);border-radius:14px;padding:2px 10px;font-size:11px}
+  .dash-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  .dash-table th,.dash-table td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+  .dash-table th{background:var(--ice);color:var(--blue-700);font-size:12px}
+  .dash-table td.k{text-align:left;font-weight:600;color:var(--ink)}
+  .dash-table .up{color:#c0392b;font-weight:700}
+  .dash-table .down{color:#0f7b6c;font-weight:700}
+  .tbl-scroll{overflow-x:auto}
+  .ana{list-style:none;padding:0;margin:0}
+  .ana li{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px;line-height:1.75}
+  .ana .tg{display:inline-block;font-size:11px;padding:1px 9px;border-radius:10px;margin-right:8px;color:#fff;flex-shrink:0}
+  .tg-cyc{background:#c0392b}.tg-rank{background:var(--blue-700)}.tg-star{background:var(--gold)}.tg-warn{background:var(--warn)}.tg-pro{background:var(--cyan)}.tg-semi{background:var(--blue-300)}
+  .ana b{color:var(--blue-900)}
+  .mini-cmp{display:flex;align-items:flex-end;gap:6px;height:90px;padding:6px 2px 0}
+  .mini-cmp .m{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .mini-cmp .m .bars{display:flex;gap:3px;align-items:flex-end;height:64px}
+  .mini-cmp .m .bars i{width:14px;border-radius:4px 4px 0 0;background:var(--blue-300)}
+  .mini-cmp .m .bars i.b7{background:var(--cyan)}
+  .mini-cmp .m .lbl{font-size:11px;color:var(--muted)}
+  .copy-btn{background:var(--blue-700);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;margin-top:4px}
+  .copy-btn:hover{background:var(--blue-500)}
+  .dash-note{font-size:12px;color:var(--muted);margin-top:10px}
+
+  /* 数据看板 顶部条 + 更新入口 + 模态框 */
+  .dash-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:4px}
+  .dash-title{font-size:19px;font-weight:800;color:var(--navy,#0b2545);letter-spacing:.5px;margin:2px 0 6px}
+  .up-enter{flex-shrink:0;background:linear-gradient(135deg,#13315c,#1b4a8a);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(19,49,92,.22);transition:.2s;margin-top:2px}
+  .up-enter:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(19,49,92,.32)}
+  .um-mask{position:fixed;inset:0;background:rgba(11,37,69,.45);backdrop-filter:blur(3px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+  .um-modal{width:min(640px,94vw);background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(11,37,69,.38);padding:22px 24px;border-top:4px solid var(--pri,#13315c);max-height:88vh;overflow:auto}
+  .um-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .um-head h3{margin:0;font-size:16px;color:var(--navy,#0b2545)}
+  .um-x{background:none;border:none;font-size:16px;color:#8a97a8;cursor:pointer;padding:4px 6px}
+  .um-x:hover{color:#b23a3a}
+  .um-note{font-size:11.5px;color:#7a8ba0;background:#f3f7fb;border:1px solid #e2ecf5;border-radius:8px;padding:10px 12px;margin-top:12px;line-height:1.75}
+  /* 看板样式微升级：KPI 与站点卡片 */
+  .dash-kpis .kp{position:relative;overflow:hidden;border:1px solid #e3ecf5;background:linear-gradient(180deg,#fff 0%,#f7fafd 100%)}
+  .dash-kpis .kp::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue-700,#13315c),var(--cyan,#2a9d8f))}
+  .dash-kpis .kp .n{background:linear-gradient(135deg,#0b2545,#1b4a8a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .st{border:1px solid #e3ecf5;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)}
+  .st:hover{border-color:var(--blue-300,#7fa8d0);box-shadow:0 8px 22px rgba(27,58,107,.14)}
+  .st .nm{letter-spacing:1px}
+  /* ===== 交流论坛 ===== */
+  .fbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  .fchips{display:flex;flex-wrap:wrap;gap:6px}
+  .fchip{background:#fff;border:1px solid var(--line);border-radius:18px;padding:5px 13px;font-size:12.5px;color:#4a5c6e;cursor:pointer;font-family:inherit;transition:.15s}
+  .fchip:hover{border-color:var(--blue-300)}
+  .fchip.on{background:var(--blue-700);color:#fff;border-color:var(--blue-700)}
+  .fops{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .fops input,.fops select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink);outline:none}
+  .fops input{width:160px}
+  .fops input:focus,.fops select:focus{border-color:var(--blue-300)}
+  .fb-tools{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;gap:6px}
+  .mini-btn{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:11.5px;color:var(--muted);cursor:pointer;font-family:inherit;display:inline-block}
+  .mini-btn:hover{color:var(--blue-700);border-color:var(--blue-300)}
+  .fb-list{display:flex;flex-direction:column;gap:12px}
+  .fpost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.15s;border-left:4px solid var(--blue-300)}
+  .fpost:hover{box-shadow:0 3px 12px rgba(27,58,107,.08)}
+  .fpost .ftag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;margin-right:8px;color:#fff;vertical-align:2px}
+  .fpost .ft{font-size:15px;font-weight:700;color:var(--blue-900);margin:6px 0 4px;line-height:1.5}
+  .fpost .fb{font-size:13px;color:var(--ink);margin:4px 0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.7}
+  .fpost .fmeta{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .fpost .fmeta b{color:var(--blue-700);font-weight:600}
+  .fpost .fmeta .cnt{margin-left:auto}
+  /* ===== 帖子详情（高端卡片风格） ===== */
+  .fb-detail{background:transparent;border:none;padding:0}
+  .fb-dhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .fb-back{background:none;border:1px solid var(--line);border-radius:20px;color:var(--blue-600);font-size:12.5px;cursor:pointer;padding:5px 16px;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:4px}
+  .fb-back:hover{background:var(--ice-2);color:var(--blue-800);border-color:var(--blue-200)}
+  .fb-dcard{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(27,58,107,.05)}
+  .fb-dcard-main{padding:22px 24px 18px}
+  .fb-dcard .dtag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .fb-dcard .dtag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:10px;color:#fff;font-weight:500;letter-spacing:.5px}
+  .fb-dcard .ddot{width:3px;height:3px;border-radius:50%;background:var(--line)}
+  .fb-dcard h3{font-size:19px;color:var(--blue-900);margin:0 0 10px;line-height:1.5;font-weight:700}
+  .fb-dauthor{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .fb-davatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue-500),var(--cyan));display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex:none}
+  .fb-dinfo{display:flex;flex-direction:column;gap:1px}
+  .fb-dinfo .name{font-size:14px;font-weight:600;color:var(--blue-800)}
+  .fb-dinfo .time{font-size:11.5px;color:var(--muted)}
+  .fb-dbody{font-size:14.5px;color:var(--ink);white-space:pre-wrap;line-height:1.9;margin:0 0 16px;padding:14px 18px;background:var(--ice-2);border-radius:12px;border:1px solid rgba(27,58,107,.04)}
+  .fb-dbody img{max-width:100%;border-radius:8px;margin:8px 0}
+  .fb-dacts{display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--ice);background:#fafcfe}
+  .fb-like{background:none;border:1px solid var(--line);border-radius:20px;padding:5px 14px;font-size:12.5px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:.15s}
+  .fb-like:hover{border-color:var(--gold);color:var(--gold)}
+  .fb-like.on{background:linear-gradient(120deg,#c8a04b,#e0b95c);border-color:transparent;color:#fff}
+  /* 回复区 */
+  .fb-rsec{margin-top:18px}
+  .fb-rsec-title{font-size:14px;font-weight:700;color:var(--blue-800);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+  .fb-rsec-title span{font-size:12px;color:var(--muted);font-weight:400}
+  .fb-reply{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0;transition:.15s}
+  .fb-reply:hover{box-shadow:0 2px 8px rgba(27,58,107,.04)}
+  .fb-reply .rhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .fb-reply .ravatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue-300),var(--cyan));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex:none}
+  .fb-reply .rmeta{font-size:12px;color:var(--muted)}
+  .fb-reply .rmeta b{color:var(--blue-700);font-weight:600}
+  .fb-reply .rbody{font-size:13.5px;color:var(--ink);line-height:1.8;margin-top:6px;padding-left:36px}
+  .fb-reply .rbody img{max-width:100%;border-radius:6px;margin:6px 0}
+  /* 回复表单 */
+  .fb-rform{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .fb-rform-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .fb-rform-head .ravatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e0b95c);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+  .fb-rform-head input{flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:20px;font-size:12.5px;font-family:inherit;background:var(--ice-2);outline:none}
+  .fb-rform-head input:focus{border-color:var(--blue-300);background:#fff}
+  .fb-rform-body{margin-bottom:10px}
+  .fb-rform-body textarea{width:100%;min-height:72px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;font-size:13.5px;font-family:inherit;background:#fff;color:var(--ink);outline:none;resize:vertical;line-height:1.7;box-sizing:border-box}
+  .fb-rform-body textarea:focus{border-color:var(--blue-300)}
+  .fb-rform-imgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .fb-rimg{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .fb-rimg img{width:100%;height:100%;object-fit:cover}
+  .fb-rimg .rm-btn{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .fb-rform-toolbar{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .fb-img-btn{background:none;border:1px dashed var(--line);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:.15s}
+  .fb-img-btn:hover{border-color:var(--blue-300);color:var(--blue-600)}
+  .fb-send-btn{background:linear-gradient(120deg,var(--blue-700),var(--blue-500));border:none;border-radius:20px;padding:7px 20px;font-size:13px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;margin-left:auto}
+  .fb-send-btn:hover{filter:brightness(1.08);box-shadow:0 2px 8px rgba(19,49,92,.25)}
+  .fb-empty{text-align:center;color:var(--muted);padding:30px 20px;font-size:13.5px;background:#fff;border:1px dashed var(--line);border-radius:12px;line-height:2}
+  .frow{display:flex;align-items:flex-start;gap:10px;margin:11px 0;flex-wrap:wrap}
+  .frow>span{width:52px;font-size:13px;color:var(--muted);flex:none;padding-top:9px}
+  .frow input,.frow select,.frow textarea{flex:1;min-width:220px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;font-family:inherit;background:#fff;color:var(--ink);outline:none}
+  .frow textarea{resize:vertical}
+  .frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--blue-300)}
+  @media(max-width:640px){
+    .fbar{flex-direction:column;align-items:stretch}
+    .fops input{width:100%;flex:1}
+    .fops{flex-wrap:wrap}
+    .fpost .fmeta{gap:8px}
+    .fb-dcard-main{padding:16px 16px 14px}
+    .fb-dcard h3{font-size:16.5px}
+    .fb-dbody{padding:10px 14px;font-size:13.5px}
+    .fb-dacts{padding:10px 16px;flex-wrap:wrap;gap:8px}
+    .fb-rform-body textarea{min-height:60px}
+    .fb-rform-toolbar{flex-wrap:wrap}
+    .fb-send-btn{margin-left:0;width:100%;justify-content:center;margin-top:4px}
+    .fb-reply .rbody{padding-left:0;margin-top:8px}
+  }
+
+  /* ===== 热门帖子轮播 ===== */
+  .fb-hot{background:linear-gradient(135deg,#0b2545 0%,#13315c 50%,#1a4278 100%);border-radius:14px;padding:18px 18px 14px;margin-bottom:16px;position:relative;overflow:hidden}
+  .fb-hot::before{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;background:radial-gradient(circle,rgba(200,160,75,.12) 0%,transparent 70%);pointer-events:none}
+  .fb-hot-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .fb-hot-icon{font-size:20px}
+  .fb-hot-head b{color:#fff;font-size:15px;letter-spacing:1px}
+  .fb-hot-sub{font-size:11.5px;color:#9fb8d6;margin-left:auto}
+  .fb-carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:2px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .fb-carousel::-webkit-scrollbar{display:none}
+  .fb-card{flex:0 0 220px;min-width:220px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s;snap-align:start;scroll-snap-align:start}
+  .fb-card:hover{background:rgba(255,255,255,.13);transform:translateY(-3px);border-color:rgba(200,160,75,.35)}
+  .fb-card-img{width:100%;height:110px;background:linear-gradient(135deg,#1a3a6b,#0d2240);display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;overflow:hidden}
+  .fb-card-img .img-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(11,37,69,.7) 100%)}
+  .fb-card-img span{position:relative;z-index:1}
+  .fb-card-body{padding:10px 12px}
+  .fb-card-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:8px;color:#fff;margin-bottom:5px;font-weight:600;letter-spacing:.5px}
+  .fb-card-title{font-size:13px;font-weight:700;color:#fff;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
+  .fb-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9fb8d6}
+  .fb-card-meta .likes{color:#e8b84a;font-weight:600}
+  .fb-carousel-dots{text-align:center;padding-top:8px;display:flex;justify-content:center;gap:6px}
+  .fb-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:.2s}
+  .fb-dot.on{background:var(--gold);width:16px;border-radius:3px}
+  @media(max-width:640px){
+    .fb-card{flex:0 0 180px;min-width:180px}
+    .fb-card-img{height:90px;font-size:26px}
+    .fb-card-body{padding:8px 10px}
+    .fb-card-title{font-size:12.5px}
+    .fb-hot{padding:14px 12px 10px}
+    .fb-hot-sub{display:none}
+  }
+
+  /* ===== 交互与无障碍增强（界面审查后补强） ===== */
+  /* 键盘焦点可见：满足 WCAG 2.2 焦点可见要求，鼠标点击不触发，仅键盘导航显示 */
+  :focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:6px}
+  nav button:focus-visible,.st:focus-visible,.fpost:focus-visible,.fchip:focus-visible,.dtab:focus-visible{outline-offset:-2px}
+  /* 触感反馈：按下时轻微收缩，仅动画 transform（GPU 加速），增强手机端操作确认感 */
+  .btn,.up-btn,.fb-send-btn,.dtab,.fchip,.st,.fpost{transition:all .15s ease}
+  .btn:active,.up-btn:active,.fb-send-btn:active,.dtab:active,.fchip:active,.st:active,.fpost:active{transform:scale(.97)}
+  /* 尊重「减少动态效果」系统偏好 */
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+  /* 次级按钮（备份/恢复）点击区域加大，便于手机点按 */
+  .mini-btn{display:inline-flex;align-items:center;gap:4px;min-height:30px}
+  /* 移动端：收敛头部与留白，提升小屏可读性 */
+  @media(max-width:640px){
+    header{padding:14px 16px;align-items:flex-start}
+    header h1{font-size:17px}
+    header .sub{font-size:11px;line-height:1.5;margin-top:2px}
+    header .brand{font-size:11px;padding:2px 8px}
+    .wrap{padding:14px}
+    .card{padding:14px 15px}
+  }
+  /* ===== 交互增强 v2：搜索/钉选/Toast/Loading/发帖定位 ===== */
+  .toolbar-search{display:flex;align-items:center;gap:10px;margin:10px 0 4px;flex-wrap:wrap}
+  .toolbar-search input{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;background:var(--ice-2)}
+  .gen.pinned{order:-1;border:1px solid var(--gold);box-shadow:0 0 0 3px rgba(200,160,75,.12)}
+  .gen.pinned .tag.pin{background:var(--gold);color:#3a2c08}
+  .dash-base{font-size:12px;color:var(--muted);margin-top:3px}
+  .fpost.fb-just{outline:2px solid var(--gold);background:#fffdf3;transition:outline .2s}
+  #toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-24px);z-index:9999;background:var(--blue-900);color:#fff;padding:11px 18px;border-radius:11px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.28);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:86vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .btn[disabled]{opacity:.62;cursor:not-allowed}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:-1px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:640px){.toolbar-search input{min-width:0}}
+</style>
+</head>
+<body>
+<div id="loginGate">
+  <div class="lg-box">
+    <div class="lg-logo">扬帆计划</div>
+    <div class="lg-sub">YANGFAN OS · 运营中枢</div>
+    <div class="lg-title">请输入访问密码进入系统</div>
+    <input type="password" id="lgPwd" placeholder="访问密码" autocomplete="off">
+    <button id="lgBtn">进入系统</button>
+    <div class="lg-err" id="lgErr"></div>
+    <div class="lg-tip">密码请向项目负责人获取<br>数据仅存本机浏览器，不上传任何服务器</div>
+  </div>
+</div>
+<button class="logout-btn" id="logoutBtn" style="display:none">退出登录</button>
+<header>
+  <div>
+    <h1>扬帆计划运营中枢</h1>
+    <div class="sub">项目负责人成长 · 效率工具 · 训战机器人 ｜ 同路生物扬帆计划一站式工作台</div>
+  </div>
+  <div class="brand">同路生物</div>
+</header>
+<nav>
+  <button data-tab="learn">① 学习</button>
+  <button data-tab="factory">② 提效</button>
+  <button data-tab="bot">③ 解惑</button>
+  <button data-tab="dash">④ 看板</button>
+  <button data-tab="forum">⑤ 交流</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ 学习系统（升级为超详细 v5） ============ -->
+<section id="learn">
+  <div class="legend">本学习系统已升级为<b>超详细版 v5</b>：PMP 十大知识领域教科书级深度 ＋ 五大过程组 ＋ 敏捷管理 ＋ 国内外 8 个经典案例库，每个知识点配「扬帆实况」与「真实标杆」。下方为内嵌阅读窗口，也可<a href="扬帆OS_学习系统v5.html" target="_blank" style="color:var(--blue);font-weight:700">在新标签页打开 →</a>。</div>
+  <iframe src="扬帆OS_学习系统v5.html" title="扬帆计划 PMP 学习系统 v5" style="width:100%;height:80vh;border:1px solid var(--line);border-radius:12px;background:#fff"></iframe>
+</section>
+
+<!-- ============ 效率工厂 ============ -->
+<section id="factory">
+  <div class="legend">效率工具：把重复体力活直接干掉，产出有设计感、能直接用的文件。组件库已随项目本地部署，<b>无需联网 CDN</b>。生成的 Excel 可直接导入腾讯文档在线表格。</div>
+  <div class="toolbar-search">
+    <input id="toolSearch" placeholder="🔍 搜工具：PPT / 证书 / 短信 / 接龙 / 报表…" oninput="toolFilter()">
+    <span class="muted" style="font-size:12px">标「常用」的已钉到最前</span>
+  </div>
+  <div class="grid g2">
+    <div class="gen">
+      <h3>📒 学生成长报告生成器 <span class="tag">图文→报告</span></h3>
+      <p class="muted">工具包5活化：集中导入学生名单 → 逐人录五时刻（图片+文字）→ 一键生成个人成长报告，可打印PDF/下载HTML。数据存本机，隐私安全。</p>
+      <button class="btn" onclick="window.open('扬帆OS_成长报告生成器.html','_blank')">打开成长报告生成器</button>
+      <div class="out">流程：①导入名单 → ②选学生录五时刻 → ③生成报告。五时刻＝开营/首次招募/家长活动/过半复盘/结营。</div>
+    </div>
+
+    <div class="gen">
+      <h3>📊 汇报 PPT 生成 <span class="tag">.pptx</span></h3>
+      <p class="muted">填入你的真实数据 → 引擎自动排版出专业冷蓝系 PPT。支持插入图片，图文混排。</p>
+      <label>汇报类型</label>
+      <select id="pptTpl"><option value="recruit">招募启动方案</option><option value="mid">运营中期进展</option><option value="close">结营成果总结</option><option value="train">负责人培训课件</option><option value="custom">自定义汇报</option></select>
+      <div class="ppt-row"><div class="ppt-col"><label>浆站名称</label><input id="pptStation" value=""></div><div class="ppt-col"><label>汇报人</label><input id="pptOwner" value=""></div></div>
+      <label>核心目标（一句话，如：本期招募200名学员入营）</label><input id="pptGoal" value="" placeholder="不填则跳过目标页">
+      <label>关键数据（格式：标签:数值，每项一行）</label>
+      <textarea id="pptData" rows="2" placeholder="报名人数:380&#10;面试通过:260&#10;正式入营:200&#10;新卡发展:45"></textarea>
+      <label>重点工作或亮点（每项一行，引擎自动排版成要点页）</label>
+      <textarea id="pptFocus" rows="3" placeholder="家长群已建3个覆盖120人&#10;义卖活动筹集善款860元&#10;学员满意度评分4.6/5"></textarea>
+      <label>配图（可选，封面或成果页使用，可多选）</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <label class="fb-img-btn" style="font-size:12px">📷 选择图片<input type="file" accept="image/*" multiple id="pptImgInput" style="display:none" onchange="pptAddImages(this)"></label>
+        <span id="pptImgCount" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+      <div class="ppt-img-preview" id="pptImgPreview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <button class="btn" onclick="genPPT()">✨ 生成并下载 PPT</button>
+      <div class="out" id="pptOut">填写信息后点击生成，引擎根据内容量自动规划页数和排版。</div>
+    </div>
+
+    <div class="gen">
+      <h3>📑 运营执行表生成 <span class="tag">.xlsx</span></h3>
+      <p class="muted">选表 → 填站情 → 生成带格式执行表（招募漏斗 / 家长沟通排期 / 活动清单 / 接龙名单）。</p>
+      <label>表格类型</label>
+      <select id="xlsTpl"><option value="funnel">招募转化漏斗表</option><option value="parent">家长沟通排期表</option><option value="act">假期活动执行清单</option><option value="roll">接龙报名名单表</option></select>
+      <label>站点</label><input id="xlsStation" value="商都浆站">
+      <label>期数 / 名额</label><input id="xlsMeta" value="4期，每期25人，共100人">
+      <button class="btn" onclick="genXLS()">生成并下载 Excel</button>
+      <div class="out" id="xlsOut">点击生成后在此显示…</div>
+    </div>
+
+    <div class="gen">
+      <h3>📡 在线收集表生成（导入腾讯文档） <span class="tag">.xlsx</span></h3>
+      <p class="muted">你们日常用<b>在线表格收集信息</b>。这里生成可直接导入腾讯文档在线表格的收集表（积分统计 / 签到 / 报名汇总），自己填或发群填报。</p>
+      <label>表类型</label>
+      <select id="onTpl"><option value="score">学生积分统计表</option><option value="sign">出勤签到表</option><option value="reg">报名汇总审核表</option><option value="survey">家长满意度量表</option></select>
+      <label>站点</label><input id="onStation" value="怀远浆站">
+      <label>周期 / 说明</label><input id="onMeta" value="寒暑假运营周期，每周更新一次">
+      <button class="btn" onclick="genOnline()">生成可导入的 Excel</button>
+      <div class="out" id="onOut">点击生成后在此显示…</div>
+    </div>
+
+    <div class="gen">
+      <h3>📝 接龙 / 报名生成 <span class="tag">复制+下载</span></h3>
+      <p class="muted">生成可直接发浆站群 / 腾讯文档接龙的报名模板，含字段与示例。</p>
+      <label>接龙主题</label><input id="rollTopic" value="扬帆计划学员报名接龙">
+      <label>收集字段（逗号分隔）</label><input id="rollFields" value="姓名,学校,年级,联系电话,可参加时段">
+      <label>开头说明</label><textarea id="rollDesc">请家长/同学按格式接龙，信息仅用于入营安排，保密。</textarea>
+      <button class="btn" onclick="genRoll()">生成接龙文案</button>
+      <button class="btn ghost" onclick="genRollXLS()">导出 Excel 空表</button>
+      <div class="out" id="rollOut"></div>
+    </div>
+
+    <div class="gen">
+      <h3>📜 通知书 / 结营证书 <span class="tag">批量出图</span></h3>
+      <p class="muted">粘贴名单（姓名,学校 每行一人）→ 批量生成录取通知书 / 结营证书图片（A4尺寸），可单张或批量下载。</p>
+      <label>类型</label>
+      <select id="certTpl"><option value="accept">录取通知书</option><option value="close">结营证书</option></select>
+      <label>站点</label><input id="certStation" value="凤台浆站">
+      <label>名单（姓名,学校）</label><textarea id="certList">王浩然,凤台一中
+李思远,凤台二中
+赵梓涵,凤台实验中学</textarea>
+      <button class="btn" onclick="genCert()">生成预览</button>
+      <div class="out" id="certOut" style="white-space:normal"></div>
+    </div>
+
+    <div class="gen">
+      <h3>💬 短信 / 播报话术生成</h3>
+      <p class="muted">生成家长每日播报、开营邀约、亲子开放日话术，可直接复制群发。</p>
+      <label>类型</label>
+      <select id="msgTpl"><option value="daily">家长每日播报</option><option value="invite">开营邀约短信</option><option value="open">亲子开放日邀请</option></select>
+      <label>站点</label><input id="msgStation" value="怀远浆站">
+      <label>今日亮点</label><input id="msgHi" value="小组长制今日上岗，学员自主组织义卖筹备">
+      <button class="btn" onclick="genMsg()">生成话术</button>
+      <div class="out" id="msgOut"></div>
+    </div>
+
+    <div class="gen">
+      <h3>🧩 待接入的效率工具（方向）</h3>
+      <p class="muted">按你「根本解决工作痛点」的要求排的后续项，当前为入口占位，已规划真实产出逻辑：</p>
+      <div class="pill">周报自动汇总（导入漏斗数据→出周报）</div>
+      <div class="pill">舆情口径一键卡（输入场景→出回应话术）</div>
+      <div class="pill">物料排版（通知书/海报自动套VI）</div>
+      <div class="pill">问卷/测评自动出分</div>
+      <div class="pill">在线表→看板（积分表自动出排名榜）</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 训战机器人 ============ -->
+<section id="bot">
+  <div class="legend">训战机器人 = <b>带新人快速上手</b>（结合扬帆核心策略 + 真实数据 + 工具包）+ <b>常见问题自己查</b> + <b>直接输出方案材料</b>。底部可<b>直接打字问</b>：问站名出该站详情（如「怀远怎么做」）、问策略出专属内容（如「今年目标怎么定」「家长活动怎么设计」）、问案例出经典启示。若后端接大模型则为真对话，否则自动降级为知识库精准匹配。</div>
+  <div class="bot">
+    <div>
+      <div style="font-size:12px;margin-bottom:6px">当前模式：<span id="botMode" class="mode-badge">检测中…</span></div>
+      <div class="chat" id="chat"></div>
+      <div class="progress"><i id="botProg"></i></div>
+      <div class="bubble-row" id="botBubbles"></div>
+      <div class="chat-input">
+        <input id="botFree" placeholder="直接问，例如：今年目标怎么定？家长活动怎么设计？怀远怎么做？">
+        <button class="btn" onclick="sendFree()">发送</button>
+      </div>
+      <div class="note" id="botNote">提示：点击气泡走「接手引导」生成方案；或在输入框直接提问——问站名出详情、问策略出打法、问案例出启示。</div>
+    </div>
+    <div class="side">
+      <h3>常见问题自查</h3>
+      <div id="faqList"></div>
+      <h3 style="margin-top:16px">当前接手档案</h3>
+      <div class="out" id="botProfile" style="max-height:200px">尚未开始接手引导。</div>
+      <button class="btn ghost" style="margin-top:8px" onclick="resetBot()">重新开始引导</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 数据看板（动态月份） ============ -->
+<section id="dash">
+  <div class="dash-top">
+    <div>
+      <div class="dash-title">全站数据看板</div>
+      <div class="dash-base">数据基准：各站上报月度汇总 · 含半年度会议材料 · 非实时，供运营参考</div>
+      <div class="legend">数据来自各站上报的月度汇总（招募漏斗 / 学生发展 / 入营结构 / 家长参与四块）+ 半年度会议材料 + 各站负责人画像。点任意站卡片 → 看该站数据汇总与<b>针对性分析</b>；分析可一键复制进汇报材料。自己汇总的数据，通过右上角「更新数据」上传即可。</div>
+    </div>
+    <button class="up-enter" onclick="openUpModal()">📤 更新数据</button>
+  </div>
+  <div class="month-switch" id="monthSwitch"></div>
+  <div class="dash-kpis" id="dashKpis"></div>
+  <div class="dash-tabs">
+    <button class="dtab active" onclick="dashView('grid')">全站总览</button>
+    <button class="dtab" onclick="dashView('rank')">指标排名</button>
+    <button class="dtab" onclick="dashView('weak')">需要盯的站</button>
+  </div>
+  <div id="dashGrid" class="dash-grid"></div>
+  <div id="dashRank" style="display:none"></div>
+  <div id="dashWeak" style="display:none"></div>
+  <div id="dashDetail" style="display:none"></div>
+  <div class="dash-note">注：参与度=参与人数/入营人数（个别站&gt;100%系家长及亲属重复到场）；入营人数以招募汇总表为准，性别结构取自入营总人数表（口径差异以原始表为准）。</div>
+</section>
+
+<!-- ============ 交流论坛 ============ -->
+<section id="forum">
+  <div class="legend">项目负责人交流平台：发帖求助、经验共享、互相支招。板块按扬帆计划运营进程划分，方便找帖、沉淀做法。
+    <b style="color:var(--warn)">当前为单机版</b>：数据存本机浏览器，用于把流程和体验跑通；全集团各站互通发帖需要上后端数据库（下一步升级方向）。</div>
+
+  <!-- 热门帖子轮播 -->
+  <div class="fb-hot" id="fbHot">
+    <div class="fb-hot-head"><span class="fb-hot-icon">🔥</span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
+    <div class="fb-carousel" id="fbCarousel"></div>
+    <div class="fb-carousel-dots" id="fbDots"></div>
+  </div>
+
+  <div class="fbar">
+    <div class="fchips" id="fbChips"></div>
+    <div class="fops">
+      <input id="fbQ" placeholder="搜帖子（标题/内容/署名）…" oninput="fbList()">
+      <select id="fbSort" onchange="fbList()">
+        <option value="new">最新发布</option>
+        <option value="hot">最热讨论</option>
+      </select>
+      <button class="up-btn" onclick="fbNew()">＋ 发新帖</button>
+    </div>
+  </div>
+
+  <div class="fb-tools">
+    <span class="muted" style="font-size:12px">发帖请署名浆站，方便对号交流；内容说清「发生了什么、试过什么、卡在哪」。</span>
+    <span>
+      <button class="mini-btn" onclick="fbExport()">⬇ 导出交流备份</button>
+      <label class="mini-btn">⬆ 导入交流备份<input type="file" id="fbFile" accept=".json" style="display:none"></label>
+      <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fullBackup()">📦 全平台备份</button>
+      <label class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)">📂 恢复数据<input type="file" accept=".json" style="display:none" onchange="fullRestore(this)"></label>
+    </span>
+  </div>
+
+  <div id="fbList" class="fb-list"></div>
+
+  <!-- 发帖模态框 -->
+  <div class="um-mask" id="fbMask" style="display:none">
+    <div class="um-modal" style="max-width:660px">
+      <div class="um-head"><h3>📝 发新帖</h3><button class="um-x" onclick="fbMaskHide()">✕</button></div>
+      <div class="frow"><span>板块</span><select id="fbBid"></select></div>
+      <div class="frow"><span>标题</span><input id="fbTitle" maxlength="60" placeholder="一句话说清，如：暑期招募差一半，大家怎么破？"></div>
+      <div class="frow"><span>内容</span><textarea id="fbBody" rows="5" maxlength="2000" placeholder="把事情说清楚：发生了什么、试过什么、卡在哪。越具体，别人越能支招。"></textarea></div>
+      <div class="frow"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex">📷 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
+      <div class="frow"><span>署名</span><input id="fbAuthor" maxlength="20" placeholder="如：丰镇站·李闯"></div>
+      <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="fbPost()">发布</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 更新数据 模态框 -->
+<div class="um-mask" id="upMask" style="display:none">
+  <div class="um-modal">
+    <div class="um-head"><h3>📤 更新看板数据</h3><button class="um-x" onclick="closeUpModal()">✕</button></div>
+    <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → 下载新数据文件 → 替换部署目录的 <b>dash_data.js</b> 重新发布。全程本机处理，数据不上传任何服务器。</p>
+    <div class="up-row">
+      <button class="up-btn" id="dlTpl">⬇ 下载模版</button>
+      <label class="up-file">📂 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls,.csv"></label>
+      <button class="up-btn" id="dashParse">解析并预览</button>
+      <button class="up-btn" id="dashDl" disabled>⬇ 下载新 dash_data.js</button>
+    </div>
+    <div class="up-msg" id="dashUpMsg"></div>
+    <div class="um-note">模版格式与「6月扬帆计划数据汇总.xlsx」一致：<b>sheet 名字就是月份</b>（如「8月」，改一下模版 sheet 名即可）；列头保持 报名人数/面试人数/入营人数 等不动；站名可带空格，自动识别。上传哪个月，看板月份切换就多哪个月，并自动切到该月展示；也可以单月传，不强制要求两个月一起。</div>
+  </div>
+</div>
+
+</div>
+<footer>扬帆计划运营中枢 · 同路生物</footer>
+
+<script>
+/* ===== 通用：离线 Excel 生成（优先 SheetJS，失败用内置最小写入器） ===== */
+function crc32(buf){let c=~0;for(let i=0;i<buf.length;i++){c^=buf[i];for(let k=0;k<8;k++)c=(c>>>1)^(0xEDB88320&-(c&1));}return ~c>>>0;}
+function zipStore(files){ // files:[{name,data:string}]
+  const enc=s=>new TextEncoder().encode(s);
+  let parts=[],central=[],offset=0;
+  for(const f of files){
+    const d=enc(f.data);const crc=crc32(d);const len=d.length;
+    const lh=`PK\x03\x04\x0a\x00\x00\x00\x00\x00`+u32(len)+u32(len)+u32(crc)+u32(f.name.length)+'\x00\x00'+f.name;
+    const lhB=enc(lh);
+    parts.push(lhB);parts.push(d);
+    const cd=`PK\x01\x02\x14\x00\x0a\x00\x00\x00\x00\x00`+u32(len)+u32(len)+u32(crc)+u32(f.name.length)+'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'+u32(offset)+f.name;
+    central.push(enc(cd));
+    offset+=lhB.length+len;
+  }
+  let cen=offset,cdsize=0;const cbuf=[];
+  for(const c of central){cbuf.push(c);cdsize+=c.length;}
+  const eo=`PK\x05\x06\x00\x00\x00\x00`+u16(files.length)+u16(files.length)+u32(cdsize)+u32(cen)+'\x00\x00';
+  const all=[...parts,...cbuf,enc(eo)];
+  let total=all.reduce((a,b)=>a+b.length,0);
+  const out=new Uint8Array(total);let p=0;for(const b of all){out.set(b,p);p+=b.length;}
+  return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  function u32(n){return String.fromCharCode(n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255);}
+  function u16(n){return String.fromCharCode(n&255,(n>>>8)&255);}
+}
+function minimalXLSX(sheets){ // sheets:[{name,rows:[[..]]}]
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')+'</Types>';
+  const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+  const wb=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheets>${sheets.map((s,i)=>`<sheet name="${esc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`;
+  const wrels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}</Relationships>`;
+  const style='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>';
+  const sheetXml=sheets.map((s,i)=>{
+    const rows=s.rows.map((r,ri)=>`<row r="${ri+1}">${r.map((c,ci)=>{const ref=colL(ci)+(ri+1);const bold=(ri===0)?' s="1"':'';return `<c r="${ref}"${bold} t="inlineStr"><is><t xml:space="preserve">${esc(c)}</t></is></c>`;}).join('')}</row>`).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rows}</sheetData></worksheet>`;
+  });
+  const files=[{name:'[Content_Types].xml',data:ct},{name:'_rels/.rels',data:rels},{name:'xl/workbook.xml',data:wb},{name:'xl/_rels/workbook.xml.rels',data:wrels},{name:'xl/styles.xml',data:style}];
+  sheets.forEach((s,i)=>files.push({name:`xl/worksheets/sheet${i+1}.xml`,data:sheetXml[i]}));
+  return zipStore(files);
+}
+function colL(n){let s='';while(n>=0){s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26)-1;}return s;}
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
+function exportXLSX(name,sheets){
+  if(typeof XLSX!=='undefined'){
+    try{const wb=XLSX.utils.book_new();sheets.forEach(s=>XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s.rows),s.name));XLSX.writeFile(wb,name);return true;}catch(e){}
+  }
+  downloadBlob(minimalXLSX(sheets),name);return false;
+}
+
+/* ============ 学习系统数据（图书式 + 深度 + 敏捷管理） ============ */
+const FIG={
+  matrix:`<svg viewBox="0 0 420 340"><rect x="20" y="20" width="380" height="300" fill="#fff" stroke="#cdddec"/><line x1="210" y1="20" x2="210" y2="320" stroke="#cdddec"/><line x1="20" y1="170" x2="400" y2="170" stroke="#cdddec"/><text x="215" y="38" fill="#5b7187" font-size="11">高权力</text><text x="215" y="312" fill="#5b7187" font-size="11">低权力</text><text x="28" y="165" fill="#5b7187" font-size="11">低利益</text><text x="330" y="165" fill="#5b7187" font-size="11">高利益</text>
+  <rect x="230" y="35" width="80" height="50" rx="6" fill="#13315c" fill-opacity=".15" stroke="#13315c"/><text x="270" y="64" font-size="11" fill="#0b2545" text-anchor="middle">重点管理·站长</text>
+  <rect x="230" y="195" width="80" height="50" rx="6" fill="#2a9d8f" fill-opacity=".15" stroke="#2a9d8f"/><text x="270" y="224" font-size="11" fill="#0f7b6c" text-anchor="middle">随时告知·家长</text>
+  <rect x="60" y="35" width="80" height="50" rx="6" fill="#c8a04b" fill-opacity=".2" stroke="#c8a04b"/><text x="100" y="64" font-size="11" fill="#7a5c10" text-anchor="middle">令其满意·监管</text>
+  <rect x="60" y="195" width="80" height="50" rx="6" fill="#e8f1f8" stroke="#cdddec"/><text x="100" y="224" font-size="11" fill="#5b7187" text-anchor="middle">监督·周边</text></svg>`,
+  wbs:`<svg viewBox="0 0 420 260"><rect x="20" y="20" width="120" height="34" rx="6" fill="#0b2545"/><text x="80" y="42" fill="#fff" font-size="12" text-anchor="middle">扬帆计划</text>
+  <line x1="80" y1="54" x2="80" y2="80" stroke="#cdddec"/><line x1="80" y1="80" x2="380" y2="80" stroke="#cdddec"/>
+  <g font-size="11"><rect x="40" y="84" width="90" height="30" rx="5" fill="#13315c" fill-opacity=".12" stroke="#13315c"/><text x="85" y="103" fill="#0b2545" text-anchor="middle">招募线</text>
+  <rect x="150" y="84" width="90" height="30" rx="5" fill="#13315c" fill-opacity=".12" stroke="#13315c"/><text x="195" y="103" fill="#0b2545" text-anchor="middle">培训线</text>
+  <rect x="260" y="84" width="90" height="30" rx="5" fill="#13315c" fill-opacity=".12" stroke="#13315c"/><text x="305" y="103" fill="#0b2545" text-anchor="middle">家长线</text>
+  <line x1="85" y1="114" x2="85" y2="140"/><rect x="40" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#cdddec"/><text x="85" y="162" text-anchor="middle">触达/面试</text>
+  <line x1="195" y1="114" x2="195" y2="140"/><rect x="150" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#cdddec"/><text x="195" y="162" text-anchor="middle">技能模块</text>
+  <line x1="305" y1="114" x2="305" y2="140"/><rect x="260" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#cdddec"/><text x="305" y="162" text-anchor="middle">社群/播报</text></g></svg>`,
+  risk:`<svg viewBox="0 0 420 320"><rect x="20" y="20" width="380" height="280" fill="#fff" stroke="#cdddec"/><line x1="210" y1="20" x2="210" y2="300" stroke="#cdddec"/><line x1="20" y1="160" x2="400" y2="160" stroke="#cdddec"/>
+  <text x="215" y="38" fill="#5b7187" font-size="11">高概率</text><text x="28" y="155" fill="#5b7187" font-size="11">低影响</text><text x="330" y="155" fill="#5b7187" font-size="11">高影响</text>
+  <circle cx="300" cy="70" r="22" fill="#c2410c" fill-opacity=".2" stroke="#c2410c"/><text x="300" y="74" font-size="10" fill="#c2410c" text-anchor="middle">舆情</text>
+  <circle cx="305" cy="240" r="18" fill="#c8a04b" fill-opacity=".25" stroke="#c8a04b"/><text x="305" y="244" font-size="10" fill="#7a5c10" text-anchor="middle">招募</text>
+  <circle cx="110" cy="90" r="16" fill="#2a9d8f" fill-opacity=".2" stroke="#2a9d8f"/><text x="110" y="94" font-size="10" fill="#0f7b6c" text-anchor="middle">安全</text>
+  <circle cx="100" cy="245" r="14" fill="#e8f1f8" stroke="#cdddec"/><text x="100" y="249" font-size="9" fill="#5b7187" text-anchor="middle">物料</text></svg>`,
+  sprint:`<svg viewBox="0 0 460 220"><rect x="10" y="20" width="100" height="170" rx="6" fill="#e8f1f8" stroke="#cdddec"/><text x="60" y="38" font-size="11" fill="#0b2545" text-anchor="middle">产品待办</text><text x="60" y="70" font-size="9" fill="#5b7187" text-anchor="middle">招募</text><text x="60" y="92" font-size="9" fill="#5b7187" text-anchor="middle">培训</text><text x="60" y="114" font-size="9" fill="#5b7187" text-anchor="middle">义卖</text><text x="60" y="136" font-size="9" fill="#5b7187" text-anchor="middle">复盘</text>
+  <rect x="130" y="20" width="100" height="170" rx="6" fill="#13315c" fill-opacity=".1" stroke="#13315c"/><text x="180" y="38" font-size="11" fill="#0b2545" text-anchor="middle">冲刺待办</text><text x="180" y="70" font-size="9" fill="#5b7187" text-anchor="middle">本周动作</text><text x="180" y="92" font-size="9" fill="#5b7187" text-anchor="middle">每日站会</text>
+  <rect x="250" y="20" width="100" height="170" rx="6" fill="#fff" stroke="#cdddec"/><text x="300" y="38" font-size="11" fill="#0b2545" text-anchor="middle">进行中</text><text x="300" y="70" font-size="9" fill="#5b7187" text-anchor="middle">执行</text>
+  <rect x="370" y="20" width="78" height="170" rx="6" fill="#2a9d8f" fill-opacity=".15" stroke="#2a9d8f"/><text x="409" y="38" font-size="11" fill="#0f7b6c" text-anchor="middle">增量</text><text x="409" y="70" font-size="9" fill="#0f7b6c" text-anchor="middle">每期</text><text x="409" y="92" font-size="9" fill="#0f7b6c" text-anchor="middle">成果</text>
+  <path d="M110 105 L130 105 M230 105 L250 105 M350 105 L370 105" stroke="#3a6ea5" stroke-width="2"/></svg>`
+};
+const MODULES=[
+ {grp:"导论", id:"why", title:"为什么项目负责人需要项目化思维", html:`
+  <div class="book"><div class="fig">${FIG.matrix}<div class="cap">图 导-1　项目 vs 运营：扬帆是「项目」</div></div>
+  <div>
+  <h3>一、扬帆计划本质上是个「项目」<span class="tag-book">原书要点</span></h3>
+  <p>PMP 把工作分成两类：<b>运营</b>（重复、持续、追求稳定，如浆站日常采浆）和<b>项目</b>（临时、独特、有明确起止与目标，如寒暑假社会实践营）。扬帆每年重启、目标随县情变、干系人临时组合——这正是项目的典型特征。</p>
+  <div class="kv"><b>为什么事业部要写年度策略：</b>项目负责人多由业务骨干兼任，平时在做「运营思维」的事（把活干完），但项目需要「项目化思维」——先定目标与范围、再排干系人与节奏、过程盯偏差、结束做验收复盘。没人天然会，所以事业部把打法写成策略下发，等于给项目补「整合管理」。</div>
+  <div class="case"><span class="who">真实痛点：</span>半年度材料里多家站写「统筹弱、闷头干、想到哪做到哪」。这就是缺项目化思维的典型表现——有热情没框架，年底说不清成效。</div>
+  <p><b>本学习系统定位：</b>不教你考 PMP 证，而是把 PMP 当成「把扬帆干漂亮」的操作手册。下面按<b>五大过程组</b>搭主线，按<b>十大知识领域</b>拆知识点，并补一章<b>敏捷管理</b>，每个都配图解＋扬帆实况＋真实标杆＋自测。</p>
+  </div></div>
+ `},
+ {grp:"五大过程组", id:"pg", title:"主线：扬帆全程的五大过程组", html:`
+  <div class="book"><div class="fig">${FIG.wbs}<div class="cap">图 主-1　过程组与一条线工具包对应</div></div>
+  <div>
+  <h3>二、把扬帆一年拆成 PMP 五大过程组</h3>
+  <div class="kv"><b>① 启动：</b>立项章程＋干系人识别。扬帆对应：定本年目标（覆盖53站/5000+人）、识别站长/部门/团委/学校/家长/学生/监管、明确「零公司资金、权益绑定」硬约束。</div>
+  <div class="kv"><b>② 规划：</b>范围/进度/成本/质量/风险计划。扬帆对应：一条线工具包即范围基准；寒暑假运营周期排期；权益绑定预算；两层签署同意书；舆情/安全/招募不达标风险登记。</div>
+  <div class="kv"><b>③ 执行：</b>按计划落地。扬帆对应：招募、入营培训、日常活动、家长社群、每日播报，及五河义卖/凤台面试等创新。</div>
+  <div class="kv"><b>④ 监控：</b>盯偏差、纠偏。扬帆对应：周数据看板、招募转化漏斗、舆情监测、灵璧式双向复盘。</div>
+  <div class="kv"><b>⑤ 收尾：</b>验收＋归档。扬帆对应：青春答卷、结营仪式、成长记录（工具包5）、复盘、经验入库。</div>
+  <div class="case"><span class="who">标杆对照：</span>怀远把「收尾」做成青春答卷＋小组长制，等于用 PMP 收尾的「验收+移交」思路，让成果可量化、可传承。</div>
+  </div></div>
+ `},
+ {grp:"知识领域①", id:"ka1", title:"整合管理：年度方案怎么把各线拧成一股", html:`
+  <h3>三-1 整合管理（Integration）</h3>
+  <p><b>原书要点：</b>整合管理是「让各部分协调一致」。核心过程：制定项目章程、制定项目管理计划、指导与管理执行、管理整体变更、结束项目。输出是一份统领全局的计划，所有子计划（范围/进度/成本…）都挂它下面。</p>
+  <div class="kv"><b>扬帆运营对照：</b>你写的年度策略 = 项目章程＋管理计划。一条线工具包（5个）就是被整合进来的子计划：沟通风控线、培训内容线、视觉物料线、运营考核线、成长记录线。负责人的活，是把这5条线按本县节奏拧成一张执行表。</div>
+  <div class="case"><span class="who">真实场景：</span>商都站做 100人/4期，每期25人，积分+现金双轨——把「范围（招多少人）+ 资源（激励）+ 进度（4期）」整合进一张计划，而非各干各的。</div>
+  <div class="quiz" data-ok="2"><b>自测：</b>站长说「扬帆你定就行」，但真到协调场地和部门时不拍板。根因最接近？
+    <button class="opt" data-v="0">站长不重视，应该换人</button>
+    <button class="opt" data-v="1">学生不配合，加强管理</button>
+    <button class="opt" data-v="2">缺整合管理：章程没写清站长权责与决策机制，干系人参与计划缺失</button>
+    <div class="fb">把「你定就行」当成授权，但章程里没写清站长在哪些节点必须拍板、资源怎么调。这是整合+干系人双缺失，不是人不行。</div></div>
+ `},
+ {grp:"知识领域②", id:"ka2", title:"范围管理：一条线工具包就是范围基准", html:`
+  <h3>三-2 范围管理（Scope）</h3>
+  <p><b>原书要点：</b>范围管理=「做且只做该做的事」。过程：规划范围、收集需求、定义范围、创建 WBS、确认与控制范围。核心是<b>范围基准</b>和防<b>范围蔓延</b>（scope creep：不停加任务却不加人不加钱）。</p>
+  <div class="kv"><b>扬帆运营对照：</b>一条线工具包 = 范围基准，定义了「扬帆计划该含哪些动作」。半年度常见问题是范围蔓延：县里临时加慰问、加汇演，执行层照单全收，主线（招募+培训+家长穿透）被稀释。</div>
+  <div class="case"><span class="who">真实场景：</span>凤台站用「多元化面试」把选拔做成明确范围（不是谁来都收），等于用范围管理的「定义范围+验收标准」控入口质量。</div>
+  <div class="quiz" data-ok="1"><b>自测：</b>县团委临时要求加大型汇演，你判断？
+    <button class="opt" data-v="0">直接答应，关系重要</button>
+    <button class="opt" data-v="1">评估是否影响主线范围与资源，走变更控制再定</button>
+    <button class="opt" data-v="2">拒绝，坚持原计划</button>
+    <div class="fb">范围管理不否认变更，而是先评估对范围/进度/成本影响，再走变更控制。盲目答应=蔓延，盲目拒绝=丢关系。</div></div>
+ `},
+ {grp:"知识领域③", id:"ka3", title:"进度管理：寒暑假运营周期的关键里程碑", html:`
+  <h3>三-3 进度管理（Schedule）</h3>
+  <p><b>原书要点：</b>定义活动、排序、估算工期、制定进度计划、控制进度。工具：里程碑图、关键路径法（CPM）、滚动式规划。假期项目最怕冷启动——前两周没动静，后面追不回。</p>
+  <div class="kv"><b>扬帆运营对照：</b>寒暑假是硬窗口。关键里程碑：招募截止→入营培训→首场活动→中期复盘→结营。招募必须前置到假期开始前（暑期借高考后/毕业季流量，寒假借学期末/春节前流量）。</p>
+  <div class="case"><span class="who">真实场景：</span>多家成熟度偏低站「想到哪做到哪」，缺里程碑图，导致招募启动晚、入营即慌。标杆站都把招募前置到5-6月。</div>
+  <div class="quiz" data-ok="0"><b>自测：</b>假期运营过半才发现招募只完成一半，优先？
+    <button class="opt" data-v="0">立即启动赶工/快速跟进（加渠道、并行活动），并向上预警偏差</button>
+    <button class="opt" data-v="1">照常推进，指望后面补</button>
+    <button class="opt" data-v="2">下调目标，不声张</button>
+    <div class="fb">进度控制核心是「早发现偏差、早纠偏、早预警」。闷头调标不报，是监控失效。</div></div>
+ `},
+ {grp:"知识领域④", id:"ka4", title:"成本管理：零公司资金的权益绑定模式", html:`
+  <h3>三-4 成本管理（Cost）</h3>
+  <p><b>原书要点：</b>规划成本、估算成本、制定预算、控制成本。关键：项目约束往往不是「没钱就别干」，而是「在给定约束下找最优解」。</p>
+  <div class="kv"><b>扬帆运营对照：</b>你明确「无公司资金投入」，靠<b>权益绑定</b>（学分/实践证明/荣誉/小额激励）撬动资源。商都的积分+现金双轨、五河义卖创收，都是「低成本撬动」的真实打法。</div>
+  <div class="case"><span class="who">真实场景：</span>商都用积分+现金双轨把激励成本压在可控区间又保住参与；五河义卖让活动自造血，减少纯支出。</div>
+  <div class="quiz" data-ok="1"><b>自测：</b>「零公司资金」意味着？
+    <button class="opt" data-v="0">不花钱、能省则省</button>
+    <button class="opt" data-v="1">在零现金投入约束下，用权益绑定/自造血找替代资源</button>
+    <button class="opt" data-v="2">全部让家长承担</button>
+    <div class="fb">约束管理不是「不花」，是「换来源」。权益绑定+自造血才是真解法。</div></div>
+ `},
+ {grp:"知识领域⑤", id:"ka5", title:"质量管理：两层签署是质量门槛", html:`
+  <h3>三-5 质量管理（Quality）</h3>
+  <p><b>原书要点：</b>规划质量、管理质量、控制质量。质量≠「做得漂亮」，是「符合事先定的验收标准」。工具：核对单、质量测量指标。</p>
+  <div class="kv"><b>扬帆运营对照：</b>工具包1的<b>两层签署同意书</b>（家长+学生）就是质量门槛——没签的不入营，从源头控安全与合规。培训内容线（工具包2）的技能模块是交付质量，青春答卷（工具包5）是成果质量验收。</p>
+  <div class="case"><span class="who">真实场景：</span>怀远「青春答卷」把结营成果变成可验收作品，而非一场演出完事——收尾验收思路保质量。</div>
+  <div class="quiz" data-ok="2"><b>自测：</b>家长没签同意书但孩子已到现场，怎么办？
+    <button class="opt" data-v="0">先入营，后补签</button>
+    <button class="opt" data-v="1">让家长发微信口头同意</button>
+    <button class="opt" data-v="2">严格执行质量门槛，未签不入营，现场补办签署</button>
+    <div class="fb">质量管理的核对单（签署）是硬门槛，跳步即违规风险。合规优先于便利。</div></div>
+ `},
+ {grp:"知识领域⑥", id:"ka6", title:"资源管理：团队与学生志愿者怎么用", html:`
+  <h3>三-6 资源管理（Resource）</h3>
+  <p><b>原书要点：</b>规划/获取/建设/管理团队，以及实物资源。难点：人员是跨岗兼任、靠「责任分配矩阵（RAM）」把事落到人。</p>
+  <div class="kv"><b>扬帆运营对照：</b>项目负责人多由业务骨干兼任，执行靠部门同事+学生志愿者。传统做法是「安排谁去讲堂课」——人到了但无责。PMP 要求把角色责任写清。</p>
+  <div class="case"><span class="who">真实场景：</span>怀远「小组长制」把学生变成有责任的执行角色（RAM 思路）；灵璧「双向复盘」让员工有产出要求。把执行层设计成有责角色，资源才用得动。</div>
+  <div class="quiz" data-ok="0"><b>自测：</b>部门同事总「答应但不落地」，根因？
+    <button class="opt" data-v="0">没写清责任分配矩阵，角色有责无权/有责无激励</button>
+    <button class="opt" data-v="1">同事能力差</button>
+    <button class="opt" data-v="2">你盯得不够紧</button>
+    <div class="fb">资源管理的 RAM 没建，责任浮在空中。用小组长制/复盘产出要求把责任固化，比「多盯」有效。</div></div>
+ `},
+ {grp:"知识领域⑦", id:"ka7", title:"沟通管理：家长穿透线与每日播报", html:`
+  <h3>三-7 沟通管理（Communication）</h3>
+  <p><b>原书要点：</b>规划沟通、管理沟通、监督沟通。核心：<b>谁需要在什么时间、用什么方式、收到什么信息</b>。沟通计划是项目成败关键。</p>
+  <div class="kv"><b>扬帆运营对照：</b>工具包1「家长穿透线」=沟通计划：家长群分层、每日播报×5、舆情口径。把「让家长放心」变成固定节奏动作，而非出事才解释。</p>
+  <div class="case"><span class="who">真实场景：</span>五河把义卖做成家长可参与社群活动，沟通从单向通知变双向参与，穿透力最强。多数站家长端都做了，差别在是否成体系节奏。</div>
+  <div class="quiz" data-ok="1"><b>自测：</b>家长群只在出舆情时才发言，平时静默。问题？
+    <button class="opt" data-v="0">家长不爱看，正常</button>
+    <button class="opt" data-v="1">缺日常沟通计划（每日播报节奏），信任没在平时建</button>
+    <button class="opt" data-v="2">群太多，合并即可</button>
+    <div class="fb">沟通管理要「平时建信任、出事才不慌」。静默群=没沟通计划，舆情来了才解释已晚。</div></div>
+ `},
+ {grp:"知识领域⑧", id:"ka8", title:"风险管理：舆情/安全/招募不达标", html:`
+  <div class="book"><div class="fig">${FIG.risk}<div class="cap">图 三-8　扬帆高频风险矩阵</div></div>
+  <div>
+  <h3>三-8 风险管理（Risk）</h3>
+  <p><b>原书要点：</b>规划风险管理、识别、定性/定量分析、应对、监督。工具：风险登记册、概率影响矩阵。原则：风险要<b>前置</b>识别，不是出事救火。</p>
+  <div class="kv"><b>扬帆运营对照：</b>三类高频风险——①舆情（献浆误解/活动质疑）②安全（未成年学员外出）③招募不达标（窗口错失）。工具包1舆情关键词清单、两层签署，都是<b>前置</b>应对。</p>
+  <div class="case"><span class="who">真实场景：</span>你曾因舆情管控收紧招募节奏——风险已实质发生。标杆做法是把舆情口径、安全预案写进启动阶段，而非暑期才补。</div>
+  <div class="quiz" data-ok="2"><b>自测：</b>最该在何时做风险登记？
+    <button class="opt" data-v="0">出事后复盘时</button>
+    <button class="opt" data-v="1">执行中每周</button>
+    <button class="opt" data-v="2">启动/规划阶段就建登记册，执行中持续更新</button>
+    <div class="fb">风险管理前置：启动阶段识别+规划应对，执行中监督。事后登记=马后炮。</div></div>
+  </div></div>
+ `},
+ {grp:"知识领域⑨", id:"ka9", title:"采购管理：基本无采购怎么管", html:`
+  <h3>三-9 采购管理（Procurement）</h3>
+  <p><b>原书要点：</b>规划采购、实施采购、控制采购、结束采购。即便「基本不采购」，也要管理<b>外部资源</b>（场地、物料、合作方）。</p>
+  <div class="kv"><b>扬帆运营对照：</b>零公司资金下，采购管理变成「找免费/低成本外部资源」：学校场地、团委渠道、物料义卖自筹。重点是合作方权责写清（谁来、提供什么、风险谁担）。</p>
+  <div class="case"><span class="who">真实场景：</span>五河义卖借商户/家长资源办活动，本质是「以合作替代采购」。合同未必是纸，权责要说清。</div>
+  <div class="quiz" data-ok="0"><b>自测：</b>和商户合作办义卖，最重要的是？
+    <button class="opt" data-v="0">书面/口头写清各自权责与风险边界</button>
+    <button class="opt" data-v="1">谁出钱谁说了算</button>
+    <button class="opt" data-v="2">现场灵活处理</button>
+    <div class="fb">采购/合作管理核心是权责清晰。零资金也要防「合作变包袱」。</div></div>
+ `},
+ {grp:"知识领域⑩", id:"ka10", title:"干系人管理：家长/站长/学生怎么排", html:`
+  <div class="book"><div class="fig">${FIG.matrix}<div class="cap">图 三-10　干系人权力/利益矩阵</div></div>
+  <div>
+  <h3>三-10 干系人管理（Stakeholder）</h3>
+  <p><b>原书要点：</b>识别、规划参与、管理参与、监督参与。工具：<b>权力/利益矩阵</b>。核心是「把我的项目变成他的利益」。</p>
+  <div class="kv"><b>扬帆运营对照：</b>干系人图谱——家长（高利益中权力，怕安全/影响学习）、站长（高权中利，暑期忙）、部门同事（中权中利，兼任）、团委/学校（中权高渠道）、学生（高利益，既是客户也是执行者）、监管（高权，合规红线）。</p>
+  <div class="case"><span class="who">四个真实标杆：</span>①五河义卖——家长从阻力变参与；②凤台多元化面试——学生从管理对象变选拔对象；③灵璧双向复盘——员工有产出要求；④怀远小组长制——给学生有责角色。四家都在用「分层+常态触达+赋予角色」。</div>
+  <div class="quiz" data-ok="1"><b>自测：</b>家长群出现「献浆伤身体」质疑，按矩阵优先？
+    <button class="opt" data-v="0">删帖了事</button>
+    <button class="opt" data-v="1">高利益干系人，用工具包1舆情口径+真实科普常态触达，转阻力为参与</button>
+    <button class="opt" data-v="2">上报等指示</button>
+    <div class="fb">家长是高利益干系人，靠删帖/等指示都错。用既定口径+常态科普，才是参与式管理。</div></div>
+  </div></div>
+ `},
+ {grp:"深度专题", id:"agile", title:"敏捷管理：预测型/敏捷型/混合型怎么选", html:`
+  <div class="book"><div class="fig">${FIG.sprint}<div class="cap">图 专-1　Scrum 看板：待办→冲刺→进行中→增量</div></div>
+  <div>
+  <h3>专题　敏捷管理（Agile）——你学 PMP 时最该补的一块</h3>
+  <p><b>原书要点：</b>PMP 第七版强调「因材施策」。三种生命周期：<b>预测型</b>（范围固定、计划驱动，如盖楼）、<b>敏捷型</b>（小步快跑、拥抱变化，如软件开发）、<b>混合型</b>（关键部分预测、执行部分敏捷）。敏捷核心是 Scrum 框架。</p>
+  <div class="kv"><b>Scrum 三角色：</b>产品负责人（PO，定优先级）= 项目负责人；ScrumMaster（保流程）= 带教教练；开发团队（自组织）= 学生+部门同事。<br><b>三大工件：</b>产品待办清单（招募/活动 backlog）、冲刺待办（本周动作）、增量（每期可交付成果）。<br><b>五大事件：</b>冲刺（扬帆以「周」为冲刺）、每日站会（= 每日播报）、冲刺评审（阶段成果）、冲刺回顾（= 灵璧双向复盘）、待办梳理。</div>
+  <div class="kv"><b>扬帆运营对照（为什么它是混合型）：</b>年度目标/范围用<b>预测型</b>（章程+工具包基准，不能乱变）；但寒暑假执行高度不确定（招募波动、天气、舆情），用<b>敏捷型</b>——拆成周冲刺、每日站会式播报、每期出增量、定期回顾调整。怀远小组长制=自组织团队；灵璧双向复盘=冲刺回顾；五河义卖=中途拥抱变化的增量交付。</div>
+  <div class="case"><span class="who">怎么用：</span>负责人别死守年度计划。计划是「基准」不是「圣旨」——执行中用每日站会看偏差、用回顾会调下一周动作，这正是敏捷思维。预测保方向，敏捷保落地。</div>
+  <div class="quiz" data-ok="1"><b>自测：</b>招募启动后连遇雨天+舆情，原周计划全乱，正确做法？
+    <button class="opt" data-v="0">硬按原计划执行，体现执行力</button>
+    <button class="opt" data-v="1">开每日站会看偏差，定期回顾会调下一周冲刺（敏捷应对），但年度目标基线不动（预测保方向）</button>
+    <button class="opt" data-v="2">放弃计划，随机行事</button>
+    <div class="fb">混合型精髓：基线（预测）保方向，冲刺（敏捷）保落地。乱了就回顾调整，不是死扛也不是乱跑。</div></div>
+  </div></div>
+ `},
+ {grp:"深度专题", id:"change", title:"变更与冲突：项目负责人的日常硬仗", html:`
+  <h3>专题　变更管理与冲突领导力</h3>
+  <p><b>原书要点：</b>变更管理是整合管理的一部分：任何变更走「提出→影响分析→CCB/负责人审批→更新基准→通知」流程，禁止口头随意改。冲突管理有五种解法：撤退/缓和/妥协/强迫/合作（最优是合作/解决问题）。</p>
+  <div class="kv"><b>扬帆运营对照：</b>县里、站长、家长随时提新想法（加活动、改时间）。不接=关系僵，全接=范围蔓延。正确做法：建简易变更登记，评估对范围/进度/成本影响再定。冲突多在「谁拍板、资源给谁」——用合作式（摆数据、对目标）而非强迫。</p>
+  <div class="case"><span class="who">真实场景：</span>站长不拍板、部门「答应不落地」，本质是责任与决策机制没在启动时写清（整合+冲突双缺）。拿年度策略当基准，把决策节点和 RAM 写进计划，冲突就有据可依。</div>
+  <div class="quiz" data-ok="2"><b>自测：</b>站长临时要改结营形式，你应？
+    <button class="opt" data-v="0">马上改，领导满意重要</button>
+    <button class="opt" data-v="1">直接拒，按计划来</button>
+    <button class="opt" data-v="2">记变更、评影响（成本/合规/家长）、报决策节点审批后更新基准</button>
+    <div class="fb">变更走流程不是推诿，是保护项目也保护关系。评估影响+走审批，才是专业。</div></div>
+ `},
+ {grp:"收口", id:"cap", title:"能力收口：合格负责人要会的三件事", html:`
+  <h3>四、学完这些，项目负责人日常就三件事</h3>
+  <p>① <b>开工前画清楚</b>：目标（范围）+ 干系人矩阵 + 8周里程碑 + 风险登记。别「想到哪做到哪」。</p>
+  <p>② <b>执行中盯偏差</b>：周看板、漏斗、舆情，早预警早纠偏；用每日站会+定期回顾（敏捷）调节奏。</p>
+  <p>③ <b>收尾做验收</b>：青春答卷/成长记录量化成果，复盘入库。别「演完就散」。</p>
+  <div class="case"><span class="who">一句话：</span>PMP 不是让你变官僚，是给你一套「把热情翻译成结果」的框架。预测保方向、敏捷保落地，各家标杆（五河/凤台/灵璧/怀远）本质都是把这框架用活了。</div>
+  <p class="muted">学完可去「③ 训战机器人」做新人接手演练，或去「② 效率工厂」直接产出方案/PPT/Excel/在线收集表。</p>
+ `}
+];
+
+/* ============ 渲染学习系统 ============ */
+let curMod=null;
+function buildToc(){const t=document.getElementById('toc');let html='',last=null;
+  MODULES.forEach(m=>{if(m.grp!==last){html+=`<div class="grp">${m.grp}</div>`;last=m.grp;}
+    html+=`<a data-id="${m.id}">${m.title}</a>`;});
+  t.innerHTML=html;t.querySelectorAll('a').forEach(a=>a.onclick=()=>showMod(a.dataset.id));}
+function showMod(id){const m=MODULES.find(x=>x.id===id);if(!m)return;curMod=id;
+  document.querySelectorAll('#toc a').forEach(a=>a.classList.toggle('on',a.dataset.id===id));
+  const v=document.getElementById('modView');v.innerHTML=`<div class="card mod">${m.html}</div>`;
+  v.querySelectorAll('.quiz').forEach(q=>bindQuiz(q));v.scrollIntoView({behavior:'smooth',block:'start'});}
+function bindQuiz(q){const ok=+q.dataset.ok;const fb=q.querySelector('.fb');
+  q.querySelectorAll('.opt').forEach(b=>{b.onclick=()=>{if(q.dataset.done)return;q.dataset.done=1;const v=+b.dataset.v;
+    q.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+    if(v===ok){b.classList.add('ok');fb.className='fb good show';fb.textContent='✓ 答对了。'+fb.textContent;}
+    else{b.classList.add('no');q.querySelectorAll('.opt')[ok].classList.add('ok');fb.className='fb bad show';fb.textContent='✗ 正确思路：'+fb.textContent;}};});}
+
+/* ============ 效率工厂：PPT生成（专业版） ============ */
+/* ============ 智能PPT引擎（图文混排+自适应排版） ============ */
+var _pptImages=[];
+function pptAddImages(inp){
+  const files=inp.files;if(!files.length)return;
+  Array.from(files).forEach(f=>{
+    if(f.size>5*1024*1024){alert(f.name+' 超过5MB，PPT图片建议控制在2MB以内');return;}
+    const rd=new FileReader();
+    rd.onload=function(){_pptImages.push({name:f.name,data:rd.result});renderPptImgs();};
+    rd.readAsDataURL(f);
+  });
+  inp.value='';
+}
+function renderPptImgs(){
+  const c=document.getElementById('pptImgPreview');
+  const cnt=document.getElementById('pptImgCount');
+  if(!c)return;
+  c.innerHTML=_pptImages.map(function(img,i){return '<div class="fb-rimg"><img src="'+img.data+'"><button class="rm-btn" onclick="pptRmImg('+i+')">&times;</button></div>';}).join('');
+  if(cnt)cnt.textContent=_pptImages.length?'已选 '+_pptImages.length+' 张':'';
+}
+function pptRmImg(i){_pptImages.splice(i,1);renderPptImgs();}
+
+function genPPT(){
+  var out=document.getElementById('pptOut');
+  var btn=document.querySelector('button[onclick="genPPT()"]');
+  if(typeof PptxGenJS==='undefined'){out.textContent='PPT 组件未加载。请通过运营中枢服务或 GitHub Pages 打开。';return;}
+  out.textContent='正在生成…';btnBusy(btn,true,'生成中…');
+  setTimeout(function(){
+    try{
+      var p=new PptxGenJS();p.layout='LAYOUT_16x9';
+      var C={navy:'0B2545',blue:'13315C',cyan:'2A9D8F',gold:'C8A04B',ink:'#1E293B',white:'#FFFFFF',muted:'#64748B',ice:'#F0F5FA'};
+      var tpl=document.getElementById('pptTpl').value;
+      var st=(document.getElementById('pptStation').value||'XX浆站').trim();
+      var ow=(document.getElementById('pptOwner').value||'').trim();
+      var goal=(document.getElementById('pptGoal').value||'').trim();
+      var dataStr=(document.getElementById('pptData').value||'').trim();
+      var focusStr=(document.getElementById('pptFocus').value||'').trim();
+      var TITLES={recruit:'招募启动方案',mid:'运营中期进展',close:'结营成果总结',train:'负责人培训课件',custom:'工作汇报'};
+      var title=TITLES[tpl]||'汇报';
+      var now=new Date();var dateStr=now.getFullYear()+'.'+(now.getMonth()+1)+'.'+now.getDate();
+
+      var dataItems=dataStr?dataStr.split('\n').map(function(s){return s.trim();}).filter(Boolean):[];
+      var focusItems=focusStr?focusStr.split('\n').map(function(s){return s.trim();}).filter(Boolean):[];
+      var hasGoal=!!goal;var hasData=dataItems.length>=1;var hasFocus=focusItems.length>=1;var hasImage=_pptImages.length>=1;
+
+      /* 封面 */
+      var s1=p.addSlide();
+      s1.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:'100%',fill:{color:C.white}});
+      s1.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:0.06,fill:{color:C.gold}});
+      s1.addShape(p.ShapeType.rect,{x:0,y:'94%',w:'100%',h:'6%',fill:{color:C.navy}});
+      s1.addShape(p.ShapeType.rect,{x:0.35,y:1.3,w:0.06,h:2.8,fill:{color:C.blue}});
+      if(hasImage&&_pptImages[0]){s1.addImage({data:_pptImages[0].data,x:5.2,y:1.2,w:4.2,h:2.8,sizing:{type:'cover',w:4.2,h:2.8},rounding:true});}
+      s1.addText(st,{x:0.7,y:1.5,w:4.4,h:0.9,fontSize:32,color:C.navy,bold:true,fontFace:'Microsoft YaHei'});
+      s1.addText(title,{x:0.7,y:2.4,w:4.4,h:0.6,fontSize:20,color:C.blue,bold:true,fontFace:'Microsoft YaHei'});
+      s1.addShape(p.ShapeType.rect,{x:0.7,y:3.15,w:1.4,h:0.045,fill:{color:C.gold}});
+      s1.addText((ow?'汇报人：'+ow:'')+(ow&&dateStr?'  |  ':'')+(dateStr?dateStr:''),{x:0.7,y:3.4,w:4.4,h:0.4,fontSize:12,color:C.muted});
+      s1.addText('同路生物 · 扬帆计划',{x:0.5,y:'95.5%',w:4,h:0.3,fontSize:10,color:'CCCCCC'});
+      var slideCount=1;
+
+      /* 目标页 */
+      if(hasGoal){
+        var sg=p.addSlide();
+        sg.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:0.05,fill:{color:C.navy}});
+        sg.addShape(p.ShapeType.rect,{x:0,y:0,h:0.05,w:1.0,fill:{color:C.gold}});
+        sg.addText(title,{x:0.35,y:0.01,w:6,h:0.35,fontSize:9,color:C.white,bold:true});
+        sg.addText(st,{x:7.5,y:0.01,w:2,h:0.35,fontSize:8,color:'AAAAAA',align:'right'});
+        sg.addText('核心目标',{x:0.6,y:0.7,w:9,h:0.5,fontSize:22,color:C.navy,bold:true});
+        sg.addShape(p.ShapeType.roundRect,{x:0.6,y:1.4,w:8.8,h:1.6,fill:{color:C.ice},line:{color:'D0DBEA',width:1},rectRadius:0.12});
+        sg.addText(goal,{x:1.0,y:1.65,w:8.0,h:1.1,fontSize:20,color:C.navy,bold:true,valign:'middle',lineSpacingMultiple:1.4});
+        if(hasFocus){
+          sg.addText('本期重点',{x:0.6,y:3.3,w:9,h:0.4,fontSize:14,color:C.blue,bold:true});
+          focusItems.slice(0,4).forEach(function(f,i){
+            sg.addShape(p.ShapeType.rect,{x:0.6,y:3.8+i*0.48,w:0.16,h:0.28,fill:{color:C.gold}});
+            sg.addText(f,{x:0.92,y:3.8+i*0.48,w:8.4,h:0.38,fontSize:13,color:C.ink});
+          });
+        }
+        slideCount++;
+      }
+
+      /* 数据图表页 */
+      if(hasData){
+        var sd=p.addSlide();
+        sd.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:0.05,fill:{color:C.navy}});
+        sd.addShape(p.ShapeType.rect,{x:0,y:0,h:0.05,w:1.0,fill:{color:C.gold}});
+        sd.addText(title,{x:0.35,y:0.01,w:6,h:0.35,fontSize:9,color:C.white,bold:true});
+        sd.addText(st,{x:7.5,y:0.01,w:2,h:0.35,fontSize:8,color:'AAAAAA',align:'right'});
+        sd.addText('关键数据',{x:0.6,y:0.7,w:9,h:0.5,fontSize:22,color:C.navy,bold:true});
+        var labels=[],values=[];
+        dataItems.forEach(function(d){var m=d.match(/^(.+?)[:：]\s*(\d+(?:\.\d+)?%?)$/);if(m){labels.push(m[1]);values.push(parseFloat(m[2])||0);}});
+        if(labels.length>=1){
+          sd.addChart(p.ChartType.bar,[{name:'数据',labels:labels,values:values}],{
+            x:0.6,y:1.4,w:8.8,h:4.0,barDir:'bar',showValue:true,
+            dataLabelPosition:'outEnd',dataLabelFontSize:12,dataLabelFontBold:true,dataLabelColor:C.ink,
+            chartColors:[C.blue],catAxisLabelFontSize:12.5,catAxisLabelColor:C.ink,valAxisMin:0,
+            catGridLine:{style:'none'},valGridLine:{color:C.ice,lineDash:'dash'},barGapWidthPct:40
+          });
+        }
+        slideCount++;
+      }
+
+      /* 要点页 */
+      if(hasFocus){
+        var sf=p.addSlide();
+        sf.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:0.05,fill:{color:C.navy}});
+        sf.addShape(p.ShapeType.rect,{x:0,y:0,h:0.05,w:1.0,fill:{color:C.gold}});
+        sf.addText(title,{x:0.35,y:0.01,w:6,h:0.35,fontSize:9,color:C.white,bold:true});
+        sf.addText(st,{x:7.5,y:0.01,w:2,h:0.35,fontSize:8,color:'AAAAAA',align:'right'});
+        sf.addText(tpl==='close'?'核心成果':tpl==='mid'?'阶段亮点':'重点工作',{x:0.6,y:0.7,w:9,h:0.5,fontSize:22,color:C.navy,bold:true});
+        focusItems.forEach(function(f,i){
+          var yBase=1.4+i*0.85;
+          sf.addShape(p.ShapeType.roundRect,{x:0.6,y:yBase,w:0.12,h:0.56,fill:{color:C.cyan},rectRadius:0.06});
+          sf.addText(String(i+1).padStart(2,'0'),{x:0.6,y:yBase,w:0.12,h:0.56,fontSize:13,color:C.white,bold:true,align:'center',valign:'middle'});
+          sf.addShape(p.ShapeType.roundRect,{x:0.85,y:yBase,w:8.55,h:0.56,fill:{color:C.ice},rectRadius:0.08,line:{color:'E2EAF2',width:0.5}});
+          sf.addText(f,{x:1.05,y:yBase,w:8.15,h:0.56,fontSize:14.5,color:C.ink,valign:'middle'});
+        });
+        if(hasImage&&_pptImages.length>1){sf.addImage({data:_pptImages[1].data,x:6.0,y:3.8,w:3.4,h:1.9,sizing:{type:'cover',w:3.4,h:1.9},rounding:true,shadow:{type:'outer',blur:4,offset:2,angle:45,opacity:0.15}});}
+        slideCount++;
+      }
+
+      /* 图片展示页 */
+      if(hasImage&&_pptImages.length>2){
+        var si=p.addSlide();
+        si.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:0.05,fill:{color:C.navy}});
+        si.addText('活动掠影',{x:0.6,y:0.7,w:9,h:0.5,fontSize:22,color:C.navy,bold:true});
+        var imgCnt=Math.min(_pptImages.length,4);var cols=imgCnt<=2?2:(imgCnt===3?3:2);var rows=Math.ceil(imgCnt/cols);
+        _pptImages.slice(1,1+imgCnt).forEach(function(img,i){
+          var col=i%cols;var row=Math.floor(i/cols);var cw=(9-cols*0.3)/cols;var ch=rows===1?3.8:3.2;
+          si.addImage({data:img.data,x:0.6+col*(cw+0.3),y:1.4+row*(ch+0.2),w:cw,h:ch,sizing:{type:'cover',w:cw,h:ch},rounding:true,shadow:{type:'outer',blur:3,offset:1.5,angle:45,opacity:0.12}});
+        });
+        slideCount++;
+      }
+
+      /* 结束页 */
+      var se=p.addSlide();
+      se.addShape(p.ShapeType.rect,{x:0,y:0,w:'100%',h:'100%',fill:{color:C.navy}});
+      se.addShape(p.ShapeType.rect,{x:0,y:0,w:0.08,h:'100%',fill:{color:C.gold}});
+      se.addText('谢谢',{x:1.0,y:2.2,w:8,h:1.0,fontSize:40,color:C.white,bold:true,fontFace:'Microsoft YaHei'});
+      se.addShape(p.ShapeType.rect,{x:1.0,y:3.3,w:1.6,h:0.045,fill:{color:C.gold}});
+      se.addText(st+' · '+title+' · '+dateStr,{x:1.0,y:3.6,w:8,h:0.45,fontSize:15,color:'AABBCC'});
+      slideCount++;
+
+      p.writeFile({fileName:st+'_'+title+'.pptx'}).then(function(){
+        var pages=['封面'];if(hasGoal)pages.push('目标');if(hasData)pages.push('数据图表');if(hasFocus)pages.push('要点');if(hasImage&&_pptImages.length>2)pages.push('图片');pages.push('结束');
+        out.textContent='✓ 已生成「'+st+'_'+title+'.pptx」（共 '+slideCount+' 页：'+pages.join('\u2192')+'）。基于你填的真实内容自动排版，打开后可直接使用。';
+        btnBusy(btn,false);toast('PPT 已生成：'+st+'_'+title);
+      });
+    }catch(e){out.textContent='生成出错：'+e.message+'\n'+(e.stack||'').slice(0,300);btnBusy(btn,false);}
+  },150);
+}
+function genXLS(){const out=document.getElementById('xlsOut');out.textContent='生成中…';setTimeout(()=>{try{
+  const st=document.getElementById('xlsStation').value;const meta=document.getElementById('xlsMeta').value;const t=document.getElementById('xlsTpl').value;
+  let name='',rows;
+  if(t==='funnel'){name='招募漏斗';rows=[['环节','目标','实际','转化率','说明'],['触达','1200','980','81.7%','校团委/家长群'],['报名','980','420','42.9%','接龙'],['面试','420','260','61.9%','凤台式选拔'],['入营','260','200','76.9%','两层签署后'],['在营','200','190','95.0%','结营验收']];}
+  else if(t==='parent'){name='家长沟通';rows=[['周次','动作','频次','渠道','负责人'],['W1','建群+欢迎','1','家长群','组长'],['W2','安全科普','2','群播报','组长'],['W3','活动邀约','1','群+私信','组长'],['W4','成长播报','5','每日播报','组长'],['W5','开放日','1','线下','站长']];}
+  else if(t==='act'){name='活动清单';rows=[['日期','活动','负责人','物料','验收'],['D1','开营仪式','组长','横幅/证书','签到≥95%'],['D3','义卖','家委会','摊位','自造血'],['D5','面试','部门','评分表','选拔率'],['D7','青春答卷','学员','模板','作品入库']];}
+  else{name='接龙名单';rows=[['序号','姓名','学校','年级','联系电话','可参加时段'],['1','','','','',''],['2','','','','',''],['3','','','','','']];}
+  const ok=exportXLSX(`${st}_${name}.xlsx`,[{name,rows}]);
+  out.textContent='✓ 已生成 '+st+'_'+name+'.xlsx'+(ok?'（组件库渲染）':'（离线最小写入器，可导入腾讯文档在线表格）');
+}catch(e){out.textContent='生成出错：'+e.message;}},120);}
+function genOnline(){const out=document.getElementById('onOut');out.textContent='生成中…';setTimeout(()=>{try{
+  const st=document.getElementById('onStation').value;const meta=document.getElementById('onMeta').value;const t=document.getElementById('onTpl').value;
+  let name='',rows;
+  if(t==='score'){name='学生积分统计';rows=[['序号','姓名','学校/班级','基础分','活动分','义卖分','面试分','总积分','周排名','备注'],['1','','','','','','','','',''],['2','','','','','','','','',''],['3','','','','','','','','','']];}
+  else if(t==='sign'){name='出勤签到';rows=[['日期','姓名','时段(上午/下午)','状态(到/缺/请假)','记录人'],['','','','',''],['','','','',''],['','','','','']];}
+  else if(t==='reg'){name='报名汇总审核';rows=[['序号','姓名','学校','年级','联系电话','可参加时段','审核状态','备注'],['1','','','','','','',''],['2','','','','','','',''],['3','','','','','','','']];}
+  else{name='家长满意度';rows=[['序号','家长','学员姓名','Q1组织(1-5)','Q2安全(1-5)','Q3成长(1-5)','Q4建议','日期'],['1','','','','','','',''],['2','','','','','','',''],['3','','','','','','','']];}
+  const ok=exportXLSX(`${st}_${name}.xlsx`,[{name,rows}]);
+  out.textContent='✓ 已生成 '+st+'_'+name+'.xlsx'+(ok?'':'（离线写入）')+'——可直接在腾讯文档「导入」为在线表格，发给家长/学员填报，数据实时汇总。';
+}catch(e){out.textContent='生成出错：'+e.message;}},120);}
+function genRoll(){const topic=document.getElementById('rollTopic').value;const fields=(document.getElementById('rollFields').value||'').split(/[,，]/).filter(Boolean);const desc=document.getElementById('rollDesc').value;
+  let s=`【${topic}】\n${desc}\n格式：序号+${fields.join('+')}\n——————\n`;for(let i=1;i<=3;i++)s+=`${i}. `+fields.map(()=>'____').join(' ')+'\n';
+  document.getElementById('rollOut').textContent=s+'\n（复制后发群，家长按顺序接龙即可）';}
+function genRollXLS(){const fields=(document.getElementById('rollFields').value||'').split(/[,，]/).filter(Boolean);const rows=[['序号',...fields]];for(let i=1;i<=10;i++)rows.push([i,...fields.map(()=>'')]);
+  exportXLSX('接龙报名空表.xlsx',[{name:'接龙名单',rows}]);}
+let _certUrls=[];
+function drawCert(stu,type,st){
+  const c=document.createElement('canvas');c.width=794;c.height=1123;const x=c.getContext('2d');
+  const W=c.width,H=c.height;
+  const stName=(st||'XX').replace(/浆站$/,'');
+
+  // === 背景：藏蓝渐变（极轻微，接近纯色）===
+  const bg=x.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0c284f');bg.addColorStop(0.5,'#0f3058');bg.addColorStop(1,'#143a6b');
+  x.fillStyle=bg;x.fillRect(0,0,W,H);
+
+  // === 顶部星星装饰（5颗，金色，均匀分布）===
+  const star=(cx,cy,r,color)=>{
+    x.beginPath();
+    for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2;const rr=i%2?r*0.38:r;const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;i===0?x.moveTo(px,py):x.lineTo(px,py);}
+    x.closePath();x.fillStyle=color;x.fill();};
+  [125,248,397,546,669].forEach(sx=>star(sx,78,3.2,'#e8c97a'));
+
+  // === 顶部小字 ===
+  x.fillStyle='#e8c97a';x.textAlign='center';x.textBaseline='middle';
+  x.font='16px "STKaiti","KaiTi","PingFang SC",serif';
+  x.fillText('扬帆计划社会实践营',W/2,52);
+
+  // === 主标题 ===
+  x.textAlign='center';x.textBaseline='middle';
+  const tg=x.createLinearGradient(0,130,0,220);
+  tg.addColorStop(0,'#ffe9a8');tg.addColorStop(0.5,'#f5d790');tg.addColorStop(1,'#d9b25a');
+  x.fillStyle=tg;
+  x.font='bold 84px "STKaiti","KaiTi","PingFang SC",serif';
+  const title=type==='accept'?'录取通知书':'结营证书';
+  x.save();
+  x.shadowColor='rgba(0,0,0,0.45)';x.shadowBlur=14;x.shadowOffsetY=6;
+  x.fillText(title,W/2,168);
+  x.restore();
+
+  // === 副标题 ===
+  x.fillStyle='#e8c97a';x.font='13px "Times New Roman",serif';
+  const sub=type==='accept'?'ACCEPTANCE LETTER':'COMPLETION CERTIFICATE';
+  x.fillText(sub,W/2,238);
+
+  // === 左右竖排装饰字 ===
+  x.fillStyle='#e8c97a';x.font='bold 18px "STKaiti","KaiTi",serif';
+  x.textAlign='center';x.textBaseline='top';
+  const verTxt=(txt,xx)=>{for(let i=0;i<txt.length;i++)x.fillText(txt[i],xx,312+i*42);};
+  verTxt('筑梦青春',58);verTxt('扬帆启航',W-58);
+
+  // === 虚线边框 ===
+  x.strokeStyle='rgba(232,201,122,0.55)';x.lineWidth=1.5;x.setLineDash([5,4]);
+  x.strokeRect(38,288,W-76,734);
+  x.setLineDash([]);
+
+  // === 米白卡片（带轻微阴影）===
+  x.save();
+  x.shadowColor='rgba(0,0,0,0.12)';x.shadowBlur=20;x.shadowOffsetY=6;
+  x.fillStyle='#faf5e6';x.fillRect(95,340,W-190,628);
+  x.restore();
+
+  // === 卡片顶部装饰线 ===
+  x.strokeStyle='#d4b87a';x.lineWidth=1;
+  x.beginPath();x.moveTo(125,372);x.lineTo(W-125,372);x.stroke();
+
+  // === 称呼 ===
+  x.fillStyle='#0d1f3c';x.textAlign='left';x.textBaseline='top';
+  x.font='bold 26px "Microsoft YaHei","PingFang SC","STKaiti",serif';
+  x.fillText((stu.name||'XX')+' 同学：',125,408);
+
+  // === 正文 ===
+  if(type==='accept'){
+    x.font='16px "STKaiti","KaiTi","PingFang SC",serif';
+    const lines=[
+      ['　　根据扬帆计划面试标准，经审核、批准，',null],
+      ['恭喜你已被录取为',null],
+      [stName+'浆站扬帆计划社会实践','#c8161d'],
+      ['实践夏令营第一期学员。',null],
+      ['　　请于报到日携带本人有效身份证件',null],
+      ['准时到'+stName+'浆站报到、登记。',null],
+      ['　　期待你的加入，让我们一起扬帆启航！',null]
+    ];
+    let y=455;
+    lines.forEach(([t,c])=>{x.fillStyle=c||'#0d1f3c';x.fillText(t,125,y);y+=30;});
+  } else {
+    x.font='16px "STKaiti","KaiTi","PingFang SC",serif';
+    const lines=[
+      '　　你圆满完成扬帆计划社会实践',
+      '营全部课程与任务，表现优秀。',
+      '',
+      '　　特发此证，以资鼓励。',
+      '',
+      '　　愿你带着这段经历，继续扬帆远航。'
+    ];
+    let y=455;
+    lines.forEach(t=>{if(t){x.fillStyle='#0d1f3c';x.fillText(t,125,y);}y+=30;});
+  }
+
+  // === 红色五角星印章 ===
+  const sx=W-170,sy=850;
+  x.save();x.translate(sx,sy);x.rotate(-0.08);
+  x.strokeStyle='#c8161d';x.lineWidth=3;
+  x.beginPath();x.arc(0,0,48,0,Math.PI*2);x.stroke();
+  x.setLineDash([3,2]);x.lineWidth=1.5;x.beginPath();x.arc(0,0,40,0,Math.PI*2);x.stroke();x.setLineDash([]);
+  x.beginPath();
+  for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2;const rr=i%2?12:32;const px=Math.cos(a)*rr,py=Math.sin(a)*rr;i===0?x.moveTo(px,py):x.lineTo(px,py);}x.closePath();
+  x.fillStyle='#c8161d';x.fill();
+  x.rotate(0.08);x.fillStyle='#c8161d';x.textAlign='center';x.textBaseline='middle';
+  x.font='bold 12px "PingFang SC",sans-serif';
+  x.fillText('扬帆计划',0,66);
+  x.restore();
+
+  // === 落款 ===
+  x.fillStyle='#0d1f3c';x.textAlign='right';x.textBaseline='alphabetic';
+  x.font='15px "STKaiti","KaiTi",serif';
+  const now=new Date();
+  x.fillText('签发人：'+stName+'浆站扬帆计划项目组',W-125,898);
+  x.font='14px "STKaiti","KaiTi",serif';
+  x.fillText(now.getFullYear()+' 年 '+(now.getMonth()+1)+' 月',W-125,922);
+
+  // === 底部色带 ===
+  const rg=x.createLinearGradient(0,1010,0,H);
+  rg.addColorStop(0,'#143a6b');rg.addColorStop(1,'#0c284f');
+  x.fillStyle=rg;x.fillRect(0,1010,W,H-1010);
+
+  // === 底部装饰圆点 ===
+  x.fillStyle='rgba(232,201,122,0.45)';
+  for(let i=0;i<7;i++){const px=82+i*105;x.beginPath();x.arc(px,1035,3.5,0,Math.PI*2);x.fill();}
+
+  // === 底部小字 ===
+  x.fillStyle='rgba(232,201,122,0.75)';x.textAlign='center';x.textBaseline='middle';
+  x.font='12px "PingFang SC",sans-serif';
+  x.fillText('同路生物 · 扬帆计划　同筑梦 共远航',W/2,1065);
+
+  return c;
+}
+function genCert(){
+  const type=document.getElementById('certTpl').value;const st=document.getElementById('certStation').value;
+  const txt=document.getElementById('certList').value||'';
+  const list=txt.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.split(/[,，\t]/);return{name:(m[0]||'').trim(),school:(m[1]||'').trim()};});
+  const out=document.getElementById('certOut');out.innerHTML='';_certUrls=[];
+  if(!list.length){out.innerHTML='<p class="muted">先粘贴名单（每行：姓名,学校）</p>';return;}
+  list.forEach(stu=>{
+    const c=drawCert(stu,type,st);const url=c.toDataURL('image/png');_certUrls.push({name:stu.name,url});
+    const d=document.createElement('div');d.style.cssText='display:inline-block;margin:8px;text-align:center;vertical-align:top';
+    d.innerHTML='<img src="'+url+'" style="width:180px;border:1px solid #e3ecf5;border-radius:8px;box-shadow:0 2px 8px rgba(18,38,61,.1)">'+
+      '<div style="font-size:12px;color:#5d6b7a;margin-top:4px">'+(stu.name||'未命名')+'</div>'+
+      '<a class="btn ghost" style="font-size:11px;padding:3px 10px;margin-top:4px" href="'+url+'" download="扬帆'+(type==='accept'?'录取通知书':'结营证书')+'_'+(stu.name||'')+'.png">下载</a>';
+    out.appendChild(d);
+  });
+  if(list.length>1){const b=document.createElement('button');b.className='btn';b.textContent='批量下载全部（'+list.length+'张）';b.style.cssText='margin-top:10px';b.onclick=dlCertAll;out.appendChild(b);}
+}
+function dlCertAll(){
+  if(!_certUrls.length)return;const type=document.getElementById('certTpl').value;
+  _certUrls.forEach((u,i)=>{setTimeout(()=>{const a=document.createElement('a');a.href=u.url;a.download='扬帆'+(type==='accept'?'录取通知书':'结营证书')+'_'+u.name+'.png';document.body.appendChild(a);a.click();a.remove();},i*300);});
+}
+function genMsg(){const t=document.getElementById('msgTpl').value;const st=document.getElementById('msgStation').value;const hi=document.getElementById('msgHi').value;
+  const m={daily:`【${st}·扬帆计划每日播报】\n各位家长好：今日营内动态——${hi}。孩子安全、有序，请放心。明日安排将提前告知。同路生物扬帆计划`,
+    invite:`【开营邀约】${st}扬帆计划社会实践营即将开营，${hi}。现邀您孩子参与青年社会实践，联系电话/到站点报名。同路生物`,
+    open:`【亲子开放日邀请】${st}诚邀家长参加扬帆计划亲子开放日，亲眼看看孩子的成长与贡献。时间待定，回复确认。同路生物`};
+  document.getElementById('msgOut').textContent=m[t]||'';}
+
+/* ============ 训战机器人（分支引导 + 后端大模型） ============ */
+const KB=[
+ {cat:'运营',t:'新人第一周接手',kw:['第一周','接手','刚来','上手','新人','开始','怎么干','干什么','第一步'],a:'按启动过程组四步走：①读事业部年度策略＋本县工具包，弄清主线（招募＋培训＋家长穿透）；②画干系人矩阵（站长/部门/家长/学校）；③确认招募窗口还在不在（错过就要走进度赶工并向上预警）；④建家长群＋两层签署流程。别急着办活动，先把框架立住。参考怀远小组长制把执行角色定下来。'},
+ {cat:'运营',t:'招募招不满',kw:['招募','招不满','招人','招生','人少','报名少','触达','漏斗','生源','没人'],a:'先查漏斗哪层掉得狠：触达少→加校团委/班级群渠道；报名少→接龙话术＋权益讲清；面试掉→放宽但保两层签署；入营掉→家长犹豫→用五河义卖式社群穿透建信任。招募必须前置到暑假前（借高考后/毕业季流量），窗口错过就走关键路径赶工并向上预警。属范围＋质量＋沟通协同问题。'},
+ {cat:'运营',t:'家长质疑献浆',kw:['家长','献浆','质疑','反对','伤身体','科普','舆情','阻力','信任','不配合'],a:'用工具包1舆情口径＋真实科普常态触达，不删帖不硬怼。把家长从高利益阻力转成参与（开放日/义卖），这是干系人管理的「分层＋常态触达」。五河公益义卖就是把家长从阻力变参与的典型。安全合规红线：未成年学员必须两层签署同意书。'},
+ {cat:'运营',t:'站长不拍板',kw:['站长','拍板','不决策','权责','协调不动','推','甩','扯皮','不配合'],a:'根因多为章程/策略没写清站长权责节点，不是人不行。拿着年度策略找站长确认「哪几个节点必须你定」，写进整合管理计划。属整合＋干系人双缺失——用责任分配矩阵（RAM）把谁拍板、谁执行写死。'},
+ {cat:'运营',t:'活动冷场学生不练',kw:['冷场','不练','只听','没干劲','没积极性','学生不动','参与低','积极性','不想动','不干活','摸鱼','划水','散漫','不想干','不来劲','不听指挥'],a:'学生被当管理对象而非有责角色，责任浮空。用怀远小组长制/凤台面试赋责，用灵璧双向复盘让员工有产出；商都积分＋现金双轨激励。建责任分配矩阵（RAM），让每个学生有角色、有交付。属资源（团队）管理。'},
+ {cat:'运营',t:'结营成效说不清',kw:['结营','成效','验收','说不清','成果','汇报','数据','总结'],a:'收尾要做验收：青春答卷（作品，怀远做法）＋成长记录（工具包5五时刻）＋数据漏斗（触达→报名→入营→浆员）。别「演完就散」。怀远青春答卷即成果验收思路；成效用数据漏斗量化，别只讲感受。'},
+ {cat:'运营',t:'零资金办活动',kw:['资金','没钱','零资金','钱','预算','成本','自造血','经费','费用'],a:'硬约束：零公司资金投入，靠权益绑定（学分/证明/荣誉/小额激励）＋自造血（五河义卖）。算清「必须花 vs 可置换」。商都100人/4期靠积分＋现金双轨、零公司资金跑通，是成本/资源约束下的解法样板。'},
+ {cat:'运营',t:'计划全乱',kw:['计划','乱','打乱','失控','调整','偏差','变更','变','跟不上'],a:'扬帆是混合型：年度目标基线（预测型）不动，但执行用敏捷——每日站会看偏差、定期回顾会调下一周冲刺。不是死扛原计划，也不是随机乱跑。对应进度＋整合＋敏捷管理的结合。'},
+ {cat:'运营',t:'学生安全合规',kw:['安全','合规','签署','同意书','未成年','红线','事故','风险','出事'],a:'质量与风险的硬红线：未成年学员必须两层签署同意书（家长＋学生），没签不入营；任何活动安全优先于进度。挑战者号教训——当安全与技术判断与管理压力冲突时，安全红线必须压过赶进度。工具包1把签署作为质量门槛从源头控风险。'},
+ {cat:'案例',t:'丹佛机场行李系统',kw:['丹佛','机场','行李','denver','超支'],a:'失败教训（范围/集成/风险）：2.38亿美元自动行李系统，17英里轨道/4000小车，晚16个月、超支约20亿美元，2005年拆掉改人工。根因：范围/进度/预算锁死却没做原型测试、设计启动太晚、无备份、集成失败。扬帆启示：招募前置先小范围试点（如先1个班），验证跑通再铺开；关键动作留备份方案。'},
+ {cat:'案例',t:'挑战者号',kw:['挑战者','challenger','航天','失事','o型','o-ring','爆炸'],a:'失败教训（沟通/伦理/风险）：1986年升空73秒爆炸，7人遇难。工程师 Boisjoly 警告低温O型圈风险，管理层以「戴上管理帽」压过技术反对，在36°F（比以往低15°）强行发射。扬帆启示：安全/合规红线＞赶进度；让一线技术声音进决策，别用行政压力盖过专业判断。'},
+ {cat:'案例',t:'Knight Capital',kw:['knight','资本','交易','亏损','4.4亿','45分钟','亿'],a:'失败教训（变更/测试/部署）：2012年8月1日，因8台生产服务器只更新了7台，休眠代码被重新激活，45分钟亏4.4亿美元、近4亿股异常下单，SEC罚1200万、次年被迫被收购。扬帆启示：上线/启动前全量验证（每站都确认到位），用灰度而非一把梭；变更要留回滚。'},
+ {cat:'案例',t:'美国医保网',kw:['医保','healthcare','官网','网站','cgi','瘫痪'],a:'失败教训（需求/采购治理）：2013年上线瘫痪，IT总投入约8.4亿美元、62份合同、需求反复不稳、监督缺失（GAO点名）。扬帆启示：需求没锁稳别做大集成；多供应商先定清楚接口与责任；建监督节奏，别等上线才验。'},
+ {cat:'案例',t:'波士顿大隧道',kw:['波士顿','隧道','big dig','超支','塌'],a:'失败教训（成本/质量）：1985年预算28亿美元，实际约220亿、超7.8倍，迟8年，2006年天花板塌落致死，混凝土/环氧掺假。印证「大型项目铁律」：成本基线必守、质量不妥协。扬帆启示：活动预算留出余量，质量（安全/体验）不让步。'},
+ {cat:'案例',t:'火神山医院',kw:['火神山','医院','10天','武汉','交付'],a:'成功（进度/干系人/指挥）：2020年1月23日—2月2日10天交付，3.39万㎡、1000床，中建三局牵头，三级指挥作战系统＋24小时两班，78分钟图纸送达。扬帆启示：用「关键路径压缩（crashing）」——增资源抢关键节点；建清晰指挥体系，多站协同靠统一节奏。'},
+ {cat:'案例',t:'悉尼奥运',kw:['悉尼','奥运','sydney','2000','盈余'],a:'成功（治理/预算/干系人）：2000年悉尼奥运，预算23亿澳元、盈余1.8–4.1亿、准时收官，4.5万志愿者（10万申请中选），绿色奥运，专设法定机构 SOCOG。扬帆启示：设独立统筹机构/明确授权＋预算纪律＋志愿者动员，是大型项目治理样板。'},
+ {cat:'案例',t:'Spotify敏捷模型',kw:['spotify','小队','部落','敏捷模型','squad','tribe','自治'],a:'敏捷参照（组织级敏捷）：Spotify 小队 squad（6–12人，自治）／部落 tribe（40–150人）／分会 chapter／协会 guild，自治＋对齐（Kniberg 2012）。扬帆启示：各站像 squad 自治跑本县打法，事业部像 tribe 给对齐与目标；小步快跑、复盘迭代，比一刀切更适配县域差异。'},
+ {cat:'工具包',t:'5大工具包',kw:['工具包','5大','五大','工具箱','一条线','五条线','范围基准'],a:'5大工具包＝被整合进年度策略的子计划（范围基准）：①沟通风控线 ②培训内容线 ③视觉物料线 ④运营考核线 ⑤成长记录线。负责人活是把这5条线按本县节奏拧成一张执行表。注意：标杆（五河/凤台/灵璧/怀远/商都）是实操中「值得借鉴的点」，不是照搬模板——结合本县实情挑着用。'},
+ {cat:'工具包',t:'工具包5成长记录',kw:['成长记录','工具包5','五时刻','青春答卷','记录','档案','故事'],a:'工具包5＝留证据、做传播。三层记录体系（日常层/节点层/深度层）；五个关键时刻（开营第一天/首次成功招募/家长活动参与/项目过半复盘/结营典礼），每个＝图片＋文字；成长故事六段式（开篇~100/经历~200/技能~150/情感~100/展望~100/结尾~50字，500–800字）。可用「学生成长报告生成器」直接产出完整报告。'},
+ {cat:'知识',t:'五大过程组',kw:['过程组','启动','规划','执行','监控','收尾','五大过程','流程'],a:'PMP 五大过程组：启动（立章程、识干系人）→规划（定范围/进度/成本/质量等）→执行（落地招募培训活动）→监控（跟踪偏差、开复盘会）→收尾（青春答卷验收、归档）。扬帆对照：年度策略＝章程＋管理计划；寒暑假＝执行窗口；中期复盘＝监控；结营＝收尾。'},
+ {cat:'知识',t:'十大知识领域',kw:['知识领域','十大','整合','范围','进度','成本','质量','资源','沟通','风险','采购','干系人'],a:'PMP 十大知识领域：整合/范围/进度/成本/质量/资源/沟通/风险/采购/干系人。扬帆映射：年度策略＝整合；工具包＝范围；招募前置＝进度（关键路径）；零资金＝成本；两层签署＝质量；小组长制＝资源；家长群＝沟通；舆情＝风险；供应商/场地＝采购；家长/学校/站长＝干系人。'},
+ {cat:'知识',t:'敏捷vs预测',kw:['敏捷','预测','scrum','迭代','混合型','sprint','瀑布'],a:'预测型（瀑布）：范围基线先定、顺序推进，适合目标稳的（如结营验收标准）。敏捷型（Scrum）：小步迭代、拥抱变化，适合不确定高的执行（如寒暑假日常运营）。扬帆用混合型：年度目标基线（预测）不动＋执行用敏捷（每日站会、定期回顾）。Spotify squad 是组织级敏捷样板。'},
+ {cat:'运营',t:'怎么跟学校/团委合作',kw:['学校','团委','老师','合作','渠道','班级群','校方','共建'],a:'学校是干系人矩阵里的渠道型角色：①走团委/教务处拿到「可触达」授权，别绕；②提供「社会实践证明/盖章」作为校方能给的权益，换校方愿意动员；③班级群/广播站是低成本高转化渠道。要点：把校方从「被你借力」变成「共建共赢」（社会实践学分合作）。参考凤台面试进校前置招募。'},
+ {cat:'运营',t:'活动怎么设计不空转',kw:['活动','设计','义卖','开放日','亲子','汇演','策划','怎么搞'],a:'活动别为了办而办，每个活动要有「目标+产出+传播」：义卖=自造血+家长参与（五河），开放日=家长穿透（亲子互动+家长寄语），汇演/答卷=成果验收（怀远青春答卷）。铁律：活动结束当天出3条传播素材（照片+金句+数据）。预算零资金就权益置换，场地/物料找赞助置换。'},
+ {cat:'运营',t:'学生积分/激励怎么设',kw:['积分','激励','荣誉','奖励','兑换','加分','证书','激励体系'],a:'积分体系建议按「行为+成果」双轨：行为分（出勤/站会/任务完成）＋成果分（首次招募/作品/义卖贡献）。兑换池用权益绑定：荣誉证书、社会实践证明、评优推荐、小额激励（商都现金+积分双轨是零资金样板）。公开排名榜制造荣誉感（对应在线表→看板）。规则提前公示，避免事后扯皮。'},
+ {cat:'运营',t:'舆情监测怎么做',kw:['舆情','负面','评论','投诉','曝光','监测','热搜','黑料'],a:'按舆情监测板块的做法：①每日关键词巡检（献浆误解/活动质疑/站点负面）；②发现即分类：谣言→官方口径澄清，质疑→真实科普常态触达，投诉→私下解决+公开改进；③不删帖不硬怼，第一时间响应比压热度重要；④舆情关键词清单在工具包1里。属沟通+风险管理的「监控过程组」。'},
+ {cat:'运营',t:'周报汇报材料怎么写',kw:['周报','汇报','材料','总结','写材料','ppt','报告','文字','怎么写'],a:'汇报材料讲「数据+亮点+问题+下一步」四段：数据漏斗（触达→报名→入营→浆员）见增长，亮点带一个真实故事（成长记录五时刻），问题只写有解决方案的，下一步绑定关键路径。别堆形容词。可用效率工厂「PPT模板生成」直接出多页汇报。'},
+ /* ===== 策略类（核心业务逻辑，触发关键词即出专属内容） ===== */
+ {cat:'策略',t:'今年目标怎么定',kw:['目标','今年','定目标','怎么定','指标','任务','kpi','考核','年初','规划','年度','目标设定','年度目标','定多少'],a:'【扬帆计划目标设定原则与逻辑】\n\n一、目标不是自己拍的，是自上而下分解的：\n  · 事业部年度策略定总盘子（2026上半年采浆量395.3吨、同比+6.3%，但新浆员发展放缓——增量从1100人降到40人），各站目标跟着这个盘子走。\n  · 浆站按本县实情拆解：招募人数、入营人数、新卡发展、采浆量四条硬线。\n  · 各站方案必须报事业部扬帆计划项目负责人（史毅）审核备案，不是自己闷头定。\n\n二、目标设定的四条原则：\n  1. 量力而行：看本县人口基数+往年在校生量+政府关系，别盲目对标大站。商都（困难站）定100人/4期就是量力，凤台定240人也是量力。\n  2. 前置窗口：招募窗口锁死在假期开始前（暑期借高考后/毕业季流量，寒假借学期末/春节前流量），错过=关键路径赶工。目标设定时要倒推时间线。\n  3. 权益绑定不花钱：目标里必须包含「用什么权益吸引学生」——社会实践证明、荣誉证书、积分激励、小额现金（商都双轨），不靠公司资金。\n  4. 结构合理：18-22岁占比要注意（灵璧半年度61.6%偏年轻不稳定），男女比例、新老生比例也要考虑。\n\n三、目标分解到执行节奏：\n  · 年度目标（预测型基线）→ 寒暑假冲刺（敏捷型执行）→ 每周站会看偏差 → 定期回顾调下一周。\n  · 每期出增量（入营一批、新卡一批、采浆一批），不是一次性冲。\n\n四、参考标杆：\n  · 凤台：招募240人、新卡转化320人、学生邀约科普600人（多元化面试机制）\n  · 商都：100人/4期（每期25人）、新卡≥100+总采浆≥150份（积分+现金双轨）\n  · 怀远：成立共青团浆站支部、小组长管理模式、家长参与度公司拔尖'},
+ {cat:'策略',t:'家长活动怎么设计',kw:['家长活动','亲子','开放日','家长开放日','家长参与','家长群','家长沟通','家长互动','家庭活动','家长日','家长会'],a:'【家长活动设计逻辑——从阻力变参与】\n\n一、核心认知：家长是高利益干系人，不是障碍。扬帆的家长活动不是「办个活动让家长来看看」，而是「把家长从献浆质疑者变成参与者甚至传播者」。\n\n二、分层触达体系（不是一步到位）：\n  第一层·建信任：建家长群→每日播报（学生在站情况、学到了什么、安全怎么样），连发5天以上才有效。别只发一次。\n  第二层·进站体验：亲子开放日→家长进站看孩子工作环境、听科普、亲手体验→打破「献浆伤身体」的恐惧。重点：让家长亲眼看到、亲手摸到，不是光听。\n  第三层·深度参与：义卖/汇演→家长带着孩子一起做公益（五河义卖捐款6245.15元、61名家长及亲属参与），家长从「被说服」变成「主动站台」。\n  第四层·口碑裂变：家长在亲友圈帮你说话，比任何宣传都管用。泾县今年涌现了不少爱心家庭就是这层。\n\n三、标杆站具体做法：\n  · 怀远（家长参与度全公司拔尖，7月95.5%）：成立共青团浆站支部→小组长制让家长有沟通对接人→结营青春答卷让家长看到成长成果→家长参与度自然拉高。\n  · 五河（家长全程介入）：政协委员家长站台提升公信力→义卖让家长和孩子一起做公益→61名家长及亲属参与。\n  · 南陵（无为分站家长满意度100%）：把家长支持度作为分站运营的核心指标→每月乡镇拜访跟进家长反馈。\n  · 庐江：加强父母进站参与沟通，Q3目标父母参与率70%。\n\n四、设计活动时的硬规则：\n  1. 每个活动必须有「目标+产出+传播」——活动结束当天出3条传播素材（照片+金句+数据）。\n  2. 预算零资金→权益置换：场地找学校/社区免费借，物料找赞助。\n  3. 安全合规红线：未成年学员必须两层签署同意书（家长+学生），没签不入营。\n  4. 活动频次：寒暑假期间至少1次开放日+1次义卖/汇演，日常每天家长群播报不断。\n\n五、常见踩坑：\n  · 只办一次活动就想家长转变——不可能，要常态触达。\n  · 活动只讲献浆科普——家长不关心你的KPI，关心孩子安全+成长，从孩子成长切入。\n  · 家长来了没事干——必须设计家长能参与的环节（不是坐着听讲座）。'},
+ {cat:'策略',t:'招募策略怎么定',kw:['招募策略','招募方案','怎么招','招募计划','招生策略','触达渠道','报名转化','招募漏斗','漏斗'],a:'【招募策略——漏斗思维+标杆打法】\n\n一、招募漏斗四层，哪层掉就补哪层：\n  触达→报名→面试→入营\n  · 触达少：加校团委/班级群/广播站渠道，走团委拿到「可触达」授权。\n  · 报名少：接龙话术+权益讲清（社会实践证明/学分/荣誉），降低报名门槛。\n  · 面试掉：放宽条件但保两层签署，面试不是淘汰而是筛选+赋责。\n  · 入营掉：家长犹豫→用五河义卖式社群穿透建信任。\n\n二、标杆站招募打法：\n  · 凤台（招募240人）：多元化面试机制——面试不是走过场，是选拔+分流。进校前置招募，借校方渠道。新卡转化320人，学生邀约科普600人。\n  · 商都（100人/4期每期25人）：高考爱心助考现场招募→借高考后流量。积分+现金双轨激励。覆盖商都+兴和两采区。\n  · 怀远（招募214人→457人）：成立共青团浆站支部→学校更配合。小组长制让老生带新生。\n  · 灵璧（招募298人→555人）：科普老带新——半年度科普2880人参与、转化1384人。学生员工双向复盘模式。\n\n三、时间窗口铁律：\n  · 假期开始前必须完成触达和报名（暑期借高考后/毕业季流量，寒假借学期末/春节前流量）。\n  · 窗口错过=关键路径赶工——加资源抢节点+向上预警。\n  · 招募前置先小范围试点（如先1个班），验证跑通再铺开（丹佛机场教训：不做原型测试就全量铺=灾难）。\n\n四、零资金下的权益设计：\n  社会实践证明（校方盖章）、荣誉证书、评优推荐、积分兑换（行为分+成果分双轨）、小额现金激励（商都样板）。\n  关键：把校方从「被你借力」变成「共建共赢」（社会实践学分合作）。'},
+ {cat:'策略',t:'学生发展体系怎么建',kw:['学生发展','培养体系','学生培养','成长体系','小组长','角色分配','学生管理','学生角色','赋责'],a:'【学生发展体系——让每个学生有角色有交付】\n\n一、核心问题：学生被当管理对象而非有责角色，责任浮空=活动冷场。\n\n二、怀远小组长制（核心模式）：\n  · 把学生分成小组，每组选小组长（不是老师指定，是学生推选+导师确认）。\n  · 小组长负责本组考勤、任务分配、每日站会汇报。\n  · 小组长有额外积分和荣誉，形成晋升感。\n  · 效果：怀远家长参与度全公司拔尖（7月95.5%），小组长是家长沟通的对接人。\n\n三、积分体系（商都双轨样板）：\n  · 行为分：出勤/站会/任务完成\n  · 成果分：首次招募/作品/义卖贡献\n  · 兑换池：荣誉证书、社会实践证明、评优推荐、小额现金\n  · 规则提前公示，避免事后扯皮\n  · 公开排名榜制造荣誉感\n\n四、五时刻记录体系（工具包5）：\n  开营第一天→首次成功招募→家长活动参与→项目过半复盘→结营典礼\n  每个时刻=图片+文字，可用「学生成长报告生成器」直接产出报告。\n  五时刻对应五维能力：沟通表达/实践执行/协作领导/反思成长/责任担当。\n\n五、灵璧双向复盘模式：\n  不是只让学生复盘，员工也复盘——「学生学到了什么 vs 我们哪里没做好」。\n  半年度科普2880人参与、转化1384人，复盘模式是关键。\n\n六、左旗学霸示范引领：\n  复旦/陕师大/南理工/西工大/北中医学生参与→优秀带动优秀。\n  用标杆学生做案例宣传，吸引同层次学生。'},
+ {cat:'策略',t:'新浆员发展怎么做',kw:['新浆员','新卡','新卡发展','浆员发展','采浆量','献浆员','新卡转化','浆员转化'],a:'【新浆员发展——2026年最大挑战】\n\n一、现状（硬数据）：\n  · 2026上半年新浆员发展放缓：同比增量从1100人降到40人。\n  · 多个站新卡同比下降：舒城-85、怀远-146、南陵-246、庐江-121。\n  · 这是全集团性问题，不是单个站的问题。\n\n二、为什么新卡发展难了：\n  · 前几年暴力开发（如广德），市场被透支。\n  · 家长对献浆的认知没有根本转变。\n  · 学生动员→新卡转化的链路不通畅（学生来了但没带来新浆员）。\n\n三、解法：\n  1. 学生邀约科普→新卡转化：凤台学生邀约科普600人、新卡转化320人（53%转化率），是全集团最佳实践。\n  2. 爱心家庭模式：泾县今年在学生无偿献浆层面涌现了不少爱心家庭——学生带动家庭，家庭带动亲友。\n  3. 无偿献浆推进：权益绑定模式（社会实践证明+荣誉+积分），不靠公司资金。\n  4. 乡镇下沉：灵璧每周复盘下乡回访，叶集各分站小规模每区约20人。\n  5. 长期主义：翁旗坚持长期主义、以练代学，规范服务频次同比+0.15。\n\n四、目标设定参考：\n  · 商都：新卡≥100+总采浆≥150份\n  · 叶集：扬帆品牌化招募志愿者≥100人，霍邱无偿献浆目标100人\n  · 凤台：新卡转化320人（半年度）\n  · 灵璧：科普联动扬帆目标1600人'},
+ {cat:'策略',t:'无偿献浆怎么推进',kw:['无偿献浆','无偿','免费献浆','义务献浆','爱心','公益献浆'],a:'【无偿献浆推进——权益绑定模式】\n\n一、核心原则：零公司资金投入，靠权益绑定。\n\n二、权益设计：\n  · 社会实践证明（校方盖章，可换学分）\n  · 荣誉证书/表彰（官方背书）\n  · 积分兑换（与扬帆积分体系打通）\n  · 小额激励（商都现金+积分双轨）\n\n三、标杆做法：\n  · 泾县：学生无偿献浆层面涌现爱心家庭——学生带动家庭献浆。\n  · 叶集：霍邱无偿献浆目标100人。\n  · 五河：义卖捐款6245.15元，把献浆和公益绑定。\n  · 怀集：青燕展翅计划被当地共青团冠名，政府背书提升公信力。\n\n四、注意：\n  · 无偿献浆不是硬推，是水到渠成——家长信任建好了、学生认知到位了，自然有人愿意。\n  · 2026上半年全集团无偿献浆仅28人（6-7月），是洼地，也是空间。\n  · 个别站家长参与度超100%（如泾县191%）系家长及亲属重复到场，是好事不是坏事。'},
+ {cat:'策略',t:'县域市场怎么打',kw:['县域','市场','下沉','乡镇','县','区县','区域','安徽','广东'],a:'【县域市场深度打造——三年50万瓶目标】\n\n一、覆盖范围：安徽16市60+区县，三年50万瓶目标。\n\n二、打法逻辑：\n  · 不是全面铺开，是重点突破——选基础好的县先做透，再辐射周边。\n  · 每个县配一套打法：招募渠道（学校/团委）+ 家长穿透（建群/开放日）+ 科普常态化 + 乡镇回访。\n  · 灵璧模式：科普老带新→半年度2880人参与→转化1384人→每周复盘下乡回访。\n  · 叶集模式：各分站小规模每区约20人→借鉴五河义卖→物料贡献7万。\n\n三、四大支柱：\n  1. 产品知识（血液制品科普体系）\n  2. 渠道政策（学校/团委共建机制）\n  3. 市场打法（招募漏斗+标杆复制）\n  4. 竞品舆情（每日监测+口径应对）\n\n四、关键数据参考：\n  · 凤台半年度招募240人/新卡320人/科普600人\n  · 灵璧半年度科普2880人/转化1384人\n  · 南陵无为分站家长满意度100%'},
+ {cat:'策略',t:'浆站运营节奏怎么排',kw:['运营节奏','排期','时间线','年度节奏','暑期节奏','每周','日常','运营计划'],a:'【浆站运营节奏——年度基线+寒暑假冲刺】\n\n一、年度节奏（预测型基线）：\n  · Q1：制定年度方案→报事业部审核备案\n  · Q2：前置招募启动（4-5月进校对接、高考后集中报名）\n  · Q3：暑期冲刺运营（核心战场之一）\n  · Q4：结营收尾+复盘+次年规划（含寒假批次筹备）\n\n二、寒暑假冲刺（敏捷型执行）：\n  · 每周一个冲刺目标：第1周开营→第2-3周招募+培训→第4周家长开放日→第5周中期复盘→第6-7周义卖/汇演→第8周结营答卷。\n  · 每日站会式播报：小组长汇报本组进度+问题。\n  · 定期回顾会：调下一周冲刺内容。\n  · 每期出增量：入营一批、新卡一批、采浆一批。\n\n三、备案机制（硬约束）：\n  各站方案必须报事业部扬帆计划项目负责人（史毅）审核备案。\n  备案范围：20站方案（18站文本+宿松Excel+丰镇/商都微信传）。\n  方案内容：招募人数/期数/每期人数/新卡目标/采浆目标/激励机制/活动安排/覆盖区域。\n  史毅角色=审核视角（非代笔），后续可做方案横向对比、审核意见清单、备案汇总表。'},
+ {cat:'策略',t:'备案机制是什么',kw:['备案','审核','方案报','报备','审批','史毅','事业部','提交方案'],a:'【扬帆计划备案机制】\n\n一、为什么备案：\n  各浆站是公司子公司，必须按事业部策略拟定方案→报事业部扬帆计划项目负责人（史毅）审核备案。不是走形式，是确保各站不偏离主线、不做重复劳动、能横向对比。\n\n二、备案范围（20站）：\n  18站文本方案（舒城/泗县/五河/凤台/定安/广德/怀远/扎赉特旗/泾县/灵璧/翁旗/龙游/叶集/乐昌/南陵/左旗/庐江/怀集）\n  + 宿松（Excel即方案）+ 丰镇（微信传）+ 商都（微信传，.doc）\n\n三、方案应包含：\n  · 招募人数/期数/每期人数\n  · 新卡发展目标/总采浆目标\n  · 激励机制（积分/现金/权益）\n  · 活动安排（开放日/义卖/汇演）\n  · 覆盖区域（采区/乡镇）\n\n四、商都站方案要点（参考样板）：\n  100人/4期（每期25人）/新卡≥100+总采浆≥150份/积分+现金双轨激励/高考爱心助考现场招募/覆盖商都+兴和两采区'},
+ /* ===== 站点案例类（触发站名即出详情） ===== */
+ {cat:'站点',t:'怀远浆站做法',kw:['怀远','怀远浆站','怀远站'],a:'【怀远浆站·扬帆计划标杆做法】\n\n负责人画像：小组长管理模式+结营青春答卷受认可；家长参与度公司拔尖。\n\n核心做法：\n1. 成立共青团浆站支部——学校更配合，官方背书。\n2. 小组长制——学生分组、选组长、赋责、每日站会汇报。组长是家长沟通对接人。\n3. 结营青春答卷——成果验收，不是「演完就散」。\n4. 家长参与度拔尖——6月88.4%→7月95.5%，全集团前列。\n\n半年度要点：\n· 扬帆亮点：成立共青团浆站支部；小组长管理模式+结营青春答卷受认可；家长参与度公司拔尖。\n· 不足：新浆员发展同比下降-146。\n· Q3方向：扬帆持续，提升献浆频次、可投浆率。\n\n数据参考：6月招募214人/入营69人/新卡24人/采量1110份；7月招募457人/入营157人(含85人)/新卡79人/采量1316份。'},
+ {cat:'站点',t:'五河浆站做法',kw:['五河','五河浆站','五河站'],a:'【五河浆站·创新标杆】\n\n负责人：仲子豪，科普/扬帆负责人，第二年负责。创新但统筹有局限。\n\n核心做法：\n1. 学生义卖活动——全集团首创，被各站模仿运用。义卖捐款6245.15元，61名家长及亲属参与。\n2. 政协委员家长站台——提升公信力，家长全程介入。\n3. 品牌化运营——实施五河版星辰计划。\n\n半年度要点：\n· 扬帆亮点：敢创新；政协委员、家长全程介入提升公信力；义卖捐款6245.15元、61名家长及亲属参与。\n· 不足：健康价值认同落地举措不足；财务融合较吃力。个人统筹层面思维有局限，品牌和发展结合不好。\n· Q3方向：实施五河版星辰计划；县域市场建立跟进表单、周复盘。\n\n数据参考：6月招募76人/入营30人/新卡226人/采量1784份；7月招募260人/入营82人/新卡291人/采量2093份。新卡全集团第一。'},
+ {cat:'站点',t:'凤台浆站做法',kw:['凤台','凤台浆站','凤台站'],a:'【凤台浆站·招募转化标杆】\n\n核心做法：\n1. 多元化面试机制——面试不是走过场，是选拔+分流。值得推广。\n2. 进校前置招募——借校方渠道，走团委/教务处。\n3. 学生邀约科普——半年度600人参与，新卡转化320人（53%转化率），全集团最佳。\n\n半年度要点：\n· 扬帆亮点：多元化面试机制值得推广；招募240人、新卡转化320人、学生邀约科普600人。\n· 不足：缺乏专人统筹，人员身兼多职精力分散。\n· Q3方向：扬帆招募240人；建立问题-复盘-流程优化闭环。\n\n数据参考：6月招募662人/入营170人/新卡149人/采量966份；7月招募436人/入营155人/新卡232人/采量1098份。'},
+ {cat:'站点',t:'商都浆站做法',kw:['商都','商都浆站','商都站'],a:'【商都浆站·困难站破局样板】\n\n负责人：姜亭亭，财务转岗到宣传负责人，2026第一次负责。L1-L2阶段，困难浆站。\n\n核心做法：\n1. 100人/4期（每期25人）——量力而行，不盲目对标大站。\n2. 积分+现金双轨激励——零公司资金下的权益设计样板。\n3. 高考爱心助考现场招募——借高考后流量，现场触达。\n4. 覆盖商都+兴和两采区——跨区域覆盖。\n5. 新卡≥100+总采浆≥150份——目标清晰可量化。\n\n半年度要点：\n· 扬帆亮点：制定26年度扬帆专项方案；7月两期每期20人。\n· 不足：新浆员持续走低、参与-130、乡镇掉量；新浆员补充断层。\n· Q3方向：4期每期25人/新卡≥100/总采浆≥150份（积分+现金双轨）。\n\n数据参考：6月招募31人/入营21人/新卡32人/采量376份；7月招募75人/入营63人/新卡50人/采量504份。'},
+ {cat:'站点',t:'灵璧浆站做法',kw:['灵璧','灵璧浆站','灵璧站'],a:'【灵璧浆站·复盘转化标杆】\n\n核心做法：\n1. 科普老带新——半年度科普2880人参与、转化1384人（48%转化率）。\n2. 学生员工双向复盘——不只让学生复盘，员工也复盘。\n3. 每周复盘下乡回访——持续跟进不断线。\n\n半年度要点：\n· 扬帆亮点：科普老带新半年度2880人参与、转化1384人；学生员工双向复盘模式亮眼。\n· 不足：18-22岁占比61.6%，结构偏年轻不稳定。\n· Q3方向：科普联动扬帆目标1600人，每周复盘下乡回访。\n\n数据参考：6月招募298人/入营34人/新卡152人/采量1208份；7月招募555人/入营168人/新卡280人/采量1472份。'},
+ {cat:'站点',t:'泾县浆站做法',kw:['泾县','泾县浆站','泾县站'],a:'【泾县浆站·家长参与度标杆】\n\n负责人：廖明，第一年负责，L1-L2阶段。\n\n核心做法：\n1. 家长参与度全集团第一——7月191%（家长及亲属重复到场）。\n2. 爱心家庭模式——学生无偿献浆层面涌现爱心家庭。\n3. 开营谨慎——前期不敢招高中生怕家长舆情，后期氛围不错。\n\n半年度要点：\n· 扬帆亮点：6-7月整体氛围不错，学生无偿献浆层面涌现爱心家庭。\n· 不足：开营迟、前期招不到人、不敢招高中生。\n· Q3方向：持续推动家长参与和无偿献浆。\n\n数据参考：6月招募31人/入营20人/新卡19人/采量390份/家长参与度100%；7月招募61人/入营35人/新卡40人/采量426份/家长参与度191%。'}
+];
+let botHistory=[];
+let botState={step:0,station:'',phase:'',pain:''};
+const BOT_FLOW=[
+ {bot:'你好，我是扬帆计划训战机器人。看到你是新接手（或来复习）项目负责人——我们先花3分钟把运营基本盘走一遍，最后给你一份接手方案。\n\n先问：你负责的站，是新站、还是已有基础的老站？',
+  bubbles:[{t:'新站（首次做/刚接手）',k:'新站'},{t:'老站（往年做过）',k:'老站'},{t:'半新半旧',k:'半新'}]},
+ {bot:(k)=>`明白，是「${k}」。\n\n现在处在哪个阶段？这决定我先带你看哪块操作。`,
+  bubbles:[{t:'招募还没启动',k:'招募前'},{t:'正在招募',k:'招募中'},{t:'已经入营运营',k:'运营中'},{t:'快结营了',k:'结营前'}]},
+ {bot:(k,st)=>`好，「${st}」阶段。\n\n你们站目前最卡的是哪类问题？我针对性讲，不空谈。`,
+  bubbles:[{t:'招不到人/招募慢',k:'招募'},{t:'家长不配合/质疑',k:'家长'},{t:'活动冷场/学生不动',k:'活动'},{t:'统筹乱/没人拍板',k:'统筹'},{t:'结营说不清成效',k:'成效'}]},
+ {bot:(k,st,ph)=>{const map={
+    招募:'招募是范围+进度的活：先用工具包1两层签署控质量门槛，再用接龙+校渠道铺量；窗口错过走赶工。标杆：凤台面试控入口、商都4期滚动。',
+    家长:'家长是高利益干系人：工具包1家长穿透线=建群分层+每日播报×5+舆情口径。五河义卖把阻力变参与。别出事才解释。',
+    活动:'活动冷场=学生没角色：用怀远小组长制赋责、灵璧双向复盘要产出。资源管理RAM没建，责任浮空。',
+    统筹:'统筹乱=缺整合管理：年度策略即章程，把站长拍板节点、部门责任写清。别「想到哪做到哪」。',
+    成效:'成效说不清=收尾没验收：青春答卷+成长记录量化，数据漏斗看转化。怀远即范本。'};
+   return map[ph]||'已记录。';},
+  bubbles:[{t:'继续：讲讲干系人怎么排',k:'go_stake'},{t:'讲讲风险怎么前置',k:'go_risk'},{t:'讲讲敏捷怎么用',k:'go_agile'},{t:'直接给我出接手方案',k:'gen'}]},
+ {bot:(k,st,ph,act)=>{
+   if(act==='go_stake')return '干系人矩阵（权力/利益）：家长高利益→常态科普+参与；站长高权力→章程写拍板节点；部门中/中→小组长制赋责；团委/学校→渠道共建；学生高利益→选拔+有责角色。四标杆都在这。';
+   if(act==='go_risk')return '风险前置：启动阶段建登记册——舆情（献浆误解）、安全（未成年外出）、招募不达标（窗口）。工具包1舆情清单+两层签署即前置应对，非事后救火。';
+   if(act==='go_agile')return '扬帆是混合型：年度目标基线（预测）不动，执行用敏捷——拆周冲刺、每日站会式播报、每期出增量、定期回顾调整。怀远小组长制=自组织，灵璧复盘=冲刺回顾。';
+   return '好的，下面直接为你汇总接手方案。';},
+  bubbles:[{t:'生成我的接手方案',k:'gen'}]}
+];
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtBotText(t){
+  const lines=String(t).split('\n');let h='';
+  lines.forEach(ln=>{
+    const s=ln.trim();
+    if(!s){h+='<div class="kb-gap"></div>';return;}
+    const e=esc(ln);
+    if(/^【.+】/.test(s)){h+='<div class="kb-h">'+e+'</div>';}
+    else if(/^[一二三四五六七八九十]+、/.test(s)||/^\d+[、\.]/.test(s)){h+='<div class="kb-sec">'+e+'</div>';}
+    else if(/^[·•\-—]/.test(s)){h+='<div class="kb-li">'+e.replace(/^[·•\-—]\s*/,'')+'</div>';}
+    else if(/^[（(]基于/.test(s)||/^（以上/.test(s)||/^[（(]本方案/.test(s)){h+='<div class="kb-src">'+e+'</div>';}
+    else{h+='<div class="kb-p">'+e+'</div>';}
+  });
+  return h;}
+function pushMsg(text,cls){
+  const c=document.getElementById('chat');const d=document.createElement('div');
+  d.className='msg '+(cls||'bot');
+  if(cls==='bot'){d.innerHTML=fmtBotText(text);}
+  else{d.textContent=text;}
+  c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function renderBubbles(opts){const b=document.getElementById('botBubbles');b.innerHTML='';opts.forEach(o=>{const el=document.createElement('button');el.className='bubble';el.textContent=o.t;el.onclick=()=>onBot(o.k);b.appendChild(el);});}
+function setProg(p){document.getElementById('botProg').style.width=p+'%';}
+function onBot(k){pushMsg(k,'me');const s=botState.step;
+  if(s===0){botState.station=k;pushMsg(BOT_FLOW[1].bot(k),'bot');renderBubbles(BOT_FLOW[1].bubbles);botState.step=1;setProg(25);}
+  else if(s===1){botState.phase=k;pushMsg(BOT_FLOW[2].bot(k,botState.station),'bot');renderBubbles(BOT_FLOW[2].bubbles);botState.step=2;setProg(50);}
+  else if(s===2){botState.pain=k;pushMsg(BOT_FLOW[3].bot(k,botState.phase,botState.station),'bot');renderBubbles(BOT_FLOW[3].bubbles);botState.step=3;setProg(75);}
+  else if(s===3){const act=k;pushMsg(BOT_FLOW[4].bot(k,botState.pain,botState.phase,botState.station),'bot');renderBubbles(BOT_FLOW[4].bubbles);botState.step=4;setProg(90);}
+  else if(s===4&&k==='gen'){outputPlan();setProg(100);}
+  updateProfile();}
+function updateProfile(){document.getElementById('botProfile').textContent=`站情：${botState.station||'—'}\n阶段：${botState.phase||'—'}\n最卡：${botState.pain||'—'}`;}
+function outputPlan(){const p=botState;
+  const painDetail={
+    招募:'【招募打法】\n  · 漏斗四层：触达（校团委/班级群）→报名（接龙+权益讲清）→面试（凤台多元化面试机制）→入营（两层签署质量门槛）\n  · 窗口铁律：假期开始前完成触达和报名，错过走关键路径赶工\n  · 标杆参考：凤台（招募240人/新卡转化320人/科普600人）、商都（100人/4期/高考助考现场招募）\n  · 零资金权益：社会实践证明+荣誉证书+积分兑换+小额现金（商都双轨）',
+    家长:'【家长穿透打法】\n  · 分层触达：第一层建群每日播报×5天+ → 第二层亲子开放日进站体验 → 第三层义卖/汇演深度参与 → 第四层口碑裂变\n  · 标杆参考：怀远（家长参与度95.5%，小组长制+共青团浆站支部）、五河（义卖6245元/61名家长参与）、泾县（家长参与度191%，爱心家庭）\n  · 硬规则：活动结束当天出3条传播素材（照片+金句+数据）；安全红线两层签署\n  · 踩坑提醒：只办一次活动就想家长转变=不可能，要常态触达',
+    活动:'【活动+学生发展打法】\n  · 小组长制（怀远模式）：分组→选组长→赋责→每日站会汇报，组长是家长沟通对接人\n  · 积分体系（商都双轨）：行为分（出勤/站会/任务）+成果分（招募/作品/义卖），兑换池=权益绑定\n  · 五时刻记录：开营→首次招募→家长活动→过半复盘→结营，每时刻=图片+文字\n  · 灵璧双向复盘：学生复盘+员工复盘，半年度科普2880人/转化1384人\n  · 标杆参考：怀远小组长制、商都积分双轨、灵璧双向复盘、左旗学霸示范引领',
+    统筹:'【统筹打法】\n  · 年度策略=章程：把站长拍板节点、部门责任写清，用责任分配矩阵（RAM）\n  · 备案机制：方案必须报事业部扬帆计划项目负责人（史毅）审核备案\n  · 混合型管理：年度目标基线（预测型）不动+执行用敏捷（每日站会/定期回顾）\n  · 节奏：Q1定方案→Q2前置招募→Q3暑期冲刺→Q4结营复盘（含寒假筹备）\n  · 标杆参考：怀远（共青团浆站支部）、怀集（青燕展翅计划被共青团冠名）',
+    成效:'【成效验收打法】\n  · 青春答卷（怀远模式）：结营成果验收，不是演完就散\n  · 成长记录（工具包5）：五时刻图文+成长故事六段式（500-800字）\n  · 数据漏斗量化：触达→报名→入营→新卡→采浆，别只讲感受\n  · 汇报材料四段：数据+亮点（真实故事）+问题（有解的）+下一步\n  · 可用「学生成长报告生成器」直接产出完整个人成长报告\n  · 标杆参考：怀远青春答卷、五河品牌化运营'
+  };
+  const txt=`【${p.station||'XX'}浆站 · 扬帆计划接手方案（训战机器人生成）】
+
+一、站情判断
+  站情：${p.station||'—'} ｜ 阶段：${p.phase||'—'} ｜ 最卡：${p.pain||'综合'}
+
+二、启动动作（本周必做）
+  1. 读事业部年度策略+本县工具包，弄清主线（招募+培训+家长穿透）
+  2. 确认招募窗口是否还在——错过走关键路径赶工并向上预警
+  3. 画干系人矩阵：站长(高权)/部门(中)/家长(高利益)/学校(渠道)/学生(有责角色)
+  4. 建家长群+两层签署流程（质量硬门槛，未签不入营）
+  5. 方案报事业部扬帆计划项目负责人（史毅）审核备案
+
+三、针对「${p.pain||'综合'}」的打法
+${painDetail[p.pain]||'  · 按工具包5线系统推进，参考四标杆（怀远/五河/凤台/商都）挑着用'}
+
+四、风险前置
+  · 舆情口径（献浆误解/活动质疑）写入启动阶段，不删帖不硬怼
+  · 安全预案：未成年学员两层签署同意书，安全优先于进度
+  · 招募不达标预案：窗口错过走赶工，先小范围试点再铺开
+
+五、收尾验收
+  · 青春答卷+成长记录五时刻+数据漏斗看转化
+  · 结营按自身漏斗：触达→报名→入营→新卡→采浆
+
+六、目标设定参考
+  · 量力而行：看本县人口基数+往年在校生量，别盲目对标大站
+  · 前置窗口：假期开始前完成触达和报名
+  · 权益绑定不花钱：社会实践证明+荣誉+积分+小额激励
+  · 结构合理：18-22岁占比注意，男女/新老生比例均衡
+
+（本方案由扬帆OS训战机器人按你回答生成，基于真实运营数据与策略；可复制细化后使用。更细内容直接在下方输入框追问，如「家长活动怎么设计」「今年目标怎么定」「怀远怎么做」）`;
+  const c=document.getElementById('chat');const d=document.createElement('div');d.className='msg full';d.textContent=txt;c.appendChild(d);c.scrollTop=c.scrollHeight;
+  const dl=document.createElement('button');dl.className='btn';dl.textContent='复制方案';dl.onclick=()=>{navigator.clipboard.writeText(txt);dl.textContent='已复制';};c.appendChild(dl);}
+function resetBot(){botState={step:0,station:'',phase:'',pain:''};document.getElementById('chat').innerHTML='';document.getElementById('botBubbles').innerHTML='';setProg(0);updateProfile();startBot();}
+async function sendFree(){const inp=document.getElementById('botFree');const q=inp.value.trim();if(!q)return;inp.value='';pushMsg(q,'me');botHistory.push({role:'user',content:q});if(botHistory.length>12)botHistory=botHistory.slice(-12);
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:botHistory})});
+    const j=await r.json();
+    if(j.fallback||!j.reply){pushMsg('（未接大模型，以下为本地知识库回答）\n'+askKB(q,botHistory),'bot');}
+    else{botHistory.push({role:'assistant',content:j.reply});pushMsg(j.reply,'bot');}
+  }catch(e){pushMsg('（后端未响应，以下为本地知识库回答）\n'+askKB(q,botHistory),'bot');}
+}
+// 同义词归一化：把用户口语说法统一成标准词，再匹配知识库
+const SYN={'招募':['招人','招生','拉人','招不满','缺人','没人','生源','报名少','人少','凑不齐','学员少','招不到','招不动'],
+'家长':['父母','家属','爸妈','老人','亲子','家庭'],
+'献浆':['献血','血浆','献浆员','采浆','捐献','浆员'],
+'资金':['钱','经费','预算','成本','自造血','义卖','费用','没钱','零资金'],
+'站长':['领导','站里','上面','老板','公司不配合','拍板'],
+'学生':['学员','孩子','青少年','同学','营员','小孩'],
+'活动':['冷场','场面','汇演','开放日','策划','义卖','开放日'],
+'结营':['收尾','验收','成效','总结','汇报','成果','答卷','归档'],
+'安全':['合规','签署','同意书','未成年','红线','事故','出事'],
+'计划':['进度','排期','时间','乱','变更','调整','打乱','赶工','延期'],
+'案例':['教训','失败','成功','标杆','例子'],
+'过程组':['启动','规划','执行','监控','收尾','五大','流程'],
+'敏捷':['scrum','迭代','sprint','瀑布','预测','混合'],
+'工具包':['工具箱','五条线','范围基准','一条线'],
+'目标':['今年怎么定','定目标','指标','任务','kpi','考核','年初','年度目标','目标设定','定多少','今年目标'],
+'策略':['方向','打法','思路','怎么搞','怎么办','怎么做'],
+'新浆员':['新卡','新卡发展','浆员发展','新卡转化','浆员转化','新浆员'],
+'无偿献浆':['无偿','免费献浆','义务献浆','爱心','公益献浆'],
+'县域':['市场','下沉','乡镇','区县','区域'],
+'备案':['审核','方案报','报备','审批','提交方案'],
+'运营节奏':['排期','时间线','年度节奏','暑期节奏','每周','日常','运营计划']};
+// 复合关键词触发表：多个关键词同时出现时，直接返回指定条目标题；needQ=还需含疑问词才触发（避免陈述句误命中）
+const COMPOUND=[
+  {need:['家长','活动'],t:'家长活动怎么设计'},
+  {need:['家长群'],t:'家长活动怎么设计'},
+  {need:['家长','献浆'],t:'家长质疑献浆'},
+  {need:['家长','质疑'],t:'家长质疑献浆'},
+  {need:['家长','参与'],t:'家长活动怎么设计'},
+  {need:['家长','沟通'],t:'家长活动怎么设计'},
+  {need:['目标','今年'],t:'今年目标怎么定'},
+  {need:['目标','kpi'],t:'今年目标怎么定'},
+  {need:['目标','指标'],t:'今年目标怎么定'},
+  {need:['目标','怎么定'],t:'今年目标怎么定'},
+  {need:['目标','定'],t:'今年目标怎么定',needQ:['怎么','如何','咋','吗','没','呢','？','?','多少']},
+  {need:['目标','设'],t:'今年目标怎么定',needQ:['怎么','如何','咋','多少']},
+  {need:['新卡'],t:'新浆员发展怎么做'},
+  {need:['新浆员'],t:'新浆员发展怎么做'},
+  {need:['学生','角色'],t:'学生发展体系怎么建'},
+  {need:['学生','培养'],t:'学生发展体系怎么建'},
+  {need:['小组长'],t:'学生发展体系怎么建'},
+  {need:['积分'],t:'学生积分/激励怎么设'},
+  {need:['义卖'],t:'活动怎么设计不空转'},
+  {need:['开放日'],t:'家长活动怎么设计'},
+  {need:['无偿','献浆'],t:'无偿献浆怎么推进'},
+  {need:['献浆'],t:'无偿献浆怎么推进',needQ:['怎么','如何','咋','吗','呢','推进','动员']},
+  {need:['青燕'],t:'无偿献浆怎么推进'},
+  {need:['县域'],t:'县域市场怎么打'},
+  {need:['备案'],t:'备案机制是什么'},
+  {need:['节奏'],t:'浆站运营节奏怎么排'}
+];
+function normQ(q){let s=q.toLowerCase();for(const g in SYN){SYN[g].forEach(w=>{s=s.split(w).join(g);});}return s;}
+function scoreKB(q,item){
+  const raw=q.toLowerCase();const ql=normQ(q);
+  let s=0,hits=0;
+  item.kw.forEach(w=>{const wl=w.toLowerCase();if(ql.includes(wl)||raw.includes(wl)){s+=3;hits++;}});
+  // 标题实词片段命中（比截前3字稳）：如「家长活动怎么设计」→ 匹配「家长活动」
+  const seg=item.t.split(/[：:（(]/)[0].toLowerCase();
+  if(seg.length>=2&&(ql.includes(seg)||raw.includes(seg))){s+=6;hits++;}
+  // 命中词越多越可信
+  if(hits>=2)s+=hits*2;
+  // 问题信号：描述卡点/困境/负面现象 → 优先「问题解决型」条目（运营/站点），压低规划型（策略）
+  const NEG=/(招不满|缺人|没人|人少|报名少|凑不齐|招不到|招不动|不配合|质疑|冷场|不动|太乱|混乱|卡住|卡壳|困难|贵|缺|停|废|弱|错|失败|坑|下滑|滞后|没效果|没动静|没反应|不来|不参与|不报名|抗拒|抵触|投诉|拖延|压着|慢|低|差|掉|不干活|摸鱼|划水|散漫|不想干|不听指挥)/;
+  if(NEG.test(raw)){
+    if(item.cat==='运营'||item.cat==='站点')s+=5;
+    else if(item.cat==='策略')s-=2;
+  }
+  return s;}
+function lastUserQ(hist){for(let i=hist.length-1;i>=0;i--){if(hist[i].role==='user')return hist[i].content;}return '';}
+function askKB(q,hist){
+  const last=lastUserQ(hist||[]);
+  const full=(q.trim().length<=6&&last)?last+' '+q:q;
+  const ql=normQ(full);
+  const rawQ=q.toLowerCase();
+  const detail=(it)=>'【'+it.cat+'·'+it.t+'】\n'+it.a+'\n\n（基于扬帆真实运营数据、工具包、年度策略与经典案例整理；更细请查对应工具包或事业部年度策略）';
+
+  // ② 站名识别——问"做法/经验/数据情况"都返回该站详情；短句追问（如「那五河呢」）也直接返回该站
+  const STATION_NAMES=['怀远','五河','凤台','商都','灵璧','泾县','舒城','南陵','怀集','翁旗','左旗','龙游','叶集','定安','广德','庐江','宿松','乐昌','丰镇','扎旗','扎赉特旗'];
+  let hitStation=STATION_NAMES.find(sn=>rawQ.includes(sn.toLowerCase()));
+  if(!hitStation&&full!==rawQ)hitStation=[...STATION_NAMES].reverse().find(sn=>full.includes(sn.toLowerCase()));
+  const METHOD_TOKENS=['经验','做法','打法','标杆','参考','学习','借鉴','分享','介绍','介绍一下','说下','说说','展开','讲讲','模式','怎么样','如何'];
+  const DATA_TOKENS=['数据','多少','数字','情况','进展','进度','最近','本月','上月','完成','怎么样','如何','招了多少','入营多少','新卡多少','采量','参与度','占比','完成率','转化率','入营率','满意度'];
+  const asksStation=METHOD_TOKENS.some(t=>rawQ.includes(t))||DATA_TOKENS.some(t=>rawQ.includes(t));
+  if(hitStation&&(asksStation||full!==rawQ)){
+    const snFix=hitStation==='扎赉特旗'?'扎旗':hitStation;
+    const stEntry=KB.find(x=>x.cat==='站点'&&x.t.includes(snFix));
+    if(stEntry)return detail(stEntry);
+  }
+
+  // ① 复合关键词触发：方法论问题优先（哪怕句子带站名也走方法论）
+  for(const c of COMPOUND){
+    const allHit=c.need.every(w=>ql.includes(w)||rawQ.includes(w));
+    if(!allHit)continue;
+    if(c.needQ&&!c.needQ.some(w=>ql.includes(w)||rawQ.includes(w)))continue;
+    const entry=KB.find(x=>x.t===c.t);
+    if(entry)return detail(entry);
+  }
+
+  // ②b 纯数据查询（无站名、无方法话题、无明显问题信号）→ 引导去数据看板，不硬答
+  const PURE_DATA=/(多少|数据|统计|完成率|完成情况|数字|汇总)/;
+  const STRONG_NEG=/(太少|不够|不足|太慢|太低|很差|没动静|没效果|招不满|没人|不配合|质疑|冷场|卡|乱|难|掉)/;
+  const TOPIC_WORDS=/(家长|目标|新卡|新浆员|学生|小组长|积分|义卖|开放日|无偿|县域|备案|节奏|活动|方案|怎么做|怎么办|经验|做法|打法|标杆)/;
+  if(PURE_DATA.test(rawQ)&&!STRONG_NEG.test(rawQ)&&!TOPIC_WORDS.test(rawQ)){
+    const lm=dLatest()||'';
+    let h='【数据查询】这是数据类问题，直接看「数据看板」最准：上传哪个月就显示哪个月，点任意站卡片看单站汇总与针对性分析。';
+    if(lm)h+='\n当前已上传最新月份：'+lm+'月。';
+    h+='\n\n如果想问某站具体做法/打法，带上站名，如「凤台怎么做」「五河义卖怎么搞」。';
+    return h;
+  }
+
+  // ③ 常规关键词打分（策略/站点加权已并入 scoreKB）
+  let best=null,bs=0;KB.forEach(it=>{const s=scoreKB(full,it);if(s>bs){bs=s;best=it;}});
+
+  // ④ 案例类处理
+  const isCaseAsk=rawQ.includes('案例')||rawQ.includes('失败')||rawQ.includes('教训')||rawQ.includes('标杆')||rawQ.includes('成功例子')||rawQ.includes('举个例子');
+  const CASE_NAMES=['丹佛','火神山','挑战者','悉尼','医保','波士顿','spotify','knight','奥运'];
+  const hasNamed=CASE_NAMES.some(w=>rawQ.includes(w));
+  if(best&&bs>=6&&best.cat==='案例')return detail(best);
+  if(isCaseAsk&&!hasNamed){
+    const cs=KB.filter(x=>x.cat==='案例');let h='扬帆可借鉴的经典案例（均真实可查，附启示）：\n';
+    cs.forEach(c=>{h+='· '+c.t+'：'+c.a.split('。')[0]+'。\n';});
+    h+='\n想看某个的完整启示，直接问我，如「丹佛机场为什么失败」「火神山怎么做到的」。';
+    return h;
+  }
+
+  if(bs>=3)return detail(best);
+  if(bs>=1)return '我理解你问的是「'+best.t+'」：\n\n'+detail(best)+'\n\n（如果我理解偏了，补一句细节我再精准答）';
+
+  // ⑥ 未命中——带站名先给站点引导，避免瞎答
+  if(hitStation){
+    let h='【'+hitStation+'站】目前还没有独立的案例详解页（已收录标杆站：怀远/五河/凤台/商都/灵璧/泾县）。\n可以先看通用打法：\n· 「今年目标怎么定」「家长活动怎么设计」「招募策略怎么定」「浆站运营节奏怎么排」\n· 或问标杆站做法，如「怀远怎么做」「五河义卖怎么搞」';
+    return h;
+  }
+
+  // ⑦ 通用未命中 → 列出策略类话题引导
+  let h='这个问题我暂时没对上号。为了避免瞎答，先问你两句：\n';
+  h+='1. 你卡在哪个环节？招募／家长／活动／统筹／结营？\n';
+  h+='2. 具体现象是什么？（比如「家长群没人说话」「学生来了不干活」）\n';
+  h+='\n或者直接挑一个你关心的话题问我：\n';
+  h+='【策略类】\n';
+  KB.filter(x=>x.cat==='策略').forEach(it=>{h+='· '+it.t+'\n';});
+  h+='\n【运营类】\n';
+  KB.filter(x=>x.cat==='运营').slice(0,6).forEach(it=>{h+='· '+it.t+'\n';});
+  h+='\n【站点案例】直接问站名，如「怀远怎么做」「五河义卖」「凤台面试」。';
+  return h;
+}
+async function detectMode(){const b=document.getElementById('botMode');
+  try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[]})});const j=await r.json();
+    if(j.fallback||!j.reply){b.textContent='分支引导模式（未接大模型）';b.className='mode-badge';}
+    else{b.textContent='大模型对话已连接';b.className='mode-badge live';}
+  }catch(e){b.textContent='分支引导模式（后端未起）';b.className='mode-badge';}}
+function buildFaq(){const f=document.getElementById('faqList');
+  const list=[...KB.filter(x=>x.cat==='策略'),...KB.filter(x=>x.cat==='运营'),...KB.filter(x=>x.cat==='站点')];
+  let h='';list.forEach((x,i)=>{h+=`<div class="faq-item" data-i="${i}">▸ ${x.t}<div class="faq-a">${x.a}</div></div>`;});f.innerHTML=h;
+  f.querySelectorAll('.faq-item').forEach(it=>it.onclick=()=>{const a=it.querySelector('.faq-a');a.classList.toggle('show');});}
+function startBot(){pushMsg(BOT_FLOW[0].bot,'bot');renderBubbles(BOT_FLOW[0].bubbles);setProg(10);}
+
+/* ============ 数据看板（6-7月全站） ============ */
+/* ============ 数据看板（动态月份：上传哪个月就进哪个月） ============ */
+function dashFmt(n){return (n||0).toLocaleString('zh-CN');}
+function dashPct(v){return Math.round(v*1000)/10+'%';}
+function dashDelta(a,b){ // 环比（b相对a）
+  if(b===0&&a===0)return{txt:'0',cls:''};
+  if(a===0)return{txt:'+'+dashFmt(b),cls:'up'};
+  const d=b-a;
+  return{txt:(d>=0?'+':'')+dashFmt(d),cls:d>=0?'up':'down'};
+}
+function dashBar(w,max){const p=Math.max(3,Math.round((w||0)/Math.max(max,1)*100));return '<div class="bar"><i style="width:'+p+'%"></i></div>';}
+function dashRank(s,get,desc){
+  if(desc===undefined)desc=true; // 默认：值越大排名越靠前
+  const vals=STATIONS.map(t=>({t,v:get(t)}));
+  vals.sort((a,b)=>desc?b.v-a.v:a.v-b.v);
+  return vals.findIndex(x=>x.t===s)+1;
+}
+/* —— 动态月份数据模型 —— */
+let DASH_DB={};       // {'6':{站:{reg,dev,camp,par}},...} 上传哪个月就进哪个月
+let DASH_ORDER=[];    // 已存在月份（升序）
+let DASH_CUR='all';   // 当前视图：'all'=累计 或 具体月份
+function dTot(m,key,idx){let s=0;const d=DASH_DB[m];if(!d)return 0;STATIONS.forEach(t=>{s+=(d[t][key][idx]||0);});return s;}
+function dAll(s,key,idx){let v=0;DASH_ORDER.forEach(m=>{const d=DASH_DB[m];if(d&&d[s])v+=d[s][key][idx]||0;});return v;}
+function dAllTot(key,idx){let v=0;STATIONS.forEach(s=>{v+=dAll(s,key,idx);});return v;}
+function dCur(s,key,idx){ // 当前视图取值（all=累计，单月=该月）
+  if(DASH_CUR==='all')return dAll(s,key,idx);
+  const d=DASH_DB[DASH_CUR];return d&&d[s]?d[s][key][idx]||0:0;
+}
+function dCurTot(key,idx){return DASH_CUR==='all'?dAllTot(key,idx):dTot(DASH_CUR,key,idx);}
+function dCurData(){return DASH_CUR==='all'?null:(DASH_DB[DASH_CUR]||null);}
+function dPrevMonth(m){const i=DASH_ORDER.indexOf(m);return i>0?DASH_ORDER[i-1]:null;}
+function dLatest(){return DASH_ORDER.length?DASH_ORDER[DASH_ORDER.length-1]:null;}
+function dMonthLabel(m){return m==='all'?'全部累计':(m+'月');}
+function renderMonthSwitch(){
+  const el=document.getElementById('monthSwitch');if(!el)return;
+  el.innerHTML='';
+}
+function dashKpi(){
+  const C=DASH_CUR==='all'?'累计':(DASH_CUR+'月');
+  const tr=dCurTot('reg',0),tb=dCurTot('reg',1),tc=dCurTot('reg',2);
+  const tk=dCurTot('dev',0),tv=dCurTot('dev',1),td=dCurTot('dev',2);
+  const t4=dCurTot('dev',3),t5=dCurTot('dev',4),tp=dCurTot('par',0);
+  const kps=[
+    {n:dashFmt(tr),m:C+'报名人数',s:'覆盖 '+STATIONS.length+' 站'},
+    {n:dashFmt(tc),m:C+'入营人数',s:'面试→入营转化率 '+dashPct(tb>0?tc/tb:0)},
+    {n:dashFmt(tk),m:C+'学生新卡',s:'在营学生人均 '+dashFmt(tc>0?tk/tc:0)+' 张'},
+    {n:dashFmt(tv),m:C+'学生采量',s:'在营学生人均 '+dashFmt(tc>0?tv/tc:0)+' 份'},
+    {n:dashFmt(td),m:C+'在营无偿献浆',s:'共 '+dashFmt(td)+' 人'},
+    {n:dashFmt(t4),m:C+'科普人次',s:'转化新卡 '+dashFmt(t5)+' 张'},
+    {n:dashPct(tc>0?tp/tc:0),m:C+'家长参与度',s:'参与 '+dashFmt(tp)+' 人次'}
+  ];
+  let h='';
+  kps.forEach(k=>{h+='<div class="kp'+(k.hot?' hot':'')+'"><div class="n">'+k.n+'</div><div class="m">'+k.m+'</div><div class="s">'+k.s+'</div></div>';});
+  document.getElementById('dashKpis').innerHTML=h;
+}
+function dashGrid(){
+  const isAll=DASH_CUR==='all';
+  const curD=dCurData();
+  const maxCamp=Math.max(...STATIONS.map(t=>dCur(t,'reg',2)),1);
+  let h='';
+  STATIONS.forEach(s=>{
+    const p=PROF[s]||{},lv=p.level||'';
+    const par=curD&&curD[s]?curD[s].par[1]:0;
+    const camp=dCur(s,'reg',2),card=dCur(s,'dev',0),vol=dCur(s,'dev',1);
+    const mM=DASH_CUR==='all'?(dLatest()||''):DASH_CUR;
+    h+='<div class="st" onclick="openStation(\''+s+'\')">'
+      +'<div class="nm">'+s+'</div>'
+      +'<div class="lv'+(lv?'':' none')+'">'+lv+'</div>'
+      +'<div class="ow">'+(p.owner||'')+' · '+(p.post||'').slice(0,8)+'</div>'
+      +'<div class="row"><span>入营</span><b>'+dashFmt(camp)+'</b></div>'
+      +'<div class="row"><span>新卡</span><b>'+dashFmt(card)+'</b></div>'
+      +'<div class="row"><span>采量</span><b>'+dashFmt(vol)+'</b></div>'
+      +dashBar(camp,maxCamp)
+      +'<div class="foot"><span>'+mM+'月家长参与 '+dashPct(par)+'</span><span>▼ 详情</span></div>'
+      +'</div>';
+  });
+  document.getElementById('dashGrid').innerHTML=h;
+}
+function dashRankView(){
+  const isAll=DASH_CUR==='all';
+  const curM=DASH_CUR==='all'?null:DASH_CUR;
+  const mk=(title,get,desc,fmt)=>{return{title,get,desc,fmt};};
+  const lists=[];
+  lists.push(mk((isAll?'累计':'')+'入营',s=>dCur(s,'reg',2),true,v=>dashFmt(v)+' 人'));
+  lists.push(mk((isAll?'累计':'')+'学生新卡',s=>dCur(s,'dev',0),true,v=>dashFmt(v)+' 张'));
+  lists.push(mk((isAll?'累计':'')+'学生采量',s=>dCur(s,'dev',1),true,v=>dashFmt(v)+' 份'));
+  if(curM){
+    lists.push(mk(curM+'月家长参与度',s=>DASH_DB[curM][s]?DASH_DB[curM][s].par[1]:0,true,v=>dashPct(v)));
+    lists.push(mk(curM+'月科普人次',s=>DASH_DB[curM][s]?DASH_DB[curM][s].dev[3]:0,true,v=>dashFmt(v)+' 人'));
+    lists.push(mk(curM+'月科普转化率',s=>{const d=DASH_DB[curM][s];return d.dev[3]>0?d.dev[4]/d.dev[3]:0;},true,v=>dashPct(v)));
+  }
+  let h='<div class="rank-wrap">';
+  lists.forEach(L=>{
+    const arr=STATIONS.map(t=>({t,v:L.get(t)})).sort((a,b)=>L.desc?b.v-a.v:a.v-b.v);
+    const mx=Math.max(...arr.map(x=>x.v),1);
+    let r='<div class="rank-card"><h3>'+L.title+'</h3>';
+    arr.forEach((x,i)=>{
+      r+='<div class="rank-row" onclick="openStation(\''+x.t+'\')" style="cursor:pointer">'
+        +'<div class="rank-no">'+(i+1)+'</div><div class="rnm">'+x.t+'</div>'
+        +'<div class="rank-bar"><i style="width:'+Math.round(x.v/mx*100)+'%"></i></div>'
+        +'<div class="rank-val">'+L.fmt(x.v)+'</div></div>';
+    });
+    h+=r+'</div>';
+  });
+  h+='</div>';
+  document.getElementById('dashRank').innerHTML=h;
+}
+function dashWeak(){
+  const warn=[];
+  const cur=dCurData();
+  const prevM=cur?dPrevMonth(DASH_CUR):null;
+  const prev=prevM?DASH_DB[prevM]:null;
+  const f=n=>dashFmt(n);
+  const tagM=DASH_CUR==='all'?'':(DASH_CUR+'月');
+  STATIONS.forEach(s=>{
+    const p=PROF[s]||{},notes=[];
+    const base=cur;
+    if(base&&base[s]){
+      const pb=base[s].par[1];
+      if(pb<0.35&&base[s].par[0]>0)notes.push(tagM+'家长参与度仅'+dashPct(pb)+'（全集团第'+dashRank(s,t=>(cur?cur[t].par[1]:0))+'）→ 对照 怀远95.5% / 舒城94.2%');
+      if(base[s].dev[3]===0&&base[s].reg[2]>0)notes.push(tagM+'科普为0，学生招进来没有科普动作');
+      if(base[s].reg[2]===0)notes.push(tagM+'入营为0');
+    }
+    if(prev&&prev[s]&&base&&base[s]){
+      if(prev[s].dev[0]>0&&base[s].dev[0]<prev[s].dev[0])notes.push('学生新卡环比下降 '+f(prev[s].dev[0]-base[s].dev[0])+' 张（'+f(prev[s].dev[0])+'→'+f(base[s].dev[0])+'）');
+      if(prev[s].reg[2]>0&&base[s].reg[2]<prev[s].reg[2])notes.push('入营环比下降 '+f(prev[s].reg[2]-base[s].reg[2])+' 人');
+    }
+    if(p.level&&p.level.indexOf('L1')===0)notes.push('成熟度'+p.level+'，运营思路待升级');
+    if(notes.length){
+      const pb=base&&base[s]?base[s].par[1]:0;
+      warn.push({s,notes,par7:pb,ref:dashRef(s)});
+    }
+  });
+  warn.sort((x,y)=>x.par7-y.par7||y.notes.length-x.notes.length);
+  let h='<div class="card"><h2>需要盯的站 · '+warn.length+' 个预警项</h2><p class="muted">规则：家长参与度＜35% / 科普为0 / 新卡或入营环比下降 / 成熟度L1。点站名看详情。</p>';
+  warn.forEach(w=>{
+    h+='<div class="dd-panel" style="margin-bottom:12px"><h3><a style="color:var(--blue-700);cursor:pointer;text-decoration:underline" onclick="openStation(\''+w.s+'\')">'+w.s+'</a>'
+      +' <span class="tag" style="background:var(--warn)">'+w.notes.length+' 项预警</span></h3>';
+    w.notes.forEach(n=>{h+='<div style="font-size:13px;padding:3px 0"><span class="tg tg-warn">注意</span>'+n+'</div>';});
+    if(w.ref)h+='<div style="font-size:12px;color:var(--muted);margin-top:6px">建议对照：'+w.ref+'</div>';
+    h+='</div>';
+  });
+  document.getElementById('dashWeak').innerHTML=h;
+}
+function dashRef(s){
+  const map={
+    '商都':'宿松（自我管理签约仪式）、五河（家长全程介入）',
+    '左旗':'怀远（家长参与度公司拔尖）、舒城（学生认可度高）',
+    '怀集':'五河（义卖+政协公信力）',
+    '南陵':'怀远（家长会+结营青春答卷）',
+    '乐昌':'五河（创新义卖）、舒城（学生认可度高）',
+    '泾县':'灵璧（科普老带新2880人）、扎旗（邀约912人）',
+    '叶集':'五河（义卖形式）、南陵湾沚（多部门联动）',
+    '定安':'灵璧（双向复盘）、凤台（多元化面试）',
+    '龙游':'五河（小组长制/义卖）、怀集（项目推介官）',
+    '翁旗':'扎旗（星辰计划）、怀集（青燕展翅）',
+    '庐江':'五河（创新活动）、怀远（家长参与）',
+    '广德':'宿松（小规模稳扎）、怀集（品牌化运营）',
+    '丰镇':'扎旗（4人从执行者变思考者）、凤台（面试机制）',
+    '灵璧':'怀远（小组长管理）、扎旗（授权机制）'
+  };
+  return map[s]||'五河（义卖+家长介入）、怀远（家长参与）';
+}
+function dashView(v){
+  document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
+  const tabs={'grid':'dashGrid','rank':'dashRank','weak':'dashWeak'};
+  Object.keys(tabs).forEach(k=>{document.getElementById(tabs[k]).style.display=(k===v)?'block':'none';});
+  const idx=['grid','rank','weak'].indexOf(v);
+  document.querySelectorAll('.dtab')[idx].classList.add('active');
+  if(v==='rank'&&!document.getElementById('dashRank').innerHTML)dashRankView();
+  if(v==='weak'&&!document.getElementById('dashWeak').innerHTML)dashWeak();
+}
+function backDash(){document.getElementById('dashDetail').style.display='none';document.getElementById('dashGrid').style.display='block';document.getElementById('dashRank').style.display='block';document.getElementById('dashWeak').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+function openStation(s){
+  const cur=dCurData();
+  const p=PROF[s]||{},sm=SEMI[s]||{};
+  const lv=p.level||'—';
+  const d6=sm.yf?'<div class="prow"><span class="k">半年度·扬帆</span><span class="v">'+sm.yf+'</span></div>':'';
+  const d7=sm.weak?'<div class="prow"><span class="k">半年度·不足</span><span class="v">'+sm.weak+'</span></div>':'';
+  const d8=sm.q3?'<div class="prow"><span class="k">半年度·Q3</span><span class="v">'+sm.q3+'</span></div>':'';
+  const tags=(p.tags||[]).map(t=>'<span>'+t+'</span>').join('');
+  const b=(cur||{})[s]||{reg:[0,0,0],dev:[0,0,0,0,0],camp:[0,0,0],par:[0,0]};
+  const prevM=cur?dPrevMonth(DASH_CUR):null;
+  const prev=prevM?(DASH_DB[prevM][s]||null):null;
+  const curM=DASH_CUR==='all'?(dLatest()||''):DASH_CUR;
+  const cmpTbl=function(){
+    const rows=[
+      ['报名人数','reg',0],['面试人数','reg',1],['入营人数','reg',2],
+      ['学生新卡','dev',0],['学生采量','dev',1],['在营无偿献浆','dev',2],['在营科普','dev',3],['科普转化新卡','dev',4],
+      ['入营总数','camp',0],['入营·男','camp',1],['入营·女','camp',2],
+      ['家长参与人数','par',0],['家长参与度','par',1,'pct']
+    ];
+    let h='<div class="tbl-scroll"><table class="dash-table"><tr><th>指标</th>';
+    if(prev)h+='<th>'+prevM+'月</th>';
+    h+='<th>'+curM+'月</th>';
+    if(prev)h+='<th>环比</th>';
+    h+='</tr>';
+    rows.forEach(r=>{
+      const fmt=r[3]==='pct'?(v)=>dashPct(v):(v)=>dashFmt(v);
+      h+='<tr><td class="k">'+r[0]+'</td>';
+      if(prev)h+='<td>'+fmt(prev[r[1]][r[2]]||0)+'</td>';
+      h+='<td>'+fmt(b[r[1]][r[2]]||0)+'</td>';
+      if(prev){const dl=dashDelta(prev[r[1]][r[2]]||0,b[r[1]][r[2]]||0);h+='<td class="'+dl.cls+'">'+dl.txt+'</td>';}
+      h+='</tr>';
+    });
+    h+='</table></div>';
+    return h;
+  }();
+  const ana=analyze(s);
+  const anaHtml='<ul class="ana">'+ana.map(x=>'<li><span class="tg '+x.cls+'">'+x.tag+'</span>'+x.text+'</li>').join('')+'</ul>';
+  const cmpSvg=function(){
+    const items=[['报名','reg',0],['入营','reg',2],['新卡','dev',0],['采量','dev',1]];
+    const cv={},pv={};
+    items.forEach(it=>{cv[it[0]]=b[it[1]][it[2]]||0;pv[it[0]]=prev?(prev[it[1]][it[2]]||0):0;});
+    const mx=Math.max(...items.map(i=>Math.max(cv[i[0]],pv[i[0]])),1);
+    let h='<div class="mini-cmp">';
+    items.forEach(it=>{
+      const hh=Math.max(2,Math.round(cv[it[0]]/mx*60));
+      const hp=prev?Math.max(2,Math.round(pv[it[0]]/mx*60)):0;
+      h+='<div class="m"><div class="bars">';
+      if(prev)h+='<i style="height:'+hp+'px" title="'+prevM+'月 '+dashFmt(pv[it[0]])+'"></i>';
+      h+='<i class="b7" style="height:'+hh+'px" title="'+curM+'月 '+dashFmt(cv[it[0]])+'"></i>'
+        +'</div><div class="lbl">'+it[0]+'<br><span style="font-size:10px">'+(prev?dashFmt(pv[it[0]])+'→':'')+dashFmt(cv[it[0]])+'</span></div></div>';
+    });
+    h+='</div><div class="dash-note">'+(prev?'■ '+prevM+'月　':'')+'■ '+curM+'月</div>';
+    return h;
+  }();
+  document.getElementById('dashDetail').innerHTML=
+    '<button class="back" onclick="backDash()">← 返回总览</button>'
+    +'<div class="dd-head"><div><div class="t">'+s+'浆站 · 扬帆数据看板</div><div class="sub">'+(p.owner||'')+' 负责 · '+(p.exp||'')+'</div></div><div class="badge">成熟度 '+(lv||'未标注')+'</div></div>'
+    +'<div class="dd-cols">'
+    +'<div>'
+    +'<div class="dd-panel"><h3>负责人画像</h3>'
+    +'<div class="prow"><span class="k">负责人</span><span class="v">'+(p.owner||'—')+'</span></div>'
+    +'<div class="prow"><span class="k">本职岗位</span><span class="v">'+(p.post||'—')+'</span></div>'
+    +'<div class="prow"><span class="k">项目经验</span><span class="v">'+(p.exp||'—')+'</span></div>'
+    +'<div class="prow"><span class="k">成熟度档</span><span class="v">'+(lv==='—'?'未标注':lv)+'</span></div>'
+    +'<div class="tags">'+(tags||'<span>—</span>')+'</div>'
+    +'<p class="muted" style="margin-top:10px">'+dashEsc(p.note||'')+'</p></div>'
+    +'<div class="dd-panel"><h3>半年度会议要点</h3>'+d6+d7+d8+'</div>'
+    +'</div>'
+    +'<div>'
+    +'<div class="dd-panel"><h3>'+(prev?prevM+'月 vs '+curM+'月':'')+'数据汇总'+(prev?'':'（'+curM+'月）')+'</h3>'+cmpTbl+'<div style="margin-top:12px">'+cmpSvg+'</div></div>'
+    +'<div class="dd-panel"><h3>针对性分析</h3>'+anaHtml
+    +'<button class="copy-btn" onclick="copyAna(\''+s+'\')">复制分析文字（可直接贴汇报）</button></div>'
+    +'</div>'
+    +'</div>';
+  document.getElementById('dashGrid').style.display='none';
+  document.getElementById('dashRank').style.display='none';
+  document.getElementById('dashWeak').style.display='none';
+  document.getElementById('dashDetail').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function dashEsc(t){return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function analyze(s){
+  const p=PROF[s]||{},sm=SEMI[s]||{},A=[];
+  const f=n=>dashFmt(n);
+  const cur=dCurData();
+  const latestM=dLatest(),latest=latestM?DASH_DB[latestM]:null;
+  const base=cur||latest||{};
+  const b=base[s]||{};
+  const prevM=cur?dPrevMonth(DASH_CUR):null;
+  const prev=prevM?DASH_DB[prevM]:null;
+  // 环比（当前月且存在上一个月时）
+  if(cur&&prev&&cur[s]&&prev[s]){
+    const diffs=[['报名',prev[s].reg[0],cur[s].reg[0]],['入营',prev[s].reg[2],cur[s].reg[2]],['学生新卡',prev[s].dev[0],cur[s].dev[0]],['学生采量',prev[s].dev[1],cur[s].dev[1]],['科普人次',prev[s].dev[3],cur[s].dev[3]]];
+    const up=diffs.filter(d=>d[2]>d[1]).sort((x,y)=>(y[2]-y[1])-(x[2]-x[1]));
+    const dn=diffs.filter(d=>d[2]<d[1]).sort((x,y)=>(x[1]-x[2])-(y[1]-y[2]));
+    let cyc=[];
+    up.slice(0,2).forEach(d=>cyc.push('<b>'+d[0]+'</b> '+f(d[1])+'→'+f(d[2])+'（+'+f(d[2]-d[1])+'）'));
+    dn.slice(0,2).forEach(d=>cyc.push('<b>'+d[0]+'</b> '+f(d[1])+'→'+f(d[2])+'（-'+f(d[1]-d[2])+'）'));
+    if(cyc.length)A.push({cls:'tg-cyc',tag:'环比',text:DASH_CUR+'月对比'+prevM+'月：'+cyc.join('；')});
+  }
+  // 排名（当前视图）
+  const rks=[['入营',dashRank(s,t=>dCur(t,'reg',2))],['学生新卡',dashRank(s,t=>dCur(t,'dev',0))],['学生采量',dashRank(s,t=>dCur(t,'dev',1))]];
+  if(cur)rks.push([DASH_CUR+'月家长参与',dashRank(s,t=>cur[t].par[1])]);
+  const best=rks.slice().sort((x,y)=>x[1]-y[1])[0];
+  if(best[1]<=5)A.push({cls:'tg-rank',tag:'排名',text:'<b>'+best[0]+'</b>排全集团第 '+best[1]+' 名（共'+STATIONS.length+'站），是这张表的头部。'});
+  else A.push({cls:'tg-rank',tag:'排名',text:'相对靠前的是<b>'+best[0]+'</b>（第 '+best[1]+' 名），其余指标多为中后段。'});
+  // 亮点
+  const don=dAll(s,'dev',2);
+  if(don>0)A.push({cls:'tg-star',tag:'亮点',text:'<b>在营学生无偿献浆 '+don+' 人</b>。全集团同期总共才 '+dAllTot('dev',2)+' 人，这个动作本身就稀缺，可作标杆故事。'});
+  const pb=b.par[1]||0;
+  if(pb>=0.75&&pb<=1.2)A.push({cls:'tg-star',tag:'亮点',text:'<b>'+(latestM||'')+'月家长参与度 '+dashPct(pb)+'</b>，家长端做得到位（全集团中位约六成），是「知情度100%」的真实支撑。'});
+  if(b.dev[3]>0){const cv=b.dev[4]/b.dev[3];
+    if(cv>=0.4)A.push({cls:'tg-star',tag:'亮点',text:'<b>'+(latestM||'')+'月科普转化率 '+dashPct(cv)+'</b>（'+f(b.dev[4])+'/'+f(b.dev[3])+'），科普到新卡的链路转得动。'});
+  }
+  if(cur&&prev&&prev[s]){
+    if(prev[s].dev[0]>0&&cur[s].dev[0]/prev[s].dev[0]>=1.5)A.push({cls:'tg-star',tag:'亮点',text:'<b>学生新卡环比 '+dashPct(cur[s].dev[0]/prev[s].dev[0]-1)+'</b>（'+f(prev[s].dev[0])+'→'+f(cur[s].dev[0])+'），增长动能足。'});
+    if(prev[s].reg[2]>0&&cur[s].reg[2]/prev[s].reg[2]>=1.5)A.push({cls:'tg-star',tag:'亮点',text:'<b>入营环比 '+dashPct(cur[s].reg[2]/prev[s].reg[2]-1)+'</b>（'+f(prev[s].reg[2])+'→'+f(cur[s].reg[2])+'），扩量动作落地了。'});
+  }
+  // 短板
+  if(pb<0.35&&b.par[0]>0)A.push({cls:'tg-warn',tag:'短板',text:'<b>'+(latestM||'')+'月家长参与度 '+dashPct(pb)+'（第 '+dashRank(s,t=>(latest?latest[t].par[1]:0))+' 名）</b>，家长端明显偏弱。对照怀远（95.5%）、舒城（94.2%）的做法：开营即建家长群、进站参与、结营见证，一环都不能少。'});
+  if(b.dev[3]===0&&b.reg[2]>0)A.push({cls:'tg-warn',tag:'短板',text:'<b>'+(latestM||'')+'月科普为0</b>——学生招进来了，但科普动作缺位，新卡转化就断了源头。'});
+  if(cur&&prev&&prev[s]){
+    if(cur[s].dev[0]<prev[s].dev[0])A.push({cls:'tg-warn',tag:'短板',text:'<b>学生新卡环比 -'+f(prev[s].dev[0]-cur[s].dev[0])+' 张</b>（'+f(prev[s].dev[0])+'→'+f(cur[s].dev[0])+'），增长在退坡，看是招募质量还是转化动作的问题。'});
+    if(cur[s].reg[2]<prev[s].reg[2])A.push({cls:'tg-warn',tag:'短板',text:'<b>入营环比 -'+f(prev[s].reg[2]-cur[s].reg[2])+' 人</b>（'+f(prev[s].reg[2])+'→'+f(cur[s].reg[2])+'），规模在收缩，确认是主动控制还是招募乏力。'});
+  }
+  // 画像结合
+  const lv=p.level||'';
+  if(lv.indexOf('L1')===0)A.push({cls:'tg-pro',tag:'画像',text:'负责人'+(p.owner||'')+'为<b>成熟度'+lv+'</b>，运营思维还在起步段。建议先按「一条线工具包」把四层穿透跑一遍，再看哪层断了，而不是先扩量。'});
+  const tags=p.tags||[];
+  if(tags.indexOf('创新')>=0)A.push({cls:'tg-pro',tag:'画像',text:'负责人带<b>创新基因</b>（'+dashEsc(p.owner||'')+'），站内已有特色做法，缺的是把创新沉淀成可复制的方法。'});
+  if(tags.indexOf('谨慎')>=0)A.push({cls:'tg-pro',tag:'画像',text:'该站<b>受外部环境约束偏谨慎</b>（政府关系/舆情顾虑），扩量动作受限属正常，重点是守好口碑、做深家长端。'});
+  // 半年度
+  if(sm.weak)A.push({cls:'tg-semi',tag:'半年度',text:dashEsc(sm.weak)+'。'});
+  if(sm.q3&&sm.q3!==sm.weak)A.push({cls:'tg-semi',tag:'Q3',text:dashEsc(sm.q3)+'。'});
+  return A;
+}
+function copyAna(s){
+  const sm=SEMI[s]||{},p=PROF[s]||{};
+  const f=n=>dashFmt(n);
+  const cur=dCurData();
+  const latestM=dLatest(),latest=latestM?DASH_DB[latestM]:null;
+  const b=(cur||latest||{})[s]||{reg:[0,0,0],dev:[0,0,0,0,0],camp:[0,0,0],par:[0,0]};
+  const prevM=cur?dPrevMonth(DASH_CUR):null;
+  const prev=prevM?(DASH_DB[prevM][s]||null):null;
+  const curM=cur?DASH_CUR:(latestM||'');
+  let t='【'+s+'浆站 · 扬帆数据要点（'+curM+'月）】\n';
+  if(prev)t+='招募：报名 '+f(prev.reg[0])+'→'+f(b.reg[0])+'，入营 '+f(prev.reg[2])+'→'+f(b.reg[2])+'。\n';
+  else t+='招募：报名 '+f(b.reg[0])+' 人，入营 '+f(b.reg[2])+' 人。\n';
+  if(prev)t+='发展：学生新卡 '+f(prev.dev[0])+'→'+f(b.dev[0])+'，采量 '+f(prev.dev[1])+'→'+f(b.dev[1])+'，无偿献浆 '+(prev.dev[2]+b.dev[2])+' 人，科普 '+f(prev.dev[3])+'→'+f(b.dev[3])+'。\n';
+  else t+='发展：学生新卡 '+f(b.dev[0])+' 张，采量 '+f(b.dev[1])+' 份，无偿献浆 '+f(b.dev[2])+' 人，科普 '+f(b.dev[3])+' 人次。\n';
+  t+='家长：参与度 '+dashPct(b.par[1])+'（参与 '+f(b.par[0])+' 人）。\n';
+  const A=analyze(s);
+  t+='\n分析：\n';
+  A.forEach((x,i)=>{t+=(i+1)+'. '+'【'+x.tag+'】'+x.text.replace(/<[^>]+>/g,'')+'\n';});
+  if(sm.weak)t+='\n半年度不足：'+sm.weak+'\n';
+  if(sm.q3)t+='Q3计划：'+sm.q3+'\n';
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>alert('已复制，可直接粘贴进汇报材料')).catch(()=>dashCopyFallback(t));}
+  else dashCopyFallback(t);
+}
+function dashCopyFallback(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('已复制，可直接粘贴进汇报材料');}
+function setMonth(m){
+  DASH_CUR=m;
+  renderMonthSwitch();
+  dashKpi();dashGrid();dashRankView();
+  const active=document.querySelector('.dtab.active');
+  if(active){const txt=active.textContent;if(txt.indexOf('盯')>=0)dashWeak();}
+}
+function initDash(){
+  DASH_DB={};DASH_ORDER=[];
+  if(typeof DASH_RAW!=='undefined'&&DASH_RAW&&Object.keys(DASH_RAW).length){
+    DASH_DB=DASH_RAW;
+    DASH_ORDER=Object.keys(DASH_RAW);
+  }else{
+    if(typeof M6!=='undefined'&&M6)DASH_DB['6']=M6;
+    if(typeof M7!=='undefined'&&M7)DASH_DB['7']=M7;
+    DASH_ORDER=Object.keys(DASH_DB);
+    if(!DASH_ORDER.length){DASH_DB['6']={};DASH_ORDER=['6'];}
+  }
+  DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
+  DASH_CUR=dLatest()||'all';
+  renderMonthSwitch();
+  dashKpi();dashGrid();
+}
+
+/* ============ 数据看板上传接口（半自动：本机解析，不连服务器） ============ */
+let NEWD=null;
+function upMsg(html){const m=document.getElementById('dashUpMsg');m.innerHTML=html||'';}
+function openUpModal(){document.getElementById('upMask').style.display='flex';}
+function closeUpModal(){document.getElementById('upMask').style.display='none';}
+function dashDownloadTpl(){
+  const wb=XLSX.utils.book_new();
+  const latestM=dLatest();
+  const src=latestM?(DASH_DB[latestM]||{}):{};
+  const rows=[['站点','报名人数','面试人数','入营人数','全站学生新卡数','全站学生采量','在营学生无偿献浆数','在营学生科普数','科普转化新卡数','总数','男','女','家长参与人数','参与度']];
+  STATIONS.forEach(s=>{
+    const d=src[s]||{reg:[0,0,0],dev:[0,0,0,0,0],camp:[0,0,0],par:[0,0]};
+    rows.push([s,d.reg[0],d.reg[1],d.reg[2],d.dev[0],d.dev[1],d.dev[2],d.dev[3],d.dev[4],d.camp[0],d.camp[1],d.camp[2],d.par[0],d.par[1]]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:9},{wch:10},{wch:10},{wch:10},{wch:13},{wch:12},{wch:14},{wch:12},{wch:12},{wch:9},{wch:7},{wch:7},{wch:11},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws,'改成月份如8月');
+  XLSX.writeFile(wb,'扬帆数据看板_更新模版.xlsx');
+}
+function dashParseSheet(aoa){
+  const out={};let bad=0;const miss=[];
+  let hr=-1;
+  for(let i=0;i<aoa.length;i++){
+    const s=aoa[i].map(v=>String(v==null?'':v).replace(/\s/g,'')).join('|');
+    if(s.indexOf('报名人数')>=0&&s.indexOf('入营人数')>=0){hr=i;break;}
+  }
+  if(hr<0)return{data:out,bad:1,miss:['找不到「报名人数/入营人数」列头行']};
+  const hdr=aoa[hr].map(v=>String(v==null?'':v).replace(/\s/g,''));
+  const colOf=lab=>hdr.findIndex(h=>h===lab);
+  const cSt=colOf('浆站');
+  const cBm=colOf('报名人数'),cMs=colOf('面试人数'),cRy=colOf('入营人数');
+  const cXk=colOf('全站学生新卡数'),cCl=colOf('全站学生采量'),cWc=colOf('在营学生无偿献浆数'),cKp=colOf('在营学生科普数'),cZh=colOf('科普转化新卡数');
+  const cTot=colOf('总数'),cM=colOf('男'),cF=colOf('女');
+  const cJf=colOf('家长参与人数'),cJd=colOf('参与度');
+  const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0;};
+  const norm=name=>String(name==null?'':name).replace(/\s/g,'');
+  for(let i=hr+1;i<aoa.length;i++){
+    const row=aoa[i];
+    const raw=norm(row[cSt]);
+    if(!raw)continue;
+    if(raw==='总计'||raw==='共计')break;
+    const s=STATIONS.find(x=>norm(x)===raw)||STATIONS.find(x=>raw.indexOf(norm(x))>=0)||STATIONS.find(x=>norm(x).indexOf(raw)>=0);
+    if(!s){bad++;continue;}
+    const d={reg:[0,0,0],dev:[0,0,0,0,0],camp:[0,0,0],par:[0,0]};
+    if(cBm>=0)d.reg[0]=num(row[cBm]);
+    if(cMs>=0)d.reg[1]=num(row[cMs]);
+    if(cRy>=0)d.reg[2]=num(row[cRy]);
+    if(cXk>=0)d.dev[0]=num(row[cXk]);
+    if(cCl>=0)d.dev[1]=num(row[cCl]);
+    if(cWc>=0)d.dev[2]=num(row[cWc]);
+    if(cKp>=0)d.dev[3]=num(row[cKp]);
+    if(cZh>=0)d.dev[4]=num(row[cZh]);
+    if(cTot>=0)d.camp[0]=num(row[cTot]);
+    if(cM>=0)d.camp[1]=num(row[cM]);
+    if(cF>=0)d.camp[2]=num(row[cF]);
+    if(cJf>=0)d.par[0]=num(row[cJf]);
+    if(cJd>=0){const v=parseFloat(row[cJd]);d.par[1]=isFinite(v)?v:0;}
+    else if(d.reg[2]>0)d.par[1]=Math.round(d.par[0]/d.reg[2]*10000)/10000;
+    out[s]=d;
+  }
+  STATIONS.forEach(s=>{if(!out[s])miss.push(s);});
+  return{data:out,bad,miss};
+}
+function dashParseFile(){
+  const f=document.getElementById('dashFile').files[0];
+  if(!f){upMsg('<b class="err">先选择 Excel 文件</b>');return;}
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const parsed=[];let totalBad=0;const allMiss=[];
+      wb.SheetNames.forEach(sn=>{
+        const aoa=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});
+        const r=dashParseSheet(aoa);
+        if(Object.keys(r.data).length===0)return; // 无站点数据（如附加小表）自动跳过
+        totalBad+=r.bad;
+        r.miss.forEach(x=>allMiss.push(x));
+        const m=String(sn).replace(/\s/g,'').match(/(\d{1,2})\s*月/);
+        const mNum=m?String(parseInt(m[1],10)):String(sn).trim();
+        parsed.push({m:mNum,r});
+      });
+      if(!parsed.length){upMsg('<b class="err">没有解析出任何站点数据</b>。检测到的工作表：「'+wb.SheetNames.join('、')+'」。请确认是「6月扬帆计划数据汇总」同款格式（含 报名人数/入营人数 列头）。');return;}
+      if(totalBad){upMsg('<b class="err">有 '+totalBad+' 行站点名没认出来</b>，请检查站点名是否与表内一致。');return;}
+      const applied=[];
+      parsed.forEach(p=>{
+        DASH_DB[p.m]=p.r.data;
+        if(DASH_ORDER.indexOf(p.m)<0)DASH_ORDER.push(p.m);
+        applied.push(p.m+'月');
+      });
+      DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
+      NEWD={};
+      DASH_ORDER.forEach(m=>{NEWD[m]=DASH_DB[m];});
+      const lastM=parsed[parsed.length-1].m;
+      const missTxt=allMiss.length?('<br><b class="err">缺站：</b>'+[...new Set(allMiss)].join('、')+' 该站按 0 处理'):'';
+      upMsg('<b class="ok">✓ 解析成功</b>：'+applied.join('、')+'数据已载入，视图已切到 '+applied[applied.length-1]+'。点「下载新 dash_data.js」保存，替换部署目录同名文件并重新发布。'+missTxt);
+      toast('数据解析成功，已载入看板');
+      document.getElementById('dashDl').disabled=false;
+      dashApply(lastM);
+    }catch(err2){
+      upMsg('<b class="err">解析失败：'+err2.message+'</b> 请确认是模版格式的 Excel。');
+    }
+  };
+  rd.readAsArrayBuffer(f);
+}
+function dashApply(goMonth){
+  ['dashRank','dashWeak'].forEach(id=>{document.getElementById(id).innerHTML='';});
+  if(goMonth)setMonth(goMonth);
+  else{dashKpi();dashGrid();dashRankView();}
+}
+function dashDownloadJs(){
+  if(!NEWD){upMsg('<b class="err">请先上传并解析</b>');return;}
+  const raw={};
+  DASH_ORDER.forEach(m=>{raw[m]=DASH_DB[m];});
+  const hdr='// 扬帆OS 数据看板数据块——由「更新数据」接口生成，覆盖替换旧文件即可\n';
+  let js=hdr+'var DASH_RAW='+JSON.stringify(raw)+';\n';
+  if(DASH_DB['6'])js+='var M6='+JSON.stringify(DASH_DB['6'])+';\n';
+  if(DASH_DB['7'])js+='var M7='+JSON.stringify(DASH_DB['7'])+';\n';
+  js+='var PROF='+JSON.stringify(PROF)+';\n'
+    +'var SEMI='+JSON.stringify(SEMI)+';\n'
+    +'var STATIONS='+JSON.stringify(STATIONS)+';\n';
+  const blob=new Blob([js],{type:'text/javascript;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='dash_data.js';
+  document.body.appendChild(a);a.click();a.remove();
+  upMsg('<b class="ok">✓ 已下载 dash_data.js</b>。替换部署目录里的同名文件并重新发布（GitHub Pages 推送即可）。页面预览已是新数据。');
+}
+document.getElementById('dlTpl').onclick=dashDownloadTpl;
+document.getElementById('dashParse').onclick=dashParseFile;
+document.getElementById('dashDl').onclick=dashDownloadJs;
+document.getElementById('dashFile').onchange=()=>{const f=document.getElementById('dashFile').files[0];if(f)upMsg('已选择：'+f.name+'，点「解析并预览」继续。');};
+
+
+/* ============ 交流论坛 ============ */
+const BOARDS=[
+  {id:'recruit',n:'招募筹备',d:'报名·面试·宣传',c:'#1b3a6b'},
+  {id:'camp',n:'营期执行',d:'活动·小组·新卡',c:'#2a9d8f'},
+  {id:'review',n:'结营复盘',d:'数据·总结·改进',c:'#3a6ea5'},
+  {id:'parent',n:'家长沟通',d:'家长群·质疑应对',c:'#b0833a'},
+  {id:'cases',n:'经验案例',d:'标杆做法·避坑',c:'#c8a04b'},
+  {id:'help',n:'问题求助',d:'卡点·急事·支招',c:'#c2410c'}
+];
+const FORUM_KEY='yf_forum_v1';
+let FB={posts:[]};
+let fbBid='all',fbSort='new',fbView=null;
+function fbLoad(){try{FB=JSON.parse(localStorage.getItem(FORUM_KEY))||{posts:[]}}catch(e){FB={posts:[]}}if(!FB||!Array.isArray(FB.posts))FB={posts:[]};}
+function fbSave(){localStorage.setItem(FORUM_KEY,JSON.stringify(FB));}
+function fbB(id){return BOARDS.find(x=>x.id===id)||{n:'未分类',c:'#8a97a5'};}
+function fbT(ts){const d=new Date(ts),now=new Date();
+  if(d.toDateString()===now.toDateString())return '今天 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  if(d.getFullYear()===now.getFullYear())return (d.getMonth()+1)+'月'+d.getDate()+'日';
+  return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+/* 热门帖子轮播 */
+const HOT_ICONS={'recruit':'📢','exec':'🎯','review':'📊','parent':'👨‍👩‍👧','case':'💡','help':'🆘'};
+const HOT_GRADS={'recruit':'linear-gradient(135deg,#1a4b8c,#0d2847)','exec':'linear-gradient(135deg,#155724,#0d3d18)','review':'linear-gradient(135deg,#1a3a6b,#0f2240)','parent':'linear-gradient(135deg,#7c2d12,#451a03)','case':'linear-gradient(135deg,#4338ca,#251d7a)','help':'linear-gradient(135deg,#9a3412,#451a03)'};
+function fbHotRender(){
+  const c=document.getElementById('fbCarousel');const d=document.getElementById('fbDots');
+  if(!FB.posts.length){c.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:13px;padding:20px 0;text-align:center">发帖后这里会展示热门话题</div>';d.innerHTML='';return;}
+  const hot=FB.posts.slice().sort((a,b)=>(b.likes*3+b.replies.length)-(a.likes*3+a.replies.length)).slice(0,8);
+  if(!hot.length){c.innerHTML='';d.innerHTML='';return;}
+  c.innerHTML=hot.map((p,i)=>{
+    const b=fbB(p.bid);
+    const icon=HOT_ICONS[p.bid]||'📌';
+    const grad=HOT_GRADS[p.bid]||'linear-gradient(135deg,#1a3a6b,#0d2240)';
+    return '<div class="fb-card" onclick="fbOpen(\''+p.id+'\')">'+
+      '<div class="fb-card-img" style="background:'+grad+'"><span>'+icon+'</span><div class="img-overlay"></div></div>'+
+      '<div class="fb-card-body">'+
+      '<span class="fb-card-tag" style="background:'+b.c+'">'+b.n+'</span>'+
+      '<div class="fb-card-title">'+esc(p.title)+'</div>'+
+      '<div class="fb-card-meta"><span>'+esc(p.author||'匿名')+'</span><span class="likes">👍 '+p.likes+'</span></div>'+
+      '</div></div>';
+  }).join('');
+  // 圆点指示器（仅手机端有意义，PC端卡片够宽）
+  if(hot.length>3){
+    d.innerHTML=hot.map((_,i)=>'<span class="fb-dot'+(i===0?' on':'')+'" onclick="fbSlideTo('+i+')"></span>').join('');
+  }else{d.innerHTML='';}
+  // 自动轮播
+  if(fbHotTimer)clearInterval(fbHotTimer);
+  fbHotTimer=setInterval(()=>{const el=document.getElementById('fbCarousel');if(el&&el.scrollLeft<el.scrollWidth-el.clientWidth-10){el.scrollBy({left:el.clientWidth+20,behavior:'smooth'});}else if(el){el.scrollTo({left:0,behavior:'smooth'});}},5000);}
+let fbHotTimer=null;
+function fbSlideTo(idx){
+  const cards=document.querySelectorAll('.fb-card');
+  if(cards[idx])cards[idx].scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});}
+
+function fbChips(){
+  const c=document.getElementById('fbChips');let h='<button class="fchip'+(fbBid==='all'?' on':'')+'" onclick="fbSetBid(\'all\')">全部</button>';
+  BOARDS.forEach(b=>{h+='<button class="fchip'+(fbBid===b.id?' on':'')+'" onclick="fbSetBid(\''+b.id+'\')">'+b.n+'</button>';});
+  c.innerHTML=h;}
+function fbSetBid(id){fbBid=id;fbChips();fbList();}
+function fbFiltered(){
+  const q=(document.getElementById('fbQ').value||'').trim().toLowerCase();
+  const sort=document.getElementById('fbSort').value;fbSort=sort;
+  let arr=FB.posts.filter(p=>(fbBid==='all'||p.bid===fbBid)&&(!q||(p.title+p.body+p.author).toLowerCase().includes(q)));
+  if(sort==='hot')arr=arr.slice().sort((a,b)=>(b.likes*3+b.replies.length)-(a.likes*3+a.replies.length));
+  else arr=arr.slice().sort((a,b)=>b.time-a.time);
+  return arr;}
+function fbList(){
+  fbHotRender();
+  const c=document.getElementById('fbList');
+  if(fbView){fbDetail();return;}
+  const arr=fbFiltered();
+  if(!arr.length){c.innerHTML='<div class="fb-empty">还没有帖子。<br>这里可以发求助、分享做法、互相支招。<br><b style="color:var(--blue-700)">点右上角「＋ 发新帖」发第一帖</b>。</div>';return;}
+  c.innerHTML=arr.map(p=>{
+    const b=fbB(p.bid);const rc=p.replies.length;
+    return '<div class="fpost" data-pid="'+p.id+'" onclick="fbOpen(\''+p.id+'\')">'+
+      '<span class="ftag" style="background:'+b.c+'">'+b.n+'</span>'+
+      '<span class="ft">'+esc(p.title)+'</span>'+
+      '<div class="fb">'+esc(p.body.slice(0,90))+(p.body.length>90?'…':'')+'</div>'+
+      '<div class="fmeta"><b>'+esc(p.author||'匿名')+'</b><span>'+fbT(p.time)+'</span>'+
+      '<span>👍 '+p.likes+'</span><span>💬 '+rc+'</span>'+
+      '<span class="cnt">点开看回复/支招 →</span></div></div>';}).join('');
+  if(window._fbJust){var _el=c.querySelector('[data-pid="'+window._fbJust+'"]');if(_el){_el.classList.add('fb-just');_el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){_el.classList.remove('fb-just');},2400);}window._fbJust=null;}
+}
+function fbOpen(id){fbView=id;fbDetail();}
+function fbBack(){fbView=null;fbList();}
+function fbDetail(){
+  const c=document.getElementById('fbList');
+  const p=FB.posts.find(x=>x.id===fbView);
+  if(!p){fbView=null;fbList();return;}
+  const b=fbB(p.bid);
+  const av=(p.author||'匿')[0].toUpperCase();
+  let h='<div class="fb-detail">'+
+    '<div class="fb-dhead">'+
+      '<button class="fb-back" onclick="fbBack()">← 返回交流</button>'+
+    '</div>'+
+    '<div class="fb-dcard"><div class="fb-dcard-main">'+
+      '<div class="dtag-row"><span class="dtag" style="background:'+b.c+'">'+b.n+'</span></div>'+
+      '<h3>'+esc(p.title)+'</h3>'+
+      '<div class="fb-dauthor">'+
+        '<div class="fb-davatar">'+av+'</div>'+
+        '<div class="fb-dinfo"><span class="name">'+esc(p.author||'匿名')+'</span><span class="time">'+fbT(p.time)+'</span></div>'+
+      '</div>'+
+      '<div class="fb-dbody">'+fmtPostBody(p.body)+(p.images?p.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div>'+
+    '</div>'+
+    '<div class="fb-dacts">'+
+      '<button class="fb-like'+(p.liked?' on':'')+'" onclick="fbLike(\''+p.id+'\')">👍 '+p.likes+' 有用</button>'+
+    '</div></div>';
+  /* 回复区 */
+  h+='<div class="fb-rsec"><div class="fb-rsec-title">💬 支招 <span>('+(p.replies.length)+' 条回复)</span></div>';
+  if(!p.replies.length){h+='<div class="fb-empty">还没有回复，来出个主意？</div>';}
+  p.replies.forEach(r=>{
+    const rav=(r.author||'匿')[0].toUpperCase();
+    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+rav+'</div><div class="rmeta"><b>'+esc(r.author||'匿名')+'</b> · '+fbT(r.time)+'</div></div>'+
+      '<div class="rbody">'+fmtPostBody(r.body)+(r.images?r.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div></div>';
+  });
+  /* 回复表单（含图片上传） */
+  h+='<div class="fb-rform">'+
+    '<div class="fb-rform-head"><div class="ravatar">✎</div><input id="fbReplyWho" placeholder="署名：站名·姓名" maxlength="20"></div>'+
+    '<div class="fb-rform-body"><textarea id="fbReplyIn" placeholder="你的建议/经验，可贴图…" maxlength="1000"></textarea>'+
+      '<div class="fb-rform-imgs" id="fbReplyImgs"></div>'+
+    '</div>'+
+    '<div class="fb-rform-toolbar">'+
+      '<label class="fb-img-btn">📷 插入图片<input type="file" accept="image/*" id="fbImgInput" style="display:none" onchange="fbAddImg(this)"></label>'+
+      '<button class="fb-send-btn" onclick="fbReply(\''+p.id+'\')">发送回复</button>'+
+    '</div></div></div>';
+  c.innerHTML=h;
+  const r=document.getElementById('fbReplyIn');if(r)r.focus();}
+function fmtPostBody(s){
+  return String(s).replace(/\n/g,'<br>');
+}
+var _replyImages=[];
+function fbAddImg(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>3*1024*1024){alert('图片不能超过3MB');return;}
+  const rd=new FileReader();
+  rd.onload=function(){
+    _replyImages.push(rd.result);
+    renderReplyImgs();
+  };rd.readAsDataURL(f);
+  inp.value='';
+}
+function renderReplyImgs(){
+  const c=document.getElementById('fbReplyImgs');if(!c)return;
+  c.innerHTML=_replyImages.map((src,i)=>'<div class="fb-rimg"><img src="'+src+'"><button class="rm-btn" onclick="fbRmImg('+i+')">×</button></div>').join('');
+}
+function fbRmImg(i){_replyImages.splice(i,1);renderReplyImgs();}
+function fbReply(id){
+  const p=FB.posts.find(x=>x.id===id);if(!p)return;
+  const who=(document.getElementById('fbReplyWho').value||'').trim();
+  const v=(document.getElementById('fbReplyIn').value||'').trim();
+  if(!who){document.getElementById('fbReplyWho').focus();return;}
+  if(!v&&!_replyImages.length){document.getElementById('fbReplyIn').focus();return;}
+  p.replies.push({author:who,body:v,time:Date.now(),images:_replyImages.slice()});
+  _replyImages=[];fbSave();toast('回复已发出');fbDetail();}
+function fbLike(id){
+  const p=FB.posts.find(x=>x.id===id);if(!p)return;
+  p.liked=!p.liked;p.likes+=(p.liked?1:-1);if(p.likes<0)p.likes=0;
+  fbSave();toast(p.liked?'已赞 👍':'已取消赞');fbDetail();}
+function fbNew(){
+  const sel=document.getElementById('fbBid');
+  sel.innerHTML=BOARDS.map(b=>'<option value="'+b.id+'">'+b.n+'（'+b.d+'）</option>').join('');
+  document.getElementById('fbTitle').value='';
+  document.getElementById('fbBody').value='';
+  document.getElementById('fbAuthor').value='';
+  _postImages=[];renderPostImgs();
+  document.getElementById('fbMask').style.display='flex';}
+function fbMaskHide(){document.getElementById('fbMask').style.display='none';}
+function fbPost(){
+  const bid=document.getElementById('fbBid').value;
+  const title=document.getElementById('fbTitle').value.trim();
+  const body=document.getElementById('fbBody').value.trim();
+  const author=document.getElementById('fbAuthor').value.trim();
+  if(!title){alert('请写标题');return;}
+  if(!body&&!_postImages.length){alert('请写内容或上传图片');return;}
+  if(!author){alert('请填署名（站名·姓名），方便别人对号交流');return;}
+  var np={id:'p'+Date.now(),bid:bid,title:title,body:body,author:author,time:Date.now(),likes:0,replies:[],images:_postImages.slice()};
+  FB.posts.push(np);
+  _postImages=[];fbSave();fbMaskHide();fbView=null;window._fbJust=np.id;
+  document.getElementById('fbQ').value='';
+  document.getElementById('fbSort').value='new';fbBid='all';fbChips();fbList();
+  toast('已发布：'+title);}
+var _postImages=[];
+function fbAddPostImg(inp){
+  const files=inp.files;if(!files.length)return;
+  Array.from(files).forEach(f=>{
+    if(f.size>3*1024*1020){alert(f.name+' 超过3MB');return;}
+    const rd=new FileReader();
+    rd.onload=function(){_postImages.push(rd.result);renderPostImgs();};
+    rd.readAsDataURL(f);
+  });
+  inp.value='';
+}
+function renderPostImgs(){
+  const c=document.getElementById('fbPostImgs');if(!c)return;
+  c.innerHTML=_postImages.map((src,i)=>'<div class="fb-rimg"><img src="'+src+'"><button class="rm-btn" onclick="fbRmPostImg('+i+')">×</button></div>').join('');
+}
+function fbRmPostImg(i){_postImages.splice(i,1);renderPostImgs();}
+function fbExport(){
+  const blob=new Blob([JSON.stringify(FB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='扬帆论坛备份_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);}
+document.getElementById('fbFile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{
+    const d=JSON.parse(rd.result);
+    if(!d||!Array.isArray(d.posts)){alert('文件格式不对，请选择论坛导出的备份');return;}
+    const before=FB.posts.length;
+    d.posts.forEach(np=>{if(!FB.posts.find(x=>x.id===np.id))FB.posts.push(np);});
+    fbSave();
+    alert('导入完成：新增 '+FB.posts.length+' 条（原有 '+before+' 条），重复帖已跳过。');
+    fbList();fbChips();
+  }catch(err){alert('解析失败：'+err.message);}};
+  rd.readAsText(f);e.target.value='';};
+
+/* ============ 全平台数据备份/恢复 ============ */
+function fullBackup(){
+  var data={
+    version:'1.0',
+    exportedAt:new Date().toISOString(),
+    station:document.getElementById('pptStation')?document.getElementById('pptStation').value:'',
+    forum:FB,
+    dashData:(typeof DASH_DB!=='undefined')?DASH_DB:null,
+    dashOrder:(typeof DASH_ORDER!=='undefined')?DASH_ORDER:null
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='扬帆OS全平台备份_'+new Date().toISOString().slice(0,10)+'.json';
+  toast('已导出全平台备份（论坛+看板+站点）');a.click();URL.revokeObjectURL(a.href);
+}
+function fullRestore(inp){
+  var f=inp.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var d=JSON.parse(rd.result);
+      if(!d.version){alert('不是有效的扬帆OS备份文件');return;}
+      var restored=[];
+      if(d.forum&&Array.isArray(d.forum.posts)){
+        FB=d.forum;fbSave();restored.push('交流论坛('+d.forum.posts.length+'条帖)');
+      }
+      if(d.dashData&&typeof DASH_DB!=='undefined'){
+        Object.keys(d.dashData).forEach(function(k){DASH_DB[k]=d.dashData[k];});
+        if(d.dashOrder)DASH_ORDER=d.dashOrder.slice();
+        localStorage.setItem('yangfan_dash',JSON.stringify({db:DASH_DB,order:DASH_ORDER}));
+        restored.push('看板数据');
+      }
+      if(d.station&&document.getElementById('pptStation')){
+        document.getElementById('pptStation').value=d.station;
+      }
+      alert('恢复完成：'+restored.join('、')+'。页面将刷新以加载数据。');
+      setTimeout(function(){location.reload();},1000);
+    }catch(err){alert('恢复失败：'+err.message);}
+  };
+  rd.readAsText(f);inp.value='';
+}
+
+function fbInit(){fbLoad();fbChips();fbHotRender();fbList();}
+
+/* ============ 通用交互增强（Toast / Loading / 搜索钉选 / 模块记忆） ============ */
+function toast(msg){
+  var t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove('show');},2200);
+}
+function btnBusy(btn,on,txt){
+  if(!btn)return;
+  if(on){btn._txt=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span>'+(txt||'处理中…');}
+  else{btn.disabled=false;if(btn._txt!==undefined)btn.innerHTML=btn._txt;}
+}
+function toolFilter(){
+  var q=(document.getElementById('toolSearch')?document.getElementById('toolSearch').value:'').trim().toLowerCase();
+  document.querySelectorAll('#factory .gen').forEach(function(c){
+    var h=c.querySelector('h3'),p=c.querySelector('p');
+    var txt=(h?h.textContent:'')+' '+(p?p.textContent:'');
+    c.style.display=(!q||txt.toLowerCase().indexOf(q)>=0)?'':'none';
+  });
+}
+function pinTools(){
+  document.querySelectorAll('#factory .gen').forEach(function(c){
+    var h=c.querySelector('h3');if(!h)return;
+    if(h.textContent.indexOf('汇报 PPT')>=0||h.textContent.indexOf('成长报告')>=0){
+      c.classList.add('pinned');
+      if(!h.querySelector('.pin')){var s=document.createElement('span');s.className='tag pin';s.textContent='常用';h.appendChild(s);}
+    }
+  });
+}
+
+/* ============ 初始化 ============ */
+function applyTab(tab){
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===tab));
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+  try{localStorage.setItem('yangfan_lasttab',b.dataset.tab);}catch(e){}});
+(function(){var t='dash';try{var s=localStorage.getItem('yangfan_lasttab');if(s)t=s;}catch(e){}applyTab(t);})();
+if(document.getElementById('toc')){buildToc();showMod('why');}buildFaq();startBot();initDash();detectMode();fbInit();pinTools();toolFilter();
+
+/* ============ 登录门禁（密码 yf2026） ============ */
+(function(){
+  const AUTH_KEY='yf_auth_v1';            // v4/v5 共用，同域免重复登录
+  const PASS='eWYyMDI2';                  // base64(yf2026)，避免明文裸露
+  const gate=document.getElementById('loginGate');
+  const err=document.getElementById('lgErr');
+  const btn=document.getElementById('lgBtn');
+  const pwd=document.getElementById('lgPwd');
+  const out=document.getElementById('logoutBtn');
+  function tryLogin(){
+    const v=pwd.value.trim();
+    if(btoa(v)===PASS){
+      localStorage.setItem(AUTH_KEY,'1');
+      gate.classList.add('hidden');out.style.display='block';
+    }else{
+      err.textContent='密码不对，再试一次';
+      pwd.value='';pwd.focus();
+    }
+  }
+  if(localStorage.getItem(AUTH_KEY)==='1'){
+    gate.classList.add('hidden');out.style.display='block';
+  }else{gate.classList.remove('hidden');pwd.focus();}
+  btn.onclick=tryLogin;
+  pwd.onkeydown=e=>{if(e.key==='Enter')tryLogin();};
+  out.onclick=()=>{localStorage.removeItem(AUTH_KEY);gate.classList.remove('hidden');out.style.display='none';pwd.value='';pwd.focus();};
+})();
+</script>
+</body>
+</html>

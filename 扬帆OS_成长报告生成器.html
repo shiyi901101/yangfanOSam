@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>扬帆计划 · 学生成长报告生成器</title>
+<script src="libs/xlsx.full.min.js"></script>
+<style>
+:root{
+  --ink:#12263d; --mut:#5d6b7a; --line:#e3ecf5;
+  --blue1:#123d6e; --blue2:#2d6fb5; --blue3:#5b9bdb; --blue4:#a8c8ea;
+  --ice:#f2f7fd; --soft:#e8f1fb; --ok:#1f9d6b; --warn:#d97706; --red:#d64545;
+  --shadow:0 1px 3px rgba(18,38,61,.06),0 8px 24px rgba(18,38,61,.08);
+  --shadow-l:0 4px 14px rgba(18,38,61,.10),0 18px 44px rgba(18,38,61,.14);
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f8fc;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:14px}
+header{background:linear-gradient(120deg,#0f3157 0%,#1a4f8e 55%,#2d6fb5 100%);color:#fff;padding:34px 20px 84px;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-60px;top:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 65%)}
+header::before{content:"";position:absolute;left:40%;top:0;bottom:0;width:1px;background:linear-gradient(rgba(255,255,255,.12),transparent)}
+.hd{max-width:1180px;margin:0 auto;position:relative;z-index:1}
+header h1{margin:0;font-size:26px;letter-spacing:1px;font-weight:800}
+header .sub{margin-top:8px;font-size:13px;opacity:.86;letter-spacing:.5px}
+header .crumb{margin-top:14px;font-size:11.5px;opacity:.7}
+.wrap{max-width:1180px;margin:-54px auto 0;padding:0 20px 60px;position:relative;z-index:2}
+.tabs{display:flex;gap:10px;margin-bottom:18px}
+.tab{background:#fff;border:1px solid var(--line);color:var(--mut);padding:11px 22px;border-radius:12px;cursor:pointer;font-size:13.5px;font-weight:600;box-shadow:var(--shadow);transition:.18s}
+.tab:hover{transform:translateY(-1px)}
+.tab.on{background:linear-gradient(120deg,#1a4f8e,#2d6fb5);color:#fff;border-color:transparent}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 10px;font-size:15.5px;color:var(--blue1);display:flex;align-items:center;gap:8px}
+.card h3::before{content:"";width:5px;height:16px;border-radius:3px;background:linear-gradient(var(--blue3),var(--blue2))}
+.hint{background:var(--ice);border:1px dashed var(--blue4);color:var(--mut);border-radius:9px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;line-height:1.7}
+.grid{display:grid;grid-template-columns:1.25fr .9fr;gap:16px;align-items:start}
+.rail{position:sticky;top:12px}
+.railcard{background:linear-gradient(160deg,#fff,#f4f9ff);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px;text-align:center}
+.railcard h4{margin:0 0 8px;font-size:13.5px;color:var(--blue1)}
+.mini{font-size:11px;color:var(--mut);margin-top:6px}
+.radar{display:flex;justify-content:center}
+label{display:block;font-size:12.5px;color:#34495e;margin:9px 0 4px;font-weight:600}
+input[type=text],input[type=date],textarea,select{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;font-family:inherit;color:var(--ink);background:#fff;outline:none;transition:.18s}
+input:focus,textarea:focus,select:focus{border-color:var(--blue3);box-shadow:0 0 0 3px rgba(91,155,219,.16)}
+textarea{resize:vertical;line-height:1.7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.btn{background:linear-gradient(120deg,#1a4f8e,#2d6fb5);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(45,111,181,.28);transition:.18s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(45,111,181,.36)}
+.btn.ghost{background:#fff;color:var(--blue2);border:1px solid var(--blue3);box-shadow:none}
+.btn.ghost:hover{background:var(--soft)}
+.btn.sm{padding:8px 14px;font-size:12.5px}
+.out{background:var(--ice);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:12px;font-size:12.5px;color:var(--mut);white-space:pre-wrap;line-height:1.7}
+/* 学生名单 */
+.impgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.imp p{font-size:12.5px;color:var(--mut);margin:2px 0 10px;line-height:1.6}
+.imp textarea{min-height:110px}
+.stdgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.std{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:14px 12px;text-align:center;cursor:pointer;transition:.18s;position:relative}
+.std:hover{transform:translateY(-2px);box-shadow:var(--shadow-l);border-color:var(--blue4)}
+.std.on{border-color:var(--blue2);background:linear-gradient(170deg,#fff,#eef5fd);box-shadow:0 0 0 3px rgba(45,111,181,.12)}
+.std .av{width:46px;height:46px;border-radius:50%;margin:0 auto 8px;background:linear-gradient(135deg,var(--blue2),var(--blue3));color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.std.on .av{background:linear-gradient(135deg,var(--blue1),var(--blue2))}
+.std .nm{font-weight:800;font-size:14px}
+.std .sc{font-size:11px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.std .dots{display:flex;justify-content:center;gap:5px;margin-top:9px}
+.std .dots i{width:9px;height:9px;border-radius:50%;background:#dfe8f2}
+.std .dots i.im{background:#8fc2e8}
+.std .dots i.tx{background:var(--ok)}
+.std .dm{position:absolute;top:8px;right:10px;font-size:10.5px;color:var(--blue2);font-weight:700}
+.delBtn{position:absolute;top:6px;left:8px;width:22px;height:22px;border-radius:50%;border:none;background:#f5f5f5;color:#999;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.15s}
+.std:hover .delBtn{opacity:1}
+.delBtn:hover{background:#ffeaea;color:#c0392b}
+.empty{text-align:center;padding:34px 10px;color:var(--mut);font-size:13px;border:2px dashed var(--blue4);border-radius:12px;background:#fbfdff}
+.empty a{color:var(--blue2);cursor:pointer;font-weight:600}
+/* 当前学生档案条 */
+.curbar{display:flex;align-items:center;gap:14px;background:linear-gradient(120deg,#123d6e,#2d6fb5);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:16px;box-shadow:var(--shadow-l)}
+.curbar .av{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex:none}
+.curbar .nm{font-size:16px;font-weight:800}
+.curbar .sc{font-size:12px;opacity:.85;margin-top:2px}
+.curbar .sw{display:inline-block;background:rgba(255,255,255,.16);border-radius:9px;padding:6px 12px;font-size:12px;cursor:pointer;margin-left:auto;flex:none;transition:.15s}
+.curbar .sw:hover{background:rgba(255,255,255,.3)}
+/* 完成度 */
+.topbar{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow);flex-wrap:wrap}
+.lab{font-size:12.5px;font-weight:700;color:var(--blue1)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--mut);background:var(--ice);border-radius:14px;padding:4px 10px}
+.chip i{width:7px;height:7px;border-radius:50%;background:#ccd8e6}
+.chip.done{background:#e6f6ee;color:var(--ok)}
+.chip.done i{background:var(--ok)}
+.pctbox{font-size:12.5px;color:var(--mut)}
+.pctbox b{color:var(--blue2);font-size:16px}
+/* 五时刻步骤 */
+.steps{display:flex;flex-direction:column;gap:14px}
+.moment{display:flex;gap:13px;border:1px solid var(--line);border-radius:13px;padding:15px;background:#fff;transition:.18s}
+.moment:hover{border-color:var(--blue4);box-shadow:var(--shadow)}
+.moment .num{width:30px;height:30px;flex:none;border-radius:50%;background:linear-gradient(135deg,var(--blue2),var(--blue3));color:#fff;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.moment .mt{font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.moment .dim{background:var(--soft);color:var(--blue2);font-size:11px;font-weight:600;border-radius:10px;padding:2px 9px}
+.moment .mtip{font-size:12px;color:var(--mut);margin:5px 0 9px;line-height:1.6}
+.moment textarea{min-height:76px}
+.moment .drop{position:relative;border:1.5px dashed var(--blue4);border-radius:10px;padding:13px;text-align:center;color:var(--blue2);font-size:12.5px;font-weight:600;cursor:pointer;background:var(--ice);margin-bottom:9px;transition:.18s}
+.moment .drop:hover{background:var(--soft);border-color:var(--blue3)}
+.moment .drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:9px}
+.thumbs img{width:76px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.scale{display:flex;align-items:center;gap:12px;margin:8px 0}
+.scale span{width:76px;font-size:12.5px;color:#34495e;font-weight:600}
+.scale input{flex:1;accent-color:var(--blue2)}
+.scale b{width:30px;text-align:right;font-size:13px;color:var(--blue1)}
+/* 报告 */
+#report{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-l);margin-top:6px}
+.rc-cover{background:linear-gradient(135deg,#0e2c4d,#1a4f8e 52%,#3d82c4);color:#fff;padding:42px 40px;position:relative;overflow:hidden}
+.rc-cover::before{content:"";position:absolute;right:-70px;top:-100px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 62%)}
+.rc-cover::after{content:"✦";position:absolute;right:44px;bottom:26px;font-size:52px;opacity:.18}
+.rc-cover .tag{display:inline-block;font-size:11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:4px 13px;margin-bottom:18px;letter-spacing:2px}
+.rc-cover .nm{font-size:40px;font-weight:900;letter-spacing:4px;text-shadow:0 3px 14px rgba(0,0,0,.18)}
+.rc-cover .nm i{font-style:normal;font-size:15px;font-weight:400;opacity:.9;letter-spacing:1px;margin-left:10px}
+.rc-cover .meta{font-size:13px;opacity:.94;margin-top:14px;line-height:2.1}
+.rc-cover .promise{font-size:12px;margin-top:20px;opacity:.85;border-top:1px solid rgba(255,255,255,.28);padding-top:14px;letter-spacing:.5px}
+.rc-body{padding:28px 40px}
+.rc-sec{margin:24px 0}
+.rc-sec h4{color:var(--blue1);border-bottom:2px solid var(--ice);padding-bottom:7px;font-size:15.5px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.rc-sec h4::before{content:"";width:5px;height:17px;border-radius:3px;background:linear-gradient(var(--blue2),var(--blue4))}
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:var(--ice)}
+.tnode{position:relative;margin:0 0 20px}
+.tnode::before{content:"";position:absolute;left:-23px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--blue3);border:3px solid #fff;box-shadow:0 0 0 2px var(--blue3)}
+.tnode .th{font-weight:800;font-size:14px;color:var(--blue1)}
+.tnode .td{font-size:11px;color:var(--mut)}
+.tnode .tx{font-size:13.5px;margin-top:5px;white-space:pre-wrap;line-height:1.85;color:#26394e}
+.gal{display:flex;flex-wrap:wrap;gap:9px;margin-top:9px}
+.gal img{width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.story{background:var(--ice);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:13.5px;white-space:pre-wrap;line-height:1.95;color:#26394e}
+.quote{background:var(--soft);border-radius:11px;padding:13px 16px;margin:10px 0;border-left:4px solid var(--blue2);font-size:13.5px;line-height:1.85}
+.quote b{color:var(--blue1)}
+.sign{text-align:right;font-size:12px;color:var(--mut);margin-top:24px;border-top:1px solid var(--line);padding-top:14px;letter-spacing:.5px}
+table.b{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+table.b th,table.b td{border:1px solid var(--line);padding:7px 9px;text-align:left}
+table.b th{background:var(--soft);color:var(--blue1)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}
+.pill{display:inline-block;background:var(--soft);color:var(--blue2);border-radius:14px;padding:3px 12px;font-size:12px;font-weight:600}
+.mut{font-size:12px;color:var(--mut);line-height:1.7}
+.muted{font-size:12.5px;color:var(--mut);line-height:1.7}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(15,49,87,.92);color:#fff;padding:11px 22px;border-radius:11px;font-size:13px;box-shadow:var(--shadow-l);z-index:99;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+@media print{header,.tabs,.topbar,.curbar,.noprint,.toast{display:none!important}.wrap{margin:0;padding:0}.card{box-shadow:none;border:none}.grid{display:block}#report{display:block!important;box-shadow:none;border-radius:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="crumb">扬帆计划运营中枢 · 效率工厂 → 学生成长记录（工具包5）</div>
+    <h1>学生成长报告生成器</h1>
+    <div class="sub">集中导入学生名单 → 逐人记录五个关键时刻（图片 + 文字）→ 一键生成个人成长报告 · 让每一份努力都被看见</div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab on" onclick="sw(0)">① 学生名单 · 集中导入</div>
+    <div class="tab" onclick="sw(1)">② 单份录入 · 生成报告</div>
+    <div class="tab" onclick="sw(2)">③ 档案在线表模板</div>
+  </div>
+
+  <!-- ① 学生名单 -->
+  <div id="listPane">
+    <div class="impgrid">
+      <div class="card imp">
+        <h3>① 粘贴名单 · 快速导入</h3>
+        <p>每行一位学生，用逗号分隔：<b>姓名, 学校/年级, 性别/年龄, 联系电话</b>（只填姓名也行，后面再补）。</p>
+        <textarea id="impText" placeholder="李想,怀远县一中/高二,男/19,13800000000&#10;王浩然,凤台一中/高一,男/17&#10;赵梓涵,凤台实验中学/初二,女/15"></textarea>
+        <button class="btn" onclick="impText()">导入名单</button>
+      </div>
+      <div class="card imp">
+        <h3>② 上传 Excel 档案</h3>
+        <p>用「③ 档案在线表模板」收集（或腾讯文档在线表导出），上传 xlsx 自动读入：姓名 / 学校 / 性别年龄 / 电话 / 浆站 / 导师 / 入营日期 / 角色 / 积分。</p>
+        <input type="file" id="impFile" accept=".xlsx,.xls" onchange="impFile(this)">
+        <div class="out" id="impOut" style="display:none"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>学生名单 <span class="pill" id="stCount">0 人</span></h3>
+      <div class="hint">点学生卡片进入该生录入。卡片上的小圆点＝五个关键时刻完成情况：蓝＝有图片，绿＝图片+文字齐全。数据保存在<b>本机浏览器</b>，可随时继续。</div>
+      <div class="stdgrid" id="stdGrid"></div>
+      <div class="empty" id="stdEmpty">还没有学生。用上方任意方式导入名单，或 <a onclick="loadDemoList()">载入一组示例（李想 / 王浩然 / 赵梓涵）</a></div>
+    </div>
+  </div>
+
+  <!-- ② 单份录入 -->
+  <div id="editPane" style="display:none">
+    <div class="curbar" id="curBar"></div>
+    <div class="topbar noprint">
+      <span class="lab">录入完成度</span>
+      <div class="chips" id="liveChips"></div>
+      <div class="pctbox">已点亮 <b id="livePct">0</b>/5 时刻</div>
+    </div>
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h3>一、五个关键时刻（节点层 · 图片 + 文字）</h3>
+          <div class="hint">每段上传现场照片（可多张），文字按工具包5「记录内容」填写。图片仅在<b>本机浏览器</b>处理，不上传任何服务器，隐私安全。</div>
+          <div class="steps" id="moments"></div>
+        </div>
+      </div>
+      <div>
+        <div class="rail">
+          <div class="railcard">
+            <h4>五维能力雷达（实时）</h4>
+            <div class="radar" id="liveRadar"></div>
+            <div class="mini">沟通表达 · 实践执行 · 协作领导 · 反思成长 · 责任担当</div>
+          </div>
+          <div class="card">
+            <h3>三、深度层（故事化记录）</h3>
+            <div class="hint">成长故事按工具包5提纲六段式撰写，总字数 500–800。配图已在上方五时刻中上传，此处聚焦文字。</div>
+            <label>成长故事全文（开篇/经历/技能/情感/展望/结尾）</label>
+            <textarea id="f_story" style="min-height:170px" placeholder="一、开篇引入（约100字）：用一个印象深刻的瞬间或数字开头…&#10;二、成长经历（约200字）：遇到的困难、怎么应对、谁帮助了你…&#10;三、技能收获（约150字）：硬技能/软技能/认知提升…&#10;四、情感触动（约100字）：感动的瞬间、想感谢的人…&#10;五、未来展望（约100字）：对未来的影响与计划…&#10;六、结尾收束（约50字）：金句或画面呼应开头…"></textarea>
+            <div class="mut" id="wc">字数：0（建议 500–800）</div>
+            <div class="row2">
+              <div><label>导师评语</label><textarea id="f_mt" placeholder="带教导师为每位学生撰写个性化评语"></textarea></div>
+              <div><label>家长寄语</label><textarea id="f_parent" placeholder="邀请家长为孩子写一段寄语"></textarea></div>
+            </div>
+            <label>个人作品 / 亮点</label><input id="f_work" type="text" placeholder="如：科普短视频获站评优、独立策划义卖摊位">
+          </div>
+          <div class="card">
+            <h3>四、能力自评（可微调）</h3>
+            <div class="hint">系统按五时刻是否图文齐全自动测算，可拖动滑块微调。</div>
+            <div id="scales"></div>
+          </div>
+          <div class="card" style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" onclick="genReport()">生成完整个人成长报告</button>
+            <button class="btn ghost sm" onclick="clearCur()">清空本生记录</button>
+            <button class="btn ghost sm" onclick="sw(0)">切换学生</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 模板 -->
+  <div id="tplPane" style="display:none">
+    <div class="card">
+      <h3>学生成长档案 · 规范版在线表模板</h3>
+      <p class="muted">字段对齐工具包5《学生成长档案表》：学生基本信息 + 五个关键时刻完成状态 + 每日签到表。可直接导入腾讯文档在线表使用；填写后导出 xlsx，回到「① 学生名单」上传即可建档。</p>
+      <button class="btn" onclick="dlTpl()">下载规范版档案表（.xlsx）</button>
+      <div class="hint" style="margin-top:12px">说明：原工具包5档案表为「姓名：____」填空式，不便程序解析；此规范版改为二维表，便于批量上传自动建档。纸质归档仍可用原模板。</div>
+    </div>
+  </div>
+
+  <!-- 报告预览 -->
+  <div id="report" style="display:none"></div>
+  <div class="noprint" id="reportBar" style="display:none;margin:16px 0">
+    <button class="btn" onclick="window.print()">🖨 打印 / 存 PDF</button>
+    <button class="btn ghost" onclick="dlReport()">下载 HTML 报告</button>
+    <button class="btn ghost" onclick="backEdit()">返回修改</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MOMENTS=[
+  {k:'open',  t:'开营第一天', dim:'沟通表达', tip:'记录内容：入职心情、认识的新伙伴、对浆站/导师的第一印象。采集：入营照片+1分钟自我介绍视频。'},
+  {k:'recruit',t:'首次成功招募 / 首次成交', dim:'实践执行', tip:'记录内容：第一个新浆员故事，或首次完成的关键成果（首张献浆证、首单义卖、首发作品）。采集：合影+个人感想。'},
+  {k:'parent', t:'家长活动参与', dim:'协作领导', tip:'记录内容：亲子互动的难忘瞬间、家长反馈。采集：活动照片+家长寄语。'},
+  {k:'mid',   t:'项目过半复盘', dim:'反思成长', tip:'记录内容：前半程收获、遇到的困难与解决。采集：自评表+导师反馈。'},
+  {k:'end',   t:'结营典礼', dim:'责任担当', tip:'记录内容：整体回顾、成长总结、获得的荣誉。采集：成长视频+荣誉证书+合影。'}
+];
+const DIMS=['沟通表达','实践执行','协作领导','反思成长','责任担当'];
+const KEY='yf_report_students_v3', KEYC='yf_report_cur_v3';
+
+function esc(s){return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return 's'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function newStd(){const imgs={},txt={};MOMENTS.forEach(m=>{imgs[m.k]=[];txt[m.k]='';});
+  return {id:uid(),name:'',school:'',age:'',tel:'',station:'',mentor:'',date:'',role:'参与者',score:'',imgs,img:{},txt,story:'',mt:'',par:'',work:'',scoreOverride:{}};}
+
+let students=[];let cur=null;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(students));if(cur)localStorage.setItem(KEYC,cur);}catch(e){}}
+function load(){try{students=JSON.parse(localStorage.getItem(KEY))||[];}catch(e){students=[];}cur=localStorage.getItem(KEYC)||null;if(cur&&!students.find(s=>s.id===cur))cur=null;}
+function curStd(){return students.find(s=>s.id===cur)||null;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200);}
+
+function sw(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  document.getElementById('listPane').style.display=i===0?'block':'none';
+  document.getElementById('editPane').style.display=i===1?'block':'none';
+  document.getElementById('tplPane').style.display=i===2?'block':'none';
+  if(i!==1){document.getElementById('report').style.display='none';document.getElementById('reportBar').style.display='none';}
+  if(i===0)renderStd();
+  if(i===1&&cur)loadCur();
+}
+
+/* ========== 集中导入 ========== */
+function impText(){
+  const t=document.getElementById('impText').value.trim();if(!t){toast('先粘贴名单');return;}
+  const lines=t.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  let n=0;
+  lines.forEach(l=>{
+    const p=l.split(/[,，、\t]/).map(x=>x.trim());
+    if(!p[0])return;
+    const s=newStd();s.name=p[0];s.school=p[1]||'';s.age=p[2]||'';s.tel=p[3]||'';
+    students.push(s);n++;
+  });
+  save();renderStd();document.getElementById('impText').value='';
+  toast('已导入 '+n+' 名学生');
+}
+function impFile(el){
+  const f=el.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      const hi=rows.findIndex(r=>r.some(c=>c&&c.toString().includes('姓名')));
+      if(hi<0){document.getElementById('impOut').style.display='block';document.getElementById('impOut').textContent='未识别到含「姓名」的表头，请使用本工具下载的规范模板。';return;}
+      const head=rows[hi].map(x=>x?x.toString():'');
+      const C=k=>head.findIndex(h=>h&&h.includes(k));
+      const cName=C('姓名'),cSchool=C('学校'),cAge=C('年龄'),cTel=C('联系电话')<0?C('电话'):C('联系电话'),cSt=C('浆站'),cMentor=C('导师'),cDate=C('入营日期'),cRole=C('我的角色'),cScore=C('积分');
+      let n=0;
+      rows.slice(hi+1).forEach(r=>{
+        const name=r[cName];if(!name||!name.toString().trim())return;
+        const s=newStd();
+        s.name=name.toString().trim();
+        s.school=(r[cSchool]||'').toString().trim();
+        s.age=(r[cAge]||'').toString().trim();
+        s.tel=(cTel>=0&&r[cTel]?r[cTel].toString().trim():'');
+        s.station=(cSt>=0&&r[cSt]?r[cSt].toString().trim():'');
+        s.mentor=(cMentor>=0&&r[cMentor]?r[cMentor].toString().trim():'');
+        s.date=(cDate>=0&&r[cDate]?r[cDate].toString().trim():'');
+        s.role=(cRole>=0&&r[cRole]?r[cRole].toString().trim():'参与者');
+        s.score=(cScore>=0&&r[cScore]?r[cScore].toString().trim():'');
+        students.push(s);n++;
+      });
+      save();renderStd();
+      document.getElementById('impOut').style.display='block';
+      document.getElementById('impOut').textContent='已从 Excel 导入 '+n+' 名学生。';
+      toast('Excel 导入完成：'+n+' 人');
+    }catch(err){document.getElementById('impOut').style.display='block';document.getElementById('impOut').textContent='解析失败：'+err.message;}
+  };
+  r.readAsArrayBuffer(f);
+  el.value='';
+}
+function renderStd(){
+  const g=document.getElementById('stdGrid');
+  document.getElementById('stCount').textContent=students.length+' 人';
+  const empty=document.getElementById('stdEmpty');
+  if(!students.length){empty.style.display='block';g.style.display='none';g.innerHTML='';return;}
+  empty.style.display='none';g.style.display='grid';g.innerHTML='';
+  students.forEach(s=>{
+    const done=MOMENTS.filter(m=>s.imgs[m.k].length>0&&(s.txt[m.k]||'').trim().length>15).length;
+    const card=document.createElement('div');
+    card.className='std'+(s.id===cur?' on':'');
+    card.innerHTML='<div class="dm">'+done+'/5</div><div class="av">'+esc(s.name[0]||'?')+'</div>'+
+      '<div class="nm">'+esc(s.name||'未命名')+'</div><div class="sc">'+esc(s.school||'—')+'</div>'+
+      '<div class="dots">'+MOMENTS.map(m=>'<i class="'+(s.imgs[m.k].length>0?'im':'')+(((s.txt[m.k]||'').trim().length>15)?' tx':'')+'"></i>').join('')+'</div>'+
+      '<button class="delBtn" title="删除该学生" onclick="event.stopPropagation();delStd(\''+s.id+'\')">✕</button>';
+    card.onclick=()=>{cur=s.id;save();renderStd();sw(1);loadCur();};
+    g.appendChild(card);
+  });
+}
+function delStd(id){
+  if(!confirm('确定删除该学生？其所有照片和文字记录将一并清除，不可恢复。'))return;
+  students=students.filter(s=>s.id!==id);
+  if(cur===id){cur=students.length?students[0].id:null;}
+  save();renderStd();
+  if(cur){sw(1);loadCur();}else{sw(0);}
+  toast('已删除');
+}
+function loadDemoList(){
+  students=[];
+  const a=newStd();a.name='李想';a.school='怀远县一中 / 高二';a.age='男 / 19';a.tel='138****0000';a.station='怀远浆站';a.mentor='王导师';a.date='2026-07-10';a.role='团队负责人';a.score='135 分';
+  a.txt.open='开营第一天我紧张又期待。第一次走进浆站，王导师带我们参观，我认识了同组的小张和小陈，大家一起喊出开营誓词时，突然觉得这个夏天会不一样。';
+  a.txt.recruit='第6天我独立邀约邻居阿姨完成首次献浆，拿到第一张献浆证时手都在抖。原来「被需要」是这种感觉。';
+  a.txt.parent='亲子开放日，妈妈来参加，她第一次认真听我讲血浆知识，临走说「儿子长大了」。那一刻比拿奖还开心。';
+  a.txt.mid='过半时我带的小组进度落后，靠每日站会重新分工才追上。我学到：计划赶不上变化，但复盘能兜住。';
+  a.txt.end='结营我拿了「优秀小组长」，但更珍惜的是这群伙伴。我们把暑期做成了一段会发光的日子。';
+  a.story='一、开篇引入：在浆站的21天，我学会了三件事——沟通、团队、和责任。\n二、成长经历：作为小组长，我最难的时刻是进度落后。靠每日站会复盘、重新分工才追上，王导师没批评我，只问「下次怎么防」。\n三、技能收获：硬技能学了短视频剪辑与科普宣讲；软技能是带人、协调；认知上第一次懂了「无偿献浆」背后的公共价值。\n四、情感触动：亲子开放日妈妈那句「儿子长大了」，让我鼻子一酸。\n五、未来展望：大学想学公共卫生，把这段经历带去更远的地方。\n六、结尾收束：扬帆起航，不负韶华。这不是终点，而是起点。';
+  a.mt='李想从害羞到主动带组，复盘意识强，是少数能把「问题」变成「办法」的学员。';
+  a.par='谢谢扬帆，让孩子这个夏天有了方向，也让我们家长更懂他。';
+  a.work='独立策划义卖摊位；科普短视频获站评优';
+  const b=newStd();b.name='王浩然';b.school='凤台一中 / 高一';b.age='男 / 17';b.station='凤台浆站';
+  b.txt.open='第一次参加社会实践营，认识了很多新朋友。';
+  b.txt.recruit='周末在广场协助义卖，学会了怎么跟陌生人开口。';
+  const c=newStd();c.name='赵梓涵';c.school='凤台实验中学 / 初二';c.age='女 / 15';c.station='凤台浆站';
+  students.push(a,b,c);
+  cur=a.id;save();renderStd();sw(1);loadCur();
+  toast('已载入示例名单，当前选中：李想');
+}
+
+/* ========== 当前学生录入 ========== */
+function loadCur(){
+  const s=curStd();if(!s){sw(0);return;}
+  document.getElementById('curBar').innerHTML=
+    '<div class="av">'+esc(s.name[0]||'?')+'</div><div>'+
+    '<div class="nm">'+esc(s.name)+'</div><div class="sc">'+esc(s.school||'—')+' ｜ '+esc(s.station||'—')+' ｜ 导师：'+esc(s.mentor||'—')+' ｜ 入营：'+esc(s.date||'—')+' ｜ 积分：'+esc(s.score||'—')+'</div></div>'+
+    '<div class="sw" onclick="sw(0)">⇄ 切换学生</div>';
+  renderMoments();renderScales();
+  document.getElementById('f_story').value=s.story;
+  document.getElementById('f_mt').value=s.mt;
+  document.getElementById('f_parent').value=s.par;
+  document.getElementById('f_work').value=s.work;
+  document.getElementById('wc').textContent='字数：'+s.story.trim().length+'（建议 500–800）';
+  liveUpdate();
+}
+function renderMoments(){
+  const s=curStd();if(!s)return;
+  const box=document.getElementById('moments');box.innerHTML='';
+  MOMENTS.forEach((m,i)=>{
+    const d=document.createElement('div');d.className='moment';
+    d.innerHTML='<div class="num">'+(i+1)+'</div>'+
+      '<div class="stepbody" style="flex:1"><div class="mt">'+m.t+'<span class="dim">'+m.dim+'</span></div>'+
+      '<div class="mtip">'+m.tip+'</div>'+
+      '<label class="drop"><input type="file" accept="image/*" multiple onchange="upImg(\''+m.k+'\',this)"><span>＋ 上传现场照片（可多张）</span></label>'+
+      '<div class="thumbs" id="th_'+m.k+'"></div>'+
+      '<textarea id="tx_'+m.k+'" placeholder="记录这一刻的故事、心情或感想…">'+esc(s.txt[m.k]||'')+'</textarea></div>';
+    const cont=d.querySelector('.thumbs');
+    (s.imgs[m.k]||[]).forEach(u=>{const img=document.createElement('img');img.src=u;cont.appendChild(img);});
+    d.querySelector('textarea').addEventListener('input',()=>{const st=curStd();st.txt[m.k]=d.querySelector('textarea').value;save();autoScore();});
+    box.appendChild(d);
+  });
+}
+function upImg(k,el){
+  const s=curStd();if(!s)return;
+  const cont=document.getElementById('th_'+k);
+  for(const f of el.files){
+    const r=new FileReader();
+    r.onload=e=>{s.imgs[k].push(e.target.result);save();const i=document.createElement('img');i.src=e.target.result;cont.appendChild(i);};
+    r.readAsDataURL(f);
+  }
+  el.value='';
+  autoScore();
+}
+function renderScales(){
+  const s=curStd();if(!s)return;
+  const box=document.getElementById('scales');box.innerHTML='';
+  DIMS.forEach(d=>{
+    const v=scores(d);
+    const ov=s.scoreOverride&&s.scoreOverride[d]!=null;
+    const r=document.createElement('div');r.className='scale';
+    r.innerHTML='<span>'+d+(ov?' ✎':'')+'</span><input type="range" min="40" max="100" value="'+v+'" oninput="setScore(\''+d+'\',+this.value)">'+
+      '<b id="sv_'+d+'">'+v+'</b>'+(ov?'<button class="btn ghost sm" style="padding:3px 8px;font-size:11px" onclick="resetScore(\''+d+'\')">↺</button>':'');
+    box.appendChild(r);
+  });
+}
+function resetScore(d){const s=curStd();if(!s)return;
+  if(s.scoreOverride)delete s.scoreOverride[d];save();renderScales();liveRadar();}
+function scores(d){const s=curStd();if(!s)return 60;
+  if(s.scoreOverride&&s.scoreOverride[d]!=null)return s.scoreOverride[d];
+  const m=MOMENTS.find(x=>x.dim===d);if(!m)return 60;
+  const hasImg=s.imgs[m.k].length>0,hasTx=(s.txt[m.k]||'').trim().length>15;
+  return hasImg&&hasTx?92:hasImg||hasTx?74:58;}
+function setScore(d,v){const s=curStd();if(!s)return;
+  if(!s.scoreOverride)s.scoreOverride={};
+  s.scoreOverride[d]=v;save();
+  const el=document.getElementById('sv_'+d);if(el)el.textContent=v;
+  liveRadar();}
+function autoScore(){renderScales();liveUpdate();}
+function liveUpdate(){
+  const s=curStd();if(!s)return;
+  let filled=0;const chips=document.getElementById('liveChips');chips.innerHTML='';
+  MOMENTS.forEach(m=>{
+    const done=s.imgs[m.k].length>0&&(s.txt[m.k]||'').trim().length>15;
+    if(done)filled++;
+    chips.innerHTML+='<span class="chip'+(done?' done':'')+'"><i></i>'+m.t+'</span>';
+  });
+  document.getElementById('livePct').textContent=filled;
+  liveRadar();
+}
+function liveRadar(){document.getElementById('liveRadar').innerHTML=radarSVG(DIMS.map(d=>scores(d)));}
+document.getElementById('f_story').addEventListener('input',function(){
+  const s=curStd();if(!s)return;
+  s.story=this.value;save();
+  document.getElementById('wc').textContent='字数：'+this.value.trim().length+'（建议 500–800）';
+});
+document.getElementById('f_mt').addEventListener('input',function(){const s=curStd();if(s){s.mt=this.value;save();}});
+document.getElementById('f_parent').addEventListener('input',function(){const s=curStd();if(s){s.par=this.value;save();}});
+document.getElementById('f_work').addEventListener('input',function(){const s=curStd();if(s){s.work=this.value;save();}});
+function clearCur(){
+  const s=curStd();if(!s)return;
+  if(!confirm('清空「'+s.name+'」的全部录入（图片、文字、故事、评语）？'))return;
+  MOMENTS.forEach(m=>{s.imgs[m.k]=[];s.txt[m.k]='';});
+  s.story='';s.mt='';s.par='';s.work='';
+  save();loadCur();toast('已清空');
+}
+
+/* ========== 生成报告 ========== */
+function genReport(){
+  const s=curStd();if(!s){toast('请先选择学生');sw(0);return;}
+  const name=s.name||'扬帆少年';
+  const dimsScore=DIMS.map(d=>scores(d));
+  let momentsHtml='';
+  MOMENTS.forEach(m=>{
+    const tx=(s.txt[m.k]||'').trim();
+    let gal='';
+    if(s.imgs[m.k].length){gal='<div class="gal">'+s.imgs[m.k].map(u=>'<img src="'+u+'">').join('')+'</div>';}
+    momentsHtml+='<div class="tnode"><div class="th">'+m.t+'<span class="td"> · '+m.dim+'</span></div>'+
+      (tx?'<div class="tx">'+esc(tx)+'</div>':'<div class="tx mut">（该时刻文字待补充）</div>')+gal+'</div>';
+  });
+  const story=s.story,mt=s.mt,par=s.par,work=s.work;
+  const radar=radarSVG(dimsScore);
+  const evalTxt=buildEval(name,dimsScore,s,MOMENTS);
+  const meta=[s.school,s.station].filter(Boolean).join(' ｜ ');
+  const meta2=[('角色：'+s.role),('导师：'+(s.mentor||'—')),('入营：'+(s.date||'—')),('荣誉积分：'+(s.score||'—'))].join(' ｜ ');
+  const html='<div class="rc-cover"><div class="tag">扬帆计划 · 个人成长报告</div><div class="nm">'+esc(name)+'<i>YOUTH SAILING</i></div>'+
+    '<div class="meta">'+esc(meta)+'<br>'+esc(meta2)+'</div>'+
+    '<div class="promise">「扬帆计划」核心承诺：让每一份努力都被看见，让每一个成长都被记录。</div></div>'+
+    '<div class="rc-body">'+
+    '<div class="rc-sec"><h4>成长时间轴 · 五个关键时刻</h4><div class="tl">'+momentsHtml+'</div></div>'+
+    '<div class="rc-sec"><h4>能力雷达 · 五维成长</h4><div class="radar">'+radar+'</div>'+
+      '<div class="mini" style="text-align:center">沟通表达 · 实践执行 · 协作领导 · 反思成长 · 责任担当</div></div>'+
+    (story?'<div class="rc-sec"><h4>成长故事</h4><div class="story">'+esc(story)+'</div></div>':'')+
+    (mt||par?'<div class="rc-sec"><h4>来自师长的声音</h4>'+(mt?'<div class="quote"><b>导师评语：</b>'+esc(mt)+'</div>':'')+(par?'<div class="quote"><b>家长寄语：</b>'+esc(par)+'</div>':'')+'</div>':'')+
+    (work?'<div class="rc-sec"><h4>个人作品 / 亮点</h4><div class="pill">'+esc(work)+'</div></div>':'')+
+    '<div class="rc-sec"><h4>结营评语</h4><div class="quote">'+esc(evalTxt)+'</div></div>'+
+    '<div class="sign">扬帆计划 · '+(s.station||'')+' ｜ 生成于 '+new Date().toLocaleDateString('zh-CN')+'</div>'+
+    '</div>';
+  const rp=document.getElementById('report');
+  rp.innerHTML=html;rp.style.display='block';
+  document.getElementById('reportBar').style.display='block';
+  rp.scrollIntoView({behavior:'smooth'});
+}
+function radarSVG(vals){
+  const cx=150,cy=140,R=100,n=5;
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/n;
+  let grid='',ax='',pts=[];
+  for(let r=1;r<=4;r++){
+    let p=[];for(let i=0;i<n;i++){const x=cx+R*r/4*Math.cos(ang(i)),y=cy+R*r/4*Math.sin(ang(i));p.push(x.toFixed(1)+','+y.toFixed(1));}
+    grid+='<polygon points="'+p.join(' ')+'" fill="none" stroke="#dbe7f3"/>';
+  }
+  for(let i=0;i<n;i++){
+    const x=cx+R*Math.cos(ang(i)),y=cy+R*Math.sin(ang(i));
+    ax+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#dbe7f3"/>';
+    const vx=cx+R*(vals[i]/100)*Math.cos(ang(i)),vy=cy+R*(vals[i]/100)*Math.sin(ang(i));
+    pts.push(vx.toFixed(1)+','+vy.toFixed(1));
+  }
+  const labels=['沟通','实践','协作','反思','责任'];
+  let lab='';for(let i=0;i<n;i++){const x=cx+(R+18)*Math.cos(ang(i)),y=cy+(R+18)*Math.sin(ang(i));
+    lab+='<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="11" fill="#5d6b7a" text-anchor="middle">'+labels[i]+'</text>';}
+  return '<svg width="300" height="280" viewBox="0 0 300 280">'+grid+ax+
+    '<polygon points="'+pts.join(' ')+'" fill="rgba(45,111,181,.22)" stroke="#2d6fb5" stroke-width="2"/>'+
+    lab+'</svg>';
+}
+function buildEval(name,vals,s,M){
+  let filled=0;M.forEach(m=>{if(s.imgs[m.k].length>0&&(s.txt[m.k]||'').trim().length>15)filled++;});
+  const avg=Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  let lvl=avg>=85?'表现突出':avg>=70?'稳步成长':'仍需陪伴';
+  let parts=[];
+  if(s.imgs['open'].length>0)parts.push('入营即主动融入');
+  if(s.imgs['recruit'].length>0)parts.push('完成首次实战产出');
+  if(s.imgs['parent'].length>0)parts.push('带动家长参与共建');
+  if(s.imgs['mid'].length>0)parts.push('具备复盘反思意识');
+  if(s.imgs['end'].length>0)parts.push('圆满收官并沉淀荣誉');
+  const hl=parts.length?parts.join('、')+'，五个关键时刻已点亮 '+filled+'/5。':'五个关键时刻记录尚不完整，建议结营前补全图文。';
+  return name+'同学本期'+lvl+'（综合评分 '+avg+'）。'+hl+'愿这份成长报告成为你继续前行的注脚——扬帆起航，不负韶华。';
+}
+function backEdit(){document.getElementById('report').style.display='none';document.getElementById('reportBar').style.display='none';sw(1);}
+function dlReport(){
+  const s=curStd();if(!s)return;
+  const r=document.getElementById('report').innerHTML;
+  const h='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>扬帆成长报告</title><style>body{font-family:"Microsoft YaHei",sans-serif;margin:0;color:#16263a}'+
+    '.rc-cover{background:linear-gradient(135deg,#0e2c4d,#1a4f8e 52%,#3d82c4);color:#fff;padding:42px 40px;position:relative;overflow:hidden}.rc-cover .tag{display:inline-block;font-size:11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:4px 13px;margin-bottom:18px;letter-spacing:2px}.rc-cover .nm{font-size:40px;font-weight:900;letter-spacing:4px;text-shadow:0 3px 14px rgba(0,0,0,.18)}.rc-cover .nm i{font-style:normal;font-size:15px;font-weight:400;opacity:.9;letter-spacing:1px;margin-left:10px}.rc-cover .meta{font-size:13px;opacity:.94;margin-top:14px;line-height:2.1}.rc-cover .promise{font-size:12px;margin-top:20px;opacity:.85;border-top:1px solid rgba(255,255,255,.28);padding-top:14px}.rc-body{padding:28px 40px}.rc-sec{margin:24px 0}.rc-sec h4{color:#123d6e;border-bottom:2px solid #eef3fa;padding-bottom:7px;font-size:15.5px;margin:0 0 14px}.tl{position:relative;padding-left:26px}.tl::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#eef3fa}.tnode{position:relative;margin:0 0 20px}.tnode::before{content:"";position:absolute;left:-23px;top:4px;width:14px;height:14px;border-radius:50%;background:#5b9bdb;border:3px solid #fff;box-shadow:0 0 0 2px #5b9bdb}.tnode .th{font-weight:800;font-size:14px;color:#123d6e}.tnode .td{font-size:11px;color:#5d6b7a}.tnode .tx{font-size:13.5px;margin-top:5px;white-space:pre-wrap;line-height:1.85}.gal{display:flex;flex-wrap:wrap;gap:9px;margin-top:9px}.gal img{width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid #e3ecf5}.radar{display:flex;justify-content:center}.story{background:#f2f7fd;border:1px solid #e3ecf5;border-radius:12px;padding:16px;font-size:13.5px;white-space:pre-wrap;line-height:1.95}.quote{background:#e8f1fb;border-radius:11px;padding:13px 16px;margin:10px 0;border-left:4px solid #2d6fb5;font-size:13.5px;line-height:1.85}.quote b{color:#123d6e}.pill{display:inline-block;background:#e8f1fb;color:#2d6fb5;border-radius:14px;padding:3px 12px;font-size:12px}.sign{text-align:right;font-size:12px;color:#5d6b7a;margin-top:24px;border-top:1px solid #e3ecf5;padding-top:14px}</style></head><body>'+r+'</body></html>';
+  const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=(s.name||'扬帆')+'_成长报告.html';a.click();
+}
+
+/* ========== 模板下载 ========== */
+function dlTpl(){
+  const wb=XLSX.utils.book_new();
+  const basic=[['姓名','性别','年龄','学校/年级','联系电话','家长姓名','浆站名称','导师','入营日期','我的角色','荣誉积分']];
+  for(let i=1;i<=20;i++)basic.push(['学生'+i,'','','','','','','','','','']);
+  const bws=XLSX.utils.aoa_to_sheet(basic);XLSX.utils.book_append_sheet(wb,bws,'学生基本信息');
+  const mom=[['姓名','开营第一天(☑/□)','首次成功招募(☑/□)','家长活动参与(☑/□)','项目过半复盘(☑/□)','结营典礼(☑/□)','五时刻图片是否已上传']];
+  for(let i=1;i<=20;i++)mom.push(['学生'+i,'□','□','□','□','□','否']);
+  const mws=XLSX.utils.aoa_to_sheet(mom);XLSX.utils.book_append_sheet(wb,mws,'五个关键时刻');
+  const sign=[['统计周期：第__周（__月__日至__月__日）','','','','','','']];
+  sign.push(['序号','姓名','周一','周二','周三','周四','周五']);
+  for(let i=1;i<=20;i++)sign.push([i,'学生'+i,'□','□','□','□','□']);
+  const sws=XLSX.utils.aoa_to_sheet(sign);XLSX.utils.book_append_sheet(wb,sws,'每日签到表');
+  XLSX.writeFile(wb,'扬帆学生成长档案_规范版.xlsx');
+  toast('模板已下载');
+}
+
+load();renderStd();sw(0);
+</script>
+</body>
+</html>
