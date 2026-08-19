@@ -241,12 +241,14 @@
   .view-toggle.internal .sw::after{left:22px}
   .ext-note{font-size:11.5px;color:var(--ok)}
   .view-toggle.internal .ext-note{color:var(--warn)}
-  .chart-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(27,58,107,.05)}
+  .chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:6px 0 14px}
+  .chart-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(27,58,107,.05);display:flex;flex-direction:column;min-width:0}
   .chart-card h3{margin:0 0 2px;font-size:14px;color:var(--blue-700);border-left:4px solid var(--cyan);padding-left:8px}
-  .chart-card .csub{font-size:11px;color:var(--muted);margin-bottom:4px}
-  .chart-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:640px){.chart-row2{grid-template-columns:1fr}}
-  .donut{display:block;margin:0 auto;max-width:170px}
+  .chart-card .csub{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .chart-fill{flex:1;display:flex;align-items:center;justify-content:center}
+  .chart-card .colchart,.chart-card .funnel{width:100%}
+  @media(max-width:640px){.chart-grid{grid-template-columns:1fr}}
+  .donut{display:block;margin:0 auto;max-width:150px}
   .chart-legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;margin-top:4px;font-size:11px;color:var(--ink)}
   .chart-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle}
   .colchart{display:block;width:100%}
@@ -1675,18 +1677,48 @@ function svgDonut(segs,center){
   const ct=center?('<text x="'+c+'" y="'+(c-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#15263b">'+center.main+'</text><text x="'+c+'" y="'+(c+15)+'" text-anchor="middle" font-size="11" fill="#5b7187">'+center.sub+'</text>'):'';
   return '<svg class="donut" viewBox="0 0 '+sz+' '+sz+'" width="100%"><g transform="rotate(-90 '+c+' '+c+')">'+arcs+'</g>'+ct+'</svg>';
 }
-function svgCols(items){
-  const n=items.length,W=Math.max(280,n*44),H=200,padL=10,padR=10,padT=22,padB=34;
+function svgCols(items,opt){
+  opt=opt||{};
+  const n=items.length;
+  const cellW=opt.cellW||44;
+  const W=n*cellW;
+  const H=opt.H||188;
+  const padL=4,padR=4,padT=24,padB=28;
   const max=Math.max.apply(null,items.map(i=>i.value).concat([1]));
-  const cw=(W-padL-padR)/n,bw=Math.min(26,cw*0.62);
-  let s='<svg class="colchart" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet">';
+  const cw=(W-padL-padR)/n;
+  const bw=Math.min(26,cw*0.58);
+  let s='<svg class="colchart" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" style="max-height:'+(H+4)+'px">';
+  for(let g=0;g<=4;g++){const gy=(padT+(H-padT-padB)*g/4).toFixed(1);s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#eef3f8" stroke-width="1"/>';}
   s+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#cdddec"/>';
   items.forEach((it,i)=>{
-    const h=Math.max(2,Math.round(it.value/max*(H-padT-padB)));
+    const h=Math.max(3,Math.round(it.value/max*(H-padT-padB)));
     const x=padL+cw*i+(cw-bw)/2,y=H-padB-h,col=it.color||COL_PAL[i%COL_PAL.length];
-    s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="4" fill="'+col+'"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></rect>';
-    if(it.value>0)s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#15263b">'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</text>';
-    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+14)+'" text-anchor="middle" font-size="10" fill="#5b7187">'+it.label+'</text>';
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+col+'"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></rect>';
+    if(it.value>0){const tv=(it.fmt?it.fmt(it.value):dashFmt(it.value));s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15263b">'+tv+'</text>';}
+    let lb=it.label;if(lb.length>5)lb=lb.slice(0,5);
+    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+13)+'" text-anchor="middle" font-size="9.5" fill="#5b7187">'+lb+'</text>';
+  });
+  s+='</svg>';
+  return s;
+}
+function svgFunnel(items){
+  const W=260,H=176,padT=12,padB=22,gap=8;
+  const max=Math.max.apply(null,items.map(i=>i.value).concat([1]));
+  const n=items.length;
+  const segH=(H-padT-padB-(n-1)*gap)/n;
+  const cx=W/2;
+  const cols=['#3a6ea5','#2a9d8f','#13315c'];
+  let s='<svg class="funnel" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" style="max-height:'+(H+4)+'px">';
+  items.forEach((it,i)=>{
+    const wTop=(it.value/max)*W*0.82;
+    const nextW=i<n-1?(items[i+1].value/max)*W*0.82:wTop*0.45;
+    const y=padT+i*(segH+gap);
+    const col=it.color||cols[i%cols.length];
+    const xTo=cx+wTop/2,xBo=cx+nextW/2;
+    s+='<polygon points="'+(cx-wTop/2).toFixed(1)+','+y.toFixed(1)+' '+xTo.toFixed(1)+','+y.toFixed(1)+' '+xBo.toFixed(1)+','+(y+segH).toFixed(1)+' '+(cx-nextW/2).toFixed(1)+','+(y+segH).toFixed(1)+'" fill="'+col+'" opacity="0.92"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></polygon>';
+    s+='<text x="'+cx+'" y="'+(y+segH/2-3).toFixed(1)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</text>';
+    s+='<text x="'+cx+'" y="'+(y+segH/2+11).toFixed(1)+'" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">'+it.label+'</text>';
+    if(i>0){const prev=items[i-1].value;const rate=prev>0?Math.round(it.value/prev*100):0;s+='<text x="'+(xTo+6).toFixed(1)+'" y="'+(y+segH/2+3).toFixed(1)+'" font-size="9" font-weight="700" fill="#7a8ba0">↓'+rate+'%</text>';}
   });
   s+='</svg>';
   return s;
@@ -1703,10 +1735,12 @@ function renderDashCharts(){
   const parPct=Math.min(1,Math.max(0,parRate));
   const parDonut=[{label:'已参与',value:parPct,color:'#2a9d8f'},{label:'未参与',value:1-parPct,color:'#dbe5ee'}];
   const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:COL_PAL[i%COL_PAL.length]}));
-  let h='<div class="chart-card"><h3>招募转化漏斗 · '+C+'</h3><div class="csub">报名 → 面试 → 入营，直观看各环节流失</div>'+svgCols(funnel)+'</div>';
-  h+='<div class="chart-row2"><div class="chart-card"><h3>入营性别结构</h3><div class="csub">'+C+'入营 '+dashFmt(cm+cf)+' 人</div>'+svgDonut(gender,{main:dashFmt(cm+cf),sub:'合计'})+chartLegend(gender)+'</div>'
-    +'<div class="chart-card"><h3>家长参与率</h3><div class="csub">参与 '+dashFmt(parPpl)+' 人次</div>'+svgDonut(parDonut,{main:dashPct(parPct),sub:'参与率'})+chartLegend(parDonut)+'</div></div>';
-  h+='<div class="chart-card"><h3>各站入营人数对比 · '+C+'</h3><div class="csub">一眼看出强弱站</div>'+svgCols(stItems)+'</div>';
+  let h='<div class="chart-grid">'
+    +'<div class="chart-card"><h3>招募转化漏斗 · '+C+'</h3><div class="csub">报名 → 面试 → 入营，看每一环流失</div><div class="chart-fill">'+svgFunnel(funnel)+'</div></div>'
+    +'<div class="chart-card"><h3>入营性别结构</h3><div class="csub">'+C+'入营 '+dashFmt(cm+cf)+' 人</div><div class="chart-fill">'+svgDonut(gender,{main:dashFmt(cm+cf),sub:'合计'})+chartLegend(gender)+'</div></div>'
+    +'<div class="chart-card"><h3>家长参与率</h3><div class="csub">参与 '+dashFmt(parPpl)+' 人次</div><div class="chart-fill">'+svgDonut(parDonut,{main:dashPct(parPct),sub:'参与率'})+chartLegend(parDonut)+'</div></div>'
+    +'<div class="chart-card"><h3>各站入营人数对比 · '+C+'</h3><div class="csub">一眼看出强弱站</div><div class="chart-fill">'+svgCols(stItems,{cellW:46,H:188})+'</div></div>'
+    +'</div>';
   el.innerHTML=h;
 }
 function renderMonthSwitch(){
