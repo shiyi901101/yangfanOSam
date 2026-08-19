@@ -6,19 +6,30 @@
 <title>扬帆计划 · PMP 学习系统（超详细版 v5）</title>
 <style>
   :root{
-    --blue:#1f5fa8;--blue2:#2d6fb5;--blue3:#5b9bdb;--ink:#16263a;--mut:#64748b;
-    --line:#e4ecf5;--bg:#f3f8fd;--card:#fff;--soft:#eef5fd;--ok:#2e9e6b;--warn:#d98a2b;--red:#c0492f;
-    --shadow:0 8px 28px rgba(31,95,168,.10);--shadow-s:0 3px 12px rgba(31,95,168,.07);--radius:16px;
+    /* 海尔蓝·活力橙体系：与综合平台v4保持一致 */
+    --blue:#2b7cd3;--blue2:#7ec2f2;--blue3:#a8d4f5;--ink:#0d2c4d;--mut:#5e7da0;
+    --line:#d3e2f0;--bg:#f5f9ff;--card:#fff;--soft:#eef5fc;--ok:#10a37f;--warn:#e08c2e;--red:#b3261a;
+    --shadow:0 8px 28px rgba(13,44,77,.10);--shadow-s:0 3px 12px rgba(13,44,77,.07);--radius:16px;
   }
   /* 注：登录门禁统一在综合平台 v4 门户层处理，本学习系统页面不再单独设密码 */
   *{box-sizing:border-box}
   body{margin:0;font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
-  header{background:linear-gradient(125deg,#1a4f8e,#2d6fb5 55%,#5b9bdb);color:#fff;padding:26px 34px;position:relative;overflow:hidden}
+  header{background:linear-gradient(125deg,#0d2c4d,#2b7cd3 55%,#7ec2f2);color:#fff;padding:26px 34px;position:relative;overflow:hidden}
   header::after{content:"";position:absolute;right:-60px;top:-70px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.08)}
   header h1{margin:0;font-size:23px;font-weight:800;letter-spacing:1px;position:relative}
   header .sub{font-size:13px;opacity:.93;margin-top:7px;position:relative;max-width:760px}
   .wrap{max-width:1240px;margin:0 auto;padding:0 18px 80px;display:grid;grid-template-columns:248px 1fr;gap:26px;align-items:start}
-  @media(max-width:880px){.wrap{grid-template-columns:1fr}}
+  /* 窄屏：目录改为抽屉式，不遮挡正文 */
+  @media(max-width:880px){
+    .wrap{grid-template-columns:1fr}
+    .side{position:fixed;left:0;top:0;bottom:0;width:min(80vw,300px);max-height:none;margin-top:0;border-radius:0 16px 16px 0;z-index:92;transform:translateX(-105%);transition:transform .26s ease;box-shadow:0 12px 44px rgba(20,85,156,.28);padding:16px 14px}
+    .side.open{transform:translateX(0)}
+    .side-mask{position:fixed;inset:0;background:rgba(20,85,156,.4);z-index:91;opacity:0;visibility:hidden;transition:opacity .22s}
+    .side-mask.show{opacity:1;visibility:visible}
+    .toc-btn{position:fixed;left:14px;bottom:18px;z-index:90;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#2b7cd3,#4ea3e8);color:#fff;border:none;border-radius:24px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(43,124,211,.35)}
+    .toc-btn:active{transform:scale(.96)}
+  }
+  @media(min-width:881px){.toc-btn,.side-mask{display:none}}
   /* 侧栏 */
   .side{position:sticky;top:14px;align-self:start;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-s);margin-top:18px;max-height:calc(100vh - 28px);overflow:auto}
   .side .g{font-size:11.5px;font-weight:800;color:var(--blue);letter-spacing:1px;margin:14px 6px 6px;text-transform:uppercase}
@@ -45,9 +56,9 @@
   .box li{margin:4px 0}
   .tagrow{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
   .ct{font-size:11.5px;font-weight:700;border-radius:12px;padding:4px 11px}
-  .ct.case{background:#fdeee6;color:var(--red);border:1px solid #f6d4c4}
-  .ct.ok{background:#e7f6ee;color:var(--ok);border:1px solid #bfe6d1}
-  .ct.ref{background:#eaf1fb;color:var(--blue);border:1px solid #cfe0f6}
+  .ct.case{background:#fbe9e7;color:var(--red);border:1px solid #f5c9a8}
+  .ct.ok{background:#e3f2ea;color:var(--ok);border:1px solid #bfe6d1}
+  .ct.ref{background:#e9f2fb;color:var(--blue);border:1px solid #d3e2f0}
   /* 案例卡片 */
   .case{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:var(--soft);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:12px;padding:16px 18px;margin:14px 0}
   .case.good{border-left-color:var(--ok)}
@@ -61,36 +72,36 @@
   .case .pmap{background:#fff;border:1px dashed var(--line);border-radius:9px;padding:9px 11px;font-size:12px;margin-top:6px}
   .case .pmap b{color:var(--red)}
   /* 深度拆解 */
-  .deepbox{background:linear-gradient(135deg,#f6fafe 0%,#eef5fc 100%);border:1px solid #cfe0ee;border-left:5px solid var(--pri);border-radius:12px;padding:16px 20px;margin:14px 0;font-size:13.5px;line-height:1.85;color:#1f3554}
-  .deepbox h4{margin:10px 0 6px;font-size:14px;color:#0b2545;border-bottom:1px dashed #cfd9e6;padding-bottom:4px}
+  .deepbox{background:linear-gradient(135deg,#f5f9ff 0%,#eef5fc 100%);border:1px solid #d3e2f0;border-left:5px solid var(--pri);border-radius:12px;padding:16px 20px;margin:14px 0;font-size:13.5px;line-height:1.85;color:#1f3554}
+  .deepbox h4{margin:10px 0 6px;font-size:14px;color:#0d2c4d;border-bottom:1px dashed #cdd9e6;padding-bottom:4px}
   .deepbox h4:first-child{margin-top:0}
   .deepbox p{margin:6px 0}
   .deepbox ul,.deepbox ol{margin:6px 0 6px 18px;padding:0}
   .deepbox li{margin:4px 0}
-  .deepbox .warn{background:#fff5e0;border-left:4px solid #e3a637;padding:10px 12px;border-radius:8px;margin-top:10px;font-size:13px;color:#6e4c0c}
+  .deepbox .warn{background:#fdf3e7;border-left:4px solid #d4902a;padding:10px 12px;border-radius:8px;margin-top:10px;font-size:13px;color:#6e4c0c}
   /* 自测 */
   .quiz{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
   .quiz .q{font-size:13.5px;font-weight:700;margin-bottom:9px}
   .quiz .opt{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:6px 0;cursor:pointer;font-size:13px;font-family:inherit;transition:.15s;color:var(--ink)}
   .quiz .opt:hover{border-color:var(--blue3)}
-  .quiz .opt.ok{background:#e7f6ee;border-color:var(--ok);color:#1c6b46}
-  .quiz .opt.no{background:#fdeee6;border-color:var(--red);color:#8a3522}
+  .quiz .opt.ok{background:#e3f2ea;border-color:var(--ok);color:#1a6b46}
+  .quiz .opt.no{background:#fbe9e7;border-color:var(--red);color:#7c2d12}
   .quiz .fb{font-size:12.5px;margin-top:8px;display:none;border-radius:8px;padding:8px 11px}
-  .quiz .fb.good{display:block;background:#e7f6ee;color:#1c6b46}
-  .quiz .fb.bad{display:block;background:#fdeee6;color:#8a3522}
-  .note{background:#fff8ec;border:1px solid #f6e2bf;border-left:4px solid var(--warn);border-radius:10px;padding:11px 14px;font-size:12.5px;margin:12px 0;color:#7a5a1e}
+  .quiz .fb.good{display:block;background:#e3f2ea;color:#1a6b46}
+  .quiz .fb.bad{display:block;background:#fbe9e7;color:#7c2d12}
+  .note{background:#fdf3e7;border:1px solid #f0d8a8;border-left:4px solid var(--warn);border-radius:10px;padding:11px 14px;font-size:12.5px;margin:12px 0;color:#7a5a1e}
   .footer{text-align:center;font-size:12px;color:var(--mut);padding:20px}
   /* AI 助教 */
-  .tutor-fab{position:fixed;right:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#1a4f8e,#2d6fb5);color:#fff;border:none;box-shadow:0 8px 24px rgba(45,111,181,.4);cursor:pointer;font-size:22px;z-index:60;transition:.2s;display:flex;align-items:center;justify-content:center}
+  .tutor-fab{position:fixed;right:22px;bottom:22px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#14559c,#2b7cd3);color:#fff;border:none;box-shadow:0 8px 24px rgba(8,88,121,.4);cursor:pointer;font-size:22px;z-index:60;transition:.2s;display:flex;align-items:center;justify-content:center}
   .tutor-fab:hover{transform:translateY(-2px) scale(1.06)}
-  .tutor{position:fixed;right:22px;bottom:90px;width:340px;max-height:70vh;display:none;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(31,95,168,.22);z-index:61;overflow:hidden}
+  .tutor{position:fixed;right:22px;bottom:90px;width:340px;max-height:70vh;display:none;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(8,88,121,.22);z-index:61;overflow:hidden}
   .tutor.open{display:flex}
-  .tutor-hd{background:linear-gradient(120deg,#1a4f8e,#2d6fb5);color:#fff;padding:12px 16px;font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+  .tutor-hd{background:linear-gradient(120deg,#14559c,#2b7cd3);color:#fff;padding:12px 16px;font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
   .tutor-hd .x{cursor:pointer;font-size:16px;opacity:.85}
-  .tutor-tip{padding:8px 12px;font-size:11.5px;color:var(--mut);background:#f7fafd;border-bottom:1px solid var(--line);line-height:1.6}
+  .tutor-tip{padding:8px 12px;font-size:11.5px;color:var(--mut);background:#f4f9ff;border-bottom:1px solid var(--line);line-height:1.6}
   .tutor-body{flex:1;overflow:auto;padding:12px;font-size:13px;line-height:1.7;max-height:44vh}
   .tutor-body .msg{margin:6px 0;padding:9px 12px;border-radius:12px;white-space:pre-wrap}
-  .tutor-body .me{background:linear-gradient(120deg,#1a4f8e,#2d6fb5);color:#fff;margin-left:26px;border-bottom-right-radius:4px}
+  .tutor-body .me{background:linear-gradient(120deg,#14559c,#2b7cd3);color:#fff;margin-left:26px;border-bottom-right-radius:4px}
   .tutor-body .bot{background:var(--soft);border:1px solid var(--line);margin-right:26px;border-bottom-left-radius:4px}
   .tutor-ft{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
   .tutor-ft input{flex:1;border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px;outline:none;color:var(--ink)}
@@ -107,6 +118,9 @@
 </header>
 
 <div class="wrap">
+  <!-- 移动端抽屉遮罩 + 目录按钮 -->
+  <div class="side-mask" id="sideMask" onclick="toggleSide(false)"></div>
+  <button class="toc-btn" id="tocBtn" onclick="toggleSide(true)">📖 目录</button>
   <!-- 侧栏导航 -->
   <nav class="side" id="side">
     <div class="g">入门</div>
@@ -826,9 +840,14 @@
 <script>
 const side=document.getElementById('side');
 const links=[...side.querySelectorAll('a')];
+function toggleSide(show){
+  side.classList.toggle('open',show);
+  document.getElementById('sideMask').classList.toggle('show',show);
+}
 links.forEach(a=>a.onclick=()=>{
   const el=document.getElementById(a.dataset.id);
   if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  if(window.innerWidth<=880)toggleSide(false);   // 手机端选完自动收起
 });
 // 滚动高亮
 const secs=links.map(a=>document.getElementById(a.dataset.id)).filter(Boolean);

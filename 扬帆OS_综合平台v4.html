@@ -9,38 +9,52 @@
 <script src="dash_data.js"></script>
 <style>
   :root{
-    --navy:#0f3b73;            /* 最深蓝，仅极个别强调 */
-    --pri:#1e6fd9;             /* 主操作/强调蓝（清爽亮蓝） */
-    --blue-900:#0f3b73; --blue-800:#16559e; --blue-700:#1e6fd9; --blue-600:#2c7be5; --blue-500:#48a6ff; --blue-300:#7fc4ff; --blue-200:#dbeafe;
-    --cyan:#16c2a3; --ice:#eaf3ff; --ice-2:#f6f9fd;
-    --line:#e2ebf5; --ink:#243b52; --muted:#7489a0; --warn:#f0883e; --ok:#12b886;
-    --gold:#e0a93e;
+    /* 海尔蓝·活力橙体系：深海军蓝导航、海尔蓝主操作、活力橙点睛，沉稳有品牌力 */
+    --navy:#0d2c4d;            /* 最深海军蓝：标题/品牌/深色块 */
+    --pri:#2b7cd3;             /* 海尔蓝主操作 */
+    --blue-900:#0d2c4d; --blue-800:#14559c; --blue-700:#2b7cd3; --blue-600:#4ea3e8; --blue-500:#7ec2f2; --blue-300:#a8d4f5; --blue-200:#d7eefb;
+    --cyan:#4ea3e8; --ice:#eef5fc; --ice-2:#f5f9ff;
+    --line:#d3e2f0; --ink:#0d2c4d; --muted:#5e7da0; --warn:#e08c2e; --ok:#10a37f;
+    --gold:#e08c2e;            /* 活力橙点睛：品牌活力，克制使用 */
+    --shadow-sm:0 1px 2px rgba(13,44,77,.05);
+    --shadow-md:0 6px 18px rgba(13,44,77,.07);
+    --shadow-lg:0 14px 36px rgba(13,44,77,.10);
+    --radius:16px;
+    --font:"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
   /* ===== 登录门禁 ===== */
-  #loginGate{position:fixed;inset:0;z-index:9999;background:linear-gradient(140deg,#0f3b73 0%,#1e6fd9 55%,#48a6ff 100%);display:flex;align-items:center;justify-content:center}
+  #loginGate{position:fixed;inset:0;z-index:9999;background:radial-gradient(1100px 620px at 14% -12%,#14559c 0%,transparent 55%),radial-gradient(900px 520px at 112% 118%,#0d2c4d 0%,transparent 55%),linear-gradient(140deg,#0d2c4d 0%,#123a5e 100%);display:flex;align-items:center;justify-content:center}
   #loginGate.hidden{display:none}
   .lg-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:42px 46px;width:340px;text-align:center;backdrop-filter:blur(6px);box-shadow:0 18px 50px rgba(0,0,0,.35)}
   .lg-logo{font-size:26px;font-weight:700;color:#fff;letter-spacing:6px;margin-bottom:4px}
-  .lg-sub{font-size:12px;color:#9fb8d6;letter-spacing:2px;margin-bottom:26px}
-  .lg-title{font-size:14px;color:#cfe0f0;margin-bottom:16px}
+  .lg-sub{font-size:12px;color:#b8d8f5;letter-spacing:2px;margin-bottom:26px}
+  .lg-title{font-size:14px;color:#d3e2f0;margin-bottom:16px}
   .lg-box input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:15px;text-align:center;letter-spacing:3px;outline:none;font-family:inherit}
-  .lg-box input::placeholder{color:#7d96b5;letter-spacing:1px}
-  .lg-box input:focus{border-color:var(--gold,#e0a93e);box-shadow:0 0 0 3px rgba(200,160,75,.25)}
-  .lg-box button{width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;background:linear-gradient(120deg,#e0a93e,#f0c25a);color:#0f3b73;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:4px;font-family:inherit}
-  .lg-box button:hover{filter:brightness(1.08)}
-  .lg-err{color:#ffb4a0;font-size:12px;margin-top:10px;min-height:18px}
-  .lg-tip{color:#7d96b5;font-size:11px;margin-top:12px;line-height:1.6}
-  .logout-btn{position:fixed;right:14px;bottom:14px;z-index:888;background:var(--blue-900);color:#cfe0f0;border:1px solid var(--line);border-radius:20px;padding:5px 14px;font-size:11px;cursor:pointer;opacity:.75;font-family:inherit}
+  .lg-box input::placeholder{color:#9ab5d0;letter-spacing:1px}
+  .lg-box input:focus{border-color:var(--gold,#e08c2e);box-shadow:0 0 0 3px rgba(224,140,46,.25)}
+  .lg-box button{width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;background:linear-gradient(120deg,#2b7cd3,#4ea3e8);color:#fff;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:4px;font-family:inherit;box-shadow:0 6px 18px rgba(43,124,211,.35);transition:all .2s}
+  .lg-box button:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 10px 24px rgba(43,124,211,.42)}
+  .lg-box button:active{transform:translateY(0) scale(.98)}
+  .lg-err{color:#f5c9a8;font-size:12px;margin-top:10px;min-height:18px}
+  .lg-tip{color:#9ab5d0;font-size:11px;margin-top:12px;line-height:1.6}
+  .logout-btn{position:fixed;right:14px;bottom:14px;z-index:888;background:var(--blue-900);color:#d3e2f0;border:1px solid var(--line);border-radius:20px;padding:5px 14px;font-size:11px;cursor:pointer;opacity:.75;font-family:inherit}
   .logout-btn:hover{opacity:1;color:#fff}
   *{box-sizing:border-box}
-  body{margin:0;font-family:"Segoe UI","Microsoft YaHei",-apple-system,sans-serif;color:var(--ink);background:var(--ice-2);line-height:1.7}
-  header{background:linear-gradient(120deg,var(--blue-900),var(--blue-500));color:#fff;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
-  header h1{margin:0;font-size:20px;letter-spacing:1px}
-  header .sub{font-size:12px;opacity:.8;margin-top:4px}
-  header .brand{font-size:12px;opacity:.7;border:1px solid rgba(255,255,255,.4);padding:3px 10px;border-radius:20px}
-  nav{display:flex;background:var(--blue-700);position:sticky;top:0;z-index:20;flex-wrap:wrap}
-  nav button{flex:1;min-width:120px;background:none;border:none;color:#cfe0f0;padding:14px 8px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;font-family:inherit;white-space:nowrap}
-  nav button.active{color:#fff;border-bottom-color:var(--gold);background:rgba(255,255,255,.06)}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:radial-gradient(1200px 520px at 88% -10%,rgba(78,163,232,.06),transparent 60%),radial-gradient(900px 460px at 0% 0%,rgba(78,163,232,.05),transparent 55%),linear-gradient(180deg,#eef5fc 0%,#f5f9ff 100%);background-attachment:fixed;line-height:1.7;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  header{background:rgba(255,255,255,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--navy);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  header h1{margin:0;font-size:26px;letter-spacing:3px;font-weight:900;color:var(--navy);text-shadow:0 1px 2px rgba(13,44,77,.06)}
+  header .sub{font-size:13px;color:var(--blue-800);margin-top:6px;font-weight:500;letter-spacing:.6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  header .sub .tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--blue-700);background:linear-gradient(135deg,#eef5fc,#f4f9ff);border:1px solid var(--blue-200);padding:2px 10px;border-radius:20px;font-weight:600}
+  header .brand{font-size:12px;color:#fff;background:linear-gradient(135deg,#2b7cd3,#4ea3e8);padding:4px 14px;border-radius:20px;font-weight:700;box-shadow:0 4px 12px rgba(43,124,211,.22);letter-spacing:1px}
+  nav{display:flex;background:rgba(255,255,255,.76);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:20;flex-wrap:wrap;padding:7px 12px;gap:4px}
+  nav button{flex:1;min-width:118px;background:transparent;border:none;color:var(--muted);padding:10px 8px;font-size:14px;cursor:pointer;border-radius:12px;font-family:inherit;white-space:nowrap;transition:all .22s cubic-bezier(.22,.61,.36,1);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px;position:relative}
+  nav button svg{width:17px;height:17px;flex:none;transition:transform .22s cubic-bezier(.22,.61,.36,1)}
+  nav button:hover:not(.active){background:rgba(43,124,211,.08);color:var(--navy);transform:translateY(-1px)}
+  nav button:hover:not(.active) svg{transform:translateY(-1px) scale(1.08)}
+  nav button.active{color:#fff;background:linear-gradient(135deg,#2b7cd3 0%,#4ea3e8 100%);box-shadow:0 6px 16px rgba(43,124,211,.28)}
+  nav button.active svg{filter:drop-shadow(0 1px 2px rgba(255,255,255,.45))}
+  nav button.active::after{content:"";position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:14px;height:3px;border-radius:3px;background:linear-gradient(90deg,#e08c2e,#f0a63d);transition:width .22s}
+  nav button:active:not(.active){transform:scale(.96)}
   /* 移动端：菜单不换行，改横向滑动，杜绝错位 */
   @media(max-width:820px){
     nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -49,10 +63,12 @@
   }
   .wrap{max-width:1200px;margin:0 auto;padding:22px}
   section{display:none}
-  section.active{display:block}
-  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(27,58,107,.05)}
-  h2{color:var(--blue-700);font-size:18px;margin:0 0 12px;border-left:4px solid var(--blue-300);padding-left:10px}
-  h3{color:var(--blue-500);font-size:15px;margin:16px 0 8px}
+  section.active{display:block;animation:secIn .4s cubic-bezier(.22,.61,.36,1)}
+  @keyframes secIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;box-shadow:var(--shadow-md);transition:box-shadow .25s,transform .25s,border-color .25s}
+  .card:hover{box-shadow:var(--shadow-lg);border-color:var(--blue-200);transform:translateY(-2px)}
+  h2{color:var(--navy);font-size:18px;margin:0 0 12px;border-left:4px solid var(--blue-600);padding-left:12px;letter-spacing:.5px;font-weight:800}
+  h3{color:var(--blue-700);font-size:15px;margin:16px 0 8px;font-weight:700}
   .muted{color:var(--muted);font-size:13px}
   .pill{display:inline-block;background:var(--ice);color:var(--blue-700);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;margin:2px}
   .grid{display:grid;gap:14px}
@@ -60,15 +76,15 @@
   @media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}}
   .legend{font-size:12px;color:var(--muted);margin:4px 0 14px}
   /* 数据看板上传卡片 */
-  .upcard{border:1px dashed var(--blue-300);background:linear-gradient(120deg,#f6fafd,#eef5fb)}
+  .upcard{border:1px dashed var(--blue-300);background:linear-gradient(120deg,#f4f9ff,#e9f2fb)}
   .up-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
   .up-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
-  .up-btn{background:var(--blue-700);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
-  .up-btn:hover{background:var(--blue-500)}
-  .up-btn:disabled{background:#9db3cc;cursor:not-allowed}
+  .up-btn{background:linear-gradient(120deg,var(--blue-700),var(--blue-600));color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);transition:all .2s;font-weight:600}
+  .up-btn:hover{background:linear-gradient(120deg,var(--blue-600),var(--blue-500));box-shadow:var(--shadow-md);transform:translateY(-1px)}
+  .up-btn:disabled{background:#8fa8b8;cursor:not-allowed}
   .month-switch{display:flex;gap:8px;margin:10px 0 14px;align-items:center;flex-wrap:wrap}
   .month-switch span{font-size:12px;color:var(--muted)}
-  .month-switch button{background:#fff;border:1px solid #d0dce8;border-radius:8px;padding:5px 14px;font-size:12.5px;color:#4a5c6e;cursor:pointer;transition:.15s;font-family:inherit}
+  .month-switch button{background:#fff;border:1px solid #d3e2f0;border-radius:8px;padding:5px 14px;font-size:12.5px;color:#44647a;cursor:pointer;transition:.15s;font-family:inherit}
   .month-switch button.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
   .up-file{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer}
   .up-file input{display:none}
@@ -90,40 +106,47 @@
   @media(max-width:820px){.book{grid-template-columns:1fr}}
   .kv{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;background:var(--ice-2);margin:10px 0}
   .kv b{color:var(--blue-700)}
-  .case{border-left:4px solid var(--cyan);background:#eefaf8;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+  .case{border-left:4px solid var(--cyan);background:#eaf2fb;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
   .case .who{font-weight:700;color:var(--ok)}
   .tag-book{font-size:11px;background:var(--gold);color:#3a2c08;padding:2px 8px;border-radius:10px;margin-left:6px}
-  .quiz{background:#fff7ed;border:1px solid #fcd9b6;border-radius:10px;padding:14px;margin:12px 0}
+  .quiz{background:#fdf3e7;border:1px solid #f6d5b0;border-radius:10px;padding:14px;margin:12px 0}
   .quiz .opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:13px}
   .quiz .opt:hover{border-color:var(--blue-300)}
-  .quiz .opt.ok{background:#e7f6f1;border-color:var(--ok);color:var(--ok)}
-  .quiz .opt.no{background:#fdecec;border-color:#d9534f;color:#b42318}
+  .quiz .opt.ok{background:#e3f2ea;border-color:var(--ok);color:var(--ok)}
+  .quiz .opt.no{background:#fbe9e7;border-color:#cf4b3f;color:#b3261a}
   .fb{font-size:13px;margin-top:8px;padding:8px 10px;border-radius:8px;display:none}
   .fb.show{display:block}
-  .fb.good{background:#e7f6f1;color:var(--ok)}
-  .fb.bad{background:#fdecec;color:#b42318}
+  .fb.good{background:#e3f2ea;color:var(--ok)}
+  .fb.bad{background:#fbe9e7;color:#b3261a}
   /* 效率工厂 */
   .gen{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff}
   label{font-size:12px;color:var(--muted);display:block;margin:10px 0 4px}
   input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;color:var(--ink)}
   textarea{min-height:70px;resize:vertical}
-  .btn{background:var(--blue-700);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:10px;margin-right:6px}
-  .btn:hover{background:var(--blue-500)}
+  .btn{background:linear-gradient(120deg,var(--blue-700),var(--blue-600));color:#fff;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;margin-top:10px;margin-right:6px;box-shadow:0 4px 12px rgba(43,124,211,.22);transition:all .2s;font-weight:600}
+  .btn:hover{box-shadow:0 8px 20px rgba(43,124,211,.30);transform:translateY(-1px);filter:brightness(1.05)}
+  .btn:active{transform:translateY(0) scale(.98);box-shadow:0 2px 6px rgba(43,124,211,.22)}
   .btn.ghost{background:#fff;color:var(--blue-700);border:1px solid var(--blue-300)}
   .out{margin-top:12px;font-size:13px;background:var(--ice-2);border:1px solid var(--line);border-radius:8px;padding:12px;white-space:pre-wrap;max-height:340px;overflow:auto}
   .ppt-row{display:flex;gap:12px;margin:4px 0}
   .ppt-col{flex:1;min-width:0}
   .ppt-col label{margin-top:10px}
   .tag{font-size:11px;background:var(--blue-700);color:#fff;padding:2px 8px;border-radius:10px;margin-left:6px}
-  .note{font-size:12px;color:var(--warn);background:#fff7ed;border:1px solid #fcd9b6;border-radius:8px;padding:8px 10px;margin:8px 0}
-  /* 训战机器人 */
+  .note{font-size:12px;color:var(--warn);background:#fdf3e7;border:1px solid #f6d5b0;border-radius:8px;padding:8px 10px;margin:8px 0}
+  /* 智子（训战机器人） */
   .bot{display:grid;grid-template-columns:1fr 320px;gap:18px}
   @media(max-width:820px){.bot{grid-template-columns:1fr}}
-  .chat{background:linear-gradient(180deg,#f7fafd,#eef4fa);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:440px;max-height:620px;overflow-y:auto;scroll-behavior:smooth}
+  .bot-head{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#0d2c4d,#2b7cd3);border-radius:12px;padding:10px 14px;margin-bottom:10px;color:#fff;box-shadow:0 3px 12px rgba(13,44,77,.22)}
+  .bot-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e08c2e,#f0a63d);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+  .bot-id{flex:1;min-width:0}
+  .bot-id b{font-size:15.5px;letter-spacing:1px}
+  .bot-id span{display:block;font-size:11.5px;opacity:.85;margin-top:2px;line-height:1.5}
+  .bot-head .mode-badge{flex-shrink:0;font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;border:none}
+  .chat{background:linear-gradient(180deg,#f4f9ff,#eaf2fb);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:440px;max-height:620px;overflow-y:auto;scroll-behavior:smooth}
   .msg{max-width:92%;margin:10px 0;font-size:14px;line-height:1.7;animation:msgIn .22s ease}
   @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .msg.me{background:linear-gradient(135deg,var(--blue-700),var(--blue-500));color:#fff;margin-left:auto;text-align:right;border-radius:14px 14px 4px 14px;padding:9px 14px;max-width:70%;box-shadow:0 2px 8px rgba(19,49,92,.25);font-size:13.5px}
-  .msg.bot{background:#fff;border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:12px 14px;box-shadow:0 2px 10px rgba(27,58,107,.06);font-size:13.5px}
+  .msg.me{background:linear-gradient(135deg,var(--blue-700),var(--blue-500));color:#fff;margin-left:auto;text-align:right;border-radius:14px 14px 4px 14px;padding:9px 14px;max-width:70%;box-shadow:0 2px 8px rgba(13,44,77,.25);font-size:13.5px}
+  .msg.bot{background:#fff;border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:12px 14px;box-shadow:0 2px 10px rgba(13,44,77,.06);font-size:13.5px}
   .msg.bot .kb-h{font-weight:700;color:var(--blue-900);margin:10px 0 5px;padding:2px 0 2px 10px;border-left:4px solid var(--cyan);font-size:14px}
   .msg.bot .kb-h:first-child{margin-top:0}
   .msg.bot .kb-sec{font-weight:700;color:var(--blue-700);margin:8px 0 3px;font-size:13.5px}
@@ -147,16 +170,38 @@
   .chat-input{display:flex;gap:8px;margin-top:10px}
   .chat-input input{flex:1}
   .mode-badge{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--ice);color:var(--muted)}
-  .mode-badge.live{background:#e7f6f1;color:var(--ok)}
+  .mode-badge.live{background:#e3f2ea;color:var(--ok)}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
   .kpi{display:flex;gap:14px;flex-wrap:wrap}
   .kpi .b{flex:1;min-width:120px;background:var(--ice);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
   .kpi .n{font-size:22px;color:var(--blue-700);font-weight:700}
   /* ============ 数据看板（6-7月全站） ============ */
-  .dash-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+  /* 第一行：3张大卡片——报名→面试→入营（漏斗核心，居中放大） */
+  .dash-hero{display:flex;justify-content:center;align-items:stretch;gap:10px;margin-bottom:14px;flex-wrap:nowrap}
+  .dash-hero .hero-kp{flex:1;max-width:260px;min-width:0;background:#fff;border:1px solid #d3e2f0;border-radius:14px;padding:18px 14px 16px;text-align:center;position:relative;box-shadow:0 4px 14px rgba(13,44,77,.08);overflow:hidden}
+  .dash-hero .hero-kp::before{content:"";position:absolute;top:0;left:0;right:0;height:4px}
+  .dash-hero .hero-kp.h1::before{background:linear-gradient(90deg,#7ec2f2,#4ea3e8)}
+  .dash-hero .hero-kp.h2::before{background:linear-gradient(90deg,#4ea3e8,#2b7cd3)}
+  .dash-hero .hero-kp.h3::before{background:linear-gradient(90deg,#2b7cd3,#0d2c4d)}
+  .dash-hero .hero-kp.h1{background:linear-gradient(180deg,#fff 0%,#f4f9ff 60%,#eef5fc 100%)}
+  .dash-hero .hero-kp.h2{background:linear-gradient(180deg,#fff 0%,#f4f9ff 60%,#e6f0fa 100%)}
+  .dash-hero .hero-kp.h3{background:linear-gradient(180deg,#fff 0%,#eaf2fb 60%,#d8e7f5 100%)}
+  .dash-hero .hero-kp .n{font-size:34px;font-weight:900;line-height:1.05;letter-spacing:-0.5px}
+  .dash-hero .hero-kp.h1 .n{color:#4ea3e8}
+  .dash-hero .hero-kp.h2 .n{color:#2b7cd3}
+  .dash-hero .hero-kp.h3 .n{background:linear-gradient(135deg,#0d2c4d 0%,#2b7cd3 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .dash-hero .hero-kp .m{font-size:13px;color:#17324d;margin-top:6px;font-weight:700}
+  .dash-hero .hero-kp .s{font-size:11px;color:#5e7da0;margin-top:4px;line-height:1.5}
+  .dash-hero .hero-kp .s b{color:#2b7cd3;font-weight:700}
+  .dash-hero .arrow{display:flex;align-items:center;justify-content:center;color:#7ec2f2;font-size:22px;font-weight:700;padding:0 4px;min-width:24px}
+  .dash-hero .arrow .arr-convert{font-size:10px;color:#5e7da0;display:block;margin-top:2px;font-weight:600}
+  @media(max-width:760px){.dash-hero{flex-wrap:wrap}.dash-hero .hero-kp{max-width:none;flex:1 1 calc(50% - 16px)}.dash-hero .arrow{display:none}}
+  @media(max-width:460px){.dash-hero .hero-kp{flex:1 1 100%}}
+  /* 第二行：5张支撑指标卡片 */
+  .dash-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
   @media(max-width:1100px){.dash-kpis{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:620px){.dash-kpis{grid-template-columns:repeat(2,1fr)}}
-  .dash-kpis .kp{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(27,58,107,.05)}
+  .dash-kpis .kp{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(13,44,77,.05)}
   .dash-kpis .kp .n{font-size:23px;font-weight:800;color:var(--blue-700)}
   .dash-kpis .kp .m{font-size:12px;color:var(--muted);margin-top:2px}
   .dash-kpis .kp .s{font-size:11px;color:var(--muted);opacity:.8;margin-top:2px}
@@ -168,8 +213,8 @@
   @media(max-width:1180px){.dash-grid{grid-template-columns:repeat(4,1fr)}}
   @media(max-width:920px){.dash-grid{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:640px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
-  .st{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;position:relative;box-shadow:0 2px 6px rgba(27,58,107,.04)}
-  .st:hover{border-color:var(--blue-300);transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,58,107,.12)}
+  .st{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;position:relative;box-shadow:0 2px 6px rgba(13,44,77,.04)}
+  .st:hover{border-color:var(--blue-300);transform:translateY(-2px);box-shadow:0 6px 16px rgba(13,44,77,.12)}
   .st .nm{font-size:16px;font-weight:800;color:var(--blue-900)}
   .st .ow{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .st .lv{position:absolute;top:10px;right:10px;font-size:10px;background:var(--ice);color:var(--blue-700);border:1px solid var(--line);padding:1px 7px;border-radius:10px}
@@ -214,7 +259,7 @@
   .dash-table th{background:var(--ice);color:var(--blue-700);font-size:12px}
   .dash-table td.k{text-align:left;font-weight:600;color:var(--ink)}
   .dash-table .up{color:#c0392b;font-weight:700}
-  .dash-table .down{color:#0f7b6c;font-weight:700}
+  .dash-table .down{color:#2b7cd3;font-weight:700}
   .tbl-scroll{overflow-x:auto}
   .ana{list-style:none;padding:0;margin:0}
   .ana li{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px;line-height:1.75}
@@ -232,7 +277,7 @@
   .dash-note{font-size:12px;color:var(--muted);margin-top:10px}
 
   /* 内外视图切换 + 图表仪表盘 */
-  .view-toggle{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:6px 8px 6px 14px;font-size:12.5px;color:var(--blue-700);margin:4px 0 14px;cursor:pointer;flex-wrap:wrap;box-shadow:0 2px 6px rgba(27,58,107,.05)}
+  .view-toggle{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:6px 8px 6px 14px;font-size:12.5px;color:var(--blue-700);margin:4px 0 14px;cursor:pointer;flex-wrap:wrap;box-shadow:0 2px 6px rgba(13,44,77,.05)}
   .view-toggle:hover{border-color:var(--blue-300)}
   .view-toggle b{font-weight:700;font-size:13px}
   .view-toggle .sw{position:relative;width:42px;height:22px;border-radius:12px;background:var(--cyan);transition:.2s;flex-shrink:0}
@@ -242,7 +287,7 @@
   .ext-note{font-size:11.5px;color:var(--ok)}
   .view-toggle.internal .ext-note{color:var(--warn)}
   .chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:6px 0 14px}
-  .chart-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(27,58,107,.05);display:flex;flex-direction:column;min-width:0}
+  .chart-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 2px 8px rgba(13,44,77,.05);display:flex;flex-direction:column;min-width:0}
   .chart-card h3{margin:0 0 2px;font-size:14px;color:var(--blue-700);border-left:4px solid var(--cyan);padding-left:8px}
   .chart-card .csub{font-size:11px;color:var(--muted);margin-bottom:6px}
   .chart-fill{flex:1;display:flex;align-items:center;justify-content:center}
@@ -258,27 +303,177 @@
 
   /* 数据看板 顶部条 + 更新入口 + 模态框 */
   .dash-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:4px}
-  .dash-title{font-size:19px;font-weight:800;color:var(--navy,#0f3b73);letter-spacing:.5px;margin:2px 0 6px}
-  .up-enter{flex-shrink:0;background:linear-gradient(135deg,#1e6fd9,#2c7be5);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(19,49,92,.22);transition:.2s;margin-top:2px}
-  .up-enter:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(19,49,92,.32)}
-  .um-mask{position:fixed;inset:0;background:rgba(11,37,69,.45);backdrop-filter:blur(3px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
-  .um-modal{width:min(640px,94vw);background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(11,37,69,.38);padding:22px 24px;border-top:4px solid var(--pri,#1e6fd9);max-height:88vh;overflow:auto}
+  .dash-title{font-size:19px;font-weight:800;color:var(--navy,#0d2c4d);letter-spacing:.5px;margin:2px 0 6px}
+  .up-enter{flex-shrink:0;background:linear-gradient(135deg,#2b7cd3,#4ea3e8);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12.5px;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(13,44,77,.22);transition:.2s;margin-top:2px}
+  .up-enter:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(13,44,77,.32)}
+  .um-mask{position:fixed;inset:0;background:rgba(20,85,156,.45);backdrop-filter:blur(3px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+  .um-modal{width:min(640px,94vw);background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(20,85,156,.38);padding:22px 24px;border-top:4px solid var(--pri,#2b7cd3);max-height:88vh;overflow:auto}
   .um-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-  .um-head h3{margin:0;font-size:16px;color:var(--navy,#0f3b73)}
+  .um-head h3{margin:0;font-size:16px;color:var(--navy,#0d2c4d)}
   .um-x{background:none;border:none;font-size:16px;color:#8a97a8;cursor:pointer;padding:4px 6px}
   .um-x:hover{color:#b23a3a}
-  .um-note{font-size:11.5px;color:#7a8ba0;background:#f3f7fb;border:1px solid #e2ecf5;border-radius:8px;padding:10px 12px;margin-top:12px;line-height:1.75}
+  .um-note{font-size:11.5px;color:#5e7da0;background:#eef5fc;border:1px solid #d3e2f0;border-radius:8px;padding:10px 12px;margin-top:12px;line-height:1.75}
   /* 看板样式微升级：KPI 与站点卡片 */
-  .dash-kpis .kp{position:relative;overflow:hidden;border:1px solid #e3ecf5;background:linear-gradient(180deg,#fff 0%,#f7fafd 100%)}
-  .dash-kpis .kp::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue-700,#1e6fd9),var(--cyan,#16c2a3))}
-  .dash-kpis .kp .n{background:linear-gradient(135deg,#0f3b73,#2c7be5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .st{border:1px solid #e3ecf5;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)}
-  .st:hover{border-color:var(--blue-300,#7fa8d0);box-shadow:0 8px 22px rgba(27,58,107,.14)}
+  .dash-kpis .kp{position:relative;overflow:hidden;border:1px solid #d3e2f0;background:linear-gradient(180deg,#fff 0%,#f4f9ff 100%)}
+  .dash-kpis .kp::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue-700,#2b7cd3),var(--cyan,#4ea3e8))}
+  .dash-kpis .kp .n{background:linear-gradient(135deg,#0d2c4d,#4ea3e8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .st{border:1px solid #d3e2f0;background:linear-gradient(180deg,#fff 0%,#f4f9ff 100%)}
+  .st:hover{border-color:var(--blue-300,#7fa8d0);box-shadow:0 8px 22px rgba(13,44,77,.14)}
   .st .nm{letter-spacing:1px}
+  /* 看板监控区（目标/里程碑/预警） */
+  .dash-monitor{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  @media(max-width:1100px){.dash-monitor{grid-template-columns:1fr 1fr}}
+  @media(max-width:680px){.dash-monitor{grid-template-columns:1fr}}
+  .dm-card{background:#fff;border:1px solid #d3e2f0;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(13,44,77,.05)}
+  .dm-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed #d3e2f0}
+  .dm-icon{font-size:16px}
+  .dm-head b{font-size:14px;color:#0d2c4d;font-weight:800}
+  .dm-sub{font-size:11.5px;color:#5e7da0;margin-left:auto}
+  /* 目标进度条 */
+  .dm-target-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto}
+  .dt-row{display:flex;align-items:center;gap:10px;font-size:12.5px}
+  .dt-row .dt-name{flex:0 0 90px;color:#17324d;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dt-row .dt-bar{flex:1;height:8px;background:#eef5fc;border-radius:5px;overflow:hidden;position:relative}
+  .dt-row .dt-bar i{display:block;height:100%;background:linear-gradient(90deg,#4ea3e8,#2b7cd3);border-radius:5px;transition:width .3s}
+  .dt-row .dt-bar i.over{background:linear-gradient(90deg,#17a07a,#0e9f9a)}
+  .dt-row .dt-bar i.low{background:linear-gradient(90deg,#e08c2e,#c2410c)}
+  .dt-row .dt-pct{flex:0 0 60px;text-align:right;font-size:12px;font-weight:700;color:#2b7cd3}
+  .dt-row .dt-pct b{font-size:13px}
+  /* 里程碑 */
+  .dm-mile-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+  .mli{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:12.5px;background:#f4f9ff;border-left:3px solid #4ea3e8}
+  .mli.done{background:#e6f7f1;border-left-color:#17a07a;color:#5e7da0}
+  .mli.now{background:#fff7e6;border-left-color:#e08c2e;font-weight:600;color:#17324d}
+  .mli.overdue{background:#fdf0ed;border-left-color:#c2410c;color:#c2410c}
+  .mli .mli-check{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #4ea3e8;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;color:#4ea3e8}
+  .mli.done .mli-check{background:#17a07a;border-color:#17a07a;color:#fff}
+  .mli.now .mli-check{border-color:#e08c2e;color:#e08c2e}
+  .mli.overdue .mli-check{border-color:#c2410c;color:#c2410c}
+  .mli .mli-body{flex:1;line-height:1.4}
+  .mli .mli-date{font-size:11px;color:#5e7da0;margin-top:1px}
+  /* 预警 */
+  .dm-warn-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+  .wrn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:12.5px;background:#fdf0ed;border-left:3px solid #c2410c}
+  .wrn.info{background:#eef5fc;border-left-color:#2b7cd3;color:#17324d}
+  .wrn.ok{background:#e6f7f1;border-left-color:#17a07a;color:#0e6b53}
+  .wrn .wrn-icon{font-size:14px;flex-shrink:0}
+  .wrn .wrn-body{flex:1;line-height:1.4}
+  .wrn .wrn-body b{font-weight:700}
+  /* 公告栏 */
+  .announce-bar{background:linear-gradient(90deg,#0d2c4d 0%,#2b7cd3 100%);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:13.5px;box-shadow:0 2px 8px rgba(13,44,77,.15);position:relative;z-index:5}
+  .announce-bar .ann-icon{font-size:16px;flex-shrink:0}
+  .announce-bar .ann-text{flex:1;line-height:1.5}
+  .announce-bar .ann-text b{font-weight:700;margin-right:4px}
+  .announce-bar .ann-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;flex-shrink:0;transition:.15s;font-family:inherit}
+  .announce-bar .ann-close:hover{background:rgba(255,255,255,.3)}
+  /* ===== 经验广场 ===== */
+  /* 话术库 */
+  .script-lib{background:#fff;border:1px solid #d3e2f0;border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 6px rgba(13,44,77,.04)}
+  .sl-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .sl-title{font-size:15px;font-weight:800;color:#0d2c4d}
+  .sl-sub{color:#5e7da0;font-size:12px}
+  .sl-search{margin-left:auto;border:1px solid var(--line);border-radius:18px;padding:6px 14px;font-size:12.5px;width:240px;font-family:inherit;outline:none;background:#fff;color:#17324d}
+  .sl-search:focus{border-color:#4ea3e8}
+  .sl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(max-width:900px){.sl-grid{grid-template-columns:1fr}}
+  .sl-card{background:linear-gradient(180deg,#f4f9ff 0%,#fff 100%);border:1px solid #d3e2f0;border-radius:10px;padding:12px 14px;cursor:pointer;transition:.15s;position:relative}
+  .sl-card:hover{transform:translateY(-1px);border-color:#4ea3e8;box-shadow:0 4px 12px rgba(13,44,77,.08)}
+  .sl-card .sl-q{font-size:13.5px;font-weight:700;color:#0d2c4d;line-height:1.5;margin-bottom:6px}
+  .sl-card .sl-context{font-size:11.5px;color:#e08c2e;margin-bottom:6px;font-weight:600}
+  .sl-card .sl-preview{font-size:12.5px;color:#44647a;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .sl-card .sl-foot{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:#5e7da0;padding-top:8px;border-top:1px dashed #d3e2f0}
+  .sl-card .sl-foot .sl-src{color:#2b7cd3;font-weight:600}
+  /* 话术详情弹窗 */
+  .script-modal{max-width:600px}
+  .script-modal .sm-question{font-size:16px;font-weight:800;color:#0d2c4d;margin-bottom:8px;line-height:1.5}
+  .script-modal .sm-context{font-size:12.5px;color:#e08c2e;background:#fef5f0;border-left:3px solid #e08c2e;padding:8px 12px;border-radius:4px;margin-bottom:14px}
+  .script-modal .sm-answer{font-size:13.5px;color:#17324d;line-height:1.85;background:#eef5fc;border-left:3px solid #2b7cd3;padding:14px 16px;border-radius:6px;white-space:pre-wrap}
+  .script-modal .sm-meta{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed #d3e2f0;font-size:12px;color:#5e7da0}
+  .script-modal .sm-tags{display:flex;flex-wrap:wrap;gap:5px}
+  .script-modal .sm-tag{background:#f4f9ff;border:1px solid #d3e2f0;color:#44647a;font-size:11px;padding:2px 8px;border-radius:8px}
+  .forum-tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:0}
+  .ftab{background:transparent;border:none;border-bottom:3px solid transparent;color:#5e7da0;padding:10px 18px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;transition:.15s;margin-bottom:-1px}
+  .ftab:hover{color:#2b7cd3}
+  .ftab.active{color:#0d2c4d;border-bottom-color:#2b7cd3}
+  .forum-panel{animation:fadeIn .25s ease}
+  .exp-subtabs{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .estab{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 16px;font-size:13px;color:#5e7da0;cursor:pointer;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .estab:hover{border-color:#4ea3e8;color:#2b7cd3}
+  .estab.active{background:#2b7cd3;color:#fff;border-color:#2b7cd3}
+  .estab.active .exp-cnt{background:rgba(255,255,255,.25);color:#fff}
+  .exp-cnt{background:#eef5fc;color:#2b7cd3;font-size:11px;padding:1px 7px;border-radius:10px;font-weight:600}
+  .exp-search{margin-left:auto}
+  .exp-search input{border:1px solid var(--line);border-radius:18px;padding:6px 14px;font-size:12.5px;width:220px;font-family:inherit;outline:none;background:#fff;color:#17324d}
+  .exp-search input:focus{border-color:#4ea3e8}
+  .exp-content{min-height:300px}
+  /* 案例卡片 */
+  .case-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:900px){.case-grid{grid-template-columns:1fr}}
+  .case-card{background:#fff;border:1px solid #d3e2f0;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(13,44,77,.05);transition:.15s;cursor:pointer;display:flex;flex-direction:column}
+  .case-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(13,44,77,.12);border-color:#4ea3e8}
+  .case-card .cc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .case-card .cc-cat{background:linear-gradient(135deg,#eef5fc,#d8e7f5);color:#2b7cd3;font-size:11px;padding:3px 10px;border-radius:10px;font-weight:700}
+  .case-card .cc-station{color:#5e7da0;font-size:12px}
+  .case-card .cc-author{margin-left:auto;color:#5e7da0;font-size:12px}
+  .case-card .cc-title{font-size:16px;font-weight:800;color:#0d2c4d;line-height:1.4;margin-bottom:8px}
+  .case-card .cc-sum{font-size:13px;color:#44647a;line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .case-card .cc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto}
+  .case-card .cc-tag{background:#f4f9ff;border:1px solid #d3e2f0;color:#44647a;font-size:11px;padding:2px 8px;border-radius:8px}
+  .case-card .cc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px dashed #d3e2f0;font-size:12px;color:#5e7da0}
+  .case-card .cc-photos{color:#2b7cd3;font-weight:600}
+  /* 案例详情弹窗 */
+  .case-modal{max-width:780px;max-height:88vh;overflow-y:auto}
+  .case-modal .cm-section{margin-bottom:16px}
+  .case-modal .cm-section h4{font-size:13px;color:#5e7da0;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .case-modal .cm-section h4::before{content:"";width:3px;height:13px;background:#2b7cd3;border-radius:2px}
+  .case-modal .cm-challenge{background:#fef5f0;border-left:3px solid #e08c2e;padding:12px 14px;border-radius:6px;color:#7a4a1a;font-size:13.5px;line-height:1.7}
+  .case-modal .cm-solution{background:#eef5fc;border-left:3px solid #2b7cd3;padding:12px 14px;border-radius:6px;color:#17324d;font-size:13.5px;line-height:1.7}
+  .case-modal .cm-results{background:linear-gradient(180deg,#fff 0%,#f4f9ff 100%);border:1px solid #d3e2f0;padding:14px;border-radius:8px}
+  .case-modal .cm-results .res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:6px}
+  .case-modal .cm-results .res-item{text-align:center;padding:8px;background:#fff;border-radius:6px;border:1px solid #e6f0fa}
+  .case-modal .cm-results .res-item .rn{font-size:18px;font-weight:800;color:#2b7cd3}
+  .case-modal .cm-results .res-item .rm{font-size:11px;color:#5e7da0;margin-top:2px}
+  .case-modal .cm-quote{background:#0d2c4d;color:#fff;padding:14px 18px;border-radius:8px;font-size:13.5px;line-height:1.7;font-style:italic;position:relative;margin-top:8px}
+  .case-modal .cm-quote::before{content:"";display:block;position:absolute;top:8px;left:10px;font-size:32px;color:#4ea3e8;font-family:Georgia;content:"\""}
+  .case-modal .cm-quote .qtxt{display:block;padding-left:14px}
+  .case-modal .cm-photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:6px}
+  .case-modal .cm-photo{background:#f4f9ff;border:1px solid #d3e2f0;border-radius:8px;padding:8px;text-align:center}
+  .case-modal .cm-photo .pn{font-size:12px;color:#17324d;font-weight:600;margin-bottom:4px}
+  .case-modal .cm-photo .pc{font-size:11px;color:#5e7da0;line-height:1.4}
+  /* 模板卡片 */
+  .tpl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:900px){.tpl-grid{grid-template-columns:1fr}}
+  .tpl-card{background:#fff;border:1px solid #d3e2f0;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(13,44,77,.05);transition:.15s;cursor:pointer}
+  .tpl-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(13,44,77,.12);border-color:#4ea3e8}
+  .tpl-card .tc-cat{display:inline-block;background:#e08c2e;color:#fff;font-size:11px;padding:2px 9px;border-radius:8px;font-weight:700;margin-bottom:8px}
+  .tpl-card .tc-title{font-size:15px;font-weight:800;color:#0d2c4d;margin-bottom:6px;line-height:1.4}
+  .tpl-card .tc-desc{font-size:12.5px;color:#5e7da0;line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .tpl-card .tc-meta{display:flex;justify-content:space-between;font-size:11.5px;color:#5e7da0;padding-top:10px;border-top:1px dashed #d3e2f0}
+  .tpl-card .tc-meta b{color:#17324d;font-weight:600}
+  /* 模板详情 */
+  .tpl-modal{max-width:680px;max-height:88vh;overflow-y:auto}
+  .tpl-modal .tm-section{padding:10px 14px;background:#f4f9ff;border-radius:8px;margin-bottom:10px;border-left:3px solid #4ea3e8}
+  .tpl-modal .tm-section h5{font-size:13.5px;color:#0d2c4d;font-weight:700;margin-bottom:6px}
+  .tpl-modal .tm-section .tm-body{font-size:13px;color:#44647a;line-height:1.7}
+  .tpl-modal .tm-editable{background:#fff;border:1px dashed #4ea3e8;border-radius:6px;padding:6px 10px}
+  /* 照片墙 */
+  .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  @media(max-width:600px){.photo-grid{grid-template-columns:repeat(2,1fr)}}
+  .photo-card{background:#fff;border:1px solid #d3e2f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(13,44,77,.05);transition:.15s;cursor:pointer}
+  .photo-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(13,44,77,.12)}
+  .photo-card .pc-photo{height:140px;background:linear-gradient(135deg,#d8e7f5 0%,#a9c8e0 100%);display:flex;align-items:center;justify-content:center;color:#5e7da0;font-size:40px;position:relative}
+  .photo-card .pc-photo .pc-station{position:absolute;bottom:6px;left:6px;background:rgba(13,44,77,.7);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:8px;font-weight:600}
+  .photo-card .pc-body{padding:10px 12px}
+  .photo-card .pc-cap{font-size:12.5px;color:#17324d;line-height:1.55;font-weight:500}
+  .photo-card .pc-case{font-size:11px;color:#2b7cd3;margin-top:4px;font-weight:600}
+  /* 经验广场空态 */
+  .exp-empty{text-align:center;padding:60px 20px;color:#5e7da0}
+  .exp-empty .ee-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+  .exp-empty .ee-txt{font-size:14px}
   /* ===== 交流论坛 ===== */
   .fbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
   .fchips{display:flex;flex-wrap:wrap;gap:6px}
-  .fchip{background:#fff;border:1px solid var(--line);border-radius:18px;padding:5px 13px;font-size:12.5px;color:#4a5c6e;cursor:pointer;font-family:inherit;transition:.15s}
+  .fchip{background:#fff;border:1px solid var(--line);border-radius:18px;padding:5px 13px;font-size:12.5px;color:#44647a;cursor:pointer;font-family:inherit;transition:.15s}
   .fchip:hover{border-color:var(--blue-300)}
   .fchip.on{background:var(--blue-700);color:#fff;border-color:var(--blue-700)}
   .fops{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -290,7 +485,7 @@
   .mini-btn:hover{color:var(--blue-700);border-color:var(--blue-300)}
   .fb-list{display:flex;flex-direction:column;gap:12px}
   .fpost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.15s;border-left:4px solid var(--blue-300)}
-  .fpost:hover{box-shadow:0 3px 12px rgba(27,58,107,.08)}
+  .fpost:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);border-left-color:var(--blue-600)}
   .fpost .ftag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;margin-right:8px;color:#fff;vertical-align:2px}
   .fpost .ft{font-size:15px;font-weight:700;color:var(--blue-900);margin:6px 0 4px;line-height:1.5}
   .fpost .fb{font-size:13px;color:var(--ink);margin:4px 0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.7}
@@ -302,7 +497,7 @@
   .fb-dhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .fb-back{background:none;border:1px solid var(--line);border-radius:20px;color:var(--blue-600);font-size:12.5px;cursor:pointer;padding:5px 16px;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:4px}
   .fb-back:hover{background:var(--ice-2);color:var(--blue-800);border-color:var(--blue-200)}
-  .fb-dcard{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(27,58,107,.05)}
+  .fb-dcard{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(13,44,77,.05)}
   .fb-dcard-main{padding:22px 24px 18px}
   .fb-dcard .dtag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
   .fb-dcard .dtag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:10px;color:#fff;font-weight:500;letter-spacing:.5px}
@@ -313,18 +508,18 @@
   .fb-dinfo{display:flex;flex-direction:column;gap:1px}
   .fb-dinfo .name{font-size:14px;font-weight:600;color:var(--blue-800)}
   .fb-dinfo .time{font-size:11.5px;color:var(--muted)}
-  .fb-dbody{font-size:14.5px;color:var(--ink);white-space:pre-wrap;line-height:1.9;margin:0 0 16px;padding:14px 18px;background:var(--ice-2);border-radius:12px;border:1px solid rgba(27,58,107,.04)}
+  .fb-dbody{font-size:14.5px;color:var(--ink);white-space:pre-wrap;line-height:1.9;margin:0 0 16px;padding:14px 18px;background:var(--ice-2);border-radius:12px;border:1px solid rgba(13,44,77,.04)}
   .fb-dbody img{max-width:100%;border-radius:8px;margin:8px 0}
-  .fb-dacts{display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--ice);background:#fafcfe}
+  .fb-dacts{display:flex;align-items:center;gap:12px;padding:14px 24px;border-top:1px solid var(--ice);background:#f4f9ff}
   .fb-like{background:none;border:1px solid var(--line);border-radius:20px;padding:5px 14px;font-size:12.5px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:.15s}
   .fb-like:hover{border-color:var(--gold);color:var(--gold)}
-  .fb-like.on{background:linear-gradient(120deg,#e0a93e,#f0c25a);border-color:transparent;color:#fff}
+  .fb-like.on{background:linear-gradient(120deg,#e08c2e,#f0a63d);border-color:transparent;color:#fff}
   /* 回复区 */
   .fb-rsec{margin-top:18px}
   .fb-rsec-title{font-size:14px;font-weight:700;color:var(--blue-800);margin-bottom:12px;display:flex;align-items:center;gap:6px}
   .fb-rsec-title span{font-size:12px;color:var(--muted);font-weight:400}
   .fb-reply{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0;transition:.15s}
-  .fb-reply:hover{box-shadow:0 2px 8px rgba(27,58,107,.04)}
+  .fb-reply:hover{box-shadow:0 2px 8px rgba(13,44,77,.04)}
   .fb-reply .rhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
   .fb-reply .ravatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue-300),var(--cyan));display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex:none}
   .fb-reply .rmeta{font-size:12px;color:var(--muted)}
@@ -334,7 +529,7 @@
   /* 回复表单 */
   .fb-rform{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
   .fb-rform-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-  .fb-rform-head .ravatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f0c25a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+  .fb-rform-head .ravatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f0a63d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
   .fb-rform-head input{flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:20px;font-size:12.5px;font-family:inherit;background:var(--ice-2);outline:none}
   .fb-rform-head input:focus{border-color:var(--blue-300);background:#fff}
   .fb-rform-body{margin-bottom:10px}
@@ -348,7 +543,7 @@
   .fb-img-btn{background:none;border:1px dashed var(--line);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:.15s}
   .fb-img-btn:hover{border-color:var(--blue-300);color:var(--blue-600)}
   .fb-send-btn{background:linear-gradient(120deg,var(--blue-700),var(--blue-500));border:none;border-radius:20px;padding:7px 20px;font-size:13px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;margin-left:auto}
-  .fb-send-btn:hover{filter:brightness(1.08);box-shadow:0 2px 8px rgba(19,49,92,.25)}
+  .fb-send-btn:hover{filter:brightness(1.08);box-shadow:0 2px 8px rgba(13,44,77,.25)}
   .fb-empty{text-align:center;color:var(--muted);padding:30px 20px;font-size:13.5px;background:#fff;border:1px dashed var(--line);border-radius:12px;line-height:2}
   .frow{display:flex;align-items:flex-start;gap:10px;margin:11px 0;flex-wrap:wrap}
   .frow>span{width:52px;font-size:13px;color:var(--muted);flex:none;padding-top:9px}
@@ -371,23 +566,23 @@
   }
 
   /* ===== 热门帖子轮播 ===== */
-  .fb-hot{background:linear-gradient(135deg,#0f3b73 0%,#1e6fd9 50%,#2c7be5 100%);border-radius:14px;padding:18px 18px 14px;margin-bottom:16px;position:relative;overflow:hidden}
-  .fb-hot::before{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;background:radial-gradient(circle,rgba(200,160,75,.12) 0%,transparent 70%);pointer-events:none}
+  .fb-hot{background:linear-gradient(135deg,#0d2c4d 0%,#2b7cd3 50%,#4ea3e8 100%);border-radius:14px;padding:18px 18px 14px;margin-bottom:16px;position:relative;overflow:hidden}
+  .fb-hot::before{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;background:radial-gradient(circle,rgba(224,140,46,.12) 0%,transparent 70%);pointer-events:none}
   .fb-hot-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
   .fb-hot-icon{font-size:20px}
   .fb-hot-head b{color:#fff;font-size:15px;letter-spacing:1px}
-  .fb-hot-sub{font-size:11.5px;color:#9fb8d6;margin-left:auto}
+  .fb-hot-sub{font-size:11.5px;color:#b8d8f5;margin-left:auto}
   .fb-carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:2px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .fb-carousel::-webkit-scrollbar{display:none}
   .fb-card{flex:0 0 220px;min-width:220px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s;snap-align:start;scroll-snap-align:start}
-  .fb-card:hover{background:rgba(255,255,255,.13);transform:translateY(-3px);border-color:rgba(200,160,75,.35)}
-  .fb-card-img{width:100%;height:110px;background:linear-gradient(135deg,#1a3a6b,#0d2240);display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;overflow:hidden}
-  .fb-card-img .img-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(11,37,69,.7) 100%)}
+  .fb-card:hover{background:rgba(255,255,255,.13);transform:translateY(-3px);border-color:rgba(224,140,46,.35)}
+  .fb-card-img{width:100%;height:110px;background:linear-gradient(135deg,#14559c,#0d2c4d);display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;overflow:hidden}
+  .fb-card-img .img-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(20,85,156,.7) 100%)}
   .fb-card-img span{position:relative;z-index:1}
   .fb-card-body{padding:10px 12px}
   .fb-card-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:8px;color:#fff;margin-bottom:5px;font-weight:600;letter-spacing:.5px}
   .fb-card-title{font-size:13px;font-weight:700;color:#fff;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
-  .fb-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9fb8d6}
+  .fb-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#b8d8f5}
   .fb-card-meta .likes{color:#e8b84a;font-weight:600}
   .fb-carousel-dots{text-align:center;padding-top:8px;display:flex;justify-content:center;gap:6px}
   .fb-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:.2s}
@@ -415,16 +610,17 @@
   /* 移动端：收敛头部与留白，提升小屏可读性 */
   @media(max-width:640px){
     header{padding:14px 16px;align-items:flex-start}
-    header h1{font-size:17px}
-    header .sub{font-size:11px;line-height:1.5;margin-top:2px}
-    header .brand{font-size:11px;padding:2px 8px}
+    header h1{font-size:19px;letter-spacing:2px}
+    header .sub{font-size:12px;gap:6px}
+    header .sub .tag{font-size:10px;padding:1px 8px}
+    header .brand{font-size:11px;padding:3px 10px}
     .wrap{padding:14px}
     .card{padding:14px 15px}
   }
   /* ===== 交互增强 v2：搜索/钉选/Toast/Loading/发帖定位 ===== */
   .toolbar-search{display:flex;align-items:center;gap:10px;margin:10px 0 4px;flex-wrap:wrap}
   .toolbar-search input{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;background:var(--ice-2)}
-  .gen.pinned{order:-1;border:1px solid var(--gold);box-shadow:0 0 0 3px rgba(200,160,75,.12)}
+  .gen.pinned{order:-1;border:1px solid var(--gold);box-shadow:0 0 0 3px rgba(224,140,46,.12)}
   .gen.pinned .tag.pin{background:var(--gold);color:#3a2c08}
   .dash-base{font-size:12px;color:var(--muted);margin-top:3px}
   .fpost.fb-just{outline:2px solid var(--gold);background:#fffdf3;transition:outline .2s}
@@ -434,6 +630,120 @@
   .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:7px;vertical-align:-1px}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media(max-width:640px){.toolbar-search input{min-width:0}}
+
+  /* ===== 学员管理（第6模块） ===== */
+  .stu-top{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .stu-navbtn{flex:1;min-width:118px;padding:11px 10px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+  .stu-navbtn:hover{border-color:var(--blue-300);color:var(--blue-700);transform:translateY(-1px)}
+  .stu-navbtn.active{background:linear-gradient(135deg,#2b7cd3,#4ea3e8);color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(43,124,211,.25)}
+  .stu-navbtn.stu-screen{background:linear-gradient(135deg,#0d2c4d,#14559c);color:#fff;border-color:transparent}
+  .stu-navbtn.stu-screen:hover{filter:brightness(1.1)}
+  .stu-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm)}
+  .stu-query-box{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:14px;background:var(--ice);border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
+  .stu-qi{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
+  .stu-qi label{font-size:12px;color:var(--muted);font-weight:600}
+  .stu-qi input{padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:15px;font-family:inherit;background:#fff;color:var(--ink);outline:none;letter-spacing:.5px}
+  .stu-qi input:focus{border-color:var(--blue-300);box-shadow:0 0 0 3px rgba(43,124,211,.10)}
+  .stu-msg{font-size:12.5px;color:var(--muted);background:var(--ice-2);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin-bottom:12px;line-height:1.7}
+  .stu-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:12px;box-shadow:var(--shadow-sm)}
+  .stu-card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .stu-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#2b7cd3,#4ea3e8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex:none}
+  .stu-card h3{margin:0;font-size:17px}
+  .stu-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:8px;font-weight:600}
+  .stu-tag.in{background:#e6f7ef;color:var(--ok)}
+  .stu-tag.wt{background:#fdf3e3;color:var(--warn)}
+  .stu-tag.off{background:#fdecec;color:#c0392b}
+  .stu-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+  .stu-kpi{text-align:center;padding:14px 8px;background:var(--ice);border-radius:12px;border:1px solid var(--line)}
+  .stu-kpi b{display:block;font-size:22px;color:var(--blue-700);margin-bottom:3px}
+  .stu-kpi span{font-size:11.5px;color:var(--muted)}
+  .stu-rank-top{font-weight:700;color:var(--gold)}
+  .stu-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  .stu-table th{background:var(--ice);color:var(--muted);text-align:left;padding:9px 10px;font-size:12px;border-bottom:1px solid var(--line)}
+  .stu-table td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--ink)}
+  .stu-table tr:last-child td{border-bottom:none}
+  .stu-table .p{color:var(--blue-700);font-weight:700}
+  .stu-add-card{background:var(--ice-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .stu-add-row{display:flex;gap:8px;flex-wrap:wrap}
+  .stu-add-row input,.stu-add-row select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink);outline:none;flex:1;min-width:110px}
+  .stu-act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .stu-act{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;transition:all .2s}
+  .stu-act:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+  .stu-act-banner{height:64px;background:linear-gradient(135deg,#14559c,#4ea3e8);display:flex;align-items:center;padding:0 14px;font-size:26px}
+  .stu-act-banner.b2{background:linear-gradient(135deg,#0d2c4d,#2b7cd3)}
+  .stu-act-banner.b3{background:linear-gradient(135deg,#e08c2e,#f0a63d)}
+  .stu-act-body{padding:11px 13px}
+  .stu-act-body h4{margin:0 0 5px;font-size:14.5px}
+  .stu-act-body p{margin:0;font-size:12px;color:var(--muted);line-height:1.6}
+  .stu-act-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .stu-act-meta .mini-btn{font-size:11px;padding:2px 9px;background:var(--ice);border-color:var(--line);color:var(--muted);cursor:default}
+  .stu-screen-mask{position:fixed;inset:0;z-index:9998;background:linear-gradient(140deg,#0d2c4d 0%,#14559c 60%,#2b7cd3 100%);display:flex;flex-direction:column;padding:28px 34px;color:#fff}
+  .stu-screen-head{display:flex;align-items:center;gap:18px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:16px;flex-wrap:wrap}
+  .stu-screen-title{font-size:26px;font-weight:800;letter-spacing:2px}
+  .stu-screen-sub{font-size:13px;color:#b8d8f5;margin-top:4px}
+  .stu-screen-num{margin-left:auto;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:6px 26px}
+  .stu-screen-num b{display:block;font-size:40px;line-height:1.1;color:#f0a63d}
+  .stu-screen-num span{font-size:12px;color:#b8d8f5}
+  .stu-screen-exit{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  .stu-screen-exit:hover{background:rgba(255,255,255,.22)}
+  .stu-screen-body{flex:1;display:flex;flex-direction:column;gap:14px;overflow:hidden;justify-content:center;padding:16px 0}
+  .stu-screen-today{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px 22px;animation:stuPop .6s ease}
+  .stu-screen-today .ic{font-size:34px}
+  .stu-screen-today b{font-size:22px}
+  .stu-screen-today .n{font-size:12px;color:#b8d8f5;margin-top:2px}
+  .stu-screen-list{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;align-content:start;overflow-y:auto;padding:6px 2px}
+  .stu-screen-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px 14px;animation:stuPop .5s ease}
+  .stu-screen-chip .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#e08c2e,#f0a63d);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+  .stu-screen-chip .nm{font-size:15px;font-weight:700}
+  .stu-screen-chip .st{font-size:11px;color:#b8d8f5}
+  .stu-screen-foot{text-align:center;font-size:11.5px;color:#8fb8dd;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);letter-spacing:1px}
+  @keyframes stuPop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  /* 学员工作台：台账 / 点名 / 材料 / 证书 / 话术 */
+  .stu-empty{text-align:center;color:var(--muted);font-size:13px;padding:34px 16px;background:var(--ice-2);border:1px dashed var(--line);border-radius:12px}
+  .stu-ledger-tool{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .stu-ledger-tool input,.stu-ledger-tool select{padding:8px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink);outline:none}
+  .stu-ledger-tool input:focus,.stu-ledger-tool select:focus{border-color:var(--blue-300);box-shadow:0 0 0 3px rgba(43,124,211,.10)}
+  .stu-ledger-tool input{flex:1;min-width:170px;max-width:260px}
+  .stu-ledger-table td{vertical-align:middle}
+  .stu-ledger-name{display:flex;align-items:center;gap:9px}
+  .stu-avatar.sm{width:34px;height:34px;font-size:14px;border-radius:50%}
+  .stu-sign-group{margin-bottom:12px}
+  .stu-sign-gtitle{font-size:12.5px;font-weight:700;color:var(--blue-700);margin:0 0 6px;padding:0 2px}
+  .stu-sign-row{display:flex;flex-wrap:wrap;gap:8px}
+  .stu-sign-item{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;padding:7px 11px;background:#fff;font-size:13px;cursor:pointer;transition:all .15s}
+  .stu-sign-item:hover{border-color:var(--blue-300)}
+  .stu-sign-item:has(input:checked){border-color:var(--blue-500);background:var(--ice);box-shadow:0 0 0 2px rgba(43,124,211,.12)}
+  .stu-sign-item input{margin:0;flex-shrink:0}
+  .stu-sign-foot{display:flex;gap:8px;align-items:center;padding:12px 14px;background:var(--ice);border:1px solid var(--line);border-radius:12px;margin-top:10px;flex-wrap:wrap}
+  .stu-mat-sum{display:flex;flex-direction:column;gap:8px;background:var(--ice-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .stu-mat-bar{display:flex;gap:18px;flex-wrap:wrap;font-size:13px}
+  .stu-mat-prog{height:8px;background:#dde9f4;border-radius:6px;overflow:hidden}
+  .stu-mat-prog i{display:block;height:100%;background:linear-gradient(90deg,#2b7cd3,#4ea3e8);border-radius:6px;transition:width .4s}
+  .stu-mat-row{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .stu-mat-row:last-child{border-bottom:none}
+  .stu-mat-row-name{display:flex;align-items:center;gap:9px;min-width:150px}
+  .stu-mat-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .stu-mat-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;color:var(--muted);transition:all .15s}
+  .stu-mat-chip.on{border-color:#2ecc8f;background:#e6f7ef;color:var(--ok);font-weight:600}
+  .stu-mat-chip input{display:none}
+  .stu-cert-statbar{font-size:13px;background:var(--ice-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .stu-cert-sec{margin-top:14px}
+  .stu-cert-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fff}
+  .stu-cert-row.ok{border-left:4px solid #2ecc8f}
+  .stu-cert-row.no{border-left:4px solid #e08c2e}
+  .stu-cert-row-name{display:flex;align-items:center;gap:9px}
+  .stu-note-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .stu-note-card{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+  .stu-note-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .stu-note-ic{width:36px;height:36px;border-radius:10px;background:var(--ice);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+  .stu-note-body{white-space:pre-wrap;font-family:inherit;font-size:12.5px;color:var(--ink);background:var(--ice-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0;line-height:1.75;word-break:break-word}
+  @media(max-width:720px){
+    .stu-kpis{grid-template-columns:repeat(2,1fr)}
+    .stu-navbtn{min-width:45%;flex:1 1 45%}
+    .stu-screen-mask{padding:18px}
+    .stu-screen-title{font-size:20px}
+    .stu-screen-num b{font-size:30px}
+  }
 </style>
 </head>
 <body>
@@ -449,19 +759,33 @@
   </div>
 </div>
 <button class="logout-btn" id="logoutBtn" style="display:none">退出登录</button>
+
+<!-- 公告栏：登录后顶部全局通栏，置顶醒目，可关闭 -->
+<div id="announceBar" class="announce-bar" style="display:none">
+  <span class="ann-icon">📢</span>
+  <span class="ann-text" id="annText"></span>
+  <button class="ann-close" onclick="closeAnn()" title="关闭">✕</button>
+</div>
+
 <header>
   <div>
     <h1>扬帆计划运营中枢</h1>
-    <div class="sub">项目负责人成长 · 效率工具 · 训战机器人 ｜ 同路生物扬帆计划一站式工作台</div>
+    <div class="sub">
+      一站式运营工作台
+      <span class="tag">项目负责人成长</span>
+      <span class="tag">效率工具</span>
+      <span class="tag">智子</span>
+    </div>
   </div>
   <div class="brand">同路生物</div>
 </header>
 <nav>
-  <button data-tab="learn">① 学习</button>
-  <button data-tab="factory">② 提效</button>
-  <button data-tab="bot">③ 解惑</button>
-  <button data-tab="dash">④ 看板</button>
-  <button data-tab="forum">⑤ 交流</button>
+  <button data-tab="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg>看板</button>
+  <button data-tab="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>学习</button>
+  <button data-tab="factory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>提效</button>
+  <button data-tab="bot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>解惑</button>
+  <button data-tab="forum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>交流</button>
+  <button data-tab="student"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M17 3H7v6a5 5 0 0 0 10 0V3z"/><path d="M7 5H3v2a3 3 0 0 0 3 3h1"/><path d="M17 5h4v2a3 3 0 0 1-3 3h-1"/></svg>学员管理</button>
 </nav>
 
 <div class="wrap">
@@ -566,6 +890,38 @@
     </div>
 
     <div class="gen">
+      <h3>🎨 招募海报生成器 <span class="tag">一键出图</span></h3>
+      <p class="muted">填站名 / 时间 / 地点 / 主标题 → 自动出招募 / 献浆科普 / 爱心助考三类海报，冷蓝系专业设计，可下载 PNG。</p>
+      <label>海报类型</label>
+      <select id="posterType">
+        <option value="recruit">学员招募</option>
+        <option value="science">献浆科普</option>
+        <option value="exam">爱心助考</option>
+      </select>
+      <label>浆站名称</label><input id="posterStation" placeholder="如：怀远浆站">
+      <label>主标题</label><input id="posterTitle" placeholder="如：暑期社会实践招募">
+      <label>时间地点</label><input id="posterTime" placeholder="如：7月15日 / 县文化中心">
+      <label>报名联系方式</label><input id="posterContact" placeholder="如：扫码报名 / 致电 0552-xxx">
+      <button class="btn" onclick="genPoster()">✨ 生成海报</button>
+      <div class="out" id="posterOut">填写信息后点击生成，海报自动出图，可下载。</div>
+      <div id="posterPreview" style="margin-top:10px;text-align:center"></div>
+    </div>
+
+    <div class="gen">
+      <h3>📋 活动 SOP 流程卡 <span class="tag">现场可勾选</span></h3>
+      <p class="muted">活动当天最手忙脚乱？选活动类型 → 自动出时间轴+物资清单+人员分工，手机可看可勾选。</p>
+      <label>活动类型</label>
+      <select id="sopType" onchange="sopRender()">
+        <option value="recruit">招募面试</option>
+        <option value="open">开营仪式</option>
+        <option value="science">科普讲座</option>
+        <option value="parent">家长活动</option>
+        <option value="close">结营仪式</option>
+      </select>
+      <div id="sopOut" class="out" style="max-height:280px;overflow-y:auto;margin-top:8px"></div>
+    </div>
+
+    <div class="gen">
       <h3>🧩 待接入的效率工具（方向）</h3>
       <p class="muted">按你「根本解决工作痛点」的要求排的后续项，当前为入口占位，已规划真实产出逻辑：</p>
       <div class="pill">周报自动汇总（导入漏斗数据→出周报）</div>
@@ -577,12 +933,20 @@
   </div>
 </section>
 
-<!-- ============ 训战机器人 ============ -->
+<!-- ============ 智子（训战机器人） ============ -->
 <section id="bot">
-  <div class="legend">训战机器人 = <b>带新人快速上手</b>（结合扬帆核心策略 + 真实数据 + 工具包）+ <b>常见问题自己查</b> + <b>直接输出方案材料</b>。底部可<b>直接打字问</b>：问站名出该站详情（如「怀远怎么做」）、问策略出专属内容（如「今年目标怎么定」「家长活动怎么设计」）、问案例出经典启示。若后端接大模型则为真对话，否则自动降级为知识库精准匹配。</div>
+  <div class="legend">智子 = <b>带新人快速上手</b>（结合扬帆核心策略 + 真实数据 + 工具包）+ <b>常见问题自己查</b> + <b>直接输出方案材料</b>。底部可<b>直接打字问</b>：问站名出该站详情（如「怀远怎么做」）、问策略出专属内容（如「今年目标怎么定」「家长活动怎么设计」）、问案例出经典启示。若后端接大模型则为真对话，否则自动降级为知识库精准匹配。</div>
+
   <div class="bot">
     <div>
-      <div style="font-size:12px;margin-bottom:6px">当前模式：<span id="botMode" class="mode-badge">检测中…</span></div>
+      <div class="bot-head">
+        <div class="bot-avatar">智</div>
+        <div class="bot-id">
+          <b>智子</b>
+          <span>扬帆计划训战机器人 · 问站名出详情 · 问策略出打法 · 问案例出启示</span>
+        </div>
+        <span id="botMode" class="mode-badge">检测中…</span>
+      </div>
       <div class="chat" id="chat"></div>
       <div class="progress"><i id="botProg"></i></div>
       <div class="bubble-row" id="botBubbles"></div>
@@ -600,6 +964,16 @@
       <button class="btn ghost" style="margin-top:8px" onclick="resetBot()">重新开始引导</button>
     </div>
   </div>
+
+  <!-- 话术库：高频问答弹药库（给智子供弹药，负责人也能直接搜） -->
+  <div class="script-lib">
+    <div class="sl-head">
+      <span class="sl-title">💬 话术库</span>
+      <span class="sl-sub">高频场景标准话术，按场景搜，直接复制用</span>
+      <input id="slQ" class="sl-search" placeholder="搜场景/标签/来源…" oninput="slRender()">
+    </div>
+    <div id="slGrid" class="sl-grid"></div>
+  </div>
 </section>
 
 <!-- ============ 数据看板（动态月份） ============ -->
@@ -612,13 +986,29 @@
     </div>
     <button class="up-enter" onclick="openUpModal()">📤 更新数据</button>
   </div>
-  <div class="view-toggle internal" id="viewToggle" onclick="toggleDashView()" title="切换对外/管理视图">
+  <div class="view-toggle" id="viewToggle" onclick="toggleDashView()" title="切换对外/管理视图">
     <b id="viewLabel">管理视图</b>
     <span class="sw"></span>
     <span class="ext-note" id="viewHint">含各站负责人姓名与画像</span>
   </div>
   <div class="month-switch" id="monthSwitch"></div>
+  <div class="dash-hero" id="dashHero"></div>
   <div class="dash-kpis" id="dashKpis"></div>
+
+  <!-- 里程碑 + 异常预警 + 节点倒计时（看板新增三区） -->
+  <div class="dash-monitor">
+    <!-- 里程碑清单 -->
+    <div class="dm-card dm-miles">
+      <div class="dm-head"><span class="dm-icon">📅</span><b>运营里程碑</b><span class="dm-sub">扬帆计划标准时间轴</span></div>
+      <div id="dmMileList" class="dm-mile-list"></div>
+    </div>
+    <!-- 异常预警 + 节点倒计时 -->
+    <div class="dm-card dm-warns">
+      <div class="dm-head"><span class="dm-icon">⚠️</span><b>预警 & 倒计时</b></div>
+      <div id="dmWarnList" class="dm-warn-list"></div>
+    </div>
+  </div>
+
   <div id="dashCharts"></div>
   <div class="dash-tabs">
     <button class="dtab active" onclick="dashView('grid')">全站总览</button>
@@ -632,53 +1022,200 @@
   <div class="dash-note">注：参与度=参与人数/入营人数（个别站&gt;100%系家长及亲属重复到场）；入营人数以招募汇总表为准，性别结构取自入营总人数表（口径差异以原始表为准）。</div>
 </section>
 
-<!-- ============ 交流论坛 ============ -->
+<!-- ============ 交流论坛（升级为：经验广场 + 讨论区） ============ -->
 <section id="forum">
-  <div class="legend">项目负责人交流平台：发帖求助、经验共享、互相支招。板块按扬帆计划运营进程划分，方便找帖、沉淀做法。
-    <b style="color:var(--warn)">当前为单机版</b>：数据存本机浏览器，用于把流程和体验跑通；全集团各站互通发帖需要上后端数据库（下一步升级方向）。</div>
+  <div class="legend">同行交流 + 经验沉淀。日常问询互助在「讨论区」，历年好做法在「经验广场」——结构化、可搜索、可复用。</div>
 
-  <!-- 热门帖子轮播 -->
-  <div class="fb-hot" id="fbHot">
-    <div class="fb-hot-head"><span class="fb-hot-icon">🔥</span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
-    <div class="fb-carousel" id="fbCarousel"></div>
-    <div class="fb-carousel-dots" id="fbDots"></div>
+  <!-- 顶层tab：讨论区（默认） / 经验广场 -->
+  <div class="forum-tabs">
+    <button class="ftab active" data-ft="discuss" onclick="forumTab('discuss')">💬 讨论区</button>
+    <button class="ftab" data-ft="exp" onclick="forumTab('exp')">📚 经验广场</button>
   </div>
 
-  <div class="fbar">
-    <div class="fchips" id="fbChips"></div>
-    <div class="fops">
-      <input id="fbQ" placeholder="搜帖子（标题/内容/署名）…" oninput="fbList()">
-      <select id="fbSort" onchange="fbList()">
-        <option value="new">最新发布</option>
-        <option value="hot">最热讨论</option>
+  <!-- ============ 经验广场面板 ============ -->
+  <div id="forumExp" class="forum-panel">
+    <!-- 子tab：案例拆解 / 方案模板 -->
+    <div class="exp-subtabs">
+      <button class="estab active" data-et="cases" onclick="expTab('cases')">📋 案例拆解 <span class="exp-cnt" id="cntCases">0</span></button>
+      <button class="estab" data-et="templates" onclick="expTab('templates')">📑 方案模板 <span class="exp-cnt" id="cntTpls">0</span></button>
+      <div class="exp-search"><input id="expQ" placeholder="搜索标题/标签/作者…" oninput="expRender()"></div>
+    </div>
+    <div id="expContent" class="exp-content"></div>
+  </div>
+
+  <!-- ============ 讨论区面板（原论坛功能） ============ -->
+  <div id="forumDiscuss" class="forum-panel">
+    <!-- 热门帖子轮播 -->
+    <div class="fb-hot" id="fbHot">
+      <div class="fb-hot-head"><span class="fb-hot-icon">🔥</span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
+      <div class="fb-carousel" id="fbCarousel"></div>
+      <div class="fb-carousel-dots" id="fbDots"></div>
+    </div>
+
+    <div class="fbar">
+      <div class="fchips" id="fbChips"></div>
+      <div class="fops">
+        <input id="fbQ" placeholder="搜帖子（标题/内容/署名）…" oninput="fbList()">
+        <select id="fbSort" onchange="fbList()">
+          <option value="new">最新发布</option>
+          <option value="hot">最热讨论</option>
+        </select>
+        <button class="up-btn" onclick="fbNew()">＋ 发新帖</button>
+      </div>
+    </div>
+
+    <div class="fb-tools">
+      <span class="muted" style="font-size:12px">发帖请署名浆站，方便对号交流；内容说清「发生了什么、试过什么、卡在哪」。</span>
+      <span>
+        <button class="mini-btn" onclick="fbExport()">⬇ 导出交流备份</button>
+        <label class="mini-btn">⬆ 导入交流备份<input type="file" id="fbFile" accept=".json" style="display:none"></label>
+        <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fullBackup()">📦 全平台备份</button>
+        <label class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)">📂 恢复数据<input type="file" accept=".json" style="display:none" onchange="fullRestore(this)"></label>
+      </span>
+    </div>
+
+    <div id="fbList" class="fb-list"></div>
+
+    <!-- 发帖模态框 -->
+    <div class="um-mask" id="fbMask" style="display:none">
+      <div class="um-modal" style="max-width:660px">
+        <div class="um-head"><h3>📝 发新帖</h3><button class="um-x" onclick="fbMaskHide()">✕</button></div>
+        <div class="frow"><span>板块</span><select id="fbBid"></select></div>
+        <div class="frow"><span>标题</span><input id="fbTitle" maxlength="60" placeholder="一句话说清，如：暑期招募差一半，大家怎么破？"></div>
+        <div class="frow"><span>内容</span><textarea id="fbBody" rows="5" maxlength="2000" placeholder="把事情说清楚：发生了什么、试过什么、卡在哪。越具体，别人越能支招。"></textarea></div>
+        <div class="frow"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex">📷 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
+        <div class="frow"><span>署名</span><input id="fbAuthor" maxlength="20" placeholder="如：丰镇站·李闯"></div>
+        <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="fbPost()">发布</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 学员管理（第6模块） ============ -->
+<section id="student">
+  <div class="legend">学员管理：项目负责人的学员台账工作台——Excel 一键建台账、活动点名、材料收齐跟踪、证书发放、通知话术复制即用。数据只存本机浏览器。</div>
+
+  <!-- 顶部入口条 -->
+  <div class="stu-top">
+    <button class="stu-navbtn active" data-st="ledger" onclick="stuGo('ledger')">📋 台账总览</button>
+    <button class="stu-navbtn" data-st="sign" onclick="stuGo('sign')">✅ 签到点名</button>
+    <button class="stu-navbtn" data-st="mat" onclick="stuGo('mat')">📁 材料跟踪</button>
+    <button class="stu-navbtn" data-st="cert" onclick="stuGo('cert')">🏅 证书管理</button>
+    <button class="stu-navbtn" data-st="note" onclick="stuGo('note')">📣 通知话术</button>
+    <button class="stu-navbtn stu-screen" onclick="stuBigScreen()">📺 签到大屏</button>
+  </div>
+
+  <!-- ===== 台账总览 ===== -->
+  <div class="stu-panel" id="stuLedger" style="display:block">
+    <div class="stu-ledger-tool">
+      <input id="stuLQ" placeholder="搜姓名 / 浆站…" oninput="stuListRender()">
+      <select id="stuLF" onchange="stuListRender()">
+        <option value="">全部状态</option>
+        <option>已报名</option><option>面试通过</option><option>已入营</option><option>已结营</option>
       </select>
-      <button class="up-btn" onclick="fbNew()">＋ 发新帖</button>
+      <span class="muted" style="font-size:12px">共 <b id="stuCount">0</b> 人 · 入营 <b id="stuCampCnt">0</b> 人 · 材料齐 <b id="stuMatOkCnt">0</b> 人</span>
+    </div>
+    <div class="stu-ledger-tool" style="margin-top:8px">
+      <span style="font-size:12px;color:var(--muted)">Excel 建台账：</span>
+      <button class="mini-btn" onclick="stuTpl()">📥 下载模板</button>
+      <label class="mini-btn">⬆ 导入 Excel<input type="file" accept=".xlsx,.xls" style="display:none" onchange="stuImport(this)"></label>
+      <button class="mini-btn" onclick="stuExportXls()">⬇ 导出 Excel</button>
+      <button class="mini-btn" onclick="stuAddOpen()">＋ 手动录入</button>
+      <button class="mini-btn" onclick="stuSeed()">🧪 示例数据</button>
+      <button class="mini-btn" style="color:#c0392b" onclick="stuClear()">🗑 清空</button>
+    </div>
+    <div id="stuListWrap" style="margin-top:12px"></div>
+  </div>
+
+  <!-- ===== 签到点名 ===== -->
+  <div class="stu-panel" id="stuSign" style="display:none">
+    <div class="stu-query-box" style="align-items:center">
+      <div class="stu-qi"><label>活动场次</label><input id="stuSignAct" placeholder="如：公益集市摆摊" value="暑期公益集市"></div>
+      <button class="up-btn" onclick="stuSignStart()">开始点名</button>
+      <span class="muted" style="font-size:12px">勾选出勤学员 → 保存 → 自动累计签到次数，并写入今日到场名单（大屏同步）。</span>
+    </div>
+    <div id="stuSignList"></div>
+    <div class="stu-sign-foot" id="stuSignFoot" style="display:none">
+      <button class="mini-btn" onclick="stuSignAll()">✅ 全选</button>
+      <button class="mini-btn" onclick="stuSignNone()">清空选择</button>
+      <button class="up-btn" onclick="stuSignSave()">✓ 保存本场签到</button>
+      <span class="muted" style="font-size:12px" id="stuSignSel">已选 0 人</span>
+    </div>
+    <div class="stu-add-card" style="margin-top:14px">
+      <h3 style="margin:0 0 10px;font-size:15px">📅 今日到场名单（签到大屏数据源）</h3>
+      <div class="muted" style="font-size:12px;margin-bottom:8px">点名保存后自动写入；漏签的也可手动补登：
+        <select id="stuChkName" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px"></select>
+        <input id="stuChkAct" placeholder="活动名" value="暑期公益集市" style="width:150px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+        <button class="up-btn" onclick="stuCheckin()">补登</button>
+      </div>
+      <div id="stuTodayList"></div>
+    </div>
+    <div class="stu-act-card" style="margin-top:14px">
+      <h3 style="margin:0 0 10px;font-size:15px">📢 活动参考卡（通用模板，供张贴/投屏复用）</h3>
+      <div class="muted" style="font-size:12px;margin-bottom:10px">活动由浆站在方案/执行中自行安排，此处为通用模板。</div>
+      <div class="stu-act-grid" id="stuActs"></div>
     </div>
   </div>
 
-  <div class="fb-tools">
-    <span class="muted" style="font-size:12px">发帖请署名浆站，方便对号交流；内容说清「发生了什么、试过什么、卡在哪」。</span>
-    <span>
-      <button class="mini-btn" onclick="fbExport()">⬇ 导出交流备份</button>
-      <label class="mini-btn">⬆ 导入交流备份<input type="file" id="fbFile" accept=".json" style="display:none"></label>
-      <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fullBackup()">📦 全平台备份</button>
-      <label class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)">📂 恢复数据<input type="file" accept=".json" style="display:none" onchange="fullRestore(this)"></label>
-    </span>
+  <!-- ===== 材料跟踪 ===== -->
+  <div class="stu-panel" id="stuMat" style="display:none">
+    <div class="stu-msg">材料是结营发证和评优的依据。点「已交」自动保存；4 项材料齐的学员，结营名单自动放行。</div>
+    <div class="stu-mat-sum" id="stuMatSum"></div>
+    <div id="stuMatList" style="margin-top:12px"></div>
   </div>
 
-  <div id="fbList" class="fb-list"></div>
+  <!-- ===== 证书管理 ===== -->
+  <div class="stu-panel" id="stuCert" style="display:none">
+    <div class="stu-msg">结营条件：已入营 ＋ 签到≥3场 ＋ 积分≥100 ＋ 材料收齐。达标学员在线生成证书（SVG/PNG 可下载打印）；未达标的会标出还差什么。</div>
+    <div class="stu-cert-stat" id="stuCertStat"></div>
+    <div id="stuCertList" style="margin-top:12px"></div>
+  </div>
 
-  <!-- 发帖模态框 -->
-  <div class="um-mask" id="fbMask" style="display:none">
-    <div class="um-modal" style="max-width:660px">
-      <div class="um-head"><h3>📝 发新帖</h3><button class="um-x" onclick="fbMaskHide()">✕</button></div>
-      <div class="frow"><span>板块</span><select id="fbBid"></select></div>
-      <div class="frow"><span>标题</span><input id="fbTitle" maxlength="60" placeholder="一句话说清，如：暑期招募差一半，大家怎么破？"></div>
-      <div class="frow"><span>内容</span><textarea id="fbBody" rows="5" maxlength="2000" placeholder="把事情说清楚：发生了什么、试过什么、卡在哪。越具体，别人越能支招。"></textarea></div>
-      <div class="frow"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex">📷 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
-      <div class="frow"><span>署名</span><input id="fbAuthor" maxlength="20" placeholder="如：丰镇站·李闯"></div>
-      <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="fbPost()">发布</button></div>
+  <!-- ===== 通知话术 ===== -->
+  <div class="stu-panel" id="stuNote" style="display:none">
+    <div class="stu-msg">群发/电话直接用的现成话术，把 {占位} 换成学员信息即可。口语、不官方，家长和学生都看得懂。</div>
+    <div class="stu-note-grid" id="stuNoteGrid"></div>
+  </div>
+
+  <!-- 手动录入 弹窗 -->
+  <div class="um-mask" id="stuAddMask" style="display:none">
+    <div class="um-modal" style="max-width:560px">
+      <div class="um-head"><h3>＋ 手动录入学员</h3><button class="um-x" onclick="stuAddClose()">✕</button></div>
+      <div class="frow"><span>姓名</span><input id="stuAName" placeholder="姓名"></div>
+      <div class="frow"><span>身份证后4位</span><input id="stuAId" maxlength="4" placeholder="4位数字"></div>
+      <div class="frow"><span>浆站</span><select id="stuASta"><option>怀远浆站</option><option>凤台浆站</option><option>灵璧浆站</option><option>五河浆站</option><option>商都浆站</option><option>丰镇浆站</option><option>其他站</option></select></div>
+      <div class="frow"><span>状态</span><select id="stuAStatus"><option value="已报名">已报名</option><option value="面试通过">面试通过</option><option value="已入营">已入营</option></select></div>
+      <div class="frow"><span>积分</span><input id="stuAPoints" type="number" min="0" placeholder="如 128"></div>
+      <div class="frow"><span>已签到场次</span><input id="stuASigns" type="number" min="0" placeholder="如 2"></div>
+      <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="stuAdd()">保存</button></div>
     </div>
+  </div>
+
+  <!-- 学员详情 弹窗 -->
+  <div class="um-mask" id="stuDetailMask" style="display:none">
+    <div class="um-modal" style="max-width:640px">
+      <div class="um-head"><h3>📋 学员详情</h3><button class="um-x" onclick="stuDetailClose()">✕</button></div>
+      <div id="stuDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- 证书预览 弹窗 -->
+  <div class="um-mask" id="stuCertMask" style="display:none">
+    <div class="um-modal" style="max-width:620px">
+      <div class="um-head"><h3>🏅 结营证书</h3><button class="um-x" onclick="stuCertClose()">✕</button></div>
+      <div id="stuCertBody"></div>
+    </div>
+  </div>
+
+  <!-- 签到大屏（全屏投影） -->
+  <div class="stu-screen-mask" id="stuScreen" style="display:none">
+    <div class="stu-screen-head">
+      <div><div class="stu-screen-title">扬帆计划 · 今日签到</div><div class="stu-screen-sub" id="scrDate"></div></div>
+      <div class="stu-screen-num"><b id="scrCount">0</b><span>人已到场</span></div>
+      <button class="stu-screen-exit" onclick="stuBigScreen()">退出大屏 ✕</button>
+    </div>
+    <div class="stu-screen-body" id="scrBody"></div>
+    <div class="stu-screen-foot">同路生物 · 扬帆计划 · 数据实时更新（按 Esc 也可退出大屏）</div>
   </div>
 </section>
 
@@ -689,12 +1226,27 @@
     <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → 下载新数据文件 → 替换部署目录的 <b>dash_data.js</b> 重新发布。全程本机处理，数据不上传任何服务器。</p>
     <div class="up-row">
       <button class="up-btn" id="dlTpl">⬇ 下载模版</button>
-      <label class="up-file">📂 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls,.csv"></label>
+      <label class="up-file">📂 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls"></label>
       <button class="up-btn" id="dashParse">解析并预览</button>
       <button class="up-btn" id="dashDl" disabled>⬇ 下载新 dash_data.js</button>
     </div>
     <div class="up-msg" id="dashUpMsg"></div>
     <div class="um-note">模版格式与「6月扬帆计划数据汇总.xlsx」一致：<b>sheet 名字就是月份</b>（如「8月」，改一下模版 sheet 名即可）；列头保持 报名人数/面试人数/入营人数 等不动；站名可带空格，自动识别。上传哪个月，看板月份切换就多哪个月，并自动切到该月展示；也可以单月传，不强制要求两个月一起。</div>
+  </div>
+</div>
+
+<!-- 管理视图密码验证 -->
+<div class="um-mask" id="pwMask" style="display:none">
+  <div class="um-modal" style="width:min(380px,92vw);text-align:center;padding:28px 24px">
+    <div class="um-head" style="justify-content:center;margin-bottom:12px"><h3>🔒 管理视图验证</h3></div>
+    <p style="margin:0 0 16px;font-size:13px;color:var(--muted)">将展示各站负责人姓名、岗位、成熟度与画像等内部信息。<br>仅限内部使用。</p>
+    <p style="margin:0 0 12px;font-size:12.5px;color:var(--blue-700);background:#f0f7ff;border:1px dashed #b8d8f5;border-radius:8px;padding:8px 10px">内部初始密码：<b>101622</b>（输入一次后本机记住，下次直接切换）</p>
+    <input type="password" id="pwInput" placeholder="请输入密码" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;text-align:center;letter-spacing:4px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')pwConfirm()">
+    <div id="pwErr" style="color:#c0392b;font-size:12px;margin-top:8px;min-height:18px"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="up-btn" style="flex:1;background:var(--line);color:var(--ink)" onclick="pwCancel()">取消</button>
+      <button class="up-btn" style="flex:1" onclick="pwConfirm()">确认</button>
+    </div>
   </div>
 </div>
 
@@ -752,30 +1304,30 @@ function exportXLSX(name,sheets){
 
 /* ============ 学习系统数据（图书式 + 深度 + 敏捷管理） ============ */
 const FIG={
-  matrix:`<svg viewBox="0 0 420 340"><rect x="20" y="20" width="380" height="300" fill="#fff" stroke="#e2ebf5"/><line x1="210" y1="20" x2="210" y2="320" stroke="#e2ebf5"/><line x1="20" y1="170" x2="400" y2="170" stroke="#e2ebf5"/><text x="215" y="38" fill="#7489a0" font-size="11">高权力</text><text x="215" y="312" fill="#7489a0" font-size="11">低权力</text><text x="28" y="165" fill="#7489a0" font-size="11">低利益</text><text x="330" y="165" fill="#7489a0" font-size="11">高利益</text>
-  <rect x="230" y="35" width="80" height="50" rx="6" fill="#1e6fd9" fill-opacity=".15" stroke="#1e6fd9"/><text x="270" y="64" font-size="11" fill="#0f3b73" text-anchor="middle">重点管理·站长</text>
-  <rect x="230" y="195" width="80" height="50" rx="6" fill="#16c2a3" fill-opacity=".15" stroke="#16c2a3"/><text x="270" y="224" font-size="11" fill="#0f7b6c" text-anchor="middle">随时告知·家长</text>
-  <rect x="60" y="35" width="80" height="50" rx="6" fill="#e0a93e" fill-opacity=".2" stroke="#e0a93e"/><text x="100" y="64" font-size="11" fill="#7a5c10" text-anchor="middle">令其满意·监管</text>
-  <rect x="60" y="195" width="80" height="50" rx="6" fill="#e8f1f8" stroke="#e2ebf5"/><text x="100" y="224" font-size="11" fill="#7489a0" text-anchor="middle">监督·周边</text></svg>`,
-  wbs:`<svg viewBox="0 0 420 260"><rect x="20" y="20" width="120" height="34" rx="6" fill="#0f3b73"/><text x="80" y="42" fill="#fff" font-size="12" text-anchor="middle">扬帆计划</text>
-  <line x1="80" y1="54" x2="80" y2="80" stroke="#e2ebf5"/><line x1="80" y1="80" x2="380" y2="80" stroke="#e2ebf5"/>
-  <g font-size="11"><rect x="40" y="84" width="90" height="30" rx="5" fill="#1e6fd9" fill-opacity=".12" stroke="#1e6fd9"/><text x="85" y="103" fill="#0f3b73" text-anchor="middle">招募线</text>
-  <rect x="150" y="84" width="90" height="30" rx="5" fill="#1e6fd9" fill-opacity=".12" stroke="#1e6fd9"/><text x="195" y="103" fill="#0f3b73" text-anchor="middle">培训线</text>
-  <rect x="260" y="84" width="90" height="30" rx="5" fill="#1e6fd9" fill-opacity=".12" stroke="#1e6fd9"/><text x="305" y="103" fill="#0f3b73" text-anchor="middle">家长线</text>
-  <line x1="85" y1="114" x2="85" y2="140"/><rect x="40" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#e2ebf5"/><text x="85" y="162" text-anchor="middle">触达/面试</text>
-  <line x1="195" y1="114" x2="195" y2="140"/><rect x="150" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#e2ebf5"/><text x="195" y="162" text-anchor="middle">技能模块</text>
-  <line x1="305" y1="114" x2="305" y2="140"/><rect x="260" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#e2ebf5"/><text x="305" y="162" text-anchor="middle">社群/播报</text></g></svg>`,
-  risk:`<svg viewBox="0 0 420 320"><rect x="20" y="20" width="380" height="280" fill="#fff" stroke="#e2ebf5"/><line x1="210" y1="20" x2="210" y2="300" stroke="#e2ebf5"/><line x1="20" y1="160" x2="400" y2="160" stroke="#e2ebf5"/>
-  <text x="215" y="38" fill="#7489a0" font-size="11">高概率</text><text x="28" y="155" fill="#7489a0" font-size="11">低影响</text><text x="330" y="155" fill="#7489a0" font-size="11">高影响</text>
+  matrix:`<svg viewBox="0 0 420 340"><rect x="20" y="20" width="380" height="300" fill="#fff" stroke="#d3e2f0"/><line x1="210" y1="20" x2="210" y2="320" stroke="#d3e2f0"/><line x1="20" y1="170" x2="400" y2="170" stroke="#d3e2f0"/><text x="215" y="38" fill="#5e7da0" font-size="11">高权力</text><text x="215" y="312" fill="#5e7da0" font-size="11">低权力</text><text x="28" y="165" fill="#5e7da0" font-size="11">低利益</text><text x="330" y="165" fill="#5e7da0" font-size="11">高利益</text>
+  <rect x="230" y="35" width="80" height="50" rx="6" fill="#2b7cd3" fill-opacity=".15" stroke="#2b7cd3"/><text x="270" y="64" font-size="11" fill="#0d2c4d" text-anchor="middle">重点管理·站长</text>
+  <rect x="230" y="195" width="80" height="50" rx="6" fill="#4ea3e8" fill-opacity=".15" stroke="#4ea3e8"/><text x="270" y="224" font-size="11" fill="#2b7cd3" text-anchor="middle">随时告知·家长</text>
+  <rect x="60" y="35" width="80" height="50" rx="6" fill="#e08c2e" fill-opacity=".2" stroke="#e08c2e"/><text x="100" y="64" font-size="11" fill="#7c5a16" text-anchor="middle">令其满意·监管</text>
+  <rect x="60" y="195" width="80" height="50" rx="6" fill="#eaf2fb" stroke="#d3e2f0"/><text x="100" y="224" font-size="11" fill="#5e7da0" text-anchor="middle">监督·周边</text></svg>`,
+  wbs:`<svg viewBox="0 0 420 260"><rect x="20" y="20" width="120" height="34" rx="6" fill="#0d2c4d"/><text x="80" y="42" fill="#fff" font-size="12" text-anchor="middle">扬帆计划</text>
+  <line x1="80" y1="54" x2="80" y2="80" stroke="#d3e2f0"/><line x1="80" y1="80" x2="380" y2="80" stroke="#d3e2f0"/>
+  <g font-size="11"><rect x="40" y="84" width="90" height="30" rx="5" fill="#2b7cd3" fill-opacity=".12" stroke="#2b7cd3"/><text x="85" y="103" fill="#0d2c4d" text-anchor="middle">招募线</text>
+  <rect x="150" y="84" width="90" height="30" rx="5" fill="#2b7cd3" fill-opacity=".12" stroke="#2b7cd3"/><text x="195" y="103" fill="#0d2c4d" text-anchor="middle">培训线</text>
+  <rect x="260" y="84" width="90" height="30" rx="5" fill="#2b7cd3" fill-opacity=".12" stroke="#2b7cd3"/><text x="305" y="103" fill="#0d2c4d" text-anchor="middle">家长线</text>
+  <line x1="85" y1="114" x2="85" y2="140"/><rect x="40" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#d3e2f0"/><text x="85" y="162" text-anchor="middle">触达/面试</text>
+  <line x1="195" y1="114" x2="195" y2="140"/><rect x="150" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#d3e2f0"/><text x="195" y="162" text-anchor="middle">技能模块</text>
+  <line x1="305" y1="114" x2="305" y2="140"/><rect x="260" y="144" width="90" height="28" rx="5" fill="#fff" stroke="#d3e2f0"/><text x="305" y="162" text-anchor="middle">社群/播报</text></g></svg>`,
+  risk:`<svg viewBox="0 0 420 320"><rect x="20" y="20" width="380" height="280" fill="#fff" stroke="#d3e2f0"/><line x1="210" y1="20" x2="210" y2="300" stroke="#d3e2f0"/><line x1="20" y1="160" x2="400" y2="160" stroke="#d3e2f0"/>
+  <text x="215" y="38" fill="#5e7da0" font-size="11">高概率</text><text x="28" y="155" fill="#5e7da0" font-size="11">低影响</text><text x="330" y="155" fill="#5e7da0" font-size="11">高影响</text>
   <circle cx="300" cy="70" r="22" fill="#c2410c" fill-opacity=".2" stroke="#c2410c"/><text x="300" y="74" font-size="10" fill="#c2410c" text-anchor="middle">舆情</text>
-  <circle cx="305" cy="240" r="18" fill="#e0a93e" fill-opacity=".25" stroke="#e0a93e"/><text x="305" y="244" font-size="10" fill="#7a5c10" text-anchor="middle">招募</text>
-  <circle cx="110" cy="90" r="16" fill="#16c2a3" fill-opacity=".2" stroke="#16c2a3"/><text x="110" y="94" font-size="10" fill="#0f7b6c" text-anchor="middle">安全</text>
-  <circle cx="100" cy="245" r="14" fill="#e8f1f8" stroke="#e2ebf5"/><text x="100" y="249" font-size="9" fill="#7489a0" text-anchor="middle">物料</text></svg>`,
-  sprint:`<svg viewBox="0 0 460 220"><rect x="10" y="20" width="100" height="170" rx="6" fill="#e8f1f8" stroke="#e2ebf5"/><text x="60" y="38" font-size="11" fill="#0f3b73" text-anchor="middle">产品待办</text><text x="60" y="70" font-size="9" fill="#7489a0" text-anchor="middle">招募</text><text x="60" y="92" font-size="9" fill="#7489a0" text-anchor="middle">培训</text><text x="60" y="114" font-size="9" fill="#7489a0" text-anchor="middle">义卖</text><text x="60" y="136" font-size="9" fill="#7489a0" text-anchor="middle">复盘</text>
-  <rect x="130" y="20" width="100" height="170" rx="6" fill="#1e6fd9" fill-opacity=".1" stroke="#1e6fd9"/><text x="180" y="38" font-size="11" fill="#0f3b73" text-anchor="middle">冲刺待办</text><text x="180" y="70" font-size="9" fill="#7489a0" text-anchor="middle">本周动作</text><text x="180" y="92" font-size="9" fill="#7489a0" text-anchor="middle">每日站会</text>
-  <rect x="250" y="20" width="100" height="170" rx="6" fill="#fff" stroke="#e2ebf5"/><text x="300" y="38" font-size="11" fill="#0f3b73" text-anchor="middle">进行中</text><text x="300" y="70" font-size="9" fill="#7489a0" text-anchor="middle">执行</text>
-  <rect x="370" y="20" width="78" height="170" rx="6" fill="#16c2a3" fill-opacity=".15" stroke="#16c2a3"/><text x="409" y="38" font-size="11" fill="#0f7b6c" text-anchor="middle">增量</text><text x="409" y="70" font-size="9" fill="#0f7b6c" text-anchor="middle">每期</text><text x="409" y="92" font-size="9" fill="#0f7b6c" text-anchor="middle">成果</text>
-  <path d="M110 105 L130 105 M230 105 L250 105 M350 105 L370 105" stroke="#2c7be5" stroke-width="2"/></svg>`
+  <circle cx="305" cy="240" r="18" fill="#e08c2e" fill-opacity=".25" stroke="#e08c2e"/><text x="305" y="244" font-size="10" fill="#7c5a16" text-anchor="middle">招募</text>
+  <circle cx="110" cy="90" r="16" fill="#4ea3e8" fill-opacity=".2" stroke="#4ea3e8"/><text x="110" y="94" font-size="10" fill="#2b7cd3" text-anchor="middle">安全</text>
+  <circle cx="100" cy="245" r="14" fill="#eaf2fb" stroke="#d3e2f0"/><text x="100" y="249" font-size="9" fill="#5e7da0" text-anchor="middle">物料</text></svg>`,
+  sprint:`<svg viewBox="0 0 460 220"><rect x="10" y="20" width="100" height="170" rx="6" fill="#eaf2fb" stroke="#d3e2f0"/><text x="60" y="38" font-size="11" fill="#0d2c4d" text-anchor="middle">产品待办</text><text x="60" y="70" font-size="9" fill="#5e7da0" text-anchor="middle">招募</text><text x="60" y="92" font-size="9" fill="#5e7da0" text-anchor="middle">培训</text><text x="60" y="114" font-size="9" fill="#5e7da0" text-anchor="middle">义卖</text><text x="60" y="136" font-size="9" fill="#5e7da0" text-anchor="middle">复盘</text>
+  <rect x="130" y="20" width="100" height="170" rx="6" fill="#2b7cd3" fill-opacity=".1" stroke="#2b7cd3"/><text x="180" y="38" font-size="11" fill="#0d2c4d" text-anchor="middle">冲刺待办</text><text x="180" y="70" font-size="9" fill="#5e7da0" text-anchor="middle">本周动作</text><text x="180" y="92" font-size="9" fill="#5e7da0" text-anchor="middle">每日站会</text>
+  <rect x="250" y="20" width="100" height="170" rx="6" fill="#fff" stroke="#d3e2f0"/><text x="300" y="38" font-size="11" fill="#0d2c4d" text-anchor="middle">进行中</text><text x="300" y="70" font-size="9" fill="#5e7da0" text-anchor="middle">执行</text>
+  <rect x="370" y="20" width="78" height="170" rx="6" fill="#4ea3e8" fill-opacity=".15" stroke="#4ea3e8"/><text x="409" y="38" font-size="11" fill="#2b7cd3" text-anchor="middle">增量</text><text x="409" y="70" font-size="9" fill="#2b7cd3" text-anchor="middle">每期</text><text x="409" y="92" font-size="9" fill="#2b7cd3" text-anchor="middle">成果</text>
+  <path d="M110 105 L130 105 M230 105 L250 105 M350 105 L370 105" stroke="#4ea3e8" stroke-width="2"/></svg>`
 };
 const MODULES=[
  {grp:"导论", id:"why", title:"为什么项目负责人需要项目化思维", html:`
@@ -948,7 +1500,7 @@ const MODULES=[
   <p>② <b>执行中盯偏差</b>：周看板、漏斗、舆情，早预警早纠偏；用每日站会+定期回顾（敏捷）调节奏。</p>
   <p>③ <b>收尾做验收</b>：青春答卷/成长记录量化成果，复盘入库。别「演完就散」。</p>
   <div class="case"><span class="who">一句话：</span>PMP 不是让你变官僚，是给你一套「把热情翻译成结果」的框架。预测保方向、敏捷保落地，各家标杆（五河/凤台/灵璧/怀远）本质都是把这框架用活了。</div>
-  <p class="muted">学完可去「③ 训战机器人」做新人接手演练，或去「② 效率工厂」直接产出方案/PPT/Excel/在线收集表。</p>
+  <p class="muted">学完可去「智子」做新人接手演练，或去「效率工厂」直接产出方案/PPT/Excel/在线收集表。</p>
  `}
 ];
 
@@ -998,7 +1550,7 @@ function genPPT(){
   setTimeout(function(){
     try{
       var p=new PptxGenJS();p.layout='LAYOUT_16x9';
-      var C={navy:'0B2545',blue:'13315C',cyan:'2A9D8F',gold:'C8A04B',ink:'#1E293B',white:'#FFFFFF',muted:'#64748B',ice:'#F0F5FA'};
+      var C={navy:'0B2545',blue:'13315C',cyan:'2A9D8F',gold:'C8A04B',ink:'#1E293B',white:'#FFFFFF',muted:'#64748B',ice:'#f4f9ff'};
       var tpl=document.getElementById('pptTpl').value;
       var st=(document.getElementById('pptStation').value||'XX浆站').trim();
       var ow=(document.getElementById('pptOwner').value||'').trim();
@@ -1150,7 +1702,7 @@ function drawCert(stu,type,st){
 
   // === 背景：藏蓝渐变（极轻微，接近纯色）===
   const bg=x.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#0c284f');bg.addColorStop(0.5,'#0f3058');bg.addColorStop(1,'#143a6b');
+  bg.addColorStop(0,'#0d2c4d');bg.addColorStop(0.5,'#0d4964');bg.addColorStop(1,'#14559c');
   x.fillStyle=bg;x.fillRect(0,0,W,H);
 
   // === 顶部星星装饰（5颗，金色，均匀分布）===
@@ -1158,17 +1710,17 @@ function drawCert(stu,type,st){
     x.beginPath();
     for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2;const rr=i%2?r*0.38:r;const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;i===0?x.moveTo(px,py):x.lineTo(px,py);}
     x.closePath();x.fillStyle=color;x.fill();};
-  [125,248,397,546,669].forEach(sx=>star(sx,78,3.2,'#e8c97a'));
+  [125,248,397,546,669].forEach(sx=>star(sx,78,3.2,'#e0b870'));
 
   // === 顶部小字 ===
-  x.fillStyle='#e8c97a';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='#e0b870';x.textAlign='center';x.textBaseline='middle';
   x.font='16px "STKaiti","KaiTi","PingFang SC",serif';
   x.fillText('扬帆计划社会实践营',W/2,52);
 
   // === 主标题 ===
   x.textAlign='center';x.textBaseline='middle';
   const tg=x.createLinearGradient(0,130,0,220);
-  tg.addColorStop(0,'#ffe9a8');tg.addColorStop(0.5,'#f5d790');tg.addColorStop(1,'#d9b25a');
+  tg.addColorStop(0,'#f5d9a0');tg.addColorStop(0.5,'#f5d790');tg.addColorStop(1,'#d9b25a');
   x.fillStyle=tg;
   x.font='bold 84px "STKaiti","KaiTi","PingFang SC",serif';
   const title=type==='accept'?'录取通知书':'结营证书';
@@ -1178,18 +1730,18 @@ function drawCert(stu,type,st){
   x.restore();
 
   // === 副标题 ===
-  x.fillStyle='#e8c97a';x.font='13px "Times New Roman",serif';
+  x.fillStyle='#e0b870';x.font='13px "Times New Roman",serif';
   const sub=type==='accept'?'ACCEPTANCE LETTER':'COMPLETION CERTIFICATE';
   x.fillText(sub,W/2,238);
 
   // === 左右竖排装饰字 ===
-  x.fillStyle='#e8c97a';x.font='bold 18px "STKaiti","KaiTi",serif';
+  x.fillStyle='#e0b870';x.font='bold 18px "STKaiti","KaiTi",serif';
   x.textAlign='center';x.textBaseline='top';
   const verTxt=(txt,xx)=>{for(let i=0;i<txt.length;i++)x.fillText(txt[i],xx,312+i*42);};
   verTxt('筑梦青春',58);verTxt('扬帆启航',W-58);
 
   // === 虚线边框 ===
-  x.strokeStyle='rgba(232,201,122,0.55)';x.lineWidth=1.5;x.setLineDash([5,4]);
+  x.strokeStyle='rgba(224,201,122,0.55)';x.lineWidth=1.5;x.setLineDash([5,4]);
   x.strokeRect(38,288,W-76,734);
   x.setLineDash([]);
 
@@ -1204,7 +1756,7 @@ function drawCert(stu,type,st){
   x.beginPath();x.moveTo(125,372);x.lineTo(W-125,372);x.stroke();
 
   // === 称呼 ===
-  x.fillStyle='#0d1f3c';x.textAlign='left';x.textBaseline='top';
+  x.fillStyle='#0d2c4d';x.textAlign='left';x.textBaseline='top';
   x.font='bold 26px "Microsoft YaHei","PingFang SC","STKaiti",serif';
   x.fillText((stu.name||'XX')+' 同学：',125,408);
 
@@ -1221,7 +1773,7 @@ function drawCert(stu,type,st){
       ['　　期待你的加入，让我们一起扬帆启航！',null]
     ];
     let y=455;
-    lines.forEach(([t,c])=>{x.fillStyle=c||'#0d1f3c';x.fillText(t,125,y);y+=30;});
+    lines.forEach(([t,c])=>{x.fillStyle=c||'#0d2c4d';x.fillText(t,125,y);y+=30;});
   } else {
     x.font='16px "STKaiti","KaiTi","PingFang SC",serif';
     const lines=[
@@ -1233,7 +1785,7 @@ function drawCert(stu,type,st){
       '　　愿你带着这段经历，继续扬帆远航。'
     ];
     let y=455;
-    lines.forEach(t=>{if(t){x.fillStyle='#0d1f3c';x.fillText(t,125,y);}y+=30;});
+    lines.forEach(t=>{if(t){x.fillStyle='#0d2c4d';x.fillText(t,125,y);}y+=30;});
   }
 
   // === 红色五角星印章 ===
@@ -1251,7 +1803,7 @@ function drawCert(stu,type,st){
   x.restore();
 
   // === 落款 ===
-  x.fillStyle='#0d1f3c';x.textAlign='right';x.textBaseline='alphabetic';
+  x.fillStyle='#0d2c4d';x.textAlign='right';x.textBaseline='alphabetic';
   x.font='15px "STKaiti","KaiTi",serif';
   const now=new Date();
   x.fillText('签发人：'+stName+'浆站扬帆计划项目组',W-125,898);
@@ -1260,15 +1812,15 @@ function drawCert(stu,type,st){
 
   // === 底部色带 ===
   const rg=x.createLinearGradient(0,1010,0,H);
-  rg.addColorStop(0,'#143a6b');rg.addColorStop(1,'#0c284f');
+  rg.addColorStop(0,'#14559c');rg.addColorStop(1,'#0d2c4d');
   x.fillStyle=rg;x.fillRect(0,1010,W,H-1010);
 
   // === 底部装饰圆点 ===
-  x.fillStyle='rgba(232,201,122,0.45)';
+  x.fillStyle='rgba(224,201,122,0.45)';
   for(let i=0;i<7;i++){const px=82+i*105;x.beginPath();x.arc(px,1035,3.5,0,Math.PI*2);x.fill();}
 
   // === 底部小字 ===
-  x.fillStyle='rgba(232,201,122,0.75)';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='rgba(224,201,122,0.75)';x.textAlign='center';x.textBaseline='middle';
   x.font='12px "PingFang SC",sans-serif';
   x.fillText('同路生物 · 扬帆计划　同筑梦 共远航',W/2,1065);
 
@@ -1283,8 +1835,8 @@ function genCert(){
   list.forEach(stu=>{
     const c=drawCert(stu,type,st);const url=c.toDataURL('image/png');_certUrls.push({name:stu.name,url});
     const d=document.createElement('div');d.style.cssText='display:inline-block;margin:8px;text-align:center;vertical-align:top';
-    d.innerHTML='<img src="'+url+'" style="width:180px;border:1px solid #e3ecf5;border-radius:8px;box-shadow:0 2px 8px rgba(18,38,61,.1)">'+
-      '<div style="font-size:12px;color:#5d6b7a;margin-top:4px">'+(stu.name||'未命名')+'</div>'+
+    d.innerHTML='<img src="'+url+'" style="width:180px;border:1px solid #d3e2f0;border-radius:8px;box-shadow:0 2px 8px rgba(13,44,77,.1)">'+
+      '<div style="font-size:12px;color:#5e7da0;margin-top:4px">'+(stu.name||'未命名')+'</div>'+
       '<a class="btn ghost" style="font-size:11px;padding:3px 10px;margin-top:4px" href="'+url+'" download="扬帆'+(type==='accept'?'录取通知书':'结营证书')+'_'+(stu.name||'')+'.png">下载</a>';
     out.appendChild(d);
   });
@@ -1300,7 +1852,7 @@ function genMsg(){const t=document.getElementById('msgTpl').value;const st=docum
     open:`【亲子开放日邀请】${st}诚邀家长参加扬帆计划亲子开放日，亲眼看看孩子的成长与贡献。时间待定，回复确认。同路生物`};
   document.getElementById('msgOut').textContent=m[t]||'';}
 
-/* ============ 训战机器人（分支引导 + 后端大模型） ============ */
+/* ============ 智子（分支引导 + 后端大模型） ============ */
 const KB=[
  {cat:'运营',t:'新人第一周接手',kw:['第一周','接手','刚来','上手','新人','开始','怎么干','干什么','第一步'],a:'按启动过程组四步走：①读事业部年度策略＋本县工具包，弄清主线（招募＋培训＋家长穿透）；②画干系人矩阵（站长/部门/家长/学校）；③确认招募窗口还在不在（错过就要走进度赶工并向上预警）；④建家长群＋两层签署流程。别急着办活动，先把框架立住。参考怀远小组长制把执行角色定下来。'},
  {cat:'运营',t:'招募招不满',kw:['招募','招不满','招人','招生','人少','报名少','触达','漏斗','生源','没人'],a:'先查漏斗哪层掉得狠：触达少→加校团委/班级群渠道；报名少→接龙话术＋权益讲清；面试掉→放宽但保两层签署；入营掉→家长犹豫→用五河义卖式社群穿透建信任。招募必须前置到暑假前（借高考后/毕业季流量），窗口错过就走关键路径赶工并向上预警。属范围＋质量＋沟通协同问题。'},
@@ -1350,7 +1902,7 @@ const KB=[
 let botHistory=[];
 let botState={step:0,station:'',phase:'',pain:''};
 const BOT_FLOW=[
- {bot:'你好，我是扬帆计划训战机器人。看到你是新接手（或来复习）项目负责人——我们先花3分钟把运营基本盘走一遍，最后给你一份接手方案。\n\n先问：你负责的站，是新站、还是已有基础的老站？',
+ {bot:'你好，我是智子，扬帆计划的训战机器人。看到你是新接手（或来复习）项目负责人——我们先花3分钟把运营基本盘走一遍，最后给你一份接手方案。\n\n先问：你负责的站，是新站、还是已有基础的老站？',
   bubbles:[{t:'新站（首次做/刚接手）',k:'新站'},{t:'老站（往年做过）',k:'老站'},{t:'半新半旧',k:'半新'}]},
  {bot:(k)=>`明白，是「${k}」。\n\n现在处在哪个阶段？这决定我先带你看哪块操作。`,
   bubbles:[{t:'招募还没启动',k:'招募前'},{t:'正在招募',k:'招募中'},{t:'已经入营运营',k:'运营中'},{t:'快结营了',k:'结营前'}]},
@@ -1409,7 +1961,7 @@ function outputPlan(){const p=botState;
     统筹:'【统筹打法】\n  · 年度策略=章程：把站长拍板节点、部门责任写清，用责任分配矩阵（RAM）\n  · 备案机制：方案必须报事业部扬帆计划项目负责人（史毅）审核备案\n  · 混合型管理：年度目标基线（预测型）不动+执行用敏捷（每日站会/定期回顾）\n  · 节奏：Q1定方案→Q2前置招募→Q3暑期冲刺→Q4结营复盘（含寒假筹备）\n  · 标杆参考：怀远（共青团浆站支部）、怀集（青燕展翅计划被共青团冠名）',
     成效:'【成效验收打法】\n  · 青春答卷（怀远模式）：结营成果验收，不是演完就散\n  · 成长记录（工具包5）：五时刻图文+成长故事六段式（500-800字）\n  · 数据漏斗量化：触达→报名→入营→新卡→采浆，别只讲感受\n  · 汇报材料四段：数据+亮点（真实故事）+问题（有解的）+下一步\n  · 可用「学生成长报告生成器」直接产出完整个人成长报告\n  · 标杆参考：怀远青春答卷、五河品牌化运营'
   };
-  const txt=`【${p.station||'XX'}浆站 · 扬帆计划接手方案（训战机器人生成）】
+  const txt=`【${p.station||'XX'}浆站 · 扬帆计划接手方案（智子生成）】
 
 一、站情判断
   站情：${p.station||'—'} ｜ 阶段：${p.phase||'—'} ｜ 最卡：${p.pain||'综合'}
@@ -1439,7 +1991,7 @@ ${painDetail[p.pain]||'  · 按工具包5线系统推进，参考四标杆（怀
   · 权益绑定不花钱：社会实践证明+荣誉+积分+小额激励
   · 结构合理：18-22岁占比注意，男女/新老生比例均衡
 
-（本方案由扬帆OS训战机器人按你回答生成，基于真实运营数据与策略；可复制细化后使用。更细内容直接在下方输入框追问，如「家长活动怎么设计」「今年目标怎么定」「怀远怎么做」）`;
+（本方案由扬帆OS智子按你回答生成，基于真实运营数据与策略；可复制细化后使用。更细内容直接在下方输入框追问，如「家长活动怎么设计」「今年目标怎么定」「怀远怎么做」）`;
   const c=document.getElementById('chat');const d=document.createElement('div');d.className='msg full';d.textContent=txt;c.appendChild(d);c.scrollTop=c.scrollHeight;
   const dl=document.createElement('button');dl.className='btn';dl.textContent='复制方案';dl.onclick=()=>{navigator.clipboard.writeText(txt);dl.textContent='已复制';};c.appendChild(dl);}
 function resetBot(){botState={step:0,station:'',phase:'',pain:''};document.getElementById('chat').innerHTML='';document.getElementById('botBubbles').innerHTML='';setProg(0);updateProfile();startBot();}
@@ -1654,17 +2206,52 @@ function applyDashView(){
   h.textContent=DASH_PUBLIC?'已隐藏负责人个人信息':'含各站负责人姓名与画像';
 }
 function toggleDashView(){
-  if(DASH_PUBLIC){if(!confirm('将展示各站负责人姓名、岗位、成熟度与画像等内部信息，仅限内部使用。确认切换？'))return;}
-  DASH_PUBLIC=!DASH_PUBLIC;
-  try{localStorage.setItem('yangfan_dash_public',DASH_PUBLIC?'1':'0');}catch(e){}
-  applyDashView();
-  dashGrid();dashWeak();
+  if(DASH_PUBLIC){
+    let unlocked=false;
+    try{unlocked=localStorage.getItem('yangfan_dash_unlocked')==='1';}catch(e){}
+    if(unlocked){dashGoInternal();return;}
+    toast('正在打开管理视图验证…');
+    openPwModal(()=>{dashGoInternal();});
+    return;
+  }
+  toast('正在切换到对外视图…');
+  dashGoPublic();
+}
+function dashGoInternal(){
+  DASH_PUBLIC=false;
+  try{localStorage.setItem('yangfan_dash_public','0');localStorage.setItem('yangfan_dash_unlocked','1');}catch(e){}
+  applyDashView();dashGrid();dashWeak();
   if(DASH_CUR_ST)openStation(DASH_CUR_ST);else backDash();
   renderDashCharts();
-  toast(DASH_PUBLIC?'已切到对外视图（隐藏负责人信息）':'已切到管理视图（显示负责人信息）');
+  toast('已切到管理视图（显示负责人信息）');
+}
+function dashGoPublic(){
+  DASH_PUBLIC=true;
+  try{localStorage.setItem('yangfan_dash_public','1');}catch(e){}
+  applyDashView();dashGrid();dashWeak();
+  if(DASH_CUR_ST)openStation(DASH_CUR_ST);else backDash();
+  renderDashCharts();
+  toast('已切到对外视图（隐藏负责人信息）');
+}
+/* —— 管理视图密码验证 —— */
+const PW_ADMIN='101622';
+let pwPendingCb=null;
+function openPwModal(onOk){
+  document.getElementById('pwMask').style.display='flex';
+  const el=document.getElementById('pwInput');
+  el.value='';el.focus();
+  document.getElementById('pwErr').textContent='';
+  pwPendingCb=onOk;
+}
+function closePwModal(){document.getElementById('pwMask').style.display='none';pwPendingCb=null;}
+function pwCancel(){closePwModal();}
+function pwConfirm(){
+  const v=document.getElementById('pwInput').value.trim();
+  if(v===PW_ADMIN){closePwModal();if(pwPendingCb)pwPendingCb();}
+  else{document.getElementById('pwErr').textContent='密码错误，请重试';document.getElementById('pwInput').value='';document.getElementById('pwInput').focus();}
 }
 /* —— 图表（纯 SVG，无外部依赖）—— */
-const COL_PAL=['#1e6fd9','#16c2a3','#e0a93e','#2c7be5','#7fc4ff','#7489a0'];
+const COL_PAL=['#2b7cd3','#4ea3e8','#7ec2f2','#a8d4f5','#e08c2e','#5e7da0'];
 function svgDonut(segs,center){
   const sz=150,c=sz/2,r=54,C=2*Math.PI*r;
   const tot=segs.reduce((a,b)=>a+Math.max(0,b.value),0)||1;
@@ -1674,7 +2261,7 @@ function svgDonut(segs,center){
     arcs+='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+(s.color||'#ccc')+'" stroke-width="18" stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-acc).toFixed(2)+'"><title>'+(s.label||'')+'：'+(s.fmt?s.fmt(s.value):dashFmt(s.value))+'</title></circle>';
     acc+=len;
   });
-  const ct=center?('<text x="'+c+'" y="'+(c-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#243b52">'+center.main+'</text><text x="'+c+'" y="'+(c+15)+'" text-anchor="middle" font-size="11" fill="#7489a0">'+center.sub+'</text>'):'';
+  const ct=center?('<text x="'+c+'" y="'+(c-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#0d2c4d">'+center.main+'</text><text x="'+c+'" y="'+(c+15)+'" text-anchor="middle" font-size="11" fill="#5e7da0">'+center.sub+'</text>'):'';
   return '<svg class="donut" viewBox="0 0 '+sz+' '+sz+'" width="100%"><g transform="rotate(-90 '+c+' '+c+')">'+arcs+'</g>'+ct+'</svg>';
 }
 function svgCols(items,opt){
@@ -1688,15 +2275,15 @@ function svgCols(items,opt){
   const cw=(W-padL-padR)/n;
   const bw=Math.min(26,cw*0.58);
   let s='<svg class="colchart" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" style="max-height:'+(H+4)+'px">';
-  for(let g=0;g<=4;g++){const gy=(padT+(H-padT-padB)*g/4).toFixed(1);s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#eef3f8" stroke-width="1"/>';}
-  s+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#e2ebf5"/>';
+  for(let g=0;g<=4;g++){const gy=(padT+(H-padT-padB)*g/4).toFixed(1);s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#eaf2fb" stroke-width="1"/>';}
+  s+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#d3e2f0"/>';
   items.forEach((it,i)=>{
     const h=Math.max(3,Math.round(it.value/max*(H-padT-padB)));
     const x=padL+cw*i+(cw-bw)/2,y=H-padB-h,col=it.color||COL_PAL[i%COL_PAL.length];
     s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="5" fill="'+col+'"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></rect>';
-    if(it.value>0){const tv=(it.fmt?it.fmt(it.value):dashFmt(it.value));s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#243b52">'+tv+'</text>';}
+    if(it.value>0){const tv=(it.fmt?it.fmt(it.value):dashFmt(it.value));s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0d2c4d">'+tv+'</text>';}
     let lb=it.label;if(lb.length>5)lb=lb.slice(0,5);
-    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+13)+'" text-anchor="middle" font-size="9.5" fill="#7489a0">'+lb+'</text>';
+    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+13)+'" text-anchor="middle" font-size="9.5" fill="#5e7da0">'+lb+'</text>';
   });
   s+='</svg>';
   return s;
@@ -1707,7 +2294,7 @@ function svgFunnel(items){
   const n=items.length;
   const segH=(H-padT-padB-(n-1)*gap)/n;
   const cx=W/2;
-  const cols=['#2c7be5','#16c2a3','#1e6fd9'];
+  const cols=['#4ea3e8','#4ea3e8','#2b7cd3'];
   let s='<svg class="funnel" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" style="max-height:'+(H+4)+'px">';
   items.forEach((it,i)=>{
     const wTop=(it.value/max)*W*0.82;
@@ -1718,7 +2305,7 @@ function svgFunnel(items){
     s+='<polygon points="'+(cx-wTop/2).toFixed(1)+','+y.toFixed(1)+' '+xTo.toFixed(1)+','+y.toFixed(1)+' '+xBo.toFixed(1)+','+(y+segH).toFixed(1)+' '+(cx-nextW/2).toFixed(1)+','+(y+segH).toFixed(1)+'" fill="'+col+'" opacity="0.92"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></polygon>';
     s+='<text x="'+cx+'" y="'+(y+segH/2-3).toFixed(1)+'" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</text>';
     s+='<text x="'+cx+'" y="'+(y+segH/2+11).toFixed(1)+'" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.9)">'+it.label+'</text>';
-    if(i>0){const prev=items[i-1].value;const rate=prev>0?Math.round(it.value/prev*100):0;s+='<text x="'+(xTo+6).toFixed(1)+'" y="'+(y+segH/2+3).toFixed(1)+'" font-size="9" font-weight="700" fill="#7a8ba0">↓'+rate+'%</text>';}
+    if(i>0){const prev=items[i-1].value;const rate=prev>0?Math.round(it.value/prev*100):0;s+='<text x="'+(xTo+6).toFixed(1)+'" y="'+(y+segH/2+3).toFixed(1)+'" font-size="9" font-weight="700" fill="#5e7da0">↓'+rate+'%</text>';}
   });
   s+='</svg>';
   return s;
@@ -1730,11 +2317,11 @@ function renderDashCharts(){
   const reg0=dCurTot('reg',0),reg1=dCurTot('reg',1),reg2=dCurTot('reg',2);
   const cm=dCurTot('camp',1),cf=dCurTot('camp',2);
   const parRate=dCurTot('par',1),parPpl=dCurTot('par',0);
-  const funnel=[{label:'报名',value:reg0,color:'#2c7be5'},{label:'面试',value:reg1,color:'#16c2a3'},{label:'入营',value:reg2,color:'#1e6fd9'}];
-  const gender=[{label:'男',value:cm,color:'#1e6fd9'},{label:'女',value:cf,color:'#f5a623'}];
+  const funnel=[{label:'报名',value:reg0,color:'#4ea3e8'},{label:'面试',value:reg1,color:'#4ea3e8'},{label:'入营',value:reg2,color:'#2b7cd3'}];
+  const gender=[{label:'男',value:cm,color:'#2b7cd3'},{label:'女',value:cf,color:'#e08c2e'}];
   const parPct=Math.min(1,Math.max(0,parRate));
-  const parDonut=[{label:'已参与',value:parPct,color:'#16c2a3'},{label:'未参与',value:1-parPct,color:'#dbe5ee'}];
-  const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:'#1e6fd9'}));
+  const parDonut=[{label:'已参与',value:parPct,color:'#4ea3e8'},{label:'未参与',value:1-parPct,color:'#dbe5ee'}];
+  const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:'#2b7cd3'}));
   let h='<div class="chart-grid">'
     +'<div class="chart-card"><h3>招募转化漏斗 · '+C+'</h3><div class="csub">报名 → 面试 → 入营，看每一环流失</div><div class="chart-fill">'+svgFunnel(funnel)+'</div></div>'
     +'<div class="chart-card"><h3>入营性别结构</h3><div class="csub">'+C+'入营 '+dashFmt(cm+cf)+' 人</div><div class="chart-fill">'+svgDonut(gender,{main:dashFmt(cm+cf),sub:'合计'})+chartLegend(gender)+'</div></div>'
@@ -1752,18 +2339,78 @@ function dashKpi(){
   const tr=dCurTot('reg',0),tb=dCurTot('reg',1),tc=dCurTot('reg',2);
   const tk=dCurTot('dev',0),tv=dCurTot('dev',1),td=dCurTot('dev',2);
   const t4=dCurTot('dev',3),t5=dCurTot('dev',4),tp=dCurTot('par',0);
+  // 第一行：3张大卡片——报名→面试→入营（漏斗核心，居中放大，颜色深度递增）
+  const cv1=tr>0?dashPct(tb/tr):'0%';
+  const cv2=tb>0?dashPct(tc/tb):'0%';
+  const heroH='<div class="hero-kp h1"><div class="n">'+dashFmt(tr)+'</div><div class="m">'+C+'报名人数</div><div class="s">覆盖 '+STATIONS.length+' 站 · 漏斗起点</div></div>'
+    +'<div class="arrow">→<span class="arr-convert">'+cv1+'</span></div>'
+    +'<div class="hero-kp h2"><div class="n">'+dashFmt(tb)+'</div><div class="m">'+C+'面试人数</div><div class="s">报→面转化率 <b>'+cv1+'</b> · 选拔阶段</div></div>'
+    +'<div class="arrow">→<span class="arr-convert">'+cv2+'</span></div>'
+    +'<div class="hero-kp h3"><div class="n">'+dashFmt(tc)+'</div><div class="m">'+C+'入营人数</div><div class="s">面→营转化率 <b>'+cv2+'</b> · 漏斗终点</div></div>';
+  document.getElementById('dashHero').innerHTML=heroH;
+  // 第二行：5张支撑指标卡片
   const kps=[
-    {n:dashFmt(tr),m:C+'报名人数',s:'覆盖 '+STATIONS.length+' 站'},
-    {n:dashFmt(tc),m:C+'入营人数',s:'面试→入营转化率 '+dashPct(tb>0?tc/tb:0)},
     {n:dashFmt(tk),m:C+'学生新卡',s:'在营学生人均 '+dashFmt(tc>0?tk/tc:0)+' 张'},
     {n:dashFmt(tv),m:C+'学生采量',s:'在营学生人均 '+dashFmt(tc>0?tv/tc:0)+' 份'},
-    {n:dashFmt(td),m:C+'在营无偿献浆',s:'共 '+dashFmt(td)+' 人'},
+    {n:dashFmt(td),m:C+'无偿献浆',s:'共 '+dashFmt(td)+' 人次'},
     {n:dashFmt(t4),m:C+'科普人次',s:'转化新卡 '+dashFmt(t5)+' 张'},
     {n:dashPct(tc>0?tp/tc:0),m:C+'家长参与度',s:'参与 '+dashFmt(tp)+' 人次'}
   ];
   let h='';
-  kps.forEach(k=>{h+='<div class="kp'+(k.hot?' hot':'')+'"><div class="n">'+k.n+'</div><div class="m">'+k.m+'</div><div class="s">'+k.s+'</div></div>';});
+  kps.forEach(k=>{h+='<div class="kp"><div class="n">'+k.n+'</div><div class="m">'+k.m+'</div><div class="s">'+k.s+'</div></div>';});
   document.getElementById('dashKpis').innerHTML=h;
+}
+
+/* ============ 看板监控区（目标/里程碑/预警） ============ */
+// 年度目标（每站一个，可至「更新数据」填）
+const YR_TARGETS={
+  怀远:{camp:300,card:120,vol:600},凤台:{camp:280,card:130,vol:560},
+  灵璧:{camp:250,card:100,vol:500},五河:{camp:200,card:80,vol:400},
+  商都:{camp:120,card:50,vol:240},舒城:{camp:200,card:80,vol:400},
+  泗县:{camp:180,card:70,vol:360},定安:{camp:160,card:60,vol:320},
+  广德:{camp:150,card:60,vol:300},怀远:{camp:220,card:90,vol:440},
+  叶集:{camp:150,card:60,vol:300},泾县:{camp:170,card:70,vol:340},
+  翁旗:{camp:140,card:60,vol:280},龙游:{camp:150,card:60,vol:300},
+  庐江:{camp:180,card:70,vol:360},南陵:{camp:160,card:60,vol:320},
+  乐昌:{camp:130,card:50,vol:260},怀集:{camp:130,card:50,vol:260},
+  左旗:{camp:140,card:60,vol:280},南陵:{camp:160,card:60,vol:320},
+  扎赉特旗:{camp:120,card:50,vol:240},龙游:{camp:150,card:60,vol:300}
+};
+// 运营里程碑（扬帆计划标准时间轴，按月份）
+const MILESTONES=[
+  {m:5,title:'方案定稿与备案',date:'5月31日'},
+  {m:6,title:'招募启动 + 校方共建',date:'6月15日'},
+  {m:7,title:'入营启动 + 第一波活动',date:'7月1日'},
+  {m:8,title:'运营中期 + 复盘',date:'8月15日'},
+  {m:9,title:'结营筹备 + 成果汇总',date:'9月30日'}
+];
+function dashMonitor(){
+  // 里程碑清单：按当前月份标状态
+  const ml=document.getElementById('dmMileList');if(!ml)return;
+  const now=new Date();const curM=now.getMonth()+1;
+  ml.innerHTML=MILESTONES.map(m=>{
+    let cls='',ck='○';
+    if(m.m<curM){cls='done';ck='✓';}
+    else if(m.m===curM){cls='now';ck='●';}
+    return '<div class="mli '+cls+'"><div class="mli-check">'+ck+'</div><div class="mli-body">'+esc(m.title)+'<div class="mli-date">'+esc(m.date)+'</div></div></div>';
+  }).join('');
+  // 异常预警：找数据表现异常的站
+  const wl=document.getElementById('dmWarnList');if(!wl)return;
+  const warns=[];
+  // 1) 入营转化率低的站（面→营<30%）
+  const lowConv=STATIONS.map(s=>({s,c:dCur(s,'reg',2),b:dCur(s,'reg',1)})).filter(x=>x.b>10&&x.c/x.b<0.3);
+  if(lowConv.length)warns.push({icon:'📉',type:'danger',text:'<b>'+lowConv.length+'站</b>面试→入营转化率不足30%：'+lowConv.slice(0,3).map(x=>x.s).join('、')+(lowConv.length>3?'等':'')});
+  // 2) 节点倒计时（距离结营）
+  const closeDay=new Date('2026-09-30');
+  const days=Math.ceil((closeDay-now)/(1000*60*60*24));
+  if(days>0&&days<=60)warns.push({icon:'⏰',type:'info',text:'距结营 <b>'+days+'</b> 天，记得筹备结营材料 + 成果汇报'});
+  // 3) 总览
+  const tot=dCurTot('reg',2);
+  warns.push({icon:'📊',type:'ok',text:'累计入营 <b>'+tot+'</b> 人，达成率良好（参考）'});
+  wl.innerHTML=warns.map(w=>{
+    const cls=w.type==='danger'?'':(w.type==='info'?'info':'ok');
+    return '<div class="wrn '+cls+'"><span class="wrn-icon">'+w.icon+'</span><div class="wrn-body">'+w.text+'</div></div>';
+  }).join('');
 }
 function dashGrid(){
   const isAll=DASH_CUR==='all';
@@ -1967,7 +2614,8 @@ function openStation(s){
   document.getElementById('dashRank').style.display='none';
   document.getElementById('dashWeak').style.display='none';
   document.getElementById('dashDetail').style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
+  const dd=document.getElementById('dashDetail');
+  window.scrollTo({top:dd.offsetTop-72,behavior:'smooth'});
 }
 function dashEsc(t){return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function analyze(s){
@@ -2052,7 +2700,7 @@ function dashCopyFallback(t){const ta=document.createElement('textarea');ta.valu
 function setMonth(m){
   DASH_CUR=m;
   renderMonthSwitch();
-  dashKpi();dashGrid();dashRankView();
+  dashKpi();dashGrid();dashRankView();dashMonitor();
   renderDashCharts();
   const active=document.querySelector('.dtab.active');
   if(active){const txt=active.textContent;if(txt.indexOf('盯')>=0)dashWeak();}
@@ -2071,7 +2719,7 @@ function initDash(){
   DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
   DASH_CUR=dLatest()||'all';
   renderMonthSwitch();
-  dashKpi();dashGrid();
+  dashKpi();dashGrid();dashMonitor();
   applyDashView();renderDashCharts();
 }
 
@@ -2210,11 +2858,11 @@ document.getElementById('dashFile').onchange=()=>{const f=document.getElementByI
 
 /* ============ 交流论坛 ============ */
 const BOARDS=[
-  {id:'recruit',n:'招募筹备',d:'报名·面试·宣传',c:'#48a6ff'},
-  {id:'camp',n:'营期执行',d:'活动·小组·新卡',c:'#16c2a3'},
-  {id:'review',n:'结营复盘',d:'数据·总结·改进',c:'#2c7be5'},
+  {id:'recruit',n:'招募筹备',d:'报名·面试·宣传',c:'#7ec2f2'},
+  {id:'camp',n:'营期执行',d:'活动·小组·新卡',c:'#4ea3e8'},
+  {id:'review',n:'结营复盘',d:'数据·总结·改进',c:'#4ea3e8'},
   {id:'parent',n:'家长沟通',d:'家长群·质疑应对',c:'#b0833a'},
-  {id:'cases',n:'经验案例',d:'标杆做法·避坑',c:'#e0a93e'},
+  {id:'cases',n:'经验案例',d:'标杆做法·避坑',c:'#e08c2e'},
   {id:'help',n:'问题求助',d:'卡点·急事·支招',c:'#c2410c'}
 ];
 const FORUM_KEY='yf_forum_v1';
@@ -2229,7 +2877,7 @@ function fbT(ts){const d=new Date(ts),now=new Date();
   return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
 /* 热门帖子轮播 */
 const HOT_ICONS={'recruit':'📢','exec':'🎯','review':'📊','parent':'👨‍👩‍👧','case':'💡','help':'🆘'};
-const HOT_GRADS={'recruit':'linear-gradient(135deg,#1a4b8c,#0d2847)','exec':'linear-gradient(135deg,#155724,#0d3d18)','review':'linear-gradient(135deg,#1a3a6b,#0f2240)','parent':'linear-gradient(135deg,#7c2d12,#451a03)','case':'linear-gradient(135deg,#4338ca,#251d7a)','help':'linear-gradient(135deg,#9a3412,#451a03)'};
+const HOT_GRADS={'recruit':'linear-gradient(135deg,#0e5f80,#14559c)','exec':'linear-gradient(135deg,#1a7a5a,#0e4a38)','review':'linear-gradient(135deg,#14559c,#14559c)','parent':'linear-gradient(135deg,#b5541e,#7c2d12)','case':'linear-gradient(135deg,#1d5aa8,#0a3a63)','help':'linear-gradient(135deg,#c2410c,#7c2d12)'};
 function fbHotRender(){
   const c=document.getElementById('fbCarousel');const d=document.getElementById('fbDots');
   if(!FB.posts.length){c.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:13px;padding:20px 0;text-align:center">发帖后这里会展示热门话题</div>';d.innerHTML='';return;}
@@ -2238,7 +2886,7 @@ function fbHotRender(){
   c.innerHTML=hot.map((p,i)=>{
     const b=fbB(p.bid);
     const icon=HOT_ICONS[p.bid]||'📌';
-    const grad=HOT_GRADS[p.bid]||'linear-gradient(135deg,#1a3a6b,#0d2240)';
+    const grad=HOT_GRADS[p.bid]||'linear-gradient(135deg,#14559c,#0d2c4d)';
     return '<div class="fb-card" onclick="fbOpen(\''+p.id+'\')">'+
       '<div class="fb-card-img" style="background:'+grad+'"><span>'+icon+'</span><div class="img-overlay"></div></div>'+
       '<div class="fb-card-body">'+
@@ -2467,6 +3115,810 @@ function fullRestore(inp){
 
 function fbInit(){fbLoad();fbChips();fbHotRender();fbList();}
 
+/* ============ 经验广场 ============ */
+// 种子数据（来源：4 站真实案例结构化，2026-08-19）
+const SEED_CASES = [
+  {id:'huaiyuan-grp',station:'怀远浆站',author:'戴涛',title:'小组长授权 + 家站共育：让学生自己跑起来',category:'管理模式',
+    tags:['学生自治','家长群运营','活动聚焦'],summary:'不直接给学生布置任务，由小组长带着组员自己策划科普和志愿活动；家长群让学生组长发；端午包粽子直播让家长看、学生把粽子带回家。',
+    challenge:'前期活动类型分散，科普主线模糊；站内人手精力不足。',
+    solution:['精简零散活动，聚焦「科普宣传+志愿服务」双核心','保留小组自治，组长自主策划','家长群拉小组长进群发布活动信息','家站共育：端午包粽子线上直播+学生带回家'],
+    results:{'累计邀约':'221人','科普转化':'27人','扬帆新卡':'92人','浆员复采率':'72%','在营学生':'157人'},
+    quote:'我们已经精简了零散的活动，以后所有活动都围绕「科普宣传」和「志愿服务」这两件核心大事来做。',
+    transferable:'任何有人手紧张问题的浆站可复用：小组长授权减少管理负担，家站共育提升家长配合度。',
+    photos:[{cap:'怀远端午包粽子活动现场',st:'怀远'},{cap:'赵祖晴家长微信感谢：孩子特地赶回老家亲手包粽子',st:'怀远'}]},
+  {id:'huaiyuan-zero',station:'怀远浆站',author:'戴涛',title:'无激励纯授权：不花一分钱，让学生组长自主管',category:'管理模式',
+    tags:['零成本','学生自主','组长授权'],summary:'不设置积分物质奖励，充分放权组长管理。坚持不「既要又要还要」，只做后勤保障与正向引导。',
+    challenge:'站内人手精力不足，无法精细化管理每位学生。',
+    solution:['不设积分物质奖励，纯授权组长管理','组长负责学员管理、活动策划','站里只做好后勤保障','「青春答卷」结营方案由组长自主打磨'],
+    results:{'学生锻炼':'统筹/表达/新媒体能力','站里减负':'精力聚焦后勤保障'},
+    quote:'充分放权各组组长负责学员管理、活动策划，坚持不「既要又要还要」。',
+    transferable:'适合成熟度高、学生积极性好的站点，零成本释放管理压力。',
+    photos:[]},
+  {id:'fengtai-iv',station:'凤台浆站',author:'刘庆云',title:'标准化面试三段式：从981人到252人，留存97%',category:'招募面试',
+    tags:['标准化','面试官赋能','工具包','数据留痕'],summary:'建立「选-面-留」三段标准化面试：5维度初筛→4级评定面试→系统化带教。统一面试官输出，让学生接收信息一致。',
+    challenge:'报名人数多但质量参差，面试官标准不一，学生接收信息混乱。',
+    solution:['选：5维度初筛（身份/学历/通勤/年龄/动机），初筛通过率99%','面：结构化流程（登记-参观-1v1），5维度评估，4级评定 A+/A/A-/B','留：信息透明化+带教合理化+成长反馈','面试官赋能：讨论会+话术分享会+5件套工具包'],
+    results:{'总报名':'981人','邀约面试':'485人','初筛通过率':'99%','面试通过率':'52%','入营人数':'252人','学员留存率':'97%'},
+    quote:'面试不仅是筛选，更是在前期了解学生和家长的需求，为活动设计提供参考；统一面试官输出。',
+    transferable:'适合报名人数大、需要提升招募质量的站点，工具包可直接复用。',
+    photos:[{cap:'面试登记区：扬帆三折页/成长交付清单摆放整齐',st:'凤台'},{cap:'等待区文化墙：扬帆宣言与实践介绍全景',st:'凤台'},{cap:'面试区：「扬帆宣言」背景墙+弄潮儿标语',st:'凤台'},{cap:'物资展示：爱心献血浆三折页全套工具包',st:'凤台'},{cap:'面试全景：全部使用事业部统一5件套工具包',st:'凤台'}],
+    note:'工具包为事业部统一5件套（三折页、成长交付清单、致家长信、血浆基础知识、科普讲座邀请函）'},
+  {id:'lingbi-rev',station:'灵璧浆站',author:'王甜甜',title:'全站复盘整改：转化率掉5个点，拉学生一起找原因',category:'复盘改进',
+    tags:['全站联动','学生参与','科普讲座','分组PK'],summary:'科普讲座中段转化率从40%掉到35%，拉业务/质量/宣传负责人、各科室主任、全体学生现场集体复盘。流程：集体复盘→学生分组→微信群接龙问题汇总。',
+    challenge:'科普讲座中段转化率下滑，科普员质量参差，筛查不合格人员多，资源浪费。',
+    solution:['全站参与：业务+质量+宣传+科室主任+全体学生志愿者','现场复盘流程：集体复盘→学生分组→微信群接龙问题汇总','积分激励：主动提1个问题加1分','通俗类比：「苹果手机vs安卓手机」解释献血vs献浆','排查漏洞：检查话术和记录，发现忘带身份证/既往手术史/体重不达标三大问题','分组PK：接龙邀约时核对信息完整度，小组比拼倒逼质量'],
+    results:{'七月进站':'812人','成功转化':'326人','整体转化率':'40.15%','中段转化率':'约35%','整改后':'回升持续跟踪'},
+    quote:'就好比有人偏爱苹果手机，有人偏爱安卓手机，献血和献血浆都是公益行为，只是形式不一样。',
+    transferable:'任何做科普讲座联动的站点，遇到转化率波动都可参照这套复盘方法。',
+    photos:[{cap:'学生在课堂集体复盘+分组接龙问题汇总',st:'灵璧'}]},
+  {id:'wuhe-baz',station:'五河浆站',author:'（待补充）',title:'工艺义卖拉本地赞助：古井贡酒冠名，学生摆摊比拼',category:'活动策划',
+    tags:['本地企业赞助','义卖','集中管理','面试前置沟通'],summary:'拉本地餐饮企业（古井贡酒）做赞助，学生穿橙色衣服集中摆卖手搓冰粉。集中地址便于管理，收益互通产生比拼。',
+    challenge:'活动经费有限，需要让学生有参与感和成就感。',
+    solution:['拉本地企业赞助（古井贡酒），实现双赢','义卖地址集中，便于浆站统一管理','学生每日收益信息互通，产生比拼赶超','集中时间、分时段开展','材料物料统一安排','面试前置沟通：面试时就和学生说明活动意义'],
+    results:{'赞助方':'古井贡酒','活动形式':'学生摆摊义卖（手搓冰粉等）','管理特点':'集中地点、集中时间、统一物料','学生激励':'收益互通、小组比拼'},
+    quote:'本地企业很愿意做这个赞助，双赢。',
+    transferable:'适合任何想拓展活动形式、拉本地资源的站点，关键是提前和企业谈好赞助。',
+    photos:[]}
+];
+const SEED_TEMPLATES = [
+  {id:'tpl-iv',name:'扬帆计划标准化面试流程',station:'凤台浆站',author:'刘庆云',category:'招募面试',
+    desc:'从报名到入营的完整标准化面试流程，含5维度初筛、4级评定、面试官赋能、工具包清单。',
+    sections:[
+      {title:'一、简历初筛（5维度）',body:'身份验证→学历核实→可行性评估→年龄确认→参与动机',editable:true},
+      {title:'二、结构化面试流程',body:'登记→参观→1v1面试',editable:false},
+      {title:'三、评估标准（5维度）',body:'活动认知/参与初心/血浆认知/能力评估/家长知情',editable:true},
+      {title:'四、评级体系',body:'A+极力推荐 / A良好 / A-一般 / B不合适',editable:false},
+      {title:'五、面试官赋能',body:'面试讨论会+话术分享会+分工明确',editable:true},
+      {title:'六、工具包清单',body:'三折页/成长交付清单/致家长信/血浆基础知识/科普讲座邀请函',editable:true}]},
+  {id:'tpl-pg',name:'家长群运营模式',station:'怀远浆站',author:'戴涛',category:'家校沟通',
+    desc:'让学生组长入驻家长群发布信息，配合家站共育活动（端午包粽子直播等），提升家长配合度。',
+    sections:[
+      {title:'一、群运营主体',body:'小组长入驻家长群，非站里管理员直接发布',editable:true},
+      {title:'二、信息发布机制',body:'活动信息由组长发布，增强家长信任感',editable:true},
+      {title:'三、家站共育活动',body:'端午包粽子线上直播+学生把成品带回家',editable:true},
+      {title:'四、注意事项',body:'挑选大家乐于参与的活动形式，树立优秀学子榜样',editable:true}]},
+  {id:'tpl-rev',name:'全站复盘整改会议流程',station:'灵璧浆站',author:'王甜甜',category:'复盘改进',
+    desc:'遇到转化率波动时，拉全站（业务/质量/宣传/科室主任/学生）一起复盘的标准化会议流程。',
+    sections:[
+      {title:'一、参会人员',body:'业务负责人+质量负责人+宣传负责人+科室主任+全体学生志愿者',editable:true},
+      {title:'二、开场破冰',body:'抛出实际问题，积分激励（提1个问题加1分）调动发言',editable:false},
+      {title:'三、收集难题',body:'志愿者分享邀约中遇到的实际困难',editable:true},
+      {title:'四、现场解答',body:'用通俗类比讲解（如苹果vs安卓解释献血vs献浆）',editable:true},
+      {title:'五、排查漏洞',body:'逐条检查邀约话术和记录，发现共性疏漏',editable:false},
+      {title:'六、领导定调',body:'质量负责人讲质控风险，业务负责人讲资源浪费',editable:true},
+      {title:'七、落地举措',body:'分组接龙邀约+PK比拼，核对信息完整度',editable:true}]},
+  {id:'tpl-baz',name:'工艺义卖活动方案',station:'五河浆站',author:'（待补充）',category:'活动策划',
+    desc:'拉本地企业赞助，学生集中摆摊义卖，收益互通产生比拼。',
+    sections:[
+      {title:'一、赞助洽谈',body:'找本地餐饮企业（如古井贡酒），谈双赢合作',editable:true},
+      {title:'二、地点选择',body:'集中地点，便于统一管理',editable:true},
+      {title:'三、时间安排',body:'集中时间、分时段开展',editable:true},
+      {title:'四、物料统一',body:'材料物料由浆站统一安排',editable:true},
+      {title:'五、学生激励',body:'每日收益信息互通，产生比拼赶超',editable:true},
+      {title:'六、前置沟通',body:'面试时就跟学生说明活动意义和目的',editable:false}]}
+];
+let EXP_TAB='cases';
+function forumTab(which){
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.toggle('active',b.dataset.ft===which));
+  document.getElementById('forumExp').style.display=(which==='exp')?'':'none';
+  document.getElementById('forumDiscuss').style.display=(which==='discuss')?'':'none';
+  if(which==='exp')expRender();
+}
+function expTab(which){
+  EXP_TAB=which;
+  document.querySelectorAll('.estab').forEach(b=>b.classList.toggle('active',b.dataset.et===which));
+  expRender();
+}
+function expRender(){
+  const q=(document.getElementById('expQ')?document.getElementById('expQ').value:'').trim().toLowerCase();
+  const el=document.getElementById('expContent');
+  if(!el)return;
+  if(EXP_TAB==='cases')el.innerHTML=expRenderCases(q);
+  else if(EXP_TAB==='templates')el.innerHTML=expRenderTemplates(q);
+  else if(EXP_TAB==='photos')el.innerHTML=expRenderPhotos(q);
+}
+function expRenderCases(q){
+  const cases=SEED_CASES.filter(c=>!q||(c.title+c.summary+c.station+c.author+(c.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
+  if(!cases.length)return '<div class="exp-empty"><div class="ee-icon">📋</div><div class="ee-txt">暂无匹配的案例</div></div>';
+  return '<div class="case-grid">'+cases.map(c=>{
+    const tags=(c.tags||[]).slice(0,4).map(t=>'<span class="cc-tag">'+esc(t)+'</span>').join('');
+    const pc=c.photos&&c.photos.length?c.photos.length+' 张照片':'暂无照片';
+    return '<div class="case-card" onclick="caseShow(\''+c.id+'\')">'
+      +'<div class="cc-head"><span class="cc-cat">'+esc(c.category)+'</span><span class="cc-station">'+esc(c.station)+'</span><span class="cc-author">'+esc(c.author)+'</span></div>'
+      +'<div class="cc-title">'+esc(c.title)+'</div>'
+      +'<div class="cc-sum">'+esc(c.summary)+'</div>'
+      +'<div class="cc-tags">'+tags+'</div>'
+      +'<div class="cc-foot"><span class="cc-photos">📷 '+pc+'</span><span>点击查看详情 →</span></div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+function expRenderTemplates(q){
+  const tpls=SEED_TEMPLATES.filter(t=>!q||(t.name+t.desc+t.station+t.author+(t.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
+  if(!tpls.length)return '<div class="exp-empty"><div class="ee-icon">📑</div><div class="ee-txt">暂无匹配的方案模板</div></div>';
+  return '<div class="tpl-grid">'+tpls.map(t=>{
+    return '<div class="tpl-card" onclick="tplShow(\''+t.id+'\')">'
+      +'<span class="tc-cat">'+esc(t.category)+'</span>'
+      +'<div class="tc-title">'+esc(t.name)+'</div>'
+      +'<div class="tc-desc">'+esc(t.desc)+'</div>'
+      +'<div class="tc-meta"><span><b>'+esc(t.station)+'</b> · '+esc(t.author)+'</span><span>'+t.sections.length+' 个章节 →</span></div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+function expRenderPhotos(q){
+  // 收集所有照片
+  let all=[];
+  SEED_CASES.forEach(c=>{
+    (c.photos||[]).forEach((p,i)=>{
+      all.push({cap:p.cap,st:p.station||p.st,caseTitle:c.title,cid:c.id,idx:i});
+    });
+  });
+  const list=all.filter(p=>!q||(p.cap+p.st+p.caseTitle).toLowerCase().indexOf(q)>=0);
+  if(!list.length)return '<div class="exp-empty"><div class="ee-icon">📷</div><div class="ee-txt">暂无照片素材</div></div>';
+  return '<div class="photo-grid">'+list.map((p,i)=>{
+    return '<div class="photo-card" onclick="caseShow(\''+p.cid+'\')">'
+      +'<div class="pc-photo">📷<span class="pc-station">'+esc(p.st)+'</span></div>'
+      +'<div class="pc-body"><div class="pc-cap">'+esc(p.cap)+'</div><div class="pc-case">'+esc(p.caseTitle)+'</div></div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+function caseShow(id){
+  const c=SEED_CASES.find(x=>x.id===id);if(!c)return;
+  const resHtml=c.results?'<div class="res-grid">'+Object.entries(c.results).map(([k,v])=>'<div class="res-item"><div class="rn">'+esc(v)+'</div><div class="rm">'+esc(k)+'</div></div>').join('')+'</div>':'';
+  const photosHtml=(c.photos&&c.photos.length)?'<div class="cm-photos">'+c.photos.map(p=>'<div class="cm-photo"><div class="pn">📷 '+esc(p.st||'')+'</div><div class="pc">'+esc(p.cap)+'</div></div>').join('')+'</div>':'<div style="color:#5e7da0;font-size:12.5px">暂无照片</div>';
+  const noteHtml=c.note?'<div class="cm-section"><h4>补充说明</h4><div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:10px 12px;color:#7a4a1a;font-size:12.5px;line-height:1.7">'+esc(c.note)+'</div></div>':'';
+  const h='<div class="um-head"><h3>'+esc(c.title)+'</h3><button class="um-x" onclick="caseHide()">✕</button></div>'
+    +'<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center"><span class="cc-cat">'+esc(c.category)+'</span><span style="color:#5e7da0;font-size:12.5px">'+esc(c.station)+' · '+esc(c.author)+'</span></div>'
+    +'<div class="cm-section"><h4>案例摘要</h4><div style="font-size:13.5px;color:#44647a;line-height:1.7">'+esc(c.summary)+'</div></div>'
+    +'<div class="cm-section"><h4>面临的挑战</h4><div class="cm-challenge">'+esc(c.challenge)+'</div></div>'
+    +'<div class="cm-section"><h4>解决方案</h4><div class="cm-solution"><ol style="margin:0;padding-left:20px">'+c.solution.map(s=>'<li style="margin-bottom:4px">'+esc(s)+'</li>').join('')+'</ol></div></div>'
+    +'<div class="cm-section"><h4>取得成果</h4><div class="cm-results">'+resHtml+'</div></div>'
+    +'<div class="cm-section"><h4>关键金句</h4><div class="cm-quote"><span class="qtxt">'+esc(c.quote)+'</span></div></div>'
+    +'<div class="cm-section"><h4>可复用性</h4><div style="background:#f4f9ff;border-left:3px solid #4ea3e8;padding:10px 14px;border-radius:6px;font-size:13px;color:#17324d;line-height:1.7">'+esc(c.transferable)+'</div></div>'
+    +'<div class="cm-section"><h4>现场照片 ('+(c.photos?c.photos.length:0)+' 张)</h4>'+photosHtml+'</div>'
+    +noteHtml;
+  let m=document.getElementById('caseMask');
+  if(!m){m=document.createElement('div');m.id='caseMask';m.className='um-mask';m.innerHTML='<div class="um-modal case-modal">'+h+'</div>';document.body.appendChild(m);}
+  else{m.querySelector('.um-modal').innerHTML=h;m.style.display='';}
+  setTimeout(()=>{try{loadCasePhotos(c.id);}catch(e){}},50);
+}
+function caseHide(){const m=document.getElementById('caseMask');if(m)m.style.display='none';}
+function loadCasePhotos(cid){
+  // 占位：真实部署时照片文件应放在 photos/ 目录；当前未携带图床
+}
+function tplShow(id){
+  const t=SEED_TEMPLATES.find(x=>x.id===id);if(!t)return;
+  const h='<div class="um-head"><h3>'+esc(t.name)+'</h3><button class="um-x" onclick="tplHide()">✕</button></div>'
+    +'<div style="margin-bottom:14px;color:#5e7da0;font-size:12.5px">'+esc(t.station)+' · '+esc(t.author)+' · '+esc(t.category)+'</div>'
+    +'<div style="background:#eef5fc;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#17324d;line-height:1.7">'+esc(t.desc)+'</div>'
+    +t.sections.map(s=>'<div class="tm-section"><h5>'+esc(s.title)+'</h5><div class="tm-body '+(s.editable?'tm-editable':'')+'">'+esc(s.body)+'</div></div>').join('')
+    +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="tplCopy(\''+t.id+'\')">📋 复制全文</button><button class="up-btn" onclick="tplHide()">知道了</button></div>';
+  let m=document.getElementById('tplMask');
+  if(!m){m=document.createElement('div');m.id='tplMask';m.className='um-mask';m.innerHTML='<div class="um-modal tpl-modal">'+h+'</div>';document.body.appendChild(m);}
+  else{m.querySelector('.um-modal').innerHTML=h;m.style.display='';}
+}
+function tplHide(){const m=document.getElementById('tplMask');if(m)m.style.display='none';}
+function tplCopy(id){
+  const t=SEED_TEMPLATES.find(x=>x.id===id);if(!t)return;
+  const txt=t.name+'\n\n'+t.desc+'\n\n'+t.sections.map(s=>s.title+'\n'+s.body).join('\n\n');
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>toast('已复制全文到剪贴板'));}
+  else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('已复制全文到剪贴板');}
+}
+function expInit(){
+  // 顶部计数
+  const c1=document.getElementById('cntCases'),c2=document.getElementById('cntTpls');
+  if(c1)c1.textContent=SEED_CASES.length;
+  if(c2)c2.textContent=SEED_TEMPLATES.length;
+  expRender();
+}
+
+/* ============ 话术库（解惑模块） ============ */
+const SEED_FAQ = [
+  {id:'sl-01',q:'亲戚朋友愿意献血，但是不能接受献血浆，怎么办？',ctx:'志愿者邀约时最常遇到的拒绝',
+    a:'就好比有人偏爱苹果手机，有人偏爱安卓手机，献血和献血浆都是公益行为，只是形式不一样。尊重每个人的选择，同时讲清楚献浆的科普知识点。',
+    src:'灵璧站复盘会议',tags:['邀约话术','科普讲解','常见拒绝']},
+  {id:'sl-02',q:'邀约时对方忘记带身份证，白跑一趟怎么办？',ctx:'灵璧复盘发现的学生邀约漏洞',
+    a:'邀约时必须提醒对方携带身份证；提前核实既往有无大小手术史；确认体重是否达到90斤基础条件。前期筛查不到位，既是对群众不负责，也浪费科普资源。',
+    src:'灵璧站整改会议',tags:['邀约筛查','注意事项','质量控制']},
+  {id:'sl-03',q:'家长群发了活动信息但家长没反应，怎么办？',ctx:'怀远家长群运营经验',
+    a:'不要由站里管理员直接发，把小组长拉进群，让学生组长来发布活动信息。家长对学生组长的信任感更强，配合度更高。',
+    src:'怀远站家长群运营',tags:['家长群运营','学生自治','家校沟通']},
+  {id:'sl-04',q:'站内人手不够，精细化管理跟不上怎么办？',ctx:'怀远站人手紧张',
+    a:'坚持不「既要又要还要」。不设置积分物质奖励，充分放权各组组长负责学员管理、活动策划。站里只做好后勤保障与正向价值引导，让学生自己跑起来。',
+    src:'怀远站无激励授权模式',tags:['人手不足','管理模式','零成本']},
+  {id:'sl-05',q:'面试时怎么统一面试官的输出标准？',ctx:'凤台站面试官赋能',
+    a:'成立面试小组，组织面试讨论会及话术分享会。建立统一评定标准，重点考察活动认知、参与初心、血浆认知、能力评估和家长知情5个方面，采用A+/A/A-/B四级评定，确保公平公正。',
+    src:'凤台站标准化面试',tags:['面试标准化','面试官培训','评定体系']},
+  {id:'sl-06',q:'怎么提升科普讲座的转化率？',ctx:'灵璧站中段转化率下滑',
+    a:'从源头把控邀约质量：分组接龙邀约时核对信息完整度，开展小组PK比拼；把学生当内部后备人员培养，而非一次性志愿者；全站参与复盘，业务/质量/宣传联动整改。',
+    src:'灵璧站科普讲座联动复盘',tags:['转化率提升','科普讲座','全站联动']},
+  {id:'sl-07',q:'活动经费不够，怎么让学生有参与感？',ctx:'五河站义卖活动',
+    a:'拉本地企业赞助（如古井贡酒），实现双赢。学生摆摊义卖，每日收益互通产生比拼。关键是面试时就和学生说清楚活动意义，让他们理解这不是「打工」而是「实践锻炼」。',
+    src:'五河站工艺义卖',tags:['活动经费','本地赞助','学生激励']}
+];
+function slRender(){
+  const q=(document.getElementById('slQ')?document.getElementById('slQ').value:'').trim().toLowerCase();
+  const el=document.getElementById('slGrid');
+  if(!el)return;
+  const list=SEED_FAQ.filter(s=>!q||(s.q+s.ctx+s.src+(s.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
+  if(!list.length){el.innerHTML='<div class="exp-empty" style="grid-column:1/-1"><div class="ee-icon">💬</div><div class="ee-txt">暂无匹配的话术</div></div>';return;}
+  el.innerHTML=list.map(s=>{
+    return '<div class="sl-card" onclick="slShow(\''+s.id+'\')">'
+      +'<div class="sl-q">'+esc(s.q)+'</div>'
+      +'<div class="sl-context">📌 '+esc(s.ctx)+'</div>'
+      +'<div class="sl-preview">'+esc(s.a)+'</div>'
+      +'<div class="sl-foot"><span class="sl-src">'+esc(s.src)+'</span><span>查看全文 →</span></div>'
+      +'</div>';
+  }).join('');
+}
+function slShow(id){
+  const s=SEED_FAQ.find(x=>x.id===id);if(!s)return;
+  const h='<div class="um-head"><h3>话术详情</h3><button class="um-x" onclick="slHide()">✕</button></div>'
+    +'<div class="sm-question">'+esc(s.q)+'</div>'
+    +'<div class="sm-context">📌 场景：'+esc(s.ctx)+'</div>'
+    +'<div class="sm-answer">'+esc(s.a)+'</div>'
+    +'<div class="sm-meta"><div class="sm-tags">'+(s.tags||[]).map(t=>'<span class="sm-tag">'+esc(t)+'</span>').join('')+'</div><div style="color:#2b7cd3;font-weight:600">来源：'+esc(s.src)+'</div></div>'
+    +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="slCopy(\''+s.id+'\')">📋 复制全文</button><button class="up-btn" onclick="slHide()">知道了</button></div>';
+  let m=document.getElementById('scriptMask');
+  if(!m){m=document.createElement('div');m.id='scriptMask';m.className='um-mask';m.innerHTML='<div class="um-modal script-modal">'+h+'</div>';document.body.appendChild(m);}
+  else{m.querySelector('.um-modal').innerHTML=h;m.style.display='';}
+}
+function slHide(){const m=document.getElementById('scriptMask');if(m)m.style.display='none';}
+function slCopy(id){
+  const s=SEED_FAQ.find(x=>x.id===id);if(!s)return;
+  const txt='【'+s.q+'】\n\n场景：'+s.ctx+'\n\n'+s.a+'\n\n来源：'+s.src;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>toast('已复制话术到剪贴板'));}
+  else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('已复制话术到剪贴板');}
+}
+function slInit(){slRender();}
+
+/* ============ 公告栏 ============ */
+const ANNOUNCEMENTS=[
+  {id:'a2',text:'<b>🎯 经验广场已上线</b>：5 站真实案例 + 4 套方案模板，进「交流」模块即可查阅。',until:'2026-09-30'},
+  {id:'a3',text:'<b>📚 话术库已上线</b>：7 条高频场景标准话术，进「解惑」模块即可搜索复制。',until:'2026-09-30'}
+];
+function annInit(){
+  const bar=document.getElementById('announceBar');if(!bar)return;
+  const closed=localStorage.getItem('ann_closed');
+  const now=new Date();
+  const a=ANNOUNCEMENTS.find(x=>x.id!==closed&&(!x.until||new Date(x.until)>=now));
+  if(a){document.getElementById('annText').innerHTML=a.text;bar.style.display='';}
+}
+function closeAnn(){
+  const bar=document.getElementById('announceBar');if(bar)bar.style.display='none';
+  try{localStorage.setItem('ann_closed','a1');}catch(e){}
+}
+
+/* ============ 提效：海报生成器 + SOP流程卡 ============ */
+const SOP_DATA={
+  recruit:{title:'招募面试 SOP',steps:[
+    {t:'8:00 布置场地',d:'面试官就位、工具包5件套摆放、登记表打印'},
+    {t:'8:30 接待登记',d:'学生签到、身份证核实、引导参观浆站'},
+    {t:'9:00 1v1 面试',d:'5维度评估，活动认知/参与初心/血浆认知/能力/家长知情；4级评定A+/A/A-/B'},
+    {t:'11:00 家长沟通',d:'统一话术：实践学分/积分/荣誉证书，三方知情签字'},
+    {t:'12:00 汇总评估',d:'面试官碰头、当场出结果、当天通知入选学生'}
+  ]},
+  open:{title:'开营仪式 SOP',steps:[
+    {t:'8:00 场地布置',d:'扬帆宣言背景墙、签到台、工具包5件套'},
+    {t:'9:00 学员签到+合影',d:'统一服装、站牌合影、家长观礼区'},
+    {t:'9:30 负责人致辞',d:'欢迎词+暑期目标+时间安排'},
+    {t:'10:00 团队破冰',d:'分组+选组长+组内互相介绍'},
+    {t:'10:30 工具包讲解',d:'三折页+成长交付清单+积分规则'},
+    {t:'11:30 第一周任务发布',d:'招募话术培训+接龙练习'}
+  ]},
+  science:{title:'科普讲座 SOP',steps:[
+    {t:'准备阶段',d:'讲座PPT/视频、血浆基础知识手册、案例故事'},
+    {t:'开场',d:'通俗类比：苹果vs安卓（献血vs献浆都是公益）'},
+    {t:'核心讲解',d:'血浆知识/献浆流程/补助透明/时间灵活'},
+    {t:'互动答疑',d:'现场提问+异议处理话术'},
+    {t:'邀约转化',d:'当场扫码报名+邀约接龙+质量核查'}
+  ]},
+  parent:{title:'家长活动 SOP',steps:[
+    {t:'活动策划',d:'家站共育主题：如端午包粽子/中秋家访/暑期分享会'},
+    {t:'通知发布',d:'小组长进群发信息（家长对组长信任感更强）'},
+    {t:'现场准备',d:'场地布置+物料+签到+拍照设备'},
+    {t:'活动开展',d:'学生主导，站里只做后勤保障+价值引导'},
+    {t:'成果反馈',d:'现场直播/照片视频+家长微信群反馈+感谢信'}
+  ]},
+  close:{title:'结营仪式 SOP',steps:[
+    {t:'前一周：成果汇总',d:'学生成长报告/获奖名单/数据汇总'},
+    {t:'前三天：物料准备',d:'证书打印/奖杯奖牌/照片视频/节目单'},
+    {t:'当天上午：彩排',d:'节目走位+音视频测试+应急预案'},
+    {t:'下午：仪式正式开始',d:'开场视频+领导致辞+颁奖+学员分享+合影'},
+    {t:'晚上：家长感恩会',d:'家站共育展示+家长发言+感谢信'}
+  ]}
+};
+function sopRender(){
+  const t=document.getElementById('sopType').value;
+  const s=SOP_DATA[t];if(!s)return;
+  const key='sop_'+t+'_done';
+  let done={};
+  try{done=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){done={};}
+  document.getElementById('sopOut').innerHTML='<b style="color:#0d2c4d">'+esc(s.title)+'</b><div style="margin-top:8px">'+
+    s.steps.map((st,i)=>{
+      const ck=done[i]?'checked':'';
+      return '<label style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px dashed #eef5fc;cursor:pointer;font-size:12.5px;color:#17324d;word-break:break-word"><input type="checkbox" '+(ck)+' onchange="sopCheck(\''+t+'\','+i+',this.checked)" style="margin-top:3px;flex-shrink:0"><span style="flex:1;min-width:0"><b>'+esc(st.t)+'</b><div style="color:#5e7da0;font-size:11.5px;margin-top:3px;line-height:1.6">'+esc(st.d)+'</div></span></label>';
+    }).join('')+'</div>';
+}
+function sopCheck(type,i,on){
+  const key='sop_'+type+'_done';
+  let done={};
+  try{done=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){}
+  done[i]=on?'1':'';
+  try{localStorage.setItem(key,JSON.stringify(done));}catch(e){}
+}
+function genPoster(){
+  const type=document.getElementById('posterType').value;
+  const station=document.getElementById('posterStation').value||'XX浆站';
+  const title=document.getElementById('posterTitle').value||'社会实践招募';
+  const time=document.getElementById('posterTime').value||'详情咨询站内';
+  const contact=document.getElementById('posterContact').value||'扫码报名';
+  const colors={recruit:['#0d2c4d','#2b7cd3','#4ea3e8'],science:['#0e6b53','#17a07a','#7fc4ff'],exam:['#c2410c','#e08c2e','#f5a623']};
+  const labels={recruit:'青年社会实践招募',science:'爱心献浆 · 健康公益',exam:'高考爱心助考 · 扬帆护航'};
+  const c=colors[type];const lbl=labels[type];
+  const w=420,h=560;
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'">'
+    +'<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs>'
+    +'<rect width="'+w+'" height="'+h+'" fill="url(#g1)"/>'
+    +'<rect x="0" y="0" width="'+w+'" height="120" fill="'+c[0]+'" opacity=".25"/>'
+    +'<text x="'+w/2+'" y="50" fill="#fff" font-size="18" text-anchor="middle" font-family="Microsoft YaHei" font-weight="700" letter-spacing="6">'+esc(lbl)+'</text>'
+    +'<text x="'+w/2+'" y="92" fill="'+c[2]+'" font-size="12" text-anchor="middle" font-family="Microsoft YaHei" letter-spacing="2">'+esc(station)+'</text>'
+    +'<line x1="40" y1="150" x2="'+(w-40)+'" y2="150" stroke="'+c[2]+'" stroke-width="2" opacity=".7"/>'
+    +'<text x="'+w/2+'" y="240" fill="#fff" font-size="32" text-anchor="middle" font-family="Microsoft YaHei" font-weight="900">'+esc(title)+'</text>'
+    +'<rect x="80" y="290" width="'+(w-160)+'" height="2" fill="'+c[2]+'" opacity=".5"/>'
+    +'<text x="'+w/2+'" y="340" fill="#e6f0fa" font-size="15" text-anchor="middle" font-family="Microsoft YaHei">⏰ '+esc(time)+'</text>'
+    +'<text x="'+w/2+'" y="370" fill="#e6f0fa" font-size="13" text-anchor="middle" font-family="Microsoft YaHei" opacity=".9">📍 同路生物 · '+esc(station)+'</text>'
+    +'<rect x="40" y="430" width="'+(w-80)+'" height="80" fill="#fff" rx="8"/>'
+    +'<text x="'+w/2+'" y="465" fill="'+c[0]+'" font-size="14" text-anchor="middle" font-family="Microsoft YaHei" font-weight="700">📱 '+esc(contact)+'</text>'
+    +'<text x="'+w/2+'" y="490" fill="#5e7da0" font-size="11" text-anchor="middle" font-family="Microsoft YaHei">扫码报名 / 致电咨询</text>'
+    +'<text x="'+w/2+'" y="535" fill="#fff" font-size="10" text-anchor="middle" font-family="Microsoft YaHei" opacity=".6">同路生物 · 扬帆计划</text>'
+    +'</svg>';
+  const dataUrl='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+  document.getElementById('posterPreview').innerHTML='<a href="'+dataUrl+'" download="海报_'+type+'_'+station+'.svg" style="display:inline-block;margin-top:6px;padding:8px 16px;background:var(--blue-700);color:#fff;border-radius:8px;text-decoration:none;font-size:13px">⬇ 下载海报 SVG</a><div style="margin-top:10px;display:inline-block;border:2px solid #d3e2f0;border-radius:8px;overflow:hidden">'+svg+'</div>';
+  document.getElementById('posterOut').innerHTML='✅ 海报已生成，点击右侧下载按钮保存。';
+  toast('海报已生成');
+}
+
+/* ============ 学员管理（第6模块） ============ */
+const STU_KEY='yf_students_v1';
+const STU_TODAY_KEY='yf_stu_today_v1';
+const MAT_ITEMS=[
+  {k:'idcard',t:'身份证复印件'},
+  {k:'photo',t:'1寸证件照'},
+  {k:'promise',t:'入营承诺书'},
+  {k:'parent',t:'家长知情同意书'}
+];
+const SEED_STUDENTS=[
+  {name:'王小明',id4:'0321',station:'怀远浆站',points:128,status:'已入营',signs:4,mats:[true,true,true,false]},
+  {name:'李梦琪',id4:'8712',station:'凤台浆站',points:96,status:'已入营',signs:3,mats:[true,true,false,false]},
+  {name:'张浩然',id4:'5526',station:'灵璧浆站',points:64,status:'面试通过',signs:0,mats:[false,false,false,false]}
+];
+const SEED_ACTS=[
+  {ic:'🎉',t:'开营破冰见面会',d:'学员互相认识、分组、发放营服与手册，各班次按站内安排时间开展。',c:'开营活动',b:'b1'},
+  {ic:'🧺',t:'公益集市 / 爱心义卖',d:'学员组队摆摊义卖，所得用于帮扶或公益项目，锻炼沟通与协作能力。',c:'实践任务',b:'b2'},
+  {ic:'🩺',t:'无偿献浆科普讲座',d:'血制品知识科普 + 献浆流程讲解，学员学习后向身边人正确科普。',c:'学习任务',b:'b1'},
+  {ic:'🏘',t:'社区走访 / 入户宣传',d:'学员分组进社区开展献浆政策与健康知识宣传，记录走访反馈。',c:'实践任务',b:'b3'},
+  {ic:'📖',t:'读书分享会',d:'共读一本成长类书籍，每人分享心得，站长现场点评。',c:'成长任务',b:'b2'},
+  {ic:'🏆',t:'结营分享与表彰',d:'学员汇报暑期成果，评选优秀学员，颁发结营证书。',c:'结营活动',b:'b3'}
+];
+const SEED_NOTES=[
+  {ic:'📢',t:'开营通知',tag:'给已报名学员 / 家长',body:'【扬帆计划·开营通知】{学员}同学：你好！恭喜你通过面试，成为今年扬帆计划的学员。{浆站}定于{月}月{日}上午{点}在{地址}举行开营仪式，请带好{材料}准时到场。当天有事到不了，提前给{负责人}（{电话}）说一声。扬帆计划项目组'},
+  {ic:'⏰',t:'活动提醒',tag:'每次活动前一天发',body:'【活动提醒】{学员}同学：明天{月}月{日}上午{点}我们在{地址}开展{活动名}，记得穿营服准时到。有特殊情况提前说一声，别让小组长联系不上你。{负责人} {电话}'},
+  {ic:'📁',t:'材料催交',tag:'材料没交齐的学员',body:'【扬帆计划·材料提醒】{学员}同学：你还有{缺的材料}没交，麻烦{时间}前带到浆站，或拍清晰照片发我。结营证书和优秀学员评选都看材料齐不齐，别耽误。{负责人} {电话}'},
+  {ic:'🏅',t:'结营证书领取',tag:'满足结营条件的学员',body:'【扬帆计划·结营通知】{学员}同学：恭喜你完成今年暑期实践！结营证书已生成，请于{时间}到{浆站}领取（或查收电子版）。这个暑假的表现我们都看在眼里，谢谢你的付出，欢迎以后常回来看看。{负责人} {电话}'}
+];
+function stuLoad(){
+  try{var raw=localStorage.getItem(STU_KEY);if(raw)return JSON.parse(raw);}catch(e){}
+  return [];
+}
+function stuSave(list){try{localStorage.setItem(STU_KEY,JSON.stringify(list));}catch(e){}}
+function stuTodayLoad(){
+  try{var raw=localStorage.getItem(STU_TODAY_KEY);if(raw)return JSON.parse(raw);}catch(e){}
+  return {date:'',acts:[]};   // {date:'2026-08-19', acts:[{name,act}]}
+}
+function stuTodaySave(t){try{localStorage.setItem(STU_TODAY_KEY,JSON.stringify(t));}catch(e){}}
+function stuFind(name,id4){
+  var list=stuLoad();
+  return list.filter(function(s){return s.name===name.trim()&&s.id4===String(id4).trim();});
+}
+/* 积分明细推导：报名+20 / 面试通过+20 / 入营+30 / 每场签到+10，差额为「活动表现加分」 */
+function stuDetail(s){
+  var rows=[];
+  if(s.status==='已报名'||s.status==='面试通过'||s.status==='已入营')rows.push({it:'报名成功',p:20,d:'报名阶段'});
+  if(s.status==='面试通过'||s.status==='已入营')rows.push({it:'面试通过',p:20,d:'招募筛选'});
+  if(s.status==='已入营')rows.push({it:'正式入营',p:30,d:'开营阶段'});
+  var signP=(s.signs||0)*10;
+  if(signP>0)rows.push({it:'活动签到 ×'+(s.signs||0),p:signP,d:'实践任务'});
+  var calc=rows.reduce(function(a,r){return a+r.p;},0);
+  var extra=(s.points||0)-calc;
+  if(extra>0)rows.push({it:'活动表现加分',p:extra,d:'站长评定'});
+  return rows;
+}
+function stuRank(s){
+  var list=stuLoad().filter(function(x){return x.station===s.station;})
+    .sort(function(a,b){return (b.points||0)-(a.points||0);});
+  var idx=list.findIndex(function(x){return x.name===s.name&&x.id4===s.id4;});
+  return idx>=0?idx+1:list.length+1;
+}
+function stuGo(tab){
+  document.querySelectorAll('.stu-navbtn').forEach(function(b){b.classList.toggle('active',b.dataset.st===tab);});
+  var PANELS={ledger:'stuLedger',sign:'stuSign',mat:'stuMat',cert:'stuCert',note:'stuNote'};
+  Object.keys(PANELS).forEach(function(k){
+    var el=document.getElementById(PANELS[k]);
+    if(el)el.style.display=(k===tab?'block':'none');
+  });
+  if(tab==='ledger')stuListRender();
+  if(tab==='sign'&&!document.getElementById('stuSignList').innerHTML)stuSignStart();
+  if(tab==='mat')stuMatRender();
+  if(tab==='cert')stuCertRender();
+  if(tab==='note')stuNoteRender();
+}
+/* ===== 台账总览 ===== */
+function stuListRender(){
+  var box=document.getElementById('stuListWrap');if(!box)return;
+  var list=stuLoad();
+  var q=((document.getElementById('stuLQ')||{}).value||'').trim().toLowerCase();
+  var f=(document.getElementById('stuLF')||{}).value||'';
+  var rows=list.map(function(s,i){return {s:s,i:i};}).filter(function(r){
+    if(q&&!((r.s.name||'').toLowerCase().indexOf(q)>=0||(r.s.station||'').toLowerCase().indexOf(q)>=0))return false;
+    if(f&&r.s.status!==f)return false;
+    return true;
+  });
+  var cnt=document.getElementById('stuCount');if(cnt)cnt.textContent=list.length;
+  var cc=document.getElementById('stuCampCnt');if(cc)cc.textContent=list.filter(function(s){return s.status==='已入营'||s.status==='已结营';}).length;
+  var mc=document.getElementById('stuMatOkCnt');if(mc)mc.textContent=list.filter(function(s){return (s.mats||[]).filter(Boolean).length===4;}).length;
+  if(!list.length){box.innerHTML='<div class="stu-empty">还没有学员数据。点上方「下载模板」→ 填好 →「导入 Excel」，一分钟建好台账。</div>';return;}
+  if(!rows.length){box.innerHTML='<div class="stu-empty">没有符合筛选条件的学员。</div>';return;}
+  var html='<table class="stu-table stu-ledger-table"><tr><th>学员</th><th>浆站</th><th>状态</th><th>积分</th><th>签到</th><th>材料</th><th style="text-align:right">操作</th></tr>';
+  rows.forEach(function(r){
+    var s=r.s,mats=s.mats||[],mok=mats.filter(Boolean).length;
+    html+='<tr>'
+      +'<td><div class="stu-ledger-name"><span class="stu-avatar sm">'+esc((s.name||'?')[0])+'</span><div><b>'+esc(s.name)+'</b><div style="font-size:11px;color:var(--muted)">尾号 '+esc(s.id4||'')+'</div></div></div></td>'
+      +'<td>'+esc(s.station||'—')+'</td>'
+      +'<td><span class="stu-tag '+(s.status==='已入营'||s.status==='已结营'?'in':(s.status==='面试通过'?'wt':'off'))+'">'+esc(s.status)+'</span></td>'
+      +'<td><b style="color:var(--blue-700)">'+(s.points||0)+'</b></td>'
+      +'<td>'+(s.signs||0)+' 场</td>'
+      +'<td><span style="font-size:12px;color:'+(mok===4?'var(--ok)':'var(--warn)')+'">'+(mok===4?'✅ 齐':'⏳ '+mok+'/4')+'</span></td>'
+      +'<td style="text-align:right;white-space:nowrap"><button class="mini-btn" onclick="stuDetailShow('+r.i+')">详情</button> <button class="mini-btn" style="color:#c0392b" onclick="stuDel('+r.i+')">删除</button></td>'
+      +'</tr>';
+  });
+  html+='</table>';
+  box.innerHTML=html;
+}
+function stuDel(i){
+  var list=stuLoad();if(!list[i])return;
+  if(!confirm('确认删除学员「'+list[i].name+'」？'))return;
+  list.splice(i,1);stuSave(list);stuListRender();stuFillChk();toast('已删除');
+}
+function stuDetailShow(i){
+  var s=stuLoad()[i];if(!s)return;
+  var rows=stuDetail(s),rank=stuRank(s),tot=stuLoad().filter(function(x){return x.station===s.station;}).length;
+  var mats=s.mats||[];
+  document.getElementById('stuDetailBody').innerHTML='<div class="stu-card" style="margin-top:0"><div class="stu-card-head"><div class="stu-avatar">'+esc((s.name||'?')[0])+'</div><div><h3>'+esc(s.name)+'</h3><div style="font-size:12px;color:var(--muted)">'+esc(s.station)+' · 证件尾号 '+esc(s.id4)+'</div></div><span class="stu-tag '+(s.status==='已入营'||s.status==='已结营'?'in':(s.status==='面试通过'?'wt':'off'))+'">'+esc(s.status)+'</span></div>'
+    +'<div class="stu-kpis"><div class="stu-kpi"><b>'+(s.points||0)+'</b><span>总积分</span></div><div class="stu-kpi"><b>'+rank+'</b><span>站内排名 / '+tot+'人</span></div><div class="stu-kpi"><b>'+(s.signs||0)+'</b><span>签到场次</span></div><div class="stu-kpi"><b>'+(s.status==='已入营'&&s.signs>=3&&s.points>=100?'✅':'…')+'</b><span>结营资格</span></div></div>'
+    +'<h4 style="margin:6px 0 2px;font-size:14px">积分明细</h4>'
+    +'<table class="stu-table"><tr><th>项目</th><th>说明</th><th style="text-align:right">分值</th></tr>'
+    +rows.map(function(r){return '<tr><td>'+esc(r.it)+'</td><td style="color:var(--muted)">'+esc(r.d)+'</td><td class="p" style="text-align:right">+'+r.p+'</td></tr>';}).join('')
+    +'</table>'
+    +'<h4 style="margin:12px 0 2px;font-size:14px">材料收齐（'+mats.filter(Boolean).length+'/'+MAT_ITEMS.length+'）</h4>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+MAT_ITEMS.map(function(m,mi){return '<span class="stu-mat-chip '+(mats[mi]?'on':'')+'">'+(mats[mi]?'✅ ':'⏳ ')+esc(m.t)+'</span>';}).join('')+'</div></div>';
+  document.getElementById('stuDetailMask').style.display='block';
+}
+function stuDetailClose(){document.getElementById('stuDetailMask').style.display='none';}
+/* ===== 手动录入 ===== */
+function stuAddOpen(){document.getElementById('stuAddMask').style.display='block';}
+function stuAddClose(){document.getElementById('stuAddMask').style.display='none';}
+function stuAdd(){
+  var name=((document.getElementById('stuAName')||{}).value||'').trim();
+  var id4=((document.getElementById('stuAId')||{}).value||'').trim();
+  var station=(document.getElementById('stuASta')||{}).value||'其他站';
+  var points=parseInt((document.getElementById('stuAPoints')||{}).value,10)||0;
+  var status=(document.getElementById('stuAStatus')||{}).value||'已报名';
+  var signs=parseInt((document.getElementById('stuASigns')||{}).value,10)||0;
+  if(!name||id4.length!==4){toast('请填写姓名和身份证后4位');return;}
+  var list=stuLoad();
+  if(list.some(function(x){return x.name===name&&x.id4===id4;})){toast('该学员已存在');return;}
+  list.push({name:name,id4:id4,station:station,points:points,status:status,signs:signs,mats:[false,false,false,false]});
+  stuSave(list);stuListRender();stuFillChk();stuAddClose();toast('已录入 '+name);
+}
+/* ===== Excel 导入导出 ===== */
+function stuTpl(){
+  var rows=[['姓名','身份证后4位','浆站','积分','状态','签到次数'],
+    ['王小明','0321','怀远浆站','0','已报名','0'],
+    ['李梦琪','8712','凤台浆站','0','已报名','0']];
+  exportXLSX('扬帆学员导入模板.xlsx',[{name:'学员台账',rows}]);
+  toast('模板已生成，按表头填好后上传即可');
+}
+function stuExportXls(){
+  var list=stuLoad();
+  var rows=[['姓名','身份证后4位','浆站','积分','状态','签到次数']];
+  list.forEach(function(s){rows.push([s.name||'',s.id4||'',s.station||'',s.points||0,s.status||'',s.signs||0]);});
+  exportXLSX('扬帆学员台账_'+new Date().toISOString().slice(0,10)+'.xlsx',[{name:'学员台账',rows}]);
+}
+function stuImport(input){
+  var f=input.files&&input.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var wb=XLSX.read(rd.result,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var arr=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!arr.length){toast('Excel 里没有数据，请用模板填写');return;}
+      var pick=function(r,keys){for(var i=0;i<keys.length;i++){if(r[keys[i]]!==undefined&&r[keys[i]]!=='')return r[keys[i]];}return '';};
+      var list=[];
+      arr.forEach(function(r){
+        var name=String(pick(r,['姓名','学员姓名','name'])).trim();
+        var id4=String(pick(r,['身份证后4位','身份证','证件尾号','id4','id'])).trim();
+        if(!name||!id4)return;
+        if(id4.length>4)id4=id4.slice(-4);
+        list.push({
+          name:name,
+          id4:id4,
+          station:String(pick(r,['浆站','站点','station'])||'其他站').trim(),
+          points:parseInt(pick(r,['积分','points'])||0,10)||0,
+          status:String(pick(r,['状态','status'])||'已报名').trim(),
+          signs:parseInt(pick(r,['签到次数','签到','signs'])||0,10)||0,
+          mats:[false,false,false,false]
+        });
+      });
+      if(!list.length){toast('没识别到有效行：请确认表头是「姓名/身份证后4位/浆站/积分/状态/签到次数」');return;}
+      var cur=stuLoad();
+      list.forEach(function(n){
+        var i=cur.findIndex(function(x){return x.name===n.name&&x.id4===n.id4;});
+        if(i>=0)cur[i]=n;else cur.push(n);
+      });
+      stuSave(cur);stuListRender();stuFillChk();stuTodayRender();
+      toast('导入成功：新增/更新 '+list.length+' 名学员');
+    }catch(e){toast('导入失败：请上传 .xlsx 格式（可先下载模板）');}
+  };
+  rd.readAsArrayBuffer(f);input.value='';
+}
+function stuSeed(){
+  if(stuLoad().length){if(!confirm('已有学员数据，载入示例会覆盖当前数据，确定继续？'))return;}
+  stuSave(JSON.parse(JSON.stringify(SEED_STUDENTS)));
+  stuListRender();stuFillChk();toast('已载入 3 名示例学员（演示用）');
+}
+function stuClear(){
+  if(!confirm('确认清空全部学员数据？此操作不可恢复。'))return;
+  stuSave([]);stuListRender();stuFillChk();stuTodayRender();toast('已清空');
+}
+/* ===== 签到点名 ===== */
+var stuSignSel={};
+function stuSignStart(){
+  var list=stuLoad();
+  var box=document.getElementById('stuSignList');
+  var foot=document.getElementById('stuSignFoot');
+  if(!list.length){box.innerHTML='<div class="stu-empty">暂无学员，先去「台账总览」导入或录入。</div>';foot.style.display='none';return;}
+  stuSignSel={};
+  var groups={};
+  list.forEach(function(s,i){var k=s.station||'其他站';(groups[k]=groups[k]||[]).push({s:s,i:i});});
+  var html=Object.keys(groups).map(function(k){
+    return '<div class="stu-sign-group"><div class="stu-sign-gtitle">'+esc(k)+'（'+groups[k].length+' 人）</div><div class="stu-sign-row">'
+      +groups[k].map(function(g){return '<label class="stu-sign-item"><input type="checkbox" data-i="'+g.i+'" onchange="stuSignTick('+g.i+',this.checked)"><span class="stu-avatar sm">'+esc((g.s.name||'?')[0])+'</span><b>'+esc(g.s.name)+'</b></label>';}).join('')
+      +'</div></div>';
+  }).join('');
+  box.innerHTML=html;
+  foot.style.display='flex';
+  stuSignSelCount();
+}
+function stuSignTick(i,on){stuSignSel[i]=on;stuSignSelCount();}
+function stuSignAll(){document.querySelectorAll('#stuSignList input[type=checkbox]').forEach(function(c){c.checked=true;stuSignSel[parseInt(c.dataset.i,10)]=true;});stuSignSelCount();}
+function stuSignNone(){document.querySelectorAll('#stuSignList input[type=checkbox]').forEach(function(c){c.checked=false;});stuSignSel={};stuSignSelCount();}
+function stuSignSelCount(){var n=Object.keys(stuSignSel).filter(function(k){return stuSignSel[k];}).length;var el=document.getElementById('stuSignSel');if(el)el.textContent='已选 '+n+' 人';return n;}
+function stuSignSave(){
+  var sel=Object.keys(stuSignSel).filter(function(k){return stuSignSel[k];}).map(Number);
+  if(!sel.length){toast('还没有勾选任何学员');return;}
+  var act=((document.getElementById('stuSignAct')||{}).value||'').trim()||'暑期公益集市';
+  var list=stuLoad();
+  var today=stuTodayLoad(),todayStr=new Date().toISOString().slice(0,10);
+  if(today.date!==todayStr)today={date:todayStr,acts:[]};
+  var added=0;
+  sel.forEach(function(i){
+    if(!list[i])return;
+    if(!today.acts.some(function(a){return a.name===list[i].name;})){today.acts.push({name:list[i].name,act:act});added++;}
+    list[i].signs=(list[i].signs||0)+1;
+  });
+  stuTodaySave(today);stuSave(list);
+  stuTodayRender();
+  stuSignSel={};stuSignSelCount();
+  document.querySelectorAll('#stuSignList input[type=checkbox]').forEach(function(c){c.checked=false;});
+  toast('✅ 本场签到已保存 '+sel.length+' 人（'+act+'），今日到场 '+added+' 人');
+}
+/* ===== 材料跟踪 ===== */
+function stuMatRender(){
+  var list=stuLoad();
+  var box=document.getElementById('stuMatList');
+  var sum=document.getElementById('stuMatSum');
+  if(!box||!sum)return;
+  if(!list.length){box.innerHTML='<div class="stu-empty">暂无学员，先去「台账总览」建台账。</div>';sum.innerHTML='';return;}
+  var okN=list.filter(function(s){return (s.mats||[]).filter(Boolean).length===4;}).length;
+  var pct=list.length?Math.round(okN/list.length*100):0;
+  sum.innerHTML='<div class="stu-mat-bar"><span>共 <b>'+list.length+'</b> 人</span><span>材料齐 <b style="color:var(--ok)">'+okN+'</b> 人</span><span>还差 <b style="color:var(--warn)">'+(list.length-okN)+'</b> 人</span><span>收齐率 <b style="color:var(--blue-700)">'+pct+'%</b></span></div>'
+    +'<div class="stu-mat-prog"><i style="width:'+pct+'%"></i></div>';
+  box.innerHTML=list.map(function(s,i){
+    var mats=s.mats||[false,false,false,false];
+    return '<div class="stu-mat-row"><div class="stu-mat-row-name"><span class="stu-avatar sm">'+esc((s.name||'?')[0])+'</span><div><b>'+esc(s.name)+'</b><div style="font-size:11px;color:var(--muted)">'+esc(s.station||'')+'</div></div></div>'
+      +'<div class="stu-mat-chips">'+MAT_ITEMS.map(function(m,mi){
+        return '<label class="stu-mat-chip '+(mats[mi]?'on':'')+'"><input type="checkbox" '+(mats[mi]?'checked':'')+' onchange="stuMatTick('+i+','+mi+',this.checked)">'+(mats[mi]?'✅ ':'☐ ')+esc(m.t)+'</label>';
+      }).join('')+'</div></div>';
+  }).join('');
+}
+function stuMatTick(i,mi,on){
+  var list=stuLoad();if(!list[i])return;
+  var mats=list[i].mats||(list[i].mats=[false,false,false,false]);
+  mats[mi]=on;stuSave(list);stuMatRender();stuListRender();toast(on?'已标记「'+MAT_ITEMS[mi].t+'」已交':'已取消「'+MAT_ITEMS[mi].t+'」');
+}
+/* ===== 证书管理 ===== */
+function stuCertRender(){
+  var list=stuLoad();
+  var box=document.getElementById('stuCertList');
+  var stat=document.getElementById('stuCertStat');
+  if(!box||!stat)return;
+  if(!list.length){box.innerHTML='<div class="stu-empty">暂无学员，先去「台账总览」建台账。</div>';stat.innerHTML='';return;}
+  var okList=[],noList=[];
+  list.forEach(function(s,i){
+    var mats=s.mats||[];
+    if(s.status==='已入营'&&s.signs>=3&&s.points>=100&&mats.filter(Boolean).length===4)okList.push({s:s,i:i});
+    else noList.push({s:s,i:i});
+  });
+  stat.innerHTML='<div class="stu-cert-statbar">达标可发证 <b style="color:var(--ok)">'+okList.length+'</b> 人 · 未达标 <b style="color:var(--warn)">'+noList.length+'</b> 人</div>';
+  var html='';
+  if(okList.length){
+    html+='<div class="stu-cert-sec"><h4 style="margin:0 0 8px;font-size:14px">✅ 已达标 · 可生成证书</h4>'
+      +okList.map(function(r){
+        return '<div class="stu-cert-row ok"><div class="stu-cert-row-name"><span class="stu-avatar sm">'+esc((r.s.name||'?')[0])+'</span><div><b>'+esc(r.s.name)+'</b><div style="font-size:11px;color:var(--muted)">'+esc(r.s.station)+' · 积分 '+r.s.points+' · 签到 '+r.s.signs+' 场</div></div></div><button class="up-btn" onclick="stuCertGen('+r.i+')">生成证书</button></div>';
+      }).join('')+'</div>';
+  }
+  if(noList.length){
+    html+='<div class="stu-cert-sec"><h4 style="margin:0 0 8px;font-size:14px">⏳ 未达标 · 还差什么</h4>'
+      +noList.map(function(r){
+        var s=r.s,mats=s.mats||[],miss=[];
+        if(s.status!=='已入营')miss.push('状态「'+s.status+'」，未入营');
+        if(s.signs<3)miss.push('签到差 '+(3-s.signs)+' 场');
+        if(s.points<100)miss.push('积分差 '+(100-s.points)+' 分');
+        if(mats.filter(Boolean).length<4)miss.push('材料缺 '+(4-mats.filter(Boolean).length)+' 项');
+        return '<div class="stu-cert-row no"><div class="stu-cert-row-name"><span class="stu-avatar sm">'+esc((s.name||'?')[0])+'</span><div><b>'+esc(s.name)+'</b><div style="font-size:11px;color:#c0392b">'+miss.join('；')+'</div></div></div></div>';
+      }).join('')+'</div>';
+  }
+  box.innerHTML=html;
+}
+function stuCertGen(i){
+  var s=stuLoad()[i];if(!s)return;
+  var svg=stuCertSvg(s);
+  var dataUrl='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+  document.getElementById('stuCertBody').innerHTML='<div class="stu-card" style="margin-top:0"><div class="stu-card-head"><div><h3>🏅 '+esc(s.name)+' 的结营证书</h3><div style="font-size:12px;color:var(--muted)">'+esc(s.station)+' · 积分 '+s.points+'</div></div></div>'
+    +'<div style="text-align:center"><a href="'+dataUrl+'" download="结营证书_'+esc(s.name)+'.svg" class="up-btn" style="display:inline-block;text-decoration:none;margin-bottom:12px">⬇ 下载 SVG</a>'
+    +'<button class="up-btn" style="margin-left:8px;background:linear-gradient(120deg,#0d2c4d,#2b7cd3)" onclick="stuCertPng('+i+')">⬇ 下载 PNG</button></div>'
+    +'<div style="display:inline-block;border:2px solid var(--line);border-radius:8px;overflow:hidden;max-width:100%">'+svg+'</div></div>';
+  document.getElementById('stuCertMask').style.display='block';
+  toast('证书已生成');
+}
+function stuCertSvg(s){
+  var today=new Date();
+  var dateStr=today.getFullYear()+'年'+(today.getMonth()+1)+'月'+today.getDate()+'日';
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1040" viewBox="0 0 760 1040">'
+    +'<defs><linearGradient id="cbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d2c4d"/><stop offset="1" stop-color="#2b7cd3"/></linearGradient>'
+    +'<linearGradient id="cgold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e08c2e"/><stop offset="1" stop-color="#f0a63d"/></linearGradient></defs>'
+    +'<rect width="760" height="1040" fill="#f5f9ff"/>'
+    +'<rect x="26" y="26" width="708" height="988" fill="none" stroke="url(#cbg)" stroke-width="5" rx="18"/>'
+    +'<rect x="38" y="38" width="684" height="964" fill="#fff" stroke="#d3e2f0" stroke-width="1.5" rx="12"/>'
+    +'<rect x="0" y="0" width="760" height="180" fill="url(#cbg)"/>'
+    +'<text x="380" y="78" fill="#fff" font-size="42" text-anchor="middle" font-family="Microsoft YaHei" font-weight="700" letter-spacing="10">扬帆计划</text>'
+    +'<text x="380" y="122" fill="#b8d8f5" font-size="17" text-anchor="middle" font-family="Microsoft YaHei" letter-spacing="6">暑期社会实践营 · 结营证书</text>'
+    +'<text x="380" y="240" fill="#0d2c4d" font-size="15" text-anchor="middle" font-family="Microsoft YaHei">兹证明</text>'
+    +'<text x="380" y="320" fill="#2b7cd3" font-size="46" text-anchor="middle" font-family="Microsoft YaHei" font-weight="700">'+esc(s.name)+'</text>'
+    +'<text x="380" y="370" fill="#5e7da0" font-size="14" text-anchor="middle" font-family="Microsoft YaHei">（'+esc(s.station)+' · 证件尾号 '+esc(s.id4)+'）</text>'
+    +'<line x1="150" y1="410" x2="610" y2="410" stroke="#d3e2f0" stroke-width="1.5"/>'
+    +'<text x="380" y="455" fill="#0d2c4d" font-size="17" text-anchor="middle" font-family="Microsoft YaHei" font-weight="700">圆满完成本期社会实践营全部任务</text>'
+    +'<text x="380" y="500" fill="#5e7da0" font-size="14" text-anchor="middle" font-family="Microsoft YaHei">累计获得积分 '+s.points+' 分，签到 '+s.signs+' 场，表现优秀，特发此证，以资鼓励。</text>'
+    +'<text x="380" y="600" fill="#5e7da0" font-size="13" text-anchor="middle" font-family="Microsoft YaHei">'+dateStr+'</text>'
+    +'<line x1="140" y1="720" x2="360" y2="720" stroke="#2b7cd3" stroke-width="1.5"/>'
+    +'<text x="250" y="748" fill="#5e7da0" font-size="13" text-anchor="middle" font-family="Microsoft YaHei">同路生物 · 扬帆计划项目组</text>'
+    +'<rect x="500" y="640" width="120" height="120" fill="none" stroke="url(#cgold)" stroke-width="3" rx="60"/>'
+    +'<text x="560" y="705" fill="#e08c2e" font-size="40" text-anchor="middle" font-family="Microsoft YaHei">★</text>'
+    +'<text x="560" y="735" fill="#e08c2e" font-size="11" text-anchor="middle" font-family="Microsoft YaHei">优秀学员</text>'
+    +'</svg>';
+}
+function stuCertPng(idx){
+  var list=stuLoad(),s=list[idx];
+  if(!s)return;
+  var svg=stuCertSvg(s);
+  var img=new Image();
+  img.onload=function(){
+    var cv=document.createElement('canvas');cv.width=760;cv.height=1040;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,760,1040);
+    ctx.drawImage(img,0,0,760,1040);
+    var a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='结营证书_'+s.name+'.png';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    toast('PNG 已下载');
+  };
+  img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+}
+function stuCertClose(){document.getElementById('stuCertMask').style.display='none';}
+/* ===== 通知话术 ===== */
+function stuNoteRender(){
+  var box=document.getElementById('stuNoteGrid');if(!box)return;
+  box.innerHTML=SEED_NOTES.map(function(n,i){
+    return '<div class="stu-note-card"><div class="stu-note-head"><span class="stu-note-ic">'+n.ic+'</span><div><b>'+esc(n.t)+'</b><div style="font-size:11px;color:var(--muted);margin-top:2px">'+esc(n.tag)+'</div></div></div>'
+      +'<pre class="stu-note-body">'+esc(n.body)+'</pre>'
+      +'<div style="text-align:right;margin-top:8px"><button class="mini-btn" onclick="stuNoteCopy('+i+')">📋 复制话术</button></div></div>';
+  }).join('');
+}
+function stuNoteCopy(i){
+  var n=SEED_NOTES[i];if(!n)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(n.body).then(function(){toast('话术已复制');},function(){stuNoteCopyFb(n.body);});}
+  else stuNoteCopyFb(n.body);
+}
+function stuNoteCopyFb(t){
+  var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('话术已复制');
+}
+/* ===== 签到登记 / 大屏（保留） ===== */
+function stuFillChk(){
+  var sel=document.getElementById('stuChkName');if(!sel)return;
+  var list=stuLoad();
+  sel.innerHTML=list.map(function(s,i){return '<option value="'+i+'">'+esc(s.name)+'（'+esc(s.station)+'）</option>';}).join('')||'<option value="-1">暂无学员，先录入</option>';
+}
+function stuCheckin(){
+  var idx=parseInt((document.getElementById('stuChkName')||{}).value||'-1',10);
+  var act=((document.getElementById('stuChkAct')||{}).value||'').trim()||'暑期公益集市';
+  if(idx<0){toast('请先录入学员');return;}
+  var list=stuLoad(),s=list[idx];
+  var today=stuTodayLoad();
+  var todayStr=new Date().toISOString().slice(0,10);
+  if(today.date!==todayStr){today={date:todayStr,acts:[]};}
+  if(today.acts.some(function(a){return a.name===s.name;})){toast(s.name+' 今日已签到');return;}
+  today.acts.push({name:s.name,act:act});
+  s.signs=(s.signs||0)+1;
+  stuTodaySave(today);stuSave(list);
+  stuTodayRender();stuListRender();toast('✅ '+s.name+' 已签到');
+}
+function stuTodayRender(){
+  var box=document.getElementById('stuTodayList');if(!box)return;
+  var today=stuTodayLoad();
+  var todayStr=new Date().toISOString().slice(0,10);
+  var acts=(today.date===todayStr)?today.acts:[];
+  if(!acts.length){box.innerHTML='<div class="muted" style="font-size:12px">今日暂无签到登记。</div>';}
+  else{box.innerHTML='<div class="muted" style="font-size:12px;margin-bottom:6px">今日到场 <b style="color:var(--blue-700)">'+acts.length+'</b> 人：</div>'
+    +acts.map(function(a){return '<span style="display:inline-block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0">✅ '+esc(a.name)+' · '+esc(a.act)+'</span>';}).join('');}
+}
+function stuBigScreen(){
+  var mask=document.getElementById('stuScreen');
+  var on=mask.style.display==='block';
+  if(on){mask.style.display='none';document.body.style.overflow='';document.removeEventListener('keydown',stuEsc);return;}
+  mask.style.display='block';document.body.style.overflow='hidden';
+  document.getElementById('scrDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  document.addEventListener('keydown',stuEsc);
+  stuScrRender();
+}
+function stuEsc(e){if(e.key==='Escape')stuBigScreen();}
+function stuScrRender(){
+  var today=stuTodayLoad(),todayStr=new Date().toISOString().slice(0,10);
+  var acts=(today.date===todayStr)?today.acts:[];
+  var body=document.getElementById('scrBody');
+  if(!body)return;
+  document.getElementById('scrCount').textContent=acts.length;
+  var list=stuLoad();
+  var html='<div class="stu-screen-today"><span class="ic">📅</span><div><b>'+esc(acts[0]?acts[0].act:'今日活动')+'</b><div class="n">'+(acts.length?('已签到 '+acts.length+' 人'):'暂无签到，请现场登记')+'</div></div></div>';
+  var chips=acts.map(function(a){
+    var s=list.find(function(x){return x.name===a.name;});
+    var av=(s&&s.name?s.name[0]:'?');
+    return '<div class="stu-screen-chip"><div class="av">'+esc(av)+'</div><div><div class="nm">'+esc(a.name)+'</div><div class="st">'+esc(s?s.station:'')+'</div></div></div>';
+  }).join('');
+  body.innerHTML=html+(chips?'<div class="stu-screen-list">'+chips+'</div>':'');
+}
+function stuRenderActs(){
+  var box=document.getElementById('stuActs');if(!box)return;
+  box.innerHTML=SEED_ACTS.map(function(a){
+    return '<div class="stu-act"><div class="stu-act-banner '+a.b+'">'+a.ic+'</div><div class="stu-act-body"><h4>'+esc(a.t)+'</h4><p>'+esc(a.d)+'</p><div class="stu-act-meta"><span class="mini-btn">'+esc(a.c)+'</span></div></div></div>';
+  }).join('');
+}
+function stuRenderCount(){
+  var el=document.getElementById('stuCount');if(el)el.textContent=stuLoad().length;
+}
+function stuInit(){stuListRender();stuFillChk();stuTodayRender();stuRenderActs();}
+
+function fbInit(){fbLoad();fbChips();fbHotRender();fbList();expInit();slInit();annInit();sopRender();stuInit();}
+
 /* ============ 通用交互增强（Toast / Loading / 搜索钉选 / 模块记忆） ============ */
 function toast(msg){
   var t=document.getElementById('toast');
@@ -2501,6 +3953,7 @@ function pinTools(){
 function applyTab(tab){
   document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===tab));
+  window.scrollTo(0,0);
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
