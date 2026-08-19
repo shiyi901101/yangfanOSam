@@ -231,6 +231,29 @@
   .copy-btn:hover{background:var(--blue-500)}
   .dash-note{font-size:12px;color:var(--muted);margin-top:10px}
 
+  /* 内外视图切换 + 图表仪表盘 */
+  .view-toggle{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:6px 8px 6px 14px;font-size:12.5px;color:var(--blue-700);margin:4px 0 14px;cursor:pointer;flex-wrap:wrap;box-shadow:0 2px 6px rgba(27,58,107,.05)}
+  .view-toggle:hover{border-color:var(--blue-300)}
+  .view-toggle b{font-weight:700;font-size:13px}
+  .view-toggle .sw{position:relative;width:42px;height:22px;border-radius:12px;background:var(--cyan);transition:.2s;flex-shrink:0}
+  .view-toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .view-toggle.internal .sw{background:var(--warn)}
+  .view-toggle.internal .sw::after{left:22px}
+  .ext-note{font-size:11.5px;color:var(--ok)}
+  .view-toggle.internal .ext-note{color:var(--warn)}
+  .chart-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(27,58,107,.05)}
+  .chart-card h3{margin:0 0 2px;font-size:14px;color:var(--blue-700);border-left:4px solid var(--cyan);padding-left:8px}
+  .chart-card .csub{font-size:11px;color:var(--muted);margin-bottom:4px}
+  .chart-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.chart-row2{grid-template-columns:1fr}}
+  .donut{display:block;margin:0 auto;max-width:170px}
+  .chart-legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;margin-top:4px;font-size:11px;color:var(--ink)}
+  .chart-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle}
+  .colchart{display:block;width:100%}
+  /* 对外视图：隐藏负责人个人信息 */
+  body.dash-public .st .ow,
+  body.dash-public .st .lv{display:none}
+
   /* 数据看板 顶部条 + 更新入口 + 模态框 */
   .dash-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:4px}
   .dash-title{font-size:19px;font-weight:800;color:var(--navy,#0b2545);letter-spacing:.5px;margin:2px 0 6px}
@@ -583,12 +606,18 @@
     <div>
       <div class="dash-title">全站数据看板</div>
       <div class="dash-base">数据基准：各站上报月度汇总 · 含半年度会议材料 · 非实时，供运营参考</div>
-      <div class="legend">数据来自各站上报的月度汇总（招募漏斗 / 学生发展 / 入营结构 / 家长参与四块）+ 半年度会议材料 + 各站负责人画像。点任意站卡片 → 看该站数据汇总与<b>针对性分析</b>；分析可一键复制进汇报材料。自己汇总的数据，通过右上角「更新数据」上传即可。</div>
+      <div class="legend">数据来自各站上报的月度汇总（招募漏斗 / 学生发展 / 入营结构 / 家长参与）+ 半年度会议材料。上方为可视化仪表盘（漏斗 / 性别结构 / 参与率 / 各站对比）；点任意站卡片 → 看该站数据汇总与<b>针对性分析</b>。对外分享默认隐藏负责人个人信息，内部点下方开关切「管理视图」即可查看。</div>
     </div>
     <button class="up-enter" onclick="openUpModal()">📤 更新数据</button>
   </div>
+  <div class="view-toggle internal" id="viewToggle" onclick="toggleDashView()" title="切换对外/管理视图">
+    <b id="viewLabel">管理视图</b>
+    <span class="sw"></span>
+    <span class="ext-note" id="viewHint">含各站负责人姓名与画像</span>
+  </div>
   <div class="month-switch" id="monthSwitch"></div>
   <div class="dash-kpis" id="dashKpis"></div>
+  <div id="dashCharts"></div>
   <div class="dash-tabs">
     <button class="dtab active" onclick="dashView('grid')">全站总览</button>
     <button class="dtab" onclick="dashView('rank')">指标排名</button>
@@ -1610,6 +1639,76 @@ function dCurData(){return DASH_CUR==='all'?null:(DASH_DB[DASH_CUR]||null);}
 function dPrevMonth(m){const i=DASH_ORDER.indexOf(m);return i>0?DASH_ORDER[i-1]:null;}
 function dLatest(){return DASH_ORDER.length?DASH_ORDER[DASH_ORDER.length-1]:null;}
 function dMonthLabel(m){return m==='all'?'全部累计':(m+'月');}
+/* —— 内外视图（隐私）：默认对外，隐藏负责人个人信息 —— */
+let DASH_PUBLIC=true;        // true=对外（安全）；false=管理（含个人信息）
+let DASH_CUR_ST=null;        // 当前打开的单站
+function loadDashView(){try{DASH_PUBLIC=localStorage.getItem('yangfan_dash_public')!=='0';}catch(e){DASH_PUBLIC=true;}}
+function applyDashView(){
+  document.body.classList.toggle('dash-public',DASH_PUBLIC);
+  const t=document.getElementById('viewToggle'),l=document.getElementById('viewLabel'),h=document.getElementById('viewHint');
+  if(!t)return;
+  t.classList.toggle('internal',!DASH_PUBLIC);
+  l.textContent=DASH_PUBLIC?'对外视图':'管理视图';
+  h.textContent=DASH_PUBLIC?'已隐藏负责人个人信息':'含各站负责人姓名与画像';
+}
+function toggleDashView(){
+  if(DASH_PUBLIC){if(!confirm('将展示各站负责人姓名、岗位、成熟度与画像等内部信息，仅限内部使用。确认切换？'))return;}
+  DASH_PUBLIC=!DASH_PUBLIC;
+  try{localStorage.setItem('yangfan_dash_public',DASH_PUBLIC?'1':'0');}catch(e){}
+  applyDashView();
+  dashGrid();dashWeak();
+  if(DASH_CUR_ST)openStation(DASH_CUR_ST);else backDash();
+  renderDashCharts();
+  toast(DASH_PUBLIC?'已切到对外视图（隐藏负责人信息）':'已切到管理视图（显示负责人信息）');
+}
+/* —— 图表（纯 SVG，无外部依赖）—— */
+const COL_PAL=['#13315c','#2a9d8f','#c8a04b','#3a6ea5','#7fb3d5','#5b7187'];
+function svgDonut(segs,center){
+  const sz=150,c=sz/2,r=54,C=2*Math.PI*r;
+  const tot=segs.reduce((a,b)=>a+Math.max(0,b.value),0)||1;
+  let acc=0,arcs='';
+  segs.forEach(s=>{
+    const len=Math.max(0,s.value)/tot*C;
+    arcs+='<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="'+(s.color||'#ccc')+'" stroke-width="18" stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-acc).toFixed(2)+'"><title>'+(s.label||'')+'：'+(s.fmt?s.fmt(s.value):dashFmt(s.value))+'</title></circle>';
+    acc+=len;
+  });
+  const ct=center?('<text x="'+c+'" y="'+(c-2)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#15263b">'+center.main+'</text><text x="'+c+'" y="'+(c+15)+'" text-anchor="middle" font-size="11" fill="#5b7187">'+center.sub+'</text>'):'';
+  return '<svg class="donut" viewBox="0 0 '+sz+' '+sz+'" width="100%"><g transform="rotate(-90 '+c+' '+c+')">'+arcs+'</g>'+ct+'</svg>';
+}
+function svgCols(items){
+  const n=items.length,W=Math.max(280,n*44),H=200,padL=10,padR=10,padT=22,padB=34;
+  const max=Math.max.apply(null,items.map(i=>i.value).concat([1]));
+  const cw=(W-padL-padR)/n,bw=Math.min(26,cw*0.62);
+  let s='<svg class="colchart" viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet">';
+  s+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#cdddec"/>';
+  items.forEach((it,i)=>{
+    const h=Math.max(2,Math.round(it.value/max*(H-padT-padB)));
+    const x=padL+cw*i+(cw-bw)/2,y=H-padB-h,col=it.color||COL_PAL[i%COL_PAL.length];
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="4" fill="'+col+'"><title>'+it.label+'：'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</title></rect>';
+    if(it.value>0)s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#15263b">'+(it.fmt?it.fmt(it.value):dashFmt(it.value))+'</text>';
+    s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-padB+14)+'" text-anchor="middle" font-size="10" fill="#5b7187">'+it.label+'</text>';
+  });
+  s+='</svg>';
+  return s;
+}
+function chartLegend(segs){return '<div class="chart-legend">'+segs.map(s=>'<span><i style="background:'+(s.color||'#ccc')+'"></i>'+(s.label||'')+' '+(s.fmt?s.fmt(s.value):dashFmt(s.value))+'</span>').join('')+'</div>';}
+function renderDashCharts(){
+  const el=document.getElementById('dashCharts');if(!el)return;
+  const C=DASH_CUR==='all'?'累计':(DASH_CUR+'月');
+  const reg0=dCurTot('reg',0),reg1=dCurTot('reg',1),reg2=dCurTot('reg',2);
+  const cm=dCurTot('camp',1),cf=dCurTot('camp',2);
+  const parRate=dCurTot('par',1),parPpl=dCurTot('par',0);
+  const funnel=[{label:'报名',value:reg0,color:'#3a6ea5'},{label:'面试',value:reg1,color:'#2a9d8f'},{label:'入营',value:reg2,color:'#13315c'}];
+  const gender=[{label:'男',value:cm,color:'#13315c'},{label:'女',value:cf,color:'#c8a04b'}];
+  const parPct=Math.min(1,Math.max(0,parRate));
+  const parDonut=[{label:'已参与',value:parPct,color:'#2a9d8f'},{label:'未参与',value:1-parPct,color:'#dbe5ee'}];
+  const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:COL_PAL[i%COL_PAL.length]}));
+  let h='<div class="chart-card"><h3>招募转化漏斗 · '+C+'</h3><div class="csub">报名 → 面试 → 入营，直观看各环节流失</div>'+svgCols(funnel)+'</div>';
+  h+='<div class="chart-row2"><div class="chart-card"><h3>入营性别结构</h3><div class="csub">'+C+'入营 '+dashFmt(cm+cf)+' 人</div>'+svgDonut(gender,{main:dashFmt(cm+cf),sub:'合计'})+chartLegend(gender)+'</div>'
+    +'<div class="chart-card"><h3>家长参与率</h3><div class="csub">参与 '+dashFmt(parPpl)+' 人次</div>'+svgDonut(parDonut,{main:dashPct(parPct),sub:'参与率'})+chartLegend(parDonut)+'</div></div>';
+  h+='<div class="chart-card"><h3>各站入营人数对比 · '+C+'</h3><div class="csub">一眼看出强弱站</div>'+svgCols(stItems)+'</div>';
+  el.innerHTML=h;
+}
 function renderMonthSwitch(){
   const el=document.getElementById('monthSwitch');if(!el)return;
   el.innerHTML='';
@@ -1704,7 +1803,7 @@ function dashWeak(){
       if(prev[s].dev[0]>0&&base[s].dev[0]<prev[s].dev[0])notes.push('学生新卡环比下降 '+f(prev[s].dev[0]-base[s].dev[0])+' 张（'+f(prev[s].dev[0])+'→'+f(base[s].dev[0])+'）');
       if(prev[s].reg[2]>0&&base[s].reg[2]<prev[s].reg[2])notes.push('入营环比下降 '+f(prev[s].reg[2]-base[s].reg[2])+' 人');
     }
-    if(p.level&&p.level.indexOf('L1')===0)notes.push('成熟度'+p.level+'，运营思路待升级');
+    if(!DASH_PUBLIC&&p.level&&p.level.indexOf('L1')===0)notes.push('成熟度'+p.level+'，运营思路待升级');
     if(notes.length){
       const pb=base&&base[s]?base[s].par[1]:0;
       warn.push({s,notes,par7:pb,ref:dashRef(s)});
@@ -1749,8 +1848,9 @@ function dashView(v){
   if(v==='rank'&&!document.getElementById('dashRank').innerHTML)dashRankView();
   if(v==='weak'&&!document.getElementById('dashWeak').innerHTML)dashWeak();
 }
-function backDash(){document.getElementById('dashDetail').style.display='none';document.getElementById('dashGrid').style.display='block';document.getElementById('dashRank').style.display='block';document.getElementById('dashWeak').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+function backDash(){DASH_CUR_ST=null;document.getElementById('dashDetail').style.display='none';document.getElementById('dashGrid').style.display='block';document.getElementById('dashRank').style.display='block';document.getElementById('dashWeak').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
 function openStation(s){
+  DASH_CUR_ST=s;
   const cur=dCurData();
   const p=PROF[s]||{},sm=SEMI[s]||{};
   const lv=p.level||'—';
@@ -1804,20 +1904,25 @@ function openStation(s){
     h+='</div><div class="dash-note">'+(prev?'■ '+prevM+'月　':'')+'■ '+curM+'月</div>';
     return h;
   }();
+  const subTxt=DASH_PUBLIC?'扬帆计划社会实践营 · 数据看板':((p.owner||'')+' 负责 · '+(p.exp||''));
+  const badgeTxt=DASH_PUBLIC?'':'<div class="badge">成熟度 '+(lv||'未标注')+'</div>';
+  const profBlock=DASH_PUBLIC
+    ? '<div class="dd-panel"><h3>负责人信息</h3><p class="muted">对外视图已隐藏各站负责人姓名、岗位与画像。内部使用请点顶部开关切「管理视图」。</p></div>'
+    : '<div class="dd-panel"><h3>负责人画像</h3>'
+      +'<div class="prow"><span class="k">负责人</span><span class="v">'+(p.owner||'—')+'</span></div>'
+      +'<div class="prow"><span class="k">本职岗位</span><span class="v">'+(p.post||'—')+'</span></div>'
+      +'<div class="prow"><span class="k">项目经验</span><span class="v">'+(p.exp||'—')+'</span></div>'
+      +'<div class="prow"><span class="k">成熟度档</span><span class="v">'+(lv==='—'?'未标注':lv)+'</span></div>'
+      +'<div class="tags">'+(tags||'<span>—</span>')+'</div>'
+      +'<p class="muted" style="margin-top:10px">'+dashEsc(p.note||'')+'</p></div>';
+  const semiBlock=DASH_PUBLIC
+    ? '<div class="dd-panel"><h3>半年度会议要点</h3><p class="muted">对外视图不展示半年度内部会议要点。</p></div>'
+    : '<div class="dd-panel"><h3>半年度会议要点</h3>'+d6+d7+d8+'</div>';
   document.getElementById('dashDetail').innerHTML=
     '<button class="back" onclick="backDash()">← 返回总览</button>'
-    +'<div class="dd-head"><div><div class="t">'+s+'浆站 · 扬帆数据看板</div><div class="sub">'+(p.owner||'')+' 负责 · '+(p.exp||'')+'</div></div><div class="badge">成熟度 '+(lv||'未标注')+'</div></div>'
+    +'<div class="dd-head"><div><div class="t">'+s+'浆站 · 扬帆数据看板</div><div class="sub">'+subTxt+'</div></div>'+badgeTxt+'</div>'
     +'<div class="dd-cols">'
-    +'<div>'
-    +'<div class="dd-panel"><h3>负责人画像</h3>'
-    +'<div class="prow"><span class="k">负责人</span><span class="v">'+(p.owner||'—')+'</span></div>'
-    +'<div class="prow"><span class="k">本职岗位</span><span class="v">'+(p.post||'—')+'</span></div>'
-    +'<div class="prow"><span class="k">项目经验</span><span class="v">'+(p.exp||'—')+'</span></div>'
-    +'<div class="prow"><span class="k">成熟度档</span><span class="v">'+(lv==='—'?'未标注':lv)+'</span></div>'
-    +'<div class="tags">'+(tags||'<span>—</span>')+'</div>'
-    +'<p class="muted" style="margin-top:10px">'+dashEsc(p.note||'')+'</p></div>'
-    +'<div class="dd-panel"><h3>半年度会议要点</h3>'+d6+d7+d8+'</div>'
-    +'</div>'
+    +'<div>'+profBlock+semiBlock+'</div>'
     +'<div>'
     +'<div class="dd-panel"><h3>'+(prev?prevM+'月 vs '+curM+'月':'')+'数据汇总'+(prev?'':'（'+curM+'月）')+'</h3>'+cmpTbl+'<div style="margin-top:12px">'+cmpSvg+'</div></div>'
     +'<div class="dd-panel"><h3>针对性分析</h3>'+anaHtml
@@ -1877,10 +1982,10 @@ function analyze(s){
   }
   // 画像结合
   const lv=p.level||'';
-  if(lv.indexOf('L1')===0)A.push({cls:'tg-pro',tag:'画像',text:'负责人'+(p.owner||'')+'为<b>成熟度'+lv+'</b>，运营思维还在起步段。建议先按「一条线工具包」把四层穿透跑一遍，再看哪层断了，而不是先扩量。'});
+  if(!DASH_PUBLIC&&lv.indexOf('L1')===0)A.push({cls:'tg-pro',tag:'画像',text:'负责人'+(p.owner||'')+'为<b>成熟度'+lv+'</b>，运营思维还在起步段。建议先按「一条线工具包」把四层穿透跑一遍，再看哪层断了，而不是先扩量。'});
   const tags=p.tags||[];
-  if(tags.indexOf('创新')>=0)A.push({cls:'tg-pro',tag:'画像',text:'负责人带<b>创新基因</b>（'+dashEsc(p.owner||'')+'），站内已有特色做法，缺的是把创新沉淀成可复制的方法。'});
-  if(tags.indexOf('谨慎')>=0)A.push({cls:'tg-pro',tag:'画像',text:'该站<b>受外部环境约束偏谨慎</b>（政府关系/舆情顾虑），扩量动作受限属正常，重点是守好口碑、做深家长端。'});
+  if(!DASH_PUBLIC&&tags.indexOf('创新')>=0)A.push({cls:'tg-pro',tag:'画像',text:'负责人带<b>创新基因</b>（'+dashEsc(p.owner||'')+'），站内已有特色做法，缺的是把创新沉淀成可复制的方法。'});
+  if(!DASH_PUBLIC&&tags.indexOf('谨慎')>=0)A.push({cls:'tg-pro',tag:'画像',text:'该站<b>受外部环境约束偏谨慎</b>（政府关系/舆情顾虑），扩量动作受限属正常，重点是守好口碑、做深家长端。'});
   // 半年度
   if(sm.weak)A.push({cls:'tg-semi',tag:'半年度',text:dashEsc(sm.weak)+'。'});
   if(sm.q3&&sm.q3!==sm.weak)A.push({cls:'tg-semi',tag:'Q3',text:dashEsc(sm.q3)+'。'});
@@ -1914,6 +2019,7 @@ function setMonth(m){
   DASH_CUR=m;
   renderMonthSwitch();
   dashKpi();dashGrid();dashRankView();
+  renderDashCharts();
   const active=document.querySelector('.dtab.active');
   if(active){const txt=active.textContent;if(txt.indexOf('盯')>=0)dashWeak();}
 }
@@ -1932,6 +2038,7 @@ function initDash(){
   DASH_CUR=dLatest()||'all';
   renderMonthSwitch();
   dashKpi();dashGrid();
+  applyDashView();renderDashCharts();
 }
 
 /* ============ 数据看板上传接口（半自动：本机解析，不连服务器） ============ */
@@ -2367,7 +2474,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
   try{localStorage.setItem('yangfan_lasttab',b.dataset.tab);}catch(e){}});
 (function(){var t='dash';try{var s=localStorage.getItem('yangfan_lasttab');if(s)t=s;}catch(e){}applyTab(t);})();
-if(document.getElementById('toc')){buildToc();showMod('why');}buildFaq();startBot();initDash();detectMode();fbInit();pinTools();toolFilter();
+if(document.getElementById('toc')){buildToc();showMod('why');}buildFaq();startBot();loadDashView();initDash();detectMode();fbInit();pinTools();toolFilter();
 
 /* ============ 登录门禁（密码 yf2026） ============ */
 (function(){

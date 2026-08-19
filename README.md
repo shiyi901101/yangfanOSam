@@ -39,8 +39,9 @@
    git remote add origin https://github.com/<你的用户名>/<仓库名>.git
    git push -u origin main
    ```
+
 3. 仓库 → **Settings → Pages** → Source 选 `Deploy from a branch` → Branch 选 `main` / 目录选 `/（root）` → Save。
-4. 等 1 分钟左右，访问：`https://<你的用户名>.github.io/<仓库名>/`
+4. 等 1 分钟左右，访问：`https://<你的用户名>.github.io/<仓库名>/`  
    入口页会自动跳进主平台。
 
 之后要更新内容：改完源文件 → 把新文件拷回本目录 → `git add -A && git commit -m "更新说明" && git push` 即可。
