@@ -3070,23 +3070,44 @@ async function kbPickFile(input){
     } else if(/\.(docx|pdf)$/.test(name)){
       var scope=document.getElementById('kbScope')?document.getElementById('kbScope').value:'全站';
       var type=document.getElementById('kbType')?document.getElementById('kbType').value:'业务知识';
-      if(info) info.textContent='获取直传通道…';
-      var sign=await yfApi('/file/sign','POST',{filename:f.name});
-      if(!sign||!sign.ok){ if(info) info.textContent='上传通道获取失败：'+((sign&&sign.error)||'未知错误'); return; }
-      if(info) info.textContent='直传文件中（'+Math.round(f.size/1024)+'KB）…';
-      var form=new FormData();
-      form.append('Signature', sign.authorization);
-      form.append('x-cos-security-token', sign.token);
-      form.append('x-cos-meta-fileid', sign.cosFileId);
-      form.append('key', sign.cloudPath);
-      form.append('file', f, f.name);
-      var up=await fetch(sign.url,{method:'POST',body:form});
-      var upTxt=await up.text();
-      if(!up.ok || (upTxt&&upTxt.indexOf('<Error>')>=0)){ if(info) info.textContent='文件直传失败（可能浏览器跨域被拦）：'+upTxt.slice(0,160); return; }
-      if(info) info.textContent='解析并入库…';
-      var j=await yfApi('/kb/ingest','POST',{filename:f.name,fileID:sign.fileID,scope:scope,type:type});
-      if(j&&j.ok){ if(info) info.textContent='✓ 已从「'+f.name+'」解析并存入共享大脑 '+j.count+' 条知识（标题：《'+(j.title||'')+'》）'; loadKbList(); }
-      else { if(info) info.textContent='解析失败：'+((j&&j.error)||'未知错误'); }
+      /* 策略：先尝试 COS 直传（大文件友好）；失败则自动降级为 base64 直传云函数（≤4MB） */
+      var useFallback=false;
+      if(info) info.textContent='获取上传通道…';
+      try{
+        var sign=await yfApi('/file/sign','POST',{filename:f.name});
+        if(sign&&sign.ok){
+          if(info) info.textContent='直传文件中（'+Math.round(f.size/1024)+'KB）…';
+          var form=new FormData();
+          form.append('Signature', sign.authorization);
+          form.append('x-cos-security-token', sign.token);
+          form.append('x-cos-meta-fileid', sign.cosFileId);
+          form.append('key', sign.cloudPath);
+          form.append('file', f, f.name);
+          var up=await fetch(sign.url,{method:'POST',body:form});
+          var upTxt=await up.text();
+          if(up.ok&&!(upTxt&&upTxt.indexOf('<Error>')>=0)){
+            /* COS 直传成功 → 走 fileID 入库 */
+            if(info) info.textContent='解析并入库…';
+            var j=await yfApi('/kb/ingest','POST',{filename:f.name,fileID:sign.fileID,scope:scope,type:type});
+            if(j&&j.ok){ if(info) info.textContent='✓ 已从「'+f.name+'」解析并存入共享大脑 '+j.count+' 条知识（标题：《'+(j.title||'')+'》）'; loadKbList(); return; }
+            else{ if(info) info.textContent='解析失败：'+((j&&j.error)||'未知错误'); return; }
+          }
+          /* COS 返回错误 → 标记走降级 */
+          useFallback=true;
+        }else{ useFallback=true; }
+      }catch(cosErr){ useFallback=true; }
+      /* 降级通道：base64 直传云函数（适合 ≤4MB 的 PDF/docx） */
+      if(useFallback){
+        var sizeMB=f.size/1048576;
+        if(sizeMB>4){ if(info) info.textContent='文件过大（'+sizeMB.toFixed(1)+'MB），直传通道不可用。建议转为 txt 格式或联系管理员配置存储跨域规则。'; return; }
+        if(info) info.textContent='直传通道不可用，改用本地传输（'+Math.round(f.size/1024)+'KB）…';
+        var b64=await fileToBase64(f);
+        if(!b64){ if(info) info.textContent='文件读取失败（可能浏览器不支持）'; return; }
+        if(info) info.textContent='解析并入库…';
+        var j2=await yfApi('/kb/ingest','POST',{filename:f.name,data:b64,scope:scope,type:type});
+        if(j2&&j2.ok){ if(info) info.textContent='✓ 已从「'+f.name+'」解析并存入共享大脑 '+j2.count+' 条知识（标题：《'+(j2.title||'')+'》）'; loadKbList(); }
+        else{ if(info) info.textContent='解析失败：'+((j2&&j2.error)||'未知错误'); }
+      }
     } else {
       if(info) info.textContent='暂不支持该格式，请用 txt / md / csv / docx / pdf';
     }
