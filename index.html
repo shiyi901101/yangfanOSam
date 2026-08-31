@@ -304,6 +304,12 @@ function b64dec(s){try{return decodeURIComponent(escape(atob(s)))}catch(e){retur
   .msg.bot strong{color:#111827;font-weight:700}
   .msg.bot em{color:#4b5563;font-style:italic}
   .msg.full{background:#fff;border:1px solid var(--line);max-width:100%;white-space:pre-wrap}
+  .bot-reason{margin:2px 0 8px;font-size:12.5px;color:#64748b;background:linear-gradient(135deg,#fafbff,#f1f5fb);border:1px solid rgba(43,124,211,.16);border-left:3px solid var(--blue-400);border-radius:10px;overflow:hidden}
+  .bot-reason .br-head{display:flex;align-items:center;gap:6px;padding:7px 12px;cursor:pointer;user-select:none;font-weight:600;color:var(--blue-700)}
+  .bot-reason .br-head .br-caret{display:inline-block;transition:transform .2s;font-size:10px;color:var(--blue-500)}
+  .bot-reason.open .br-head .br-caret{transform:rotate(90deg)}
+  .bot-reason .br-body{display:none;padding:0 12px 10px;white-space:pre-wrap;line-height:1.7;color:#475569;max-height:260px;overflow:auto;border-top:1px dashed rgba(43,124,211,.2)}
+  .bot-reason.open .br-body{display:block}
   .bubble-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
   .bubble{border:1px solid var(--blue-300);background:#fff;color:var(--blue-700);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:13px;font-family:inherit}
   .bubble:hover{background:var(--ice)}
@@ -2881,7 +2887,7 @@ function inlineFmt(t){
 function mdCopy(btn){
   try{ var pre=btn.parentNode.parentNode.querySelector('code'); var t=pre?pre.textContent:''; if(navigator.clipboard) navigator.clipboard.writeText(t); btn.textContent='已复制'; setTimeout(function(){btn.textContent='复制';},1500);}catch(e){ btn.textContent='复制失败'; }
 }
-function pushMsg(text,cls){
+function pushMsg(text,cls,reasoning){
   const c=document.getElementById('chat'); if(!c)return;
   const d=document.createElement('div');
   d.className='msg '+(cls||'bot');
@@ -2889,7 +2895,15 @@ function pushMsg(text,cls){
     d.innerHTML='<div class="m-av">我</div><div class="m-body"></div>';
     d.querySelector('.m-body').textContent=text;
   } else {
-    d.innerHTML='<div class="m-av">智</div><div class="m-body">'+fmtBotText(text)+'</div>';
+    let html='<div class="m-av">智</div><div class="m-body">';
+    if(reasoning && reasoning.trim()){
+      const safe=reasoning.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      html+='<div class="bot-reason"><div class="br-head"><span class="br-caret">▸</span>💭 智子思考过程</div><div class="br-body">'+safe+'</div></div>';
+    }
+    html+='<div class="bot-answer">'+fmtBotText(text)+'</div></div>';
+    d.innerHTML=html;
+    const br=d.querySelector('.bot-reason');
+    if(br){ br.querySelector('.br-head').addEventListener('click',function(){ br.classList.toggle('open'); if(c) c.scrollTop=c.scrollHeight; }); }
   }
   c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
@@ -2904,8 +2918,9 @@ async function sendFree(){
     var cloudOn=(typeof YF_CLOUD!=='undefined' && YF_CLOUD.enabled);
     if(cloudOn || (BOT_LLM.apiKey && BOT_LLM.apiKey!=='YOUR_ZHIPU_API_KEY_HERE')){
       try{
-        const reply=await callLLM(botHistory);
-        if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot'); return; }
+        const res=await callLLM(botHistory);
+        const reply=res.content;
+        if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); return; }
       }catch(e){console.warn('LLM调用失败:',e.message);}
     }
     clearThinking(); pushMsg('（未接大模型，以下为本地知识库回答）\n'+askKB(q,botHistory),'bot');
@@ -2921,10 +2936,12 @@ function pushThinking(){
 function clearThinking(){ var t=document.getElementById('botTyping'); if(t)t.remove(); }
 async function callLLM(messages){
   const p=BOT_LLM.provider;
-  if(p==='gemini')return callGemini(messages);
-  if(p==='zhipu')return callZhipu(messages);
-  if(p==='groq'||p==='openrouter')return callOpenAICompat(messages);
-  throw new Error('未知LLM提供商:'+p);
+  if(p==='zhipu'){ return await callZhipu(messages); }
+  let text;
+  if(p==='gemini') text=await callGemini(messages);
+  else if(p==='groq'||p==='openrouter') text=await callOpenAICompat(messages);
+  else throw new Error('未知LLM提供商:'+p);
+  return {content:text||'', reasoning:''};
 }
 
 /* Gemini API 调用（Google AI Studio 免费版） */
@@ -2971,7 +2988,7 @@ async function callZhipu(messages){
   // 有云函数则走代理；无云函数（纯本地调试）才直连
   if(window.YF_API_URL && window.YF_API_URL.trim()){
     const j=await yfApi('/chat','POST',{messages:messages, system:BOT_SYSTEM});
-    if(j && j.ok && j.reply) return j.reply;
+    if(j && j.ok && j.reply) return {content:j.reply, reasoning:j.reasoning||''};
     throw new Error((j&&j.error)||'chat_proxy_failed');
   }
   const url='https://open.bigmodel.cn/api/paas/v4/chat/completions';
@@ -2981,12 +2998,15 @@ async function callZhipu(messages){
     body:JSON.stringify({
       model:BOT_LLM.model,
       messages:[{role:'system',content:BOT_SYSTEM}].concat(messages),
-      temperature:0.7,max_tokens:1024
+      temperature:0.7,max_tokens:2048
     })
   });
   if(!r.ok)throw new Error('智谱 HTTP '+r.status);
   const j=await r.json();
-  return j.choices&&j.choices[0]&&j.choices[0].message?j.choices[0].message.content:null;
+  const m=j.choices&&j.choices[0]&&j.choices[0].message;
+  let content=(m&&m.content)||''; let reasoning=(m&&m.reasoning_content)||'';
+  if(!reasoning && content){ const mt=content.match(/<think>([\s\S]*?)<\/think>/i); if(mt){ reasoning=mt[1].trim(); content=content.replace(/<think>[\s\S]*?<\/think>/i,'').trim(); } }
+  return {content:content, reasoning:reasoning};
 }
 /* ============ 教智子 · 共享知识库（全站共建大脑的统一喂养口） ============ */
 function openKbModal(){
