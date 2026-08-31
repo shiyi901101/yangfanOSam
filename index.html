@@ -2932,13 +2932,13 @@ async function sendFree(){
           if(attempt>0){ await new Promise(function(r){setTimeout(r,800);}); pushThinking(); }
           const res=await callLLM(botHistory);
           const reply=res.content;
-          if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); return; }
+          if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); if(res.provider) botSetProvider(res.provider); return; }
           lastErr='模型返回空回答';
         }catch(e){ lastErr=e.message||String(e); }
       }
       /* 两次都失败 → 降级到本地知识库，但显示原因 */
       console.warn('LLM调用失败（已重试）:',lastErr);
-      clearThinking(); pushMsg('（⚠️ 推理大脑暂时不可能：'+lastErr.slice(0,80)+'，以下为本地知识库兜底回答）\n'+askKB(q,botHistory),'bot');
+      clearThinking(); pushMsg('（⚠️ 推理大脑暂时不可用：'+lastErr.slice(0,90)+'，已切换本地知识库兜底。如持续出现，稍等约半分钟再试）\n'+askKB(q,botHistory),'bot');
       return;
     }
     clearThinking(); pushMsg('（未接大模型，以下为本地知识库回答）\n'+askKB(q,botHistory),'bot');
@@ -3006,8 +3006,8 @@ async function callZhipu(messages){
   // 有云函数则走代理；无云函数（纯本地调试）才直连
   if(window.YF_API_URL && window.YF_API_URL.trim()){
     const j=await yfApi('/chat','POST',{messages:messages, system:BOT_SYSTEM});
-    if(j && j.ok && j.reply) return {content:j.reply, reasoning:j.reasoning||''};
-    throw new Error((j&&j.error)||'chat_proxy_failed');
+    if(j && j.ok && j.reply) return {content:j.reply, reasoning:j.reasoning||'', provider:j.provider||'zhipu'};
+    throw new Error((j&&(j.msg||j.error))||'chat_proxy_failed');
   }
   const url='https://open.bigmodel.cn/api/paas/v4/chat/completions';
   const r=await fetch(url,{
@@ -3313,6 +3313,12 @@ async function detectMode(){const b=document.getElementById('botMode');
   if(cloudOn){b.textContent='大模型已连接 · 智谱GLM（云端代理）';b.className='mode-badge live';}
   else if(localKey){b.textContent='大模型已连接 · 智谱GLM（本地Key）';b.className='mode-badge live';}
   else{b.textContent='分支引导模式（未配置API Key）';b.className='mode-badge';}}
+/* 根据云端实际使用的模型更新徽标（DeepSeek 深度思考 / 智谱 兜底） */
+function botSetProvider(p){
+  var b=document.getElementById('botMode'); if(!b)return;
+  if(p==='deepseek'){b.textContent='大模型已连接 · DeepSeek 深度思考（云端）';b.className='mode-badge live';}
+  else{b.textContent='大模型已连接 · 智谱GLM（云端代理）';b.className='mode-badge live';}
+}
 /* ===== 模型 Key 界面配置（存 localStorage，免改代码） ===== */
 function loadBotKey(){try{return localStorage.getItem('yangfan_bot_key')||'';}catch(e){return '';}}
 function toggleBotKey(){const row=document.getElementById('botKeyRow');const show=(row.style.display==='none');row.style.display=show?'flex':'none';if(show){const inp=document.getElementById('botKeyInput');inp.value=loadBotKey();document.getElementById('botKeyMsg').textContent=loadBotKey()?'当前已保存，可覆盖':'去 open.bigmodel.cn 免费申请 Key（glm-4-flash）后粘贴';}}
