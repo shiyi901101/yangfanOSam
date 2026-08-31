@@ -2723,8 +2723,8 @@ var YF_CLOUD=(function(){
   return {enabled:en,pushForum:pushForum,pullForum:pullForum};
 })();
 
-/* 智子系统提示词：让模型了解扬帆计划上下文 */
-const BOT_SYSTEM=`你是"智子"，扬帆计划的训战机器人。你的角色是帮助浆站项目负责人快速上手、解决运营问题。
+/* 智子系统提示词：让模型了解扬帆计划上下文 + 强调推理能力 */
+const BOT_SYSTEM=`你是"智子"，扬帆计划的AI训战助手。你具备深度推理能力——遇到问题先分析根因、再给方案，不是简单复述资料。
 
 【扬帆计划背景】
 - 同路生物制药旗下血浆站的青年学生社会实践项目，每年6-8月落地
@@ -2740,17 +2740,11 @@ const BOT_SYSTEM=`你是"智子"，扬帆计划的训战机器人。你的角色
 5. 积分激励：积分+现金双轨，提升参与积极性
 6. 结营验收：青春答卷+成长记录+数据漏斗量化成效
 
-【管理方法论】
-- PMP项目管理五大过程组（启动/规划/执行/监控/收尾）
-- 敏捷迭代（每日站会+定期回顾）
-- 干系人管理（分层沟通+常态触达）
-- 风险管理（识别-分析-应对-监控）
-
 【回答风格】
-- 直接给 actionable 建议，不要空泛理论
-- 结合真实场景和案例（如怀远小组长制、五河义卖、凤台统一采购）
-- 数据驱动，用数字说话
-- 如果问题超出知识范围，诚实说明并建议查询方向`;
+- 先理解问题本质，再结合场景给出可执行建议
+- 用自己的话组织回答，不要照搬参考资料原文
+- 数据驱动，用数字说话；如果问题超出知识范围，诚实说明并建议查询方向
+- 像一个有经验的项目负责人在跟同事讨论，不要像搜索引擎`;
 
 const KB=[
  {cat:'运营',t:'新人第一周接手',kw:['第一周','接手','刚来','上手','新人','开始','怎么干','干什么','第一步'],a:'按启动过程组四步走：①读事业部年度策略＋本县工具包，弄清主线（招募＋培训＋家长穿透）；②画干系人矩阵（站长/部门/家长/学校）；③确认招募窗口还在不在（错过就要走进度赶工并向上预警）；④建家长群＋两层签署流程。别急着办活动，先把框架立住。参考怀远小组长制把执行角色定下来。'},
@@ -2917,11 +2911,21 @@ async function sendFree(){
   try{
     var cloudOn=(typeof YF_CLOUD!=='undefined' && YF_CLOUD.enabled);
     if(cloudOn || (BOT_LLM.apiKey && BOT_LLM.apiKey!=='YOUR_ZHIPU_API_KEY_HERE')){
-      try{
-        const res=await callLLM(botHistory);
-        const reply=res.content;
-        if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); return; }
-      }catch(e){console.warn('LLM调用失败:',e.message);}
+      var lastErr='';
+      /* 最多尝试2次（首次+重试），应对网络抖动/云函数冷启动 */
+      for(var attempt=0;attempt<2;attempt++){
+        try{
+          if(attempt>0){ await new Promise(function(r){setTimeout(r,800);}); pushThinking(); }
+          const res=await callLLM(botHistory);
+          const reply=res.content;
+          if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); return; }
+          lastErr='模型返回空回答';
+        }catch(e){ lastErr=e.message||String(e); }
+      }
+      /* 两次都失败 → 降级到本地知识库，但显示原因 */
+      console.warn('LLM调用失败（已重试）:',lastErr);
+      clearThinking(); pushMsg('（⚠️ 推理大脑暂时不可能：'+lastErr.slice(0,80)+'，以下为本地知识库兜底回答）\n'+askKB(q,botHistory),'bot');
+      return;
     }
     clearThinking(); pushMsg('（未接大模型，以下为本地知识库回答）\n'+askKB(q,botHistory),'bot');
   }catch(e){ clearThinking(); pushMsg('（出错了）'+String(e&&e.message||e),'bot'); }
