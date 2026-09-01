@@ -1504,8 +1504,10 @@ function b64dec(s){try{return decodeURIComponent(escape(atob(s)))}catch(e){retur
       <div class="progress"><i id="botProg"></i></div>
       <div class="bubble-row" id="botBubbles"></div>
       <div class="chat-input">
-        <input id="botFree" placeholder="直接问，例如：今年目标怎么定？家长活动怎么设计？怀远怎么做？" onkeydown="if(event.key==='Enter'){event.preventDefault();sendFree()}">
+        <input id="botFree" placeholder="直接问，或说「生成一张XX表 / 写一份XX方案」让智子出文件" onkeydown="if(event.key==='Enter'){event.preventDefault();sendFree()}">
         <button class="btn" onclick="sendFree()">发送</button>
+        <button class="btn ghost" title="让智子生成 Excel 表格" onclick="genXLSX()">📊 表格</button>
+        <button class="btn ghost" title="让智子生成 Word 文档" onclick="genDOCX()">📄 文档</button>
       </div>
       <div class="bot-actions">
         <button class="btn ghost" onclick="openKbModal()">教智子（提交知识）</button>
@@ -1976,6 +1978,63 @@ function exportXLSX(name,sheets){
     try{const wb=XLSX.utils.book_new();sheets.forEach(s=>XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s.rows),s.name));XLSX.writeFile(wb,name);return true;}catch(e){}
   }
   downloadBlob(minimalXLSX(sheets),name);return false;
+}
+
+/* ============ 智子离线 Word(.docx) 生成器：纯手写 ZIP+XML，零依赖、断网可用 ============ */
+function _crc32(bytes){
+  var table=_crc32.t||(_crc32.t=(function(){var t=[],n,k,c;for(n=0;n<256;n++){c=n;for(k=0;k<8;k++){c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);}t[n]=c>>>0;}return t;})());
+  var crc=0xFFFFFFFF;for(var i=0;i<bytes.length;i++){crc=(crc>>>8)^table[(crc^bytes[i])&0xFF];}return (crc^0xFFFFFFFF)>>>0;
+}
+function _u8(s){return new TextEncoder().encode(s);}
+function genDocx(f){
+  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function para(text,style){
+    text=(text||'').replace(/\r/g,'');
+    var lines=String(text).split('\n'),out='';
+    for(var i=0;i<lines.length;i++){
+      if(style)out+='<w:p><w:pPr><w:pStyle w:val="'+style+'"/></w:pPr><w:r><w:t xml:space="preserve">'+esc(lines[i])+'</w:t></w:r></w:p>';
+      else out+='<w:p><w:r><w:t xml:space="preserve">'+esc(lines[i])+'</w:t></w:r></w:p>';
+    }
+    return out;
+  }
+  var body='';
+  body+=para(f.title||'扬帆计划文档','Title');
+  (f.sections||[]).forEach(function(s){ if(s.h&&s.h.trim())body+=para(s.h,'Heading1'); body+=para(s.body||'',null); });
+  var documentXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+body+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>';
+  var stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Calibri" w:eastAsia="宋体" w:hAnsi="Calibri"/><w:sz w:val="21"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:rPr><w:b/><w:sz w:val="32"/><w:color w:val="0D2C4D"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:rPr><w:b/><w:sz w:val="40"/><w:color w:val="2B7CD3"/></w:rPr></w:style></w:styles>';
+  var contentTypes='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>';
+  var rootRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>';
+  var docRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+  var now=new Date().toISOString();
+  var coreXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(f.title||'扬帆计划文档')+'</dc:title><dc:creator>智子</dc:creator><cp:lastModifiedBy>智子</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">'+now+'</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">'+now+'</dcterms:modified></cp:coreProperties>';
+  var appXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>扬帆OS 智子</Application></Properties>';
+  var files=[
+    {name:'[Content_Types].xml',data:_u8(contentTypes)},
+    {name:'_rels/.rels',data:_u8(rootRels)},
+    {name:'word/document.xml',data:_u8(documentXml)},
+    {name:'word/_rels/document.xml.rels',data:_u8(docRels)},
+    {name:'word/styles.xml',data:_u8(stylesXml)},
+    {name:'docProps/core.xml',data:_u8(coreXml)},
+    {name:'docProps/app.xml',data:_u8(appXml)}
+  ];
+  var chunks=[],central=[],offset=0;
+  files.forEach(function(fl){
+    var nameBytes=_u8(fl.name),crc=_crc32(fl.data),size=fl.data.length;
+    var lh=new Uint8Array(30+nameBytes.length),dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0,true);dv.setUint16(8,0,true);dv.setUint16(10,0,true);dv.setUint16(12,0x21,true);
+    dv.setUint32(14,crc,true);dv.setUint32(18,size,true);dv.setUint32(22,size,true);dv.setUint16(26,nameBytes.length,true);dv.setUint16(28,0,true);lh.set(nameBytes,30);
+    chunks.push(lh);chunks.push(fl.data);
+    var ch=new Uint8Array(46+nameBytes.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0x21,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,size,true);cv.setUint32(24,size,true);cv.setUint16(28,nameBytes.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);cv.setUint32(42,offset,true);ch.set(nameBytes,46);
+    central.push(ch);offset+=lh.length+fl.data.length;
+  });
+  var centralSize=central.reduce(function(a,c){return a+c.length;},0),centralOffset=offset;
+  var eo=new Uint8Array(22),ev=new DataView(eo.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);ev.setUint32(12,centralSize,true);ev.setUint32(16,centralOffset,true);ev.setUint16(20,0,true);
+  var all=chunks.concat(central,[eo]),total=all.reduce(function(a,c){return a+c.length;},0),out=new Uint8Array(total),p=0;
+  all.forEach(function(c){out.set(c,p);p+=c.length;});
+  return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 }
 
 /* ============ 学习系统数据（图书式 + 深度 + 敏捷管理） ============ */
@@ -2917,14 +2976,34 @@ function pushMsg(text,cls,reasoning){
 }
 async function sendFree(){
   const inp=document.getElementById('botFree');
-  const q=inp.value.trim();if(!q)return;
+  const q=(inp.value||'').trim();if(!q)return;
+  const force=GEN_FORCE; GEN_FORCE=null;
   inp.value='';pushMsg(q,'me');
   botHistory.push({role:'user',content:q});
   if(botHistory.length>12)botHistory=botHistory.slice(-12);
+  var cloudOn=(typeof YF_CLOUD!=='undefined' && YF_CLOUD.enabled);
+  var localKey=BOT_LLM.apiKey && BOT_LLM.apiKey!=='YOUR_ZHIPU_API_KEY_HERE';
+  /* 文件生成分支：检测到生成意图或点了「表格/文档」按钮，且已连云端/本地Key */
+  if((force || isGenIntent(q)) && (cloudOn||localKey)){
+    pushThinking();
+    try{
+      const res=await callGenerate(botHistory, force);
+      clearThinking();
+      renderFileBubble(res.file);
+      if(res.provider) botSetProvider(res.provider);
+      const label=res.file.type==='xlsx'?(res.file.name||'扬帆表格'):(res.file.title||res.file.name||'扬帆文档');
+      botHistory.push({role:'assistant',content:'（已生成文件：'+label+'）'});
+      return;
+    }catch(e){
+      clearThinking();
+      pushMsg('（⚠️ 文件生成失败：'+((e&&e.message)||String(e)).slice(0,90)+'，可换种问法或稍后重试）','bot');
+      return;
+    }
+  }
+  /* 普通对话分支（原有逻辑） */
   pushThinking();
   try{
-    var cloudOn=(typeof YF_CLOUD!=='undefined' && YF_CLOUD.enabled);
-    if(cloudOn || (BOT_LLM.apiKey && BOT_LLM.apiKey!=='YOUR_ZHIPU_API_KEY_HERE')){
+    if(cloudOn || localKey){
       var lastErr='';
       /* 最多尝试2次（首次+重试），应对网络抖动/云函数冷启动 */
       for(var attempt=0;attempt<2;attempt++){
@@ -3026,6 +3105,44 @@ async function callZhipu(messages){
   if(!reasoning && content){ const mt=content.match(/<think>([\s\S]*?)<\/think>/i); if(mt){ reasoning=mt[1].trim(); content=content.replace(/<think>[\s\S]*?<\/think>/i,'').trim(); } }
   return {content:content, reasoning:reasoning};
 }
+/* ============ 智子对话即出文件：生成意图识别 + 云端 /generate 路由 + 文件气泡 ============ */
+function isGenIntent(q){
+  if(/xlsx|docx|\.xls|Excel|Word/i.test(q)) return true;
+  if(/(生成|导出|输出|制作|拟|起草|帮我(做|生成|写|列|出)|做(一|个|张|份|条)?(表|名单|台账|文档|方案|报告|说明|通知|纪要)|列(一|个|张|份)?(表|名单|台账)|写(一|个|张|份)?(文档|方案|报告|说明|通知|总结|纪要)|一份(表|名单|台账|文档|方案|报告|说明|通知))/i.test(q)) return true;
+  return false;
+}
+async function callGenerate(messages, kind){
+  if(window.YF_API_URL && window.YF_API_URL.trim()){
+    const j=await yfApi('/generate','POST',{messages:messages, kind:kind||''});
+    if(j && j.ok && j.file) return {file:j.file, provider:j.provider||'deepseek'};
+    if(j && j.msg) throw new Error(j.msg);
+    throw new Error((j&&(j.error||j.msg))||'generate_failed');
+  }
+  throw new Error('未连接云端，无法生成文件');
+}
+function renderFileBubble(file){
+  var c=document.getElementById('chat'); if(!c)return;
+  var d=document.createElement('div'); d.className='msg bot'; d._file=file;
+  var label=file.type==='xlsx'?(file.name||'扬帆表格'):(file.title||file.name||'扬帆文档');
+  var safe=String(label).replace(/[<>&]/g,function(m){return m==='<'?'&lt;':m==='>'?'&gt;':'&amp;';});
+  var note=file.type==='xlsx'?((file.sheets?file.sheets.length:0)+' 个工作表 · 可直接导入腾讯文档在线表格'):'Word 文档 · 可直接用 WPS/Word 打开';
+  var btn=file.type==='xlsx'?'<button class="btn" onclick="dlXlsxFromBubble(this)">⬇ 下载 Excel</button>':'<button class="btn" onclick="dlDocxFromBubble(this)">⬇ 下载 Word</button>';
+  d.innerHTML='<div class="m-av">智</div><div class="m-body"><div class="bot-answer">已为你生成'+note+'：<b>'+safe+'</b></div>'+btn+'</div>';
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+function dlXlsxFromBubble(btn){
+  var d=btn.parentNode.parentNode, f=d._file; if(!f)return;
+  var name=(f.name||'扬帆表格')+'.xlsx';
+  exportXLSX(name,(f.sheets||[]).map(function(s){return {name:s.name||'Sheet1', rows:[s.headers||[]].concat(s.rows||[])};}));
+}
+function dlDocxFromBubble(btn){
+  var d=btn.parentNode.parentNode, f=d._file; if(!f)return;
+  var name=(f.name||f.title||'扬帆文档')+'.docx';
+  downloadBlob(genDocx(f), name);
+}
+var GEN_FORCE=null;
+function genXLSX(){ GEN_FORCE='xlsx'; var i=document.getElementById('botFree'); if(i&&!i.value.trim()){ i.focus(); toast('先输入要生成的表格内容，例如：生成一张暑期值班排班表'); return; } sendFree(); }
+function genDOCX(){ GEN_FORCE='docx'; var i=document.getElementById('botFree'); if(i&&!i.value.trim()){ i.focus(); toast('先输入要生成的文档内容，例如：写一份家长座谈会方案'); return; } sendFree(); }
 /* ============ 教智子 · 共享知识库（全站共建大脑的统一喂养口） ============ */
 function openKbModal(){
   var m=document.getElementById('kbMask');
