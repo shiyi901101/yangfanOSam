@@ -2757,15 +2757,22 @@ var YF_CLOUD=(function(){
     return h;
   }
   function syncedIds(){try{return JSON.parse(localStorage.getItem('yf_forum_synced')||'[]');}catch(e){return [];}}
+  function dirtyIds(){try{return JSON.parse(localStorage.getItem('yf_forum_dirty')||'[]');}catch(e){return [];}}
   function markSynced(ids){try{localStorage.setItem('yf_forum_synced',JSON.stringify(ids));}catch(e){}}
+  function markDirty(id){if(!id)return;var d=dirtyIds();if(d.indexOf(id)<0){d.push(id);try{localStorage.setItem('yf_forum_dirty',JSON.stringify(d));}catch(e){}}}
+  function clearDirty(id){var d=dirtyIds();d=d.filter(function(x){return x!==id;});try{localStorage.setItem('yf_forum_dirty',JSON.stringify(d));}catch(e){}}
+  var _forumPollTimer=null;
   function pushForum(){
     if(!en()||typeof FB==='undefined'||!FB||!Array.isArray(FB.posts))return;
-    var done=syncedIds(),pend=[];
-    FB.posts.forEach(function(p){ if(p&&p.id&&done.indexOf(p.id)<0)pend.push(p); });
+    var done=syncedIds(),dirty=dirtyIds(),pend=[];
+    FB.posts.forEach(function(p){ if(p&&p.id&&(done.indexOf(p.id)<0||dirty.indexOf(p.id)>=0))pend.push(p); });
     if(!pend.length)return;
     pend.forEach(function(p){
-      fetch(window.YF_API_URL+'/data',{method:'POST',headers:hdr(),body:JSON.stringify({col:'forum_posts',doc:{_id:p.id,post:p,station:(typeof yfMyStation==='function'?yfMyStation():''),_created:Date.now()}})})
-        .then(function(){var d=done;if(d.indexOf(p.id)<0){d.push(p.id);markSynced(d);}}).catch(function(){});
+      fetch(window.YF_API_URL+'/data',{method:'POST',headers:hdr(),body:JSON.stringify({col:'forum_posts',doc:{_id:p.id,post:p,station:(typeof yfMyStation==='function'?yfMyStation():''),_updated:Date.now()}})})
+        .then(function(){
+          var d=done;if(d.indexOf(p.id)<0)d.push(p.id);markSynced(d);
+          clearDirty(p.id);
+        }).catch(function(){});
     });
   }
   function pullForum(){
@@ -2773,19 +2780,33 @@ var YF_CLOUD=(function(){
     fetch(window.YF_API_URL+'/data?col=forum_posts',{headers:hdr()}).then(function(r){return r.json();}).then(function(j){
       if(!j||!Array.isArray(j.rows))return;
       fbLoad();
-      var map={};FB.posts.forEach(function(p){if(p&&p.id)map[p.id]=1;});
-      var added=0;
-      j.rows.forEach(function(row){var p=row&&row.post;if(p&&p.id&&!map[p.id]){FB.posts.push(p);map[p.id]=1;added++;}});
-      if(added){
-        // 把从云端拉回的帖子标记为「已同步」，避免 pull→save→push 把同一帖重复写回云，造成云上无限累积
+      var map={};FB.posts.forEach(function(p){if(p&&p.id)map[p.id]=p;});
+      var added=0,merged=0;
+      j.rows.forEach(function(row){
+        var p=row&&row.post;if(!p||!p.id)return;
+        var local=map[p.id];
+        if(!local){FB.posts.push(p);map[p.id]=p;added++;}
+        else{
+          /* 增量合并：云端版本可能包含其他用户的新评论/点赞，以replies数量多的为准 */
+          var lc=(local.replies||[]).length,rc=(p.replies||[]).length;
+          if(rc>lc){local.replies=p.replies;local.likes=p.likes||0;local.liked=p.liked||false;local.hl=p.hl||0;merged++;}
+        }
+      });
+      if(added||merged){
         var d=syncedIds(),changed=false;
         j.rows.forEach(function(row){var p=row&&row.post;if(p&&p.id&&d.indexOf(p.id)<0){d.push(p.id);changed=true;}});
         if(changed)markSynced(d);
         fbSave();if(typeof fbList==='function')fbList();if(typeof fbChips==='function')fbChips();
+        /* 如果当前正在看某篇帖子详情，刷新它以显示新评论 */
+        if(merged&&typeof fbView!=='null'&&fbView&&typeof fbDetail==='function')fbDetail();
       }
     }).catch(function(){});
   }
-  return {enabled:en,pushForum:pushForum,pullForum:pullForum};
+  function startForumPoll(){
+    if(_forumPollTimer)clearInterval(_forumPollTimer);
+    _forumPollTimer=setInterval(function(){if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.pullForum)YF_CLOUD.pullForum();},45000);
+  }
+  return {enabled:en,pushForum:pushForum,pullForum:pullForum,markDirty:markDirty,startForumPoll:startForumPoll};
 })();
 
 /* 智子系统提示词：让模型了解扬帆计划上下文 + 强调推理能力 */
@@ -4599,14 +4620,14 @@ function fbReply(id){
   if(!who){document.getElementById('fbReplyWho').focus();return;}
   if(!v&&!_replyImages.length){document.getElementById('fbReplyIn').focus();return;}
   p.replies.push({author:who,body:v,time:Date.now(),images:_replyImages.slice()});
-  _replyImages=[];fbSave();toast('回复已发出');fbDetail();}
+  _replyImages=[];if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.markDirty)YF_CLOUD.markDirty(id);fbSave();toast('回复已发出');fbDetail();}
 function fbLike(id){
   const p=FB.posts.find(x=>x.id===id);if(!p)return;
   p.liked=!p.liked;p.likes+=(p.liked?1:-1);if(p.likes<0)p.likes=0;
-  fbSave();toast(p.liked?'已赞 👍':'已取消赞');fbDetail();}
+  if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.markDirty)YF_CLOUD.markDirty(id);fbSave();toast(p.liked?'已赞 👍':'已取消赞');fbDetail();}
 function fbSetHl(id,hl){
   const p=FB.posts.find(x=>x.id===id);if(!p)return;
-  p.hl=(p.hl===hl?0:hl);fbSave();toast(p.hl?(hl===1?'已设为精华':'已设为优秀'):'已取消标记');fbDetail();fbList();}
+  p.hl=(p.hl===hl?0:hl);if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.markDirty)YF_CLOUD.markDirty(id);fbSave();toast(p.hl?(hl===1?'已设为精华':'已设为优秀'):'已取消标记');fbDetail();fbList();}
 function fbRank(){
   const now=new Date();const y=now.getFullYear(),m=now.getMonth();
   const monthStart=new Date(y,m,1).getTime();const monthEnd=new Date(y,m+1,1).getTime();
@@ -5795,7 +5816,7 @@ function stuRenderCount(){
 }
 function stuInit(){stuListRender();stuFillChk();stuTodayRender();}
 
-function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined')YF_CLOUD.pullForum();}
+function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined'){YF_CLOUD.pullForum();if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll();}}
 
 /* ============ 通用交互增强（Toast / Loading / 搜索钉选 / 模块记忆） ============ */
 function toast(msg){
@@ -6988,7 +7009,7 @@ function yfEnter(user, tok){
   if(gate) gate.classList.add('hidden');
   if(out) out.style.display='block';
   yfFilterNav(); yfShowRole(); yfShowAcctBtn();
-  if(typeof YF_CLOUD!=='undefined' && YF_CLOUD.pullForum && typeof FB!=='undefined') YF_CLOUD.pullForum();
+  if(typeof YF_CLOUD!=='undefined' && YF_CLOUD.pullForum && typeof FB!=='undefined'){ YF_CLOUD.pullForum(); if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll(); }
   var h=document.getElementById('wbHello');
   if(h) h.textContent = yfIsStation() ? ('你好，'+yfMyStation()+'浆站负责人') : '你好，史毅（管理端）';
   var admin=document.getElementById('wbAdmin');
