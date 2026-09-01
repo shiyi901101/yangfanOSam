@@ -3310,9 +3310,14 @@ function askKB(q,hist){
 async function detectMode(){const b=document.getElementById('botMode');
   const cloudOn=(typeof YF_CLOUD!=='undefined' && YF_CLOUD.enabled);
   const localKey=BOT_LLM.apiKey && BOT_LLM.apiKey!=='YOUR_ZHIPU_API_KEY_HERE';
-  if(cloudOn){b.textContent='大模型已连接 · 智谱GLM（云端代理）';b.className='mode-badge live';}
+  if(cloudOn){b.textContent='大模型连接中 · 正在探测推理大脑…';b.className='mode-badge';}
   else if(localKey){b.textContent='大模型已连接 · 智谱GLM（本地Key）';b.className='mode-badge live';}
-  else{b.textContent='分支引导模式（未配置API Key）';b.className='mode-badge';}}
+  else{b.textContent='分支引导模式（未配置API Key）';b.className='mode-badge';}
+  // 加载即探测真实主模型：有 DeepSeek Key 就显示 DeepSeek，否则智谱兜底，避免默认占位误导
+  if(cloudOn && window.YF_API_URL){
+    yfApi('/status','GET').then(function(j){ if(j&&j.provider) botSetProvider(j.provider); }).catch(function(){});
+  }
+}
 /* 根据云端实际使用的模型更新徽标（DeepSeek 深度思考 / 智谱 兜底） */
 function botSetProvider(p){
   var b=document.getElementById('botMode'); if(!b)return;
@@ -6979,7 +6984,7 @@ function sbUpdateUser(){
 function yfSafe(name, fn){ try{ fn(); }catch(e){ try{ console.error('[扬帆OS] 模块「'+name+'」初始化失败：', e); }catch(_){} } }
 yfSafe('学习目录', function(){ if(document.getElementById('toc')){ buildToc(); showMod('why'); } });
 yfSafe('解惑FAQ', function(){ buildFaq(); });
-yfSafe('问答机器人', function(){ startBot(); restoreBotHistory(); });
+yfSafe('问答机器人', function(){ startBot(); restoreBotHistory(); detectMode(); });
 yfSafe('看板视图', function(){ loadDashView(); initDash(); detectMode(); });
 yfSafe('公告', function(){ annInit(); });
 yfSafe('反馈', function(){ fbInit(); });
