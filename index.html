@@ -310,6 +310,12 @@ function b64dec(s){try{return decodeURIComponent(escape(atob(s)))}catch(e){retur
   .bot-reason.open .br-head .br-caret{transform:rotate(90deg)}
   .bot-reason .br-body{display:none;padding:0 12px 10px;white-space:pre-wrap;line-height:1.7;color:#475569;max-height:260px;overflow:auto;border-top:1px dashed rgba(43,124,211,.2)}
   .bot-reason.open .br-body{display:block}
+  /* 智能文件建议卡（聊透后智子主动建议出文件） */
+  .gen-suggest-chip{display:flex;align-items:center;gap:8px;padding:10px 14px;margin-top:6px;background:linear-gradient(135deg,#f0f7ff,#e8f4fd);border:1px solid rgba(43,124,211,.22);border-radius:12px;cursor:pointer;transition:all .2s;user-select:none}
+  .gen-suggest-chip:hover{background:linear-gradient(135deg,#e0efff,#d4ebfd);border-color:var(--blue-400);box-shadow:0 2px 8px rgba(43,124,211,.15)}
+  .gen-suggest-chip .gs-icon{font-size:18px;flex-shrink:0}
+  .gen-suggest-chip .gs-text{font-size:13.5px;color:var(--blue-800);line-height:1.5;flex:1}
+  .gen-suggest-chip .gs-action{font-size:12.5px;color:var(--blue-600);font-weight:600;white-space:nowrap;flex-shrink:0}
   .bubble-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
   .bubble{border:1px solid var(--blue-300);background:#fff;color:var(--blue-700);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:13px;font-family:inherit}
   .bubble:hover{background:var(--ice)}
@@ -1504,10 +1510,10 @@ function b64dec(s){try{return decodeURIComponent(escape(atob(s)))}catch(e){retur
       <div class="progress"><i id="botProg"></i></div>
       <div class="bubble-row" id="botBubbles"></div>
       <div class="chat-input">
-        <input id="botFree" placeholder="直接问，或说「生成一张XX表 / 写一份XX方案」让智子出文件" onkeydown="if(event.key==='Enter'){event.preventDefault();sendFree()}">
+        <input id="botFree" placeholder="直接问智子，聊透了它会主动建议出文件" onkeydown="if(event.key==='Enter'){event.preventDefault();sendFree()}">
         <button class="btn" onclick="sendFree()">发送</button>
-        <button class="btn ghost" title="让智子生成 Excel 表格" onclick="genXLSX()">📊 表格</button>
-        <button class="btn ghost" title="让智子生成 Word 文档" onclick="genDOCX()">📄 文档</button>
+        <button class="btn ghost" title="基于对话内容生成表格（建议先聊相关话题再点）" onclick="genXLSX()">📊</button>
+        <button class="btn ghost" title="基于对话内容生成文档（建议先聊相关话题再点）" onclick="genDOCX()">📄</button>
       </div>
       <div class="bot-actions">
         <button class="btn ghost" onclick="openKbModal()">教智子（提交知识）</button>
@@ -2992,7 +2998,7 @@ async function sendFree(){
       renderFileBubble(res.file);
       if(res.provider) botSetProvider(res.provider);
       const label=res.file.type==='xlsx'?(res.file.name||'扬帆表格'):(res.file.title||res.file.name||'扬帆文档');
-      botHistory.push({role:'assistant',content:'（已生成文件：'+label+'）'});
+      botHistory.push({role:'assistant',content:'（已基于对话上下文生成文件：'+label+'）'});
       return;
     }catch(e){
       clearThinking();
@@ -3011,7 +3017,10 @@ async function sendFree(){
           if(attempt>0){ await new Promise(function(r){setTimeout(r,800);}); pushThinking(); }
           const res=await callLLM(botHistory);
           const reply=res.content;
-          if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); if(res.provider) botSetProvider(res.provider); return; }
+          if(reply){ botHistory.push({role:'assistant',content:reply}); clearThinking(); pushMsg(reply,'bot',res.reasoning); if(res.provider) botSetProvider(res.provider);
+            /* 💡 聊天回复后智能判断：是否建议基于对话上下文出文件（仅云端模式，防骚扰） */
+            if(cloudOn){ var _sug=suggestGen(reply,botHistory); if(_sug){ setTimeout(function(){renderSuggestChip(_sug);},300); } }
+            return; }
           lastErr='模型返回空回答';
         }catch(e){ lastErr=e.message||String(e); }
       }
@@ -3111,9 +3120,67 @@ function isGenIntent(q){
   if(/(生成|导出|输出|制作|拟|起草|帮我(做|生成|写|列|出)|做(一|个|张|份|条)?(表|名单|台账|文档|方案|报告|说明|通知|纪要)|列(一|个|张|份)?(表|名单|台账)|写(一|个|张|份)?(文档|方案|报告|说明|通知|总结|纪要)|一份(表|名单|台账|文档|方案|报告|说明|通知))/i.test(q)) return true;
   return false;
 }
+
+/* ====== 智能文件建议：聊透后智子主动建议出文件 ====== */
+var GEN_TOPICS = {
+  xlsx: ['排班','名单','台账','调研','问卷','汇总','进度','计划表','签到','考勤','积分','统计','数据看板','转化','招新','采量','科普','入营','报名表','信息采集'],
+  docx: ['方案','报告','通知','说明','总结','纪要','流程','制度','策划','活动','培训','座谈','动员','会议','演讲稿','主持词','致辞','倡议书','计划','复盘']
+};
+function suggestGen(reply, history){
+  /* 至少经过2轮对话（≥4条消息）才建议，避免一上来就推 */
+  if(!history || history.length < 4) return null;
+  /* 如果最近已经建议过且用户没理，不再重复推（防骚扰） */
+  var last3 = history.slice(-3);
+  for(var i=0;i<last3.length;i++){ if((last3[i].content||'').indexOf('【文件建议】')>=0) return null; }
+  /* 取最近6条消息的文本做话题检测 */
+  var recent = history.slice(-6).map(function(m){ return (m.content||''); }).join(' ');
+  var replyText = reply || '';
+  var combined = recent + ' ' + replyText;
+  /* 匹配话题关键词，返回最相关的建议 */
+  var best = null, bestScore = 0;
+  for(var type in GEN_TOPICS){
+    var kws = GEN_TOPICS[type];
+    var score = 0; var hitKw = '';
+    for(var k=0;k<kws.length;k++){
+      if(combined.indexOf(kws[k]) >= 0){ score++; hitKw = kws[k]; }
+    }
+    if(score > bestScore){ bestScore = score; best = {type:type, kw:hitKw}; }
+  }
+  if(!best || bestScore < 1) return null;
+  /* 生成自然建议文案 */
+  var labels = {
+    xlsx: '根据咱们刚才聊的内容，我可以帮你整理成一份' + (best.kw||'数据') + '表格',
+    docx: '根据咱们刚才聊的内容，我可以帮你写一份' + (best.kw||'相关') + '文档'
+  };
+  return { type: best.type, text: labels[best.type] };
+}
+/* 渲染建议操作卡（附在正常回复下方） */
+function renderSuggestChip(suggestion){
+  var c=document.getElementById('chat'); if(!c)return;
+  var d=document.createElement('div'); d.className='msg bot';
+  var tip = suggestion.type === 'xlsx' ? '📊' : '📄';
+  d.innerHTML='<div class="m-av">智</div><div class="m-body"><div class="gen-suggest-chip" onclick="doSuggestedGen(\''+suggestion.type+'\')"><span class="gs-icon">'+tip+'</span><span class="gs-text">'+suggestion.text+'</span><span class="gs-action">点此生成 ›</span></div></div>';
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+/* 建议卡点击：带着完整 botHistory 去生成 */
+async function doSuggestedGen(kind){
+  pushThinking();
+  try{
+    var res = await callGenerate(botHistory, kind);
+    clearThinking();
+    renderFileBubble(res.file);
+    if(res.provider) botSetProvider(res.provider);
+    botHistory.push({role:'assistant',content:'（已基于对话上下文生成文件）'});
+  }catch(e){
+    clearThinking();
+    pushMsg('（⚠️ 文件生成失败：'+((e&&e.message)||String(e)).slice(0,90)+'）','bot');
+  }
+}
 async function callGenerate(messages, kind){
   if(window.YF_API_URL && window.YF_API_URL.trim()){
-    const j=await yfApi('/generate','POST',{messages:messages, kind:kind||''});
+    /* 始终把完整对话历史作为上下文传给后端，让模型基于讨论内容生成 */
+    var payload = { messages: messages, kind: kind||'', history: (botHistory||[]) };
+    const j=await yfApi('/generate','POST', payload);
     if(j && j.ok && j.file) return {file:j.file, provider:j.provider||'deepseek'};
     if(j && j.msg) throw new Error(j.msg);
     throw new Error((j&&(j.error||j.msg))||'generate_failed');
