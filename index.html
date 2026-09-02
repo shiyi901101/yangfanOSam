@@ -10,13 +10,39 @@
 <script>
 function b64dec(s){try{return decodeURIComponent(escape(atob(s)))}catch(e){return atob(s)}}
 (function(){
-  var ids=['pptxSrc','xlsxSrc','dashSrc'];
-  for(var i=0;i<ids.length;i++){
-    var el=document.getElementById(ids[i]); if(!el) continue;
+  // 数据(dashSrc)随首屏注入；重型库(pptx/xlsx)改为按需加载，避免每次打开都同步编译 ~1MB 代码造成卡顿
+  var el=document.getElementById('dashSrc');
+  if(el){
     var sc=document.createElement('script');
     sc.textContent=b64dec(el.textContent.trim());
     document.head.appendChild(sc);
   }
+})();
+// 重型库懒加载器：首次用到时才把内联 base64 解码注入执行，并缓存 Promise
+window.__yfLoadLib=(function(){
+  var cache={};
+  return function(name){
+    if(cache[name]) return cache[name];
+    var map={pptx:'pptxSrc',xlsx:'xlsxSrc'};
+    var id=map[name]; if(!id) return Promise.reject(new Error('未知库: '+name));
+    var p=new Promise(function(resolve,reject){
+      var el=document.getElementById(id);
+      if(!el){reject(new Error('找不到资源: '+name));return;}
+      try{
+        var sc=document.createElement('script');
+        sc.textContent=b64dec(el.textContent.trim());
+        document.head.appendChild(sc);
+        resolve();
+      }catch(e){reject(e);}
+    });
+    cache[name]=p; return p;
+  };
+})();
+// 首屏渲染完成后空闲预载 XLSX（看板更新/导出常用）；PptxGenJS 仅在点击生成 PPT 时加载
+(function(){
+  var loadXLSX=function(){ window.__yfLoadLib('xlsx').catch(function(){}); };
+  if(window.requestIdleCallback){ requestIdleCallback(loadXLSX,{timeout:3000}); }
+  else { setTimeout(loadXLSX,2500); }
 })();
 </script>
 
@@ -2284,6 +2310,13 @@ function renderPptImgs(){
 function pptRmImg(i){_pptImages.splice(i,1);renderPptImgs();}
 
 function genPPT(){
+  if(typeof PptxGenJS==='undefined'){
+    var out0=document.getElementById('pptOut');
+    var btn0=document.querySelector('button[onclick="genPPT()"]');
+    if(out0){out0.textContent='正在加载 PPT 组件…';}
+    if(btn0){btnBusy(btn0,true,'加载中…');}
+    return window.__yfLoadLib('pptx').then(function(){ genPPT(); }).catch(function(e){ if(out0)out0.textContent='PPT 组件加载失败：'+((e&&e.message)||e); if(btn0)btnBusy(btn0,false); });
+  }
   var out=document.getElementById('pptOut');
   var btn=document.querySelector('button[onclick="genPPT()"]');
   if(typeof PptxGenJS==='undefined'){out.textContent='PPT 组件未加载。请通过运营中枢服务或 GitHub Pages 打开。';return;}
@@ -4341,6 +4374,7 @@ function upMsg(html){const m=document.getElementById('dashUpMsg');m.innerHTML=ht
 function openUpModal(){document.getElementById('upMask').style.display='flex';}
 function closeUpModal(){document.getElementById('upMask').style.display='none';}
 function dashDownloadTpl(){
+  if(typeof XLSX==='undefined'){ return window.__yfLoadLib('xlsx').then(function(){ dashDownloadTpl(); }); }
   const wb=XLSX.utils.book_new();
   const latestM=dLatest();
   const src=latestM?(DASH_DB[latestM]||{}):{};
@@ -4399,6 +4433,7 @@ function dashParseSheet(aoa){
   return{data:out,bad,miss};
 }
 function dashParseFile(){
+  if(typeof XLSX==='undefined'){ return window.__yfLoadLib('xlsx').then(function(){ dashParseFile(); }); }
   const f=document.getElementById('dashFile').files[0];
   if(!f){upMsg('<b class="err">先选择 Excel 文件</b>');return;}
   const rd=new FileReader();
