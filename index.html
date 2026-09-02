@@ -3695,16 +3695,16 @@ function renderDashCharts(){
   const C=DASH_CUR==='all'?'累计':(DASH_CUR+'月');
   const reg0=dCurTot('reg',0),reg1=dCurTot('reg',1),reg2=dCurTot('reg',2);
   const cm=dCurTot('camp',1),cf=dCurTot('camp',2);
-  const parPpl=dCurTot('par',0),campTot=dCurTot('camp',0);
+  const parPpl=dCurTot('par',0);
   const funnel=[{label:'报名',value:reg0,color:'#4ea3e8'},{label:'面试',value:reg1,color:'#4ea3e8'},{label:'入营',value:reg2,color:'#2b7cd3'}];
   const gender=[{label:'男',value:cm,color:'#2b7cd3'},{label:'女',value:cf,color:'#e08c2e'}];
-  const parPct=campTot>0?Math.min(1,parPpl/campTot):0;
-  const parDonut=[{label:'已参与',value:parPpl,color:'#4ea3e8'},{label:'未参与',value:Math.max(0,campTot-parPpl),color:'#dbe5ee'}];
+  const parPct=reg2>0?Math.min(1,parPpl/reg2):0;
+  const parDonut=[{label:'已参与',value:parPpl,color:'#4ea3e8'},{label:'未参与',value:Math.max(0,reg2-parPpl),color:'#dbe5ee'}];
   const stItems=STATIONS.map((s,i)=>({label:s,value:dCur(s,'reg',2),color:'#2b7cd3'}));
   let h='<div class="chart-grid">'
     +'<div class="chart-card"><h3>招募转化漏斗 · '+C+'</h3><div class="csub">报名 → 面试 → 入营，看每一环流失</div><div class="chart-fill">'+svgFunnel(funnel)+'</div></div>'
     +'<div class="chart-card"><h3>入营性别结构</h3><div class="csub">'+C+'入营 '+dashFmt(cm+cf)+' 人</div><div class="chart-fill">'+svgDonut(gender,{main:dashFmt(cm+cf),sub:'合计'})+chartLegend(gender)+'</div></div>'
-    +'<div class="chart-card"><h3>家长参与率</h3><div class="csub">参与 '+dashFmt(parPpl)+' 人次</div><div class="chart-fill">'+svgDonut(parDonut,{main:dashPct(parPct),sub:'参与率'})+chartLegend(parDonut)+'</div></div>'
+    +'<div class="chart-card"><h3>家长参与度</h3><div class="csub">参与 '+dashFmt(parPpl)+' 人次</div><div class="chart-fill">'+svgDonut(parDonut,{main:dashPct(parPct),sub:'参与率'})+chartLegend(parDonut)+'</div></div>'
     +'<div class="chart-card"><h3>各站入营人数对比 · '+C+'</h3><div class="csub">一眼看出强弱站</div><div class="chart-fill">'+svgCols(stItems,{cellW:46,H:188})+'</div></div>'
     +'</div>';
   el.innerHTML=h;
