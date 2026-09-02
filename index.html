@@ -661,7 +661,42 @@ window.__yfLoadLib=(function(){
   .fb-tools{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;gap:6px}
   .mini-btn{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:11.5px;color:var(--muted);cursor:pointer;font-family:inherit;display:inline-block}
   .mini-btn:hover{color:var(--blue-700);border-color:var(--blue-300)}
-  .fb-list{display:flex;flex-direction:column;gap:12px}
+  /* 天涯式密集帖子列表 */
+  .fb-list{display:block;background:#fff;border:1px solid var(--line);border-radius:0 0 10px 10px}
+  .frow{display:grid;grid-template-columns:56px 1fr 120px 86px 150px;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #eef3f8;cursor:pointer;transition:background .12s}
+  .frow:hover{background:#f5fbff}
+  .frow .fstat{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+  .frow .ftag{font-size:11px;font-weight:700;padding:1px 6px;border-radius:3px;line-height:1.5}
+  .frow .ftitle{font-size:15px;font-weight:600;color:var(--blue-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .frow .ftitle:hover{color:var(--gold)}
+  .frow .fauthor{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .frow .fcnt{font-size:12px;color:var(--muted);text-align:center}
+  .frow .fcnt b{color:var(--red);font-size:13px}
+  .frow .flast{font-size:11.5px;color:var(--muted);text-align:right;line-height:1.5}
+  .frow .flast .who{color:var(--blue-700)}
+  @media(max-width:760px){.frow{grid-template-columns:46px 1fr 78px}.frow .fauthor,.frow .flast{display:none}}
+  /* 学习区：智子情景演练 */
+  .learn-tabs{display:flex;gap:8px;margin:14px 0 12px;flex-wrap:wrap}
+  .ltab{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 18px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s}
+  .ltab:hover{border-color:var(--blue-400);color:var(--blue-700)}
+  .ltab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .drill-panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:12px}
+  .drill-intro{font-size:13.5px;color:var(--ink);line-height:1.8;margin-bottom:14px}
+  .drill-cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .dcat{background:var(--ice-2);border:1px solid var(--line);border-radius:20px;padding:8px 18px;font-size:14px;color:var(--blue-800);font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+  .dcat:hover{border-color:var(--gold);color:var(--gold)}
+  .drill-box{border-top:1px dashed var(--line);padding-top:16px}
+  .drill-q{font-size:15px;line-height:1.9;color:var(--ink);background:var(--ice-2);border-radius:10px;padding:14px 16px;border:1px solid rgba(13,44,77,.05)}
+  .drill-q b{color:var(--blue-900)}
+  .drill-opts{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+  .drill-opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--ink);cursor:pointer;transition:.15s}
+  .drill-opt:hover{border-color:var(--blue-400);background:var(--ice-2)}
+  .drill-opt .k{font-weight:800;color:var(--pri);flex:none}
+  .drill-ans{margin-top:6px}
+  .drill-ans textarea{width:100%;height:90px;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box}
+  .drill-ops{display:flex;gap:10px;margin-top:10px}
+  .drill-fb{margin-top:16px;border:1px solid var(--gold);border-radius:10px;padding:14px 16px;background:#fffaf2;font-size:14px;line-height:1.9;color:var(--ink);white-space:pre-wrap}
+  .drill-fb .fb-h{font-weight:800;color:var(--gold);margin-bottom:6px}
   .fpost{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.15s;border-left:4px solid var(--blue-300)}
   .fpost:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);border-left-color:var(--blue-600)}
   .fpost .ftag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;margin-right:8px;color:#fff;vertical-align:2px}
@@ -729,6 +764,8 @@ window.__yfLoadLib=(function(){
   .fb-reply .rmeta b{color:var(--blue-700);font-weight:600}
   .fb-reply .rbody{font-size:13.5px;color:var(--ink);line-height:1.8;margin-top:6px;padding-left:36px}
   .fb-reply .rbody img{max-width:100%;border-radius:6px;margin:6px 0}
+  .fb-reply .floor{margin-left:auto;font-size:12px;color:var(--gold);font-weight:700;flex:none;padding-left:8px}
+  .fb-detail .dtitle{font-size:15px;font-weight:700;color:var(--blue-900);margin-right:auto;padding-left:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* 回复表单 */
   .fb-rform{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
   .fb-rform-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -1390,7 +1427,33 @@ window.__yfLoadLib=(function(){
 
   <section id="learn">
   <div class="legend">PMP 不是考证教材，是「把扬帆干漂亮」的操作手册。十大知识领域 + 五大过程组 + 敏捷管理，每个知识点都配了真实标杆和咱们自己的做法。按需翻、随时查。</div>
+  <div class="learn-tabs">
+    <button class="ltab active" data-lt="book" onclick="learnTab('book')">📚 图书化课程</button>
+    <button class="ltab" data-lt="drill" onclick="learnTab('drill')">🎯 智子情景演练</button>
+  </div>
   <iframe id="learnFrame" title="扬帆计划 PMP 学习系统" style="width:100%;height:80vh;border:1px solid var(--line);border-radius:12px;background:#fff"></iframe>
+  <div id="drillPanel" class="drill-panel" style="display:none">
+    <div class="drill-intro">课程讲「知识点」，真功夫在「遇到事怎么决断」。点下面的主题，<b>智子现场给你出一道扬帆真实情景题</b>，你作答后它当带教导师给你点评——题是 AI 随问随生成的，<b>练多少有多少，不封顶</b>，直接破「内容固定」的天花板。</div>
+    <div class="drill-cats" id="drillCats">
+      <button class="dcat" onclick="drillStart('招募实战')">招募实战</button>
+      <button class="dcat" onclick="drillStart('家长沟通')">家长沟通</button>
+      <button class="dcat" onclick="drillStart('危机应对')">危机应对</button>
+      <button class="dcat" onclick="drillStart('活动组织')">活动组织</button>
+      <button class="dcat" onclick="drillStart('团队管理')">团队管理</button>
+    </div>
+    <div id="drillBox" class="drill-box" style="display:none">
+      <div class="drill-q" id="drillQ"></div>
+      <div class="drill-opts" id="drillOpts"></div>
+      <div class="drill-ans">
+        <textarea id="drillAns" placeholder="写下你的处理思路，或点上面的选项自动带入，再补充理由…"></textarea>
+        <div class="drill-ops">
+          <button class="up-btn" id="drillGradeBtn" onclick="drillGrade()">请智子点评</button>
+          <button class="mini-btn" onclick="drillReset()">换一题</button>
+        </div>
+      </div>
+      <div class="drill-fb" id="drillFb" style="display:none"></div>
+    </div>
+  </div>
 </section>
 
 <!-- ============ 效率工厂 ============ -->
@@ -3014,6 +3077,13 @@ function inlineFmt(t){
 function mdCopy(btn){
   try{ var pre=btn.parentNode.parentNode.querySelector('code'); var t=pre?pre.textContent:''; if(navigator.clipboard) navigator.clipboard.writeText(t); btn.textContent='已复制'; setTimeout(function(){btn.textContent='复制';},1500);}catch(e){ btn.textContent='复制失败'; }
 }
+function yfScrollChat(el, mode){
+  var c=document.getElementById('chat'); if(!c||!el)return;
+  var nearBottom=(c.scrollHeight - c.scrollTop - c.clientHeight) < 160;
+  if(!nearBottom && mode!=='force') return; /* 用户在上方面读旧内容，不强行拽动 */
+  if(mode==='top'){ el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  else { c.scrollTop=c.scrollHeight; }
+}
 function pushMsg(text,cls,reasoning){
   const c=document.getElementById('chat'); if(!c)return;
   const d=document.createElement('div');
@@ -3030,9 +3100,9 @@ function pushMsg(text,cls,reasoning){
     html+='<div class="bot-answer">'+fmtBotText(text)+'</div></div>';
     d.innerHTML=html;
     const br=d.querySelector('.bot-reason');
-    if(br){ br.querySelector('.br-head').addEventListener('click',function(){ br.classList.toggle('open'); if(c) c.scrollTop=c.scrollHeight; }); }
+    if(br){ br.querySelector('.br-head').addEventListener('click',function(){ br.classList.toggle('open'); }); }
   }
-  c.appendChild(d);c.scrollTop=c.scrollHeight;
+  c.appendChild(d); yfScrollChat(d, cls==='me'?'bottom':'top');
 }
 async function sendFree(){
   const inp=document.getElementById('botFree');
@@ -3091,7 +3161,7 @@ function pushThinking(){
   if(document.getElementById('botTyping'))return;
   var d=document.createElement('div'); d.className='typing'; d.id='botTyping';
   d.innerHTML='<div class="m-av">智</div><div class="dots"><i></i><i></i><i></i></div>';
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+  c.appendChild(d); yfScrollChat(d,'bottom');
 }
 function clearThinking(){ var t=document.getElementById('botTyping'); if(t)t.remove(); }
 async function callLLM(messages){
@@ -3214,7 +3284,7 @@ function renderSuggestChip(suggestion){
   var d=document.createElement('div'); d.className='msg bot';
   var tip = suggestion.type === 'xlsx' ? '📊' : '📄';
   d.innerHTML='<div class="m-av">智</div><div class="m-body"><div class="gen-suggest-chip" onclick="doSuggestedGen(\''+suggestion.type+'\')"><span class="gs-icon">'+tip+'</span><span class="gs-text">'+suggestion.text+'</span><span class="gs-action">点此生成 ›</span></div></div>';
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+  c.appendChild(d); yfScrollChat(d,'bottom');
 }
 /* 建议卡点击：带着完整 botHistory 去生成 */
 async function doSuggestedGen(kind){
@@ -3249,7 +3319,7 @@ function renderFileBubble(file){
   var note=file.type==='xlsx'?((file.sheets?file.sheets.length:0)+' 个工作表 · 可直接导入腾讯文档在线表格'):'Word 文档 · 可直接用 WPS/Word 打开';
   var btn=file.type==='xlsx'?'<button class="btn" onclick="dlXlsxFromBubble(this)">⬇ 下载 Excel</button>':'<button class="btn" onclick="dlDocxFromBubble(this)">⬇ 下载 Word</button>';
   d.innerHTML='<div class="m-av">智</div><div class="m-body"><div class="bot-answer">已为你生成'+note+'：<b>'+safe+'</b></div>'+btn+'</div>';
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+  c.appendChild(d); yfScrollChat(d,'bottom');
 }
 function dlXlsxFromBubble(btn){
   var d=btn.parentNode.parentNode, f=d._file; if(!f)return;
@@ -4569,20 +4639,75 @@ function fbList(){
   if(!arr.length){c.innerHTML='<div class="fb-empty">还没有帖子。<br>这里可以发求助、分享做法、互相支招。<br><b style="color:var(--blue-700)">点右上角「＋ 发新帖」发第一帖</b>。</div>';return;}
   c.innerHTML=arr.map(p=>{
     const b=fbB(p.bid);const rc=p.replies.length;
-    const hlTag=(p.hl===1)?'<span class="fb-hl-tag hl1">🔥 精华</span>':(p.hl===2)?'<span class="fb-hl-tag hl2">⭐ 优秀</span>':'';
-    const imgThumb=(p.images&&p.images.length)?'<div class="fpost-imgs">'+p.images.slice(0,3).map(i=>'<img src="'+i+'" loading="lazy" onerror="this.style.display=\'none\'">').join('')+'</div>':'';
-    return '<div class="fpost'+(p.hl?' fb-hl':'')+'" data-pid="'+p.id+'" onclick="fbOpen(\''+p.id+'\')">'+
-      '<span class="ftag" style="background:'+b.c+'">'+b.n+'</span>'+hlTag+
-      '<span class="ft">'+esc(p.title)+'</span>'+
-      '<div class="fb">'+esc(p.body.slice(0,90))+(p.body.length>90?'…':'')+'</div>'+
-      imgThumb+
-      '<div class="fmeta"><b>'+esc(p.author||'匿名')+'</b><span>'+fbT(p.time)+'</span>'+
-      '<span>👍 '+p.likes+'</span><span>💬 '+rc+'</span>'+
-      '<span class="cnt">点开看回复/支招 →</span></div></div>';}).join('');
+    const lw=p.replies.length?p.replies[p.replies.length-1].author:'';
+    const st=(p.top?'<span class="ftag" style="background:#fdeceb;color:#d6463c;border:1px solid #f4b6b1">顶</span>':'')+
+              (p.hl===1?'<span class="ftag" style="background:#e7f1fb;color:#14559c;border:1px solid #b9d6f2">精</span>':'')+
+              (p.hl===2?'<span class="ftag" style="background:#fff2e2;color:#e08c2e;border:1px solid #f3cfa6">优</span>':'')+
+              (p.hot?'<span class="ftag" style="background:#fdeceb;color:#d6463c;border:1px solid #f4b6b1">热</span>':'')+
+              ((Date.now()-p.time<86400000)?'<span class="ftag" style="background:#e8f7f1;color:#10a37f;border:1px solid #a9e2cf">新</span>':'');
+    return '<div class="frow" data-pid="'+p.id+'" onclick="fbOpen(\''+p.id+'\')">'+
+      '<div class="fstat">'+st+'</div>'+
+      '<a class="ftitle" onclick="event.stopPropagation();fbOpen(\''+p.id+'\')">'+esc(p.title)+'</a>'+
+      '<div class="fauthor">'+esc(p.author||'匿名')+'</div>'+
+      '<div class="fcnt"><b>'+rc+'</b> / '+p.likes+'</div>'+
+      '<div class="flast">'+fbT(p.time)+'<br><span class="who">'+esc(lw)+'</span></div></div>';}).join('');
   if(window._fbJust){var _el=c.querySelector('[data-pid="'+window._fbJust+'"]');if(_el){_el.classList.add('fb-just');_el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){_el.classList.remove('fb-just');},2400);}window._fbJust=null;}
 }
 function fbOpen(id){fbView=id;fbDetail();}
-function fbBack(){fbView=null;fbList();}
+function fbBack(){fbView=null;fbList();fbScrollToTop();}
+function fbScrollToTop(){var c=document.getElementById('fbList');if(!c)return;var y=c.getBoundingClientRect().top+window.scrollY-72;window.scrollTo({top:y,behavior:'smooth'});}
+/* ============ 智子情景演练（学习板块拓展，破内容固定天花板） ============ */
+function learnTab(t){
+  document.querySelectorAll('.ltab').forEach(function(x){x.classList.toggle('active',x.dataset.lt===t);});
+  var book=document.getElementById('learnFrame'), box=document.getElementById('drillPanel');
+  if(t==='book'){book.style.display='block';box.style.display='none';}
+  else{book.style.display='none';box.style.display='block';var L=document.getElementById('learn');window.scrollTo({top:L.offsetTop-72,behavior:'smooth'});}
+}
+var _drill=null;
+async function drillStart(cat){
+  var box=document.getElementById('drillBox'), q=document.getElementById('drillQ'), opts=document.getElementById('drillOpts'), fb=document.getElementById('drillFb');
+  fb.style.display='none'; var ta=document.getElementById('drillAns'); if(ta)ta.value='';
+  q.innerHTML='<span class="muted">智子正在出《'+cat+'》情景题…</span>'; opts.innerHTML=''; box.style.display='block';
+  var sys='你是扬帆计划（血液制品行业单采血浆站暑期青年社会实践营）的带教导师AI，面向浆站项目负责人出真实可感的情景判断题。';
+  var prompt='请生成一道关于《'+cat+'》的扬帆计划情景题，只返回JSON：{scene:场景描述(发生了什么/背景), question:核心问题, options:[{key:"A",text:...},{key:"B",text:...},{key:"C",text:...}]}（A最优、B次优、C是陷阱，不要揭晓答案）。只返回JSON。';
+  try{
+    var res=await drillAsk(prompt,sys);
+    var obj=extractJSON(res.content);
+    if(!obj){q.innerHTML='出题格式异常，请重试';return;}
+    _drill=obj;
+    q.innerHTML='<b>📍 场景：</b>'+esc(obj.scene||'')+'<br><br><b>❓ '+esc(obj.question||'')+'</b>';
+    opts.innerHTML=(obj.options||[]).map(function(o){return '<div class="drill-opt" onclick="drillPick(\''+o.key+'\')"><span class="k">'+esc(o.key)+'</span><span>'+esc(o.text||'')+'</span></div>';}).join('');
+  }catch(e){ q.innerHTML='出题失败：'+((e&&e.message)||String(e)).slice(0,80)+'，请重试'; }
+}
+function drillPick(k){var t=document.getElementById('drillAns');if(!t)return;t.value=(t.value?t.value+'\n':'')+'我选 '+k+'：';t.focus();}
+function drillReset(){_drill=null;var b=document.getElementById('drillBox');if(b)b.style.display='none';}
+async function drillGrade(){
+  if(!_drill)return;
+  var ans=document.getElementById('drillAns').value.trim();
+  if(!ans){alert('先写下你的处理思路，或点上面的选项带入');return;}
+  var fb=document.getElementById('drillFb');fb.style.display='block';fb.innerHTML='<span class="muted">智子正在点评…</span>';
+  var btn=document.getElementById('drillGradeBtn');if(btn)btn.disabled=true;
+  var sys='你是扬帆计划的带教导师，语气像带新站长的老大哥/大姐，实在、点透、不绕弯。';
+  var prompt='情景题——场景：'+_drill.scene+'\n问题：'+_drill.question+'\n选项：'+(_drill.options||[]).map(function(o){return o.key+'. '+o.text;}).join('\n')+'\n学员作答：'+ans+'\n请以带教导师口吻点评（200字内）：① 选得对不对、为什么；② 最优做法是什么（结合扬帆实际）；③ 一句鼓励。';
+  try{
+    var res=await drillAsk(prompt,sys);
+    fb.innerHTML='<div class="fb-h">🎓 智子带教点评</div>'+fmtBotText(res.content);
+  }catch(e){ fb.innerHTML='点评失败：'+((e&&e.message)||String(e)).slice(0,80); }
+  if(btn)btn.disabled=false;
+}
+async function drillAsk(prompt,sys){
+  if(window.YF_API_URL && window.YF_API_URL.trim()){
+    var j=await yfApi('/chat','POST',{messages:[{role:'user',content:prompt}], system:sys||BOT_SYSTEM});
+    if(j && j.ok && j.reply) return {content:j.reply, reasoning:j.reasoning||''};
+    throw new Error((j&&(j.msg||j.error))||'drill_failed');
+  }
+  throw new Error('未连接云端，情景演练需联网大脑');
+}
+function extractJSON(s){
+  if(!s)return null; s=String(s).trim();
+  var m=s.match(/\{[\s\S]*\}/); if(!m)return null;
+  try{return JSON.parse(m[0]);}catch(e){return null;}
+}
 function fbDetail(){
   const c=document.getElementById('fbList');
   const p=FB.posts.find(x=>x.id===fbView);
@@ -4594,6 +4719,7 @@ function fbDetail(){
   let h='<div class="fb-detail">'+
     '<div class="fb-dhead">'+
       '<button class="fb-back" onclick="fbBack()">← 返回交流</button>'+
+      '<div class="dtitle">'+esc(p.title)+'</div>'+
     '</div>'+
     '<div class="fb-dcard"><div class="fb-dcard-main">'+
       '<div class="dtag-row"><span class="dtag" style="background:'+b.c+'">'+b.n+'</span>'+hlTag+'</div>'+
@@ -4611,9 +4737,11 @@ function fbDetail(){
   /* 回复区 */
   h+='<div class="fb-rsec"><div class="fb-rsec-title">💬 支招 <span>('+(p.replies.length)+' 条回复)</span></div>';
   if(!p.replies.length){h+='<div class="fb-empty">还没有回复，来出个主意？</div>';}
-  p.replies.forEach(r=>{
+  const FL=['楼主','沙发','板凳','3楼','4楼','5楼','6楼','7楼','8楼','9楼'];
+  p.replies.forEach((r,ri)=>{
     const rav=(r.author||'匿')[0].toUpperCase();
-    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+rav+'</div><div class="rmeta"><b>'+esc(r.author||'匿名')+'</b> · '+fbT(r.time)+'</div></div>'+
+    const fl=FL[ri+1]||((ri+1)+'楼');
+    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+rav+'</div><div class="rmeta"><b>'+esc(r.author||'匿名')+'</b> · '+fbT(r.time)+'</div><span class="floor">'+fl+'</span></div>'+
       '<div class="rbody">'+fmtPostBody(r.body)+(r.images?r.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div></div>';
   });
   /* 回复表单（含图片上传） */
@@ -4627,7 +4755,7 @@ function fbDetail(){
       '<button class="fb-send-btn" onclick="fbReply(\''+p.id+'\')">发送回复</button>'+
     '</div></div></div>';
   c.innerHTML=h;
-  window.scrollTo({top:0,behavior:'smooth'});
+  fbScrollToTop();
   const r=document.getElementById('fbReplyIn');}
 function fmtPostBody(s){
   return String(s).replace(/\n/g,'<br>');
