@@ -675,6 +675,121 @@ window.__yfLoadLib=(function(){
   .frow .flast{font-size:11.5px;color:var(--muted);text-align:right;line-height:1.5}
   .frow .flast .who{color:var(--blue-700)}
   @media(max-width:760px){.frow{grid-template-columns:46px 1fr 78px}.frow .fauthor,.frow .flast{display:none}}
+  /* ===== 天涯风 v2 论坛（UI 移植自完成版；呈现层，数据管道不变） ===== */
+  .fb-thead{display:grid;grid-template-columns:56px 1fr 120px 86px 150px;align-items:center;gap:10px;padding:9px 16px;background:#eef4fa;border-bottom:2px solid #d7e3ee;font-size:12px;color:#5a6b7b;font-weight:700;letter-spacing:.5px}
+  .fb-thead .th-cnt{text-align:center}
+  .fb-thead .th-last{text-align:right}
+  @media(max-width:760px){.fb-thead{display:none}}
+  .fchip-ic{display:inline-flex;align-items:center;justify-content:center;margin-right:5px;vertical-align:-3px}
+  .fchip-ic svg{width:15px;height:15px}
+  /* 版块导航区（天涯式版块索引） */
+  .fb-board-index{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 6px rgba(13,44,77,.06)}
+  .fb-bi-head{background:linear-gradient(90deg,#0d2c4d 0%,#14559c 100%);color:#fff;padding:10px 16px;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px;letter-spacing:.5px}
+  .fb-bi-head .sub{margin-left:auto;font-size:12px;font-weight:400;opacity:.82}
+  .fb-bi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
+  .fb-board{background:#fff;padding:13px 15px;cursor:pointer;transition:.14s;display:flex;flex-direction:column;gap:5px;position:relative}
+  .fb-board:hover{background:#f3f9ff}
+  .fb-board .bn{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--blue-900);line-height:1.3}
+  .fb-board .bd{font-size:12px;color:var(--muted);line-height:1.55}
+  .fb-board .bc{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:1px}
+  .fb-board .bc b{color:var(--blue-700);font-weight:700}
+  .fb-board .bc .bmod{margin-left:auto;color:var(--muted)}
+  .fb-board .bc .bmod b{color:var(--blue-900);font-weight:700;font-style:italic}
+  .fb-board .go{position:absolute;right:14px;bottom:12px;font-size:11.5px;color:#fff;background:var(--blue-700);border-radius:4px;padding:2px 10px;opacity:0;transform:translateY(2px);transition:.14s}
+  .fb-board:hover .go{opacity:1;transform:translateY(0)}
+  @media(max-width:760px){.fb-bi-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.fb-bi-grid{grid-template-columns:1fr}}
+  .fb-bi-icon{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:#f3f9ff;flex:none}
+  .fb-bi-icon svg{width:18px;height:18px}
+  /* 帖子详情（天涯式：左作者档案 + 右主帖/回复） */
+  .fb-detail-layout{display:grid;grid-template-columns:180px 1fr;gap:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(13,44,77,.05)}
+  .fb-author-sidebar{background:#f8f6f1;border-right:1px solid #e8e4dc;padding:18px 12px;text-align:center}
+  .fb-as-avatar{width:90px;height:90px;border-radius:8px;background:linear-gradient(135deg,var(--blue-300),var(--cyan));display:flex;align-items:center;justify-content:center;color:#fff;font-size:36px;font-weight:700;margin:0 auto 10px;text-shadow:0 2px 4px rgba(0,0,0,.2);cursor:default}
+  .fb-as-name{font-size:15px;font-weight:700;color:var(--blue-900);margin-bottom:4px}
+  .fb-as-rank{font-size:11px;color:#888;margin-bottom:12px}
+  .fb-as-rankbar{height:6px;background:#e0ddd5;border-radius:3px;overflow:hidden;margin:8px auto 12px;width:80%}
+  .fb-as-rankbar>i{display:block;height:100%;background:linear-gradient(90deg,#e08c2e,#f5b041)}
+  .fb-as-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:11px;color:#666;margin-bottom:12px}
+  .fb-as-stats b{display:block;font-size:14px;color:#333;margin-top:2px}
+  .fb-as-points{font-size:12px;color:#666;margin-bottom:14px}
+  .fb-as-points b{color:#c2410c;font-size:15px}
+  .fb-as-msg{background:linear-gradient(120deg,#4a90e2,#357abd);border:none;border-radius:16px;padding:6px 18px;font-size:12px;color:#fff;cursor:pointer;font-family:inherit}
+  .fb-dmain{padding:20px 24px}
+  .fb-dmain-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:12px;gap:12px}
+  .fb-dmain-head h1{font-size:20px;font-weight:700;color:#333;margin:0;line-height:1.4;flex:1}
+  .fb-dmain-head .acts{display:flex;gap:8px;align-items:center}
+  .fb-dmain-meta{font-size:12px;color:#888;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .fb-dmain-meta .dtag{display:inline-block;font-size:12px;padding:4px 12px;border-radius:12px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.2);box-shadow:0 1px 3px rgba(0,0,0,.08);line-height:1.2}
+  .fb-dmain-meta .lz-badge{background:#e08c2e;color:#fff;font-size:12px;padding:4px 10px;border-radius:4px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.12);text-shadow:0 1px 2px rgba(0,0,0,.2);line-height:1.2}
+  .fb-dmain-body{font-size:14.5px;color:#333;line-height:1.9}
+  .fb-dmain-body img{max-width:100%;border-radius:6px;margin:10px 0}
+  .fb-dmain-acts{display:flex;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid #eee;flex-wrap:wrap}
+  @media(max-width:760px){.fb-detail-layout{grid-template-columns:1fr}.fb-author-sidebar{display:none}}
+  /* ===== 江湖成长体系（声望/头衔/成就）+ 个人空间（整体移植自完成版） ===== */
+  .fauthor{display:flex;align-items:center;gap:6px;cursor:pointer}
+  .fav-sm{width:22px;height:22px;border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue-300),var(--cyan));flex:none}
+  .fav-xs{width:28px;height:28px;border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue-300),var(--cyan));flex:none}
+  .fauthor .fa-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:92px}
+  .fauthor-rank{display:inline-block;flex:none;font-size:10px;line-height:1.2;padding:1px 6px;border-radius:9px;background:#f0f2f5;color:#6b7280;border:1px solid #e2e6ea;white-space:nowrap;font-weight:600}
+  .fauthor-rank.r-top{background:#fff4e0;color:#c77f1a;border-color:#f0d29a}
+  .fb-as-ava{width:100%;height:100%;border-radius:8px;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue-300),var(--cyan));text-shadow:0 2px 4px rgba(0,0,0,.2)}
+  .fb-pa{width:84px;height:84px;border-radius:10px;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--blue-300),var(--cyan));text-shadow:0 2px 4px rgba(0,0,0,.2)}
+  .av-init{background:linear-gradient(135deg,var(--blue-300),var(--cyan))}
+  .fb-prof-tip{font-size:12px;color:var(--muted);align-self:center}
+  .fb-link{color:var(--blue-700);cursor:pointer;text-decoration:underline}
+  .fb-profile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(13,44,77,.05)}
+  .fb-prof-head{margin-bottom:12px}
+  .fb-prof-card{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .fb-prof-avatar{flex:none}
+  .fb-prof-main{flex:1;min-width:200px}
+  .fb-prof-name{font-size:20px;font-weight:700;color:var(--blue-900);margin-bottom:6px}
+  .fb-prof-rank{font-size:13px;color:var(--blue-700);font-weight:700;margin-bottom:8px}
+  .fb-prof-next{font-weight:400;color:#888;font-size:12px;margin-left:6px}
+  .fb-prof-repbar{height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;margin-bottom:6px}
+  .fb-prof-repbar>i{display:block;height:100%;background:linear-gradient(90deg,#e08c2e,#f5b041)}
+  .fb-prof-rep{font-size:12px;color:#666}
+  .fb-prof-rep b{color:#c2410c;font-size:15px}
+  .fb-prof-actions{flex:none;display:flex;gap:8px;align-items:center}
+  .fb-prof-bio{margin:14px 0;padding:12px 14px;background:#f8f6f1;border-radius:8px;font-size:13px;color:#555;line-height:1.7}
+  .fb-prof-bio .muted{color:#aaa}
+  .fb-prof-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .fb-prof-stat{flex:1;min-width:70px;background:#f4f8fd;border:1px solid #e3edf7;border-radius:8px;padding:10px;text-align:center}
+  .fb-prof-stat b{display:block;font-size:20px;color:var(--blue-700);margin-bottom:2px}
+  .fb-prof-stat span{font-size:12px;color:#888}
+  .fb-prof-sec-title{font-size:14px;font-weight:700;color:var(--blue-900);margin:18px 0 10px;padding-left:8px;border-left:3px solid var(--blue-500)}
+  .fb-prof-ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .fb-ach{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee;border-radius:8px;background:#fafafa;opacity:.5}
+  .fb-ach.got{opacity:1;background:#fff;border-color:#f0c98a;box-shadow:0 1px 4px rgba(224,140,46,.15)}
+  .fb-ach-ic{font-size:22px;filter:grayscale(1);opacity:.5}
+  .fb-ach.got .fb-ach-ic{filter:none;opacity:1}
+  .fb-ach-tx{display:flex;flex-direction:column}
+  .fb-ach-tx b{font-size:13px;color:#333}
+  .fb-ach-tx span{font-size:11px;color:#999}
+  .fb-prof-posts{display:flex;flex-direction:column;gap:8px}
+  .fb-pp{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #eee;border-radius:8px;cursor:pointer;background:#fff}
+  .fb-pp:hover{border-color:#bcdcf5;background:#f7fbff}
+  .fb-pp-bid{font-size:11px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:700;flex:none}
+  .fb-pp-title{flex:1;font-size:13px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fb-pp-meta{font-size:11px;color:#999;flex:none}
+  @media(max-width:760px){.fb-prof-card{gap:12px}.fb-prof-avatar .fb-pa{width:64px;height:64px;font-size:26px}}
+  /* ===== 智子演练增强（段位/分支剧情/离线题库/战绩；样式移植自完成版） ===== */
+  .drill-diffs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .drill-diffs-label{font-size:13px;color:var(--muted)}
+  .ddiff{font-size:12.5px;padding:5px 12px;border:1px solid var(--line);border-radius:20px;background:#fff;color:var(--ink);cursor:pointer;transition:.15s}
+  .ddiff:hover{border-color:var(--blue-400)}
+  .ddiff.active{background:var(--blue-700);border-color:var(--blue-700);color:#fff}
+  .drill-meta{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .drill-cat{font-weight:800;color:var(--blue-900);font-size:14px}
+  .drill-diff{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--ice-2);color:var(--blue-700);border:1px solid var(--blue-200)}
+  .drill-r2{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+  .drill-q2{background:#fff7ec;border-color:rgba(224,140,46,.18)}
+  .drill-opt.sel{border-color:var(--blue-700);background:var(--ice-2);box-shadow:0 0 0 2px rgba(13,44,77,.08)}
+  .drill-score{font-size:15px;margin:4px 0 10px;color:var(--ink)}
+  .drill-score b{color:var(--gold);font-size:20px}
+  .drill-parse{font-size:13.5px;line-height:1.8;margin:6px 0;color:var(--ink)}
+  .drill-stat{margin-top:14px;padding:10px 14px;background:var(--ice-2);border:1px solid var(--blue-200);border-radius:10px;font-size:13px;color:var(--ink)}
+  .drill-stat b{color:var(--blue-700)}
+  .fb-dcard .dtag{display:inline-block;font-size:12px;padding:4px 12px;border-radius:12px;color:#fff;font-weight:700;letter-spacing:.5px;text-shadow:0 1px 2px rgba(0,0,0,.2);box-shadow:0 1px 3px rgba(0,0,0,.08);line-height:1.2}
   /* 学习区：智子情景演练 */
   .learn-tabs{display:flex;gap:8px;margin:14px 0 12px;flex-wrap:wrap}
   .ltab{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 18px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s}
@@ -1487,24 +1602,39 @@ window.__yfLoadLib=(function(){
   </div>
   <iframe id="learnFrame" title="扬帆计划 PMP 学习系统" style="width:100%;height:calc(100dvh - 150px);border:1px solid var(--line);border-radius:12px;background:#fff"></iframe>
   <div id="drillPanel" class="drill-panel" style="display:none">
-    <div class="drill-intro">课程讲「知识点」，真功夫在「遇到事怎么决断」。点下面的主题，<b>智子现场给你出一道扬帆真实情景题</b>，你作答后它当带教导师给你点评——题是 AI 随问随生成的，<b>练多少有多少，不封顶</b>，直接破「内容固定」的天花板。</div>
+    <div class="drill-intro">课程讲「知识点」，真功夫在「遇到事怎么决断」。点下面的主题，<b>智子现场给你出一道扬帆真实情景演练</b>——而且不是一道：<b>第一轮决策后剧情会推进，再考你一轮</b>，两轮都答完智子当带教导师给点评打分手。题由 AI 随问随生成，<b>练多少有多少</b>；没联网时自动切到 <b>离线题库</b>（16 道匠心打磨的扬帆实战题），断网也能练。</div>
+    <div class="drill-diffs" id="drillDiffs">
+      <span class="drill-diffs-label">段位</span>
+      <button class="ddiff active" data-d="学徒" onclick="drillSetDiff('学徒')">学徒 · 照章办事</button>
+      <button class="ddiff" data-d="少侠" onclick="drillSetDiff('少侠')">少侠 · 权衡利弊</button>
+      <button class="ddiff" data-d="宗师" onclick="drillSetDiff('宗师')">宗师 · 临危受命</button>
+    </div>
     <div class="drill-cats" id="drillCats">
       <button class="dcat" onclick="drillStart('招募实战')">招募实战</button>
       <button class="dcat" onclick="drillStart('家长沟通')">家长沟通</button>
       <button class="dcat" onclick="drillStart('危机应对')">危机应对</button>
       <button class="dcat" onclick="drillStart('活动组织')">活动组织</button>
       <button class="dcat" onclick="drillStart('团队管理')">团队管理</button>
+      <button class="dcat" onclick="drillStart('数据分析')">数据分析</button>
+      <button class="dcat" onclick="drillStart('舆情防控')">舆情防控</button>
+      <button class="dcat" onclick="drillStart('合规红线')">合规红线</button>
     </div>
     <div id="drillBox" class="drill-box" style="display:none">
+      <div class="drill-meta"><span id="drillCat" class="drill-cat"></span><span id="drillDiffBadge" class="drill-diff"></span></div>
       <div class="drill-q" id="drillQ"></div>
       <div class="drill-opts" id="drillOpts"></div>
-      <div class="drill-ans">
-        <textarea id="drillAns" placeholder="写下你的处理思路，或点上面的选项自动带入，再补充理由…"></textarea>
-        <div class="drill-ops">
-          <button class="up-btn" id="drillGradeBtn" onclick="drillGrade()">请智子点评</button>
-          <button class="mini-btn" onclick="drillReset()">换一题</button>
+      <div class="drill-r2" id="drillR2" style="display:none">
+        <div class="drill-q drill-q2" id="drillQ2"></div>
+        <div class="drill-opts" id="drillOpts2"></div>
+        <div class="drill-ans">
+          <textarea id="drillAns" placeholder="可补充你的处理思路（选了选项也会自动带入）…"></textarea>
+          <div class="drill-ops">
+            <button class="up-btn" id="drillGradeBtn" onclick="drillGrade()">请智子点评（两轮都选完）</button>
+            <button class="mini-btn" onclick="drillReset()">换一题</button>
+          </div>
         </div>
       </div>
+      <div class="drill-stat" id="drillStat"></div>
       <div class="drill-fb" id="drillFb" style="display:none"></div>
     </div>
   </div>
@@ -1780,6 +1910,8 @@ window.__yfLoadLib=(function(){
   <div id="forumDiscuss" class="forum-panel">
     <div class="fb-layout">
       <div class="fb-main">
+        <!-- 版块导航区（天涯式版块索引，移植自完成版） -->
+        <div id="fbBoardIndex" class="fb-board-index"></div>
         <!-- 热门帖子网格 -->
         <div class="fb-hot" id="fbHot">
           <div class="fb-hot-head"><span class="fb-hot-icon">🔥</span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
@@ -1794,6 +1926,7 @@ window.__yfLoadLib=(function(){
               <option value="hot">最热讨论</option>
             </select>
             <button class="up-btn" onclick="fbNew()">＋ 发新帖</button>
+            <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fbMySpace()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的空间</button>
           </div>
         </div>
         <div class="fb-tools">
@@ -4753,12 +4886,12 @@ document.getElementById('dashFile').onchange=()=>{const f=document.getElementByI
 
 /* ============ 交流论坛 ============ */
 const BOARDS=[
-  {id:'recruit',n:'招募筹备',d:'报名·面试·宣传',c:'#7ec2f2'},
-  {id:'camp',n:'营期执行',d:'活动·小组·新卡',c:'#4ea3e8'},
-  {id:'review',n:'结营复盘',d:'数据·总结·改进',c:'#4ea3e8'},
-  {id:'parent',n:'家长沟通',d:'家长群·质疑应对',c:'#b0833a'},
-  {id:'cases',n:'经验案例',d:'标杆做法·避坑',c:'#e08c2e'},
-  {id:'help',n:'问题求助',d:'卡点·急事·支招',c:'#c2410c'}
+  {id:'recruit',n:'聚贤堂',d:'招贤纳士 · 新人报道 · 面试答疑',c:'#7ec2f2',mod:'伯乐',svg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>'},
+  {id:'camp',n:'演武堂',d:'活动执行 · 现场操演 · 小组作战',c:'#4ea3e8',mod:'教头',svg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>'},
+  {id:'review',n:'论剑阁',d:'数据复盘 · 成败得失 · 沉淀成册',c:'#4ea3e8',mod:'剑客',svg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'},
+  {id:'parent',n:'鸿雁坊',d:'家校传讯 · 质疑应对 · 暖心播报',c:'#b0833a',mod:'鸿雁',svg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'},
+  {id:'cases',n:'藏经阁',d:'标杆做法 · 避坑锦囊 · 可复制经验',c:'#e08c2e',mod:'掌柜',svg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'},
+  {id:'help',n:'解忧亭',d:'卡点急事 · 在线支招 · 抱团取暖',c:'#c2410c',mod:'济公',svg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'}
 ];
 const FORUM_KEY='yf_forum_v1';
 let FB={posts:[]};
@@ -4783,8 +4916,8 @@ function fbT(ts){const d=new Date(ts),now=new Date();
   if(d.getFullYear()===now.getFullYear())return (d.getMonth()+1)+'月'+d.getDate()+'日';
   return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
 /* 热门帖子网格 */
-const HOT_ICONS={'recruit':'📢','exec':'🎯','review':'📊','parent':'👨‍👩‍👧','case':'💡','help':'🆘'};
-const HOT_GRADS={'recruit':'linear-gradient(135deg,#0e5f80,#14559c)','exec':'linear-gradient(135deg,#1a7a5a,#0e4a38)','review':'linear-gradient(135deg,#14559c,#14559c)','parent':'linear-gradient(135deg,#b5541e,#7c2d12)','case':'linear-gradient(135deg,#1d5aa8,#0a3a63)','help':'linear-gradient(135deg,#c2410c,#7c2d12)'};
+/* 天涯风：热门卡背景梯度（键对齐版块 id），图标统一用版块 SVG，不用 emoji */
+const HOT_GRADS={'recruit':'linear-gradient(135deg,#0e5f80,#14559c)','camp':'linear-gradient(135deg,#1a7a5a,#0e4a38)','review':'linear-gradient(135deg,#14559c,#14559c)','parent':'linear-gradient(135deg,#b5541e,#7c2d12)','cases':'linear-gradient(135deg,#1d5aa8,#0a3a63)','help':'linear-gradient(135deg,#c2410c,#7c2d12)'};
 function fbHotRender(){
   const c=document.getElementById('fbCarousel');
   if(!FB.posts.length){c.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:13px;padding:20px 0;text-align:center;grid-column:1/-1">发帖后这里会展示热门话题</div>';return;}
@@ -4792,7 +4925,7 @@ function fbHotRender(){
   if(!hot.length){c.innerHTML='';return;}
   c.innerHTML=hot.map(p=>{
     const b=fbB(p.bid);
-    const icon=HOT_ICONS[p.bid]||'📌';
+    const icon=fbB(p.bid).svg||'';  /* 版块 SVG 图标 */
     const grad=HOT_GRADS[p.bid]||'linear-gradient(135deg,#14559c,#0d2c4d)';
     const hasImg=p.images&&p.images.length;
     const imgHtml=hasImg?'<img src="'+p.images[0]+'" loading="lazy" onerror="this.style.display=\'none\'"><div class="img-grad"></div>':'<div class="img-grad"></div>';
@@ -4806,10 +4939,31 @@ function fbHotRender(){
   }).join('');}
 
 function fbChips(){
-  const c=document.getElementById('fbChips');let h='<button class="fchip'+(fbBid==='all'?' on':'')+'" onclick="fbSetBid(\'all\')">全部</button>';
-  BOARDS.forEach(b=>{h+='<button class="fchip'+(fbBid===b.id?' on':'')+'" onclick="fbSetBid(\''+b.id+'\')">'+b.n+'</button>';});
+  const c=document.getElementById('fbChips');let h='<button class="fchip'+(fbBid==='all'?' on':'')+'" onclick="fbSetBid(\'all\')"><span class="fchip-ic" style="color:var(--blue-700)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>全部</button>';
+  BOARDS.forEach(b=>{h+='<button class="fchip'+(fbBid===b.id?' on':'')+'" onclick="fbSetBid(\''+b.id+'\')"><span class="fchip-ic" style="color:'+b.c+'">'+b.svg+'</span>'+b.n+'</button>';});
   c.innerHTML=h;}
-function fbSetBid(id){fbBid=id;fbChips();fbList();}
+/* 天涯式版块导航区：把版块当作可点击的「版块索引」呈现（含简介/主题数/今日数） */
+function fbBoardIndexRender(){
+  const box=document.getElementById('fbBoardIndex'); if(!box) return;
+  const now=Date.now();
+  let total=FB.posts.length;
+  let h='<div class="fb-bi-head"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg> 扬帆江湖 · 版块导航 <span class="sub">点击版块查看主题 · 全站共 '+total+' 帖</span></div><div class="fb-bi-grid">';
+  BOARDS.forEach(function(b){
+    const ps=FB.posts.filter(function(p){return p.bid===b.id;});
+    const today=ps.filter(function(p){return now-p.time<86400000;}).length;
+    const hot=ps.some(function(p){return p.hot;});
+    h+='<div class="fb-board" onclick="fbSetBid(\''+b.id+'\')">'+
+      '<div class="bn"><span class="fb-bi-icon" style="color:'+b.c+'">'+b.svg+'</span>'+b.n+(hot?' <span class="fb-hl-tag hl1" style="margin-left:2px">热</span>':'')+'</div>'+
+      '<div class="bd">'+b.d+'</div>'+
+      '<div class="bc"><span>主题 <b>'+ps.length+'</b></span><span>今日 <b>'+today+'</b></span><span class="bmod">版主 <b>'+b.mod+'</b></span></div>'+
+      '<span class="go">进入 ›</span>'+
+    '</div>';
+  });
+  h+='</div>';
+  box.innerHTML=h;
+}
+function fbSetBid(id){fbBid=id;fbChips();fbList();fbScrollToList();}
+function fbScrollToList(){var c=document.getElementById('fbList');if(!c)return;c.scrollIntoView({behavior:'smooth',block:'start'});}
 function fbFiltered(){
   const q=(document.getElementById('fbQ').value||'').trim().toLowerCase();
   const sort=document.getElementById('fbSort').value;fbSort=sort;
@@ -4818,13 +4972,15 @@ function fbFiltered(){
   else arr=arr.slice().sort((a,b)=>b.time-a.time);
   return arr;}
 function fbList(){
+  fbBoardIndexRender();
   fbHotRender();
   const c=document.getElementById('fbList');
   if(fbView){fbDetail();return;}
+  if(fbProfileView){fbProfileRender();return;}
   const arr=fbFiltered();
   if(!arr.length){c.innerHTML='<div class="fb-empty">还没有帖子。<br>这里可以发求助、分享做法、互相支招。<br><b style="color:var(--blue-700)">点右上角「＋ 发新帖」发第一帖</b>。</div>';return;}
-  c.innerHTML=arr.map(p=>{
-    const b=fbB(p.bid);const rc=p.replies.length;
+  c.innerHTML='<div class="fb-thead"><span class="th-stat">状态</span><span class="th-title">标题 / 版块</span><span class="th-author">作者</span><span class="th-cnt">回复 / 赞</span><span class="th-last">最后发表</span></div>'+arr.map(p=>{
+    const b=fbB(p.bid);const rc=p.replies.length;const ri=fbRankInfo(fbStats(p.author||'匿名').rep);
     const lw=p.replies.length?p.replies[p.replies.length-1].author:'';
     const st=(p.top?'<span class="ftag" style="background:#fdeceb;color:#d6463c;border:1px solid #f4b6b1">顶</span>':'')+
               (p.hl===1?'<span class="ftag" style="background:#e7f1fb;color:#14559c;border:1px solid #b9d6f2">精</span>':'')+
@@ -4834,7 +4990,7 @@ function fbList(){
     return '<div class="frow" data-pid="'+p.id+'" onclick="fbOpen(\''+p.id+'\')">'+
       '<div class="fstat">'+st+'</div>'+
       '<a class="ftitle" onclick="event.stopPropagation();fbOpen(\''+p.id+'\')">'+esc(p.title)+'</a>'+
-      '<div class="fauthor">'+esc(p.author||'匿名')+'</div>'+
+      '<div class="fauthor" data-au="'+esc(p.author||'匿名')+'" onclick="event.stopPropagation();fbProfile(this.dataset.au)">'+fbAvatarHTML(p.author||'匿名','fav-sm')+'<span class="fa-name">'+esc(p.author||'匿名')+'</span><span class="fauthor-rank'+(ri.idx>=3?' r-top':'')+'">'+ri.name+'</span></div>'+
       '<div class="fcnt"><b>'+rc+'</b> / '+p.likes+'</div>'+
       '<div class="flast">'+fbT(p.time)+'<br><span class="who">'+esc(lw)+'</span></div></div>';}).join('');
   if(window._fbJust){var _el=c.querySelector('[data-pid="'+window._fbJust+'"]');if(_el){_el.classList.add('fb-just');_el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){_el.classList.remove('fb-just');},2400);}window._fbJust=null;}
@@ -4842,46 +4998,132 @@ function fbList(){
 function fbOpen(id){fbView=id;fbDetail();}
 function fbBack(){fbView=null;fbList();fbScrollToTop();}
 function fbScrollToTop(){var c=document.getElementById('fbList');if(!c)return;var y=c.getBoundingClientRect().top+window.scrollY-72;window.scrollTo({top:y,behavior:'smooth'});}
-/* ============ 智子情景演练（学习板块拓展，破内容固定天花板） ============ */
+/* ============ 智子情景演练（增强版：段位+分支剧情+离线题库+战绩，断网可用；保留仓库侧修5① 60s 超时/修5② 排版/修5③ 失败重试） ============ */
+var DRILL_DIFFS=[{k:'学徒',t:'照章办事'},{k:'少侠',t:'权衡利弊'},{k:'宗师',t:'临危受命'}];
+var _drillDiff='学徒';
+var _drillStat=(function(){try{return JSON.parse(localStorage.getItem('yf_drill_stat')||'{}');}catch(e){return {};}})();
+function drillSaveStat(){try{localStorage.setItem('yf_drill_stat',JSON.stringify(_drillStat));}catch(e){}}
+/* 离线题库：断网/无云端时自动切换，保证演练随时可练 */
+var DRILL_BANK={
+'招募实战':[
+ {scene:'暑期招募启动第3天，咨询量不错但真正填表的只有个位数，站长让你“想点办法”。',q1:'你第一步最该做什么？',opts1:[{key:'A',text:'先摸清咨询不填表的卡点：是信任、时间还是流程繁琐',score:100},{key:'B',text:'马上加优惠券/礼品吸引填表',score:65},{key:'C',text:'怪地推人员不卖力，开会施压',score:35}],twist:'你排查发现，家长最担心的是“献血浆伤身体”的传言。',q2:'接下来你重点做哪件？',opts2:[{key:'A',text:'请医学背景同事用通俗语言+现场参观打消顾虑',score:100},{key:'B',text:'让家长自己搜，不主动解释',score:65},{key:'C',text:'回避话题，只推活动',score:35}],parse:'招募先诊断后发力：咨询到填表的流失往往卡在信任与认知，先找原因再行动；用专业加透明化解健康谣言，比砸礼品更持久。'},
+ {scene:'隔壁乡镇站搞“填表送电动车”冲量，你站站长心动，问你意见。',q1:'你怎么回？',opts1:[{key:'A',text:'建议不跟风，用可持续的科普加体验式招募，避免合规与口碑风险',score:100},{key:'B',text:'也搞更大力度',score:65},{key:'C',text:'直接照抄',score:35}],twist:'站长坚持要试，但要求“别出事”。',q2:'你如何落地？',opts2:[{key:'A',text:'若必须做，严格限定合规边界、明码标价、留痕，并设健康告知',score:100},{key:'B',text:'随便搞，别被抓就行',score:35},{key:'C',text:'拖延不做',score:65}],parse:'招募量不等于质量；短期冲量易踩合规红线、伤口碑。坚持专业底线，必要时在合规框架内温和执行。'}
+],
+'家长沟通':[
+ {scene:'一位家长在群里公开质疑“是不是变相卖血”，语气激烈。',q1:'你先怎么做？',opts1:[{key:'A',text:'私信家长，先倾听再科普，不公开对线',score:100},{key:'B',text:'群里直接怼回去',score:35},{key:'C',text:'装没看见',score:65}],twist:'私聊后家长仍半信半疑，说“那你让我去现场看看”。',q2:'你回应？',opts2:[{key:'A',text:'欢迎到场，约时间、安排专业讲解与参观，给安全感',score:100},{key:'B',text:'敷衍说忙',score:65},{key:'C',text:'拒绝怕添乱',score:35}],parse:'家长情绪先接住再讲理；公开场合不激化，私域建立信任；用“眼见为实”化解谣言最有效。'},
+ {scene:'多名家长问“孩子参加社会实践有没有证书/证明”。',q1:'你？',opts1:[{key:'A',text:'明确告知实践证书/志愿时长政策，统一口径发群',score:100},{key:'B',text:'各自口头随口答',score:65},{key:'C',text:'不理',score:35}],twist:'有家长想要“能写进综评”的盖章证明，但站里没这权限。',q2:'你？',opts2:[{key:'A',text:'如实说明权限边界，提供真实可出具的实践证明，不承诺做不到的',score:100},{key:'B',text:'先盖章再说',score:35},{key:'C',text:'推给上级',score:65}],parse:'家长诉求统一回应、口径一致；超出权限不硬承诺，用真实材料建立长期信任。'}
+],
+'危机应对':[
+ {scene:'演练日突降暴雨，户外环节无法进行，30名学员已到场。',q1:'你？',opts1:[{key:'A',text:'立即启动备用室内方案加安全疏导，同步通知家长',score:100},{key:'B',text:'等雨停',score:65},{key:'C',text:'取消让大家自己回',score:35}],twist:'家长群里有人发“组织混乱”。',q2:'你？',opts2:[{key:'A',text:'主动发现场有序照片加说明，化被动为主动',score:100},{key:'B',text:'删帖',score:35},{key:'C',text:'不回应',score:65}],parse:'突发事件先保安全与体验，预案要前置；舆情主动透明，用事实平抑情绪。'},
+ {scene:'一名学员演练中擦伤，家长赶来情绪激动。',q1:'你？',opts1:[{key:'A',text:'先关心伤情、陪同就医、诚恳沟通、留记录',score:100},{key:'B',text:'推给保险或上级',score:65},{key:'C',text:'说“小伤没事”',score:35}],twist:'家长要求“以后别让我孩子参加危险活动”。',q2:'你？',opts2:[{key:'A',text:'共情加说明安全管理改进，邀请参与监督，而非简单答应停课',score:100},{key:'B',text:'直接答应不参加',score:65},{key:'C',text:'拒绝',score:35}],parse:'安全第一、人文关怀在前；用机制改进回应担忧，比一刀切更负责。'}
+],
+'活动组织':[
+ {scene:'你策划的“血浆知识进社区”活动，报名仅够半数。',q1:'你？',opts1:[{key:'A',text:'复盘渠道与卖点，联合社区或学校精准触达，调时间地点',score:100},{key:'B',text:'照常办，人少就少',score:65},{key:'C',text:'取消',score:35}],twist:'活动当天来了不少路人但秩序乱。',q2:'你？',opts2:[{key:'A',text:'临时增派引导、分组、设签到与动线，保体验',score:100},{key:'B',text:'随它乱',score:35},{key:'C',text:'赶人',score:65}],parse:'活动靠策划也靠临场；报名不足先找触达问题；现场动线与人手决定体验与口碑。'},
+ {scene:'两场活动撞期，人手不够。',q1:'你？',opts1:[{key:'A',text:'按目标或产出排序，合并或错峰，借力志愿者',score:100},{key:'B',text:'都硬上，质量打折',score:65},{key:'C',text:'随便砍一场',score:35}],twist:'志愿者临时少了一半。',q2:'你？',opts2:[{key:'A',text:'启动备份名单加简化环节保核心，透明沟通',score:100},{key:'B',text:'慌乱',score:35},{key:'C',text:'延期全取消',score:65}],parse:'资源冲突用优先级决策；备份人力与弹性方案是项目负责人基本功。'}
+],
+'团队管理':[
+ {scene:'你带3名新人，积极性低、总等你派活。',q1:'你？',opts1:[{key:'A',text:'定目标加授权加陪跑，给反馈，让新人扛小项目',score:100},{key:'B',text:'全自己干',score:65},{key:'C',text:'批评懒',score:35}],twist:'其中一人出错被站长点名，士气更低。',q2:'你？',opts2:[{key:'A',text:'揽责护新人、复盘教方法，再让其补位',score:100},{key:'B',text:'甩锅',score:35},{key:'C',text:'当众批',score:65}],parse:'带人靠目标与授权，不是包办；新人出错是带教责任，护犊加复盘才能长本事。'},
+ {scene:'老员工对新流程抵触，说“以前就这样”。',q1:'你？',opts1:[{key:'A',text:'先听顾虑、用数据小范围试点证明价值，再推广',score:100},{key:'B',text:'强制推行',score:35},{key:'C',text:'算了不改',score:65}],twist:'试点数据确实更好，但他仍不服。',q2:'你？',opts2:[{key:'A',text:'请他一起优化细节、给荣誉感，变阻力为盟友',score:100},{key:'B',text:'忽略他',score:65},{key:'C',text:'上报处理',score:35}],parse:'变革管理先共情后证明；把反对者变成共建者，比压服更稳。'}
+],
+'数据分析':[
+ {scene:'月度数据出来，A站招募转化高但B站低，站长让你“找原因”。',q1:'你？',opts1:[{key:'A',text:'拆漏斗：触达-咨询-填表-到站各环节对比，定位B站流失点',score:100},{key:'B',text:'凭感觉说B站人不给力',score:35},{key:'C',text:'只看总数',score:65}],twist:'发现B站流失在“咨询到填表”环节。',q2:'你？',opts2:[{key:'A',text:'针对该环节做干预：话术/信任/流程，并设对照验证',score:100},{key:'B',text:'全盘照搬A站',score:65},{key:'C',text:'不管',score:35}],parse:'数据价值在拆解到可行动的环节；定位流失点再施策，用对照验证而非拍脑袋。'},
+ {scene:'你被要求“下周报就好看点”。',q1:'你？',opts1:[{key:'A',text:'坚持真实呈现，附问题归因与改进，不和稀泥',score:100},{key:'B',text:'美化数字',score:35},{key:'C',text:'照搬上月',score:65}],twist:'上级暗示“别太难看”。',q2:'你？',opts2:[{key:'A',text:'用真实数据讲清进展与卡点，给出可落地方案，专业立信',score:100},{key:'B',text:'掺水',score:35},{key:'C',text:'含糊',score:65}],parse:'数据诚信是底线；向上管理靠“问题加方案”而非粉饰。'}
+],
+'舆情防控':[
+ {scene:'本地论坛出现“血浆站骗学生”帖，已有转发。',q1:'你？',opts1:[{key:'A',text:'监测定级、准备事实口径、必要时官方澄清，不删不躲',score:100},{key:'B',text:'马上删',score:35},{key:'C',text:'装不知道',score:65}],twist:'有家长来问“是不是真的”。',q2:'你？',opts2:[{key:'A',text:'主动、统一、有温度地回应，附权威依据',score:100},{key:'B',text:'让ta别信网上的',score:65},{key:'C',text:'不回',score:35}],parse:'舆情“快讲事实、慢下定论”；用权威与温度对冲谣言，封堵易激化。'},
+ {scene:'短视频拍了学员笑脸，评论区有人质疑“摆拍”。',q1:'你？',opts1:[{key:'A',text:'补充真实过程素材、说明背景，引导看全貌',score:100},{key:'B',text:'删评',score:35},{key:'C',text:'回怼',score:65}],twist:'话题有升温迹象。',q2:'你？',opts2:[{key:'A',text:'发布幕后花絮加负责人出镜说明，转危为机',score:100},{key:'B',text:'冷处理放任',score:65},{key:'C',text:'关评论',score:35}],parse:'短视频时代透明即护城河；用更多真实内容对冲质疑，关评论反而可疑。'}
+],
+'合规红线':[
+ {scene:'有人提议“让学生填表时顺便签个长期协议，省事”。',q1:'你？',opts1:[{key:'A',text:'拒绝，告知需充分知情、自愿、分开签署，守住合规',score:100},{key:'B',text:'图省事照做',score:35},{key:'C',text:'看别人做没做',score:65}],twist:'对方说“别这么死板，大家都这样”。',q2:'你？',opts2:[{key:'A',text:'坚持底线并说明风险，建议合规替代方案',score:100},{key:'B',text:'松口',score:35},{key:'C',text:'上报但照做',score:65}],parse:'知情同意与自愿是生命线；“别人也做”不是合规理由，项目负责人要敢说不。'},
+ {scene:'家长想“多填几次领多份礼品”，系统能查重但麻烦。',q1:'你？',opts1:[{key:'A',text:'启用查重、明确规则、一证一档，堵漏洞',score:100},{key:'B',text:'睁只眼闭只眼',score:35},{key:'C',text:'嫌麻烦不查',score:65}],twist:'有员工觉得“多领是人家本事”。',q2:'你？',opts2:[{key:'A',text:'培训口径加系统硬控，把规则变成流程而非人情',score:100},{key:'B',text:'随员工',score:35},{key:'C',text:'只批评不改进',score:65}],parse:'合规靠系统硬控加共识，不靠人盯人；规则一旦讲人情就失效。'}
+]
+};
+function drillSetDiff(k){_drillDiff=k;document.querySelectorAll('#drillDiffs .ddiff').forEach(function(b){b.classList.toggle('active',b.dataset.d===k);});}
+function optScore(opts,k){var o=(opts||[]).find(function(x){return x.key===k;});if(!o)return 0;if(typeof o.score==='number')return o.score;return o.key==='A'?100:(o.key==='B'?65:35);}
+function optStr(opts){return (opts||[]).map(function(o){return o.key+'. '+o.text;}).join('\n');}
+function drillBankParse(d){var c1=(d.options||[]).find(function(x){return x.key===d.ans1;});var c2=(d.options2||[]).find(function(x){return x.key===d.ans2;});return '<div class="drill-parse"><b>第一轮参考（你选 '+d.ans1+'）：</b>'+esc(c1?c1.text:'')+'</div><div class="drill-parse"><b>第二轮参考（你选 '+d.ans2+'）：</b>'+esc(c2?c2.text:'')+'</div><div class="drill-parse"><b>带教锦囊：</b>'+esc(d.parse||'')+'</div>';}
+function extractScore(t){var m=String(t).match(/(\d{1,3})\s*分/);if(m){var n=+m[1];if(n>=0&&n<=100)return n;}var m2=String(t).match(/\b(\d{1,3})\b/);if(m2){var n2=+m2[1];if(n2<=100)return n2;}return 0;}
+function drillUpdStat(score){_drillStat.done=(_drillStat.done||0)+1;_drillStat.best=Math.max(_drillStat.best||0,score);_drillStat.total=(_drillStat.total||0)+score;if(score>=60){_drillStat.streak=(_drillStat.streak||0)+1;}else{_drillStat.streak=0;}drillSaveStat();drillRenderStat();}
+function drillRenderStat(){var el=document.getElementById('drillStat');if(!el)return;var d=_drillStat;var avg=d.done?Math.round(d.total/d.done):0;el.innerHTML='<b>演练战绩</b>　已完成 <b>'+(d.done||0)+'</b>　平均分 <b>'+avg+'</b>　最高 <b>'+(d.best||0)+'</b>　连胜 <b>'+(d.streak||0)+'</b>';}
+function drillRenderQ1(){var q=document.getElementById('drillQ'),opts=document.getElementById('drillOpts');q.innerHTML='<b>场景：</b>'+esc(_drill.scene||'')+'<br><br><b>'+esc(_drill.question||'')+'</b>';opts.innerHTML=(_drill.options||[]).map(function(o){return '<div class="drill-opt" data-k="'+esc(o.key)+'" onclick="drillPick(1,\''+esc(o.key)+'\')"><span class="k">'+esc(o.key)+'</span><span>'+esc(o.text||'')+'</span></div>';}).join('');}
+function drillShowR2(){var r2=document.getElementById('drillR2'),q2=document.getElementById('drillQ2'),opts2=document.getElementById('drillOpts2');r2.style.display='block';q2.innerHTML='<b>剧情推进：</b>'+esc(_drill.twist||'')+'<br><br><b>'+esc(_drill.question2||'')+'</b>';opts2.innerHTML=(_drill.options2||[]).map(function(o){return '<div class="drill-opt" data-k="'+esc(o.key)+'" onclick="drillPick(2,\''+esc(o.key)+'\')"><span class="k">'+esc(o.key)+'</span><span>'+esc(o.text||'')+'</span></div>';}).join('');r2.scrollIntoView({behavior:'smooth',block:'center'});}
 function learnTab(t){
   document.querySelectorAll('.ltab').forEach(function(x){x.classList.toggle('active',x.dataset.lt===t);});
   var book=document.getElementById('learnFrame'), box=document.getElementById('drillPanel');
   if(t==='book'){book.style.display='block';box.style.display='none';}
-  else{book.style.display='none';box.style.display='block';var L=document.getElementById('learn');window.scrollTo({top:L.offsetTop-72,behavior:'smooth'});}
+  else{book.style.display='none';box.style.display='block';var L=document.getElementById('learn');window.scrollTo({top:L.offsetTop-72,behavior:'smooth'});if(typeof drillRenderStat==='function')drillRenderStat();}
 }
 var _drill=null;
 async function drillStart(cat){
-  var box=document.getElementById('drillBox'), q=document.getElementById('drillQ'), opts=document.getElementById('drillOpts'), fb=document.getElementById('drillFb');
-  fb.style.display='none'; var ta=document.getElementById('drillAns'); if(ta)ta.value='';
-  q.innerHTML='<span class="muted">智子正在出《'+cat+'》情景题…</span>'; opts.innerHTML=''; box.style.display='block';
-  var sys='你是扬帆计划（血液制品行业单采血浆站暑期青年社会实践营）的带教导师AI，面向浆站项目负责人出真实可感的情景判断题。';
-  var prompt='请生成一道关于《'+cat+'》的扬帆计划情景题，只返回JSON：{scene:场景描述(发生了什么/背景), question:核心问题, options:[{key:"A",text:...},{key:"B",text:...},{key:"C",text:...}]}（A最优、B次优、C是陷阱，不要揭晓答案）。只返回JSON。';
-  try{
-    var res=await drillAsk(prompt,sys);
-    var obj=extractJSON(res.content);
-    if(!obj){q.innerHTML='出题格式异常，请重试';return;}
-    _drill=obj;
-    q.innerHTML='<b>📍 场景：</b>'+esc(obj.scene||'')+'<br><br><b>❓ '+esc(obj.question||'')+'</b>';
-    opts.innerHTML=(obj.options||[]).map(function(o){return '<div class="drill-opt" onclick="drillPick(\''+o.key+'\')"><span class="k">'+esc(o.key)+'</span><span>'+esc(o.text||'')+'</span></div>';}).join('');
-  }catch(e){
-    /* 修5③：失败不空白——明确错误卡 + 重试按钮（重发同题） */
-    q.innerHTML='<div style="background:var(--ice);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px"><b>演练大脑暂时连不上：'+esc(((e&&e.message)||String(e)).slice(0,80))+'</b><br><button class="up-btn" id="drillRetryBtn" style="margin-top:8px">重试本题</button></div>';
-    var rb=document.getElementById('drillRetryBtn'); if(rb)rb.onclick=function(){ drillStart(cat); };
+  var box=document.getElementById('drillBox');
+  box.style.display='block';
+  var q=document.getElementById('drillQ'),opts=document.getElementById('drillOpts'),r2=document.getElementById('drillR2'),fb=document.getElementById('drillFb'),ta=document.getElementById('drillAns');
+  fb.style.display='none'; if(ta)ta.value=''; if(r2)r2.style.display='none';
+  var catEl=document.getElementById('drillCat'),diffEl=document.getElementById('drillDiffBadge');
+  if(catEl)catEl.textContent='《'+cat+'》';
+  if(diffEl)diffEl.textContent=_drillDiff;
+  q.innerHTML='<span class="muted">智子正在出《'+cat+'》· '+_drillDiff+' 情景题…</span>'; opts.innerHTML='';
+  drillRenderStat();
+  var sys='你是扬帆计划（血液制品行业单采血浆站暑期青年社会实践营）的带教导师AI，面向浆站项目负责人出真实可感的情景演练题。';
+  var prompt='请生成一道关于《'+cat+'》的扬帆计划情景演练题，段位要求：'+_drillDiff+'（学徒=照章办事即可；少侠=需权衡利弊；宗师=多方压力且时间紧）。只返回JSON：{scene:背景场景, question:第一轮核心问题, options:[{key:"A",text:最优做法},{key:"B",text:次优},{key:"C",text:常见陷阱}]（不要揭晓答案）, twist:剧情推进的新情况, question2:第二轮问题, options2:[{key:"A",text:最优},{key:"B",text:次优},{key:"C",text:陷阱}]}。只返回JSON。';
+  /* 合并策略：配了云端大脑→走 LLM；联网但失败→修5③ 明确错误卡+重试，不静默空白；没配云端→直接离线题库 */
+  if(window.YF_API_URL && window.YF_API_URL.trim()){
+    try{
+      var res=await drillAsk(prompt,sys);
+      var obj=extractJSON(res.content);
+      if(obj&&obj.scene&&obj.question2&&Array.isArray(obj.options2)&&obj.options2.length){
+        _drill={cat:cat,diff:_drillDiff,mode:'llm',scene:obj.scene,question:obj.question,options:obj.options||[],twist:obj.twist,question2:obj.question2,options2:obj.options2,ans1:null,ans2:null};
+        drillRenderQ1();
+        return;
+      }
+      /* LLM 返回不完整（缺第二轮）→ 落到离线题库，保证两轮体验完整 */
+    }catch(e){
+      /* 修5③：失败不空白——明确错误卡 + 重试按钮（重发同题） */
+      q.innerHTML='<div style="background:var(--ice);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px"><b>演练大脑暂时连不上：'+esc(((e&&e.message)||String(e)).slice(0,80))+'</b><br><button class="up-btn" id="drillRetryBtn" style="margin-top:8px">重试本题</button></div>';
+      var rb=document.getElementById('drillRetryBtn'); if(rb)rb.onclick=function(){ drillStart(cat); };
+      return;
+    }
+  }
+  var bank=(DRILL_BANK[cat]||[]);
+  if(!bank.length){ q.innerHTML='该主题暂无离线题库，请联网后重试'; return; }
+  var s=bank[Math.floor(Math.random()*bank.length)];
+  _drill={cat:cat,diff:_drillDiff,mode:'bank',scene:s.scene,question:s.q1,options:s.opts1,twist:s.twist,question2:s.q2,options2:s.opts2,parse:s.parse,ans1:null,ans2:null};
+  drillRenderQ1();
+}
+function drillPick(slot,k){
+  if(slot===1){
+    _drill.ans1=k;
+    document.querySelectorAll('#drillOpts .drill-opt').forEach(function(el){el.classList.toggle('sel',el.dataset.k===k);});
+    var ta=document.getElementById('drillAns'); if(ta)ta.value=(ta.value?ta.value+'\n':'')+'【第一轮 我选 '+k+'】';
+    drillShowR2();
+  }else{
+    _drill.ans2=k;
+    document.querySelectorAll('#drillOpts2 .drill-opt').forEach(function(el){el.classList.toggle('sel',el.dataset.k===k);});
+    var ta2=document.getElementById('drillAns'); if(ta2)ta2.value=(ta2.value?ta2.value+'\n':'')+'【第二轮 我选 '+k+'】';
   }
 }
-function drillPick(k){var t=document.getElementById('drillAns');if(!t)return;t.value=(t.value?t.value+'\n':'')+'我选 '+k+'：';t.focus();}
 function drillReset(){_drill=null;var b=document.getElementById('drillBox');if(b)b.style.display='none';}
 async function drillGrade(){
-  if(!_drill)return;
-  var ans=document.getElementById('drillAns').value.trim();
-  if(!ans){ gwNotice('先写下你的处理思路','可以直接敲你的想法，也可以点上面的 A/B/C 选项把思路带进来，再让智子点评。','info',6000); var da=document.getElementById('drillAns'); if(da) da.focus(); return; }
-  var fb=document.getElementById('drillFb');fb.style.display='block';fb.innerHTML='<span class="muted">智子正在点评…</span>';
-  var btn=document.getElementById('drillGradeBtn');if(btn)btn.disabled=true;
+  if(!_drill||!_drill.ans1||!_drill.ans2){ gwNotice('先把两轮都选完','请先完成第一轮与第二轮的选择，再请智子点评。','info',6000); return; }
+  var fb=document.getElementById('drillFb'); fb.style.display='block'; fb.innerHTML='<span class="muted">智子正在点评…</span>';
+  var btn=document.getElementById('drillGradeBtn'); if(btn)btn.disabled=true;
+  var score=0;
+  if(_drill.mode==='bank'){
+    var s1=optScore(_drill.options,_drill.ans1), s2=optScore(_drill.options2,_drill.ans2);
+    score=Math.round((s1+s2)/2);
+    fb.innerHTML='<div class="fb-h">演练战报（离线题库）</div><div class="drill-score">本次得分 <b>'+score+'</b> 分（满分100，60分过关）</div>'+drillBankParse(_drill);
+    if(btn)btn.disabled=false;
+    drillUpdStat(score);
+    return;
+  }
   var sys='你是扬帆计划的带教导师，语气像带新站长的老大哥/大姐，实在、点透、不绕弯。';
-  var prompt='情景题——场景：'+_drill.scene+'\n问题：'+_drill.question+'\n选项：'+(_drill.options||[]).map(function(o){return o.key+'. '+o.text;}).join('\n')+'\n学员作答：'+ans+'\n请以带教导师口吻点评（200字内）：① 选得对不对、为什么；② 最优做法是什么（结合扬帆实际）；③ 一句鼓励。';
+  var ta=document.getElementById('drillAns'); var ans=ta?ta.value.trim():'';
+  var prompt='情景演练——场景：'+_drill.scene+'\n第一轮问题：'+_drill.question+'\n第一轮选项：'+optStr(_drill.options)+'\n学员选：'+_drill.ans1+'\n剧情推进：'+_drill.twist+'\n第二轮问题：'+_drill.question2+'\n第二轮选项：'+optStr(_drill.options2)+'\n学员选：'+_drill.ans2+'\n学员补充说明：'+(ans||'（无）')+'\n请以带教导师口吻点评（250字内）：① 两轮选择对不对、为什么；② 最优做法（结合扬帆实际）；③ 给个0-100总分与「决策力/沟通力/合规意识」三维度短评；④ 一句鼓励。';
   try{
     var res=await drillAsk(prompt,sys);
-    fb.innerHTML='<div class="fb-h">🎓 智子带教点评</div>'+fmtBotText(res.content);
+    fb.innerHTML='<div class="fb-h">智子带教点评</div>'+fmtBotText(res.content);  /* 修5②：escape-then-concat 排版管线 */
+    score=extractScore(res.content)||Math.round((optScore(_drill.options,_drill.ans1)+optScore(_drill.options2,_drill.ans2))/2);
+    drillUpdStat(score);
   }catch(e){
     /* 修5③：点评失败不空白——错误卡 + 重试按钮（同题同答重评） */
     fb.innerHTML='<div style="background:var(--ice);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px"><b>演练大脑暂时连不上：'+esc(((e&&e.message)||String(e)).slice(0,80))+'</b><br><button class="up-btn" id="drillRetryGrade" style="margin-top:8px">重试点评</button></div>';
@@ -4908,49 +5150,67 @@ function fbDetail(){
   if(!p){fbView=null;fbList();return;}
   const b=fbB(p.bid);
   const av=(p.author||'匿')[0].toUpperCase();
-  const hlTag=(p.hl===1)?'<span class="fb-hl-tag hl1">🔥 精华</span>':(p.hl===2)?'<span class="fb-hl-tag hl2">⭐ 优秀</span>':'';
+  const hlTag=(p.hl===1)?'<span class="fb-hl-tag hl1">精华</span>':(p.hl===2)?'<span class="fb-hl-tag hl2">优秀</span>':'';
   const isAdmin=yfIsAdmin();
-  let h='<div class="fb-detail">'+
-    '<div class="fb-dhead">'+
-      '<button class="fb-back" onclick="fbBack()">← 返回交流</button>'+
-      '<div class="dtitle">'+esc(p.title)+'</div>'+
+  const au=p.author||'匿名';
+  const st=fbStats(au);
+  const rep=st.rep;
+  const ri=fbRankInfo(rep);
+  let h='<div class="fb-detail"><div class="fb-detail-layout">';
+  /* 左：作者江湖档案（点击进入个人空间） */
+  h+='<aside class="fb-author-sidebar">'+
+    '<div class="fb-as-avatar" data-au="'+esc(au)+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer">'+fbAvatarHTML(au,'fb-as-ava')+'</div>'+
+    '<div class="fb-as-name" data-au="'+esc(au)+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer">'+esc(au)+'</div>'+
+    '<div class="fb-as-rank">'+ri.name+'</div>'+
+    '<div class="fb-as-rankbar"><i style="width:'+ri.pct+'%"></i></div>'+
+    '<div class="fb-as-stats">'+
+      '<div>主帖<b>'+st.thread+'</b></div>'+
+      '<div>回复<b>'+st.reply+'</b></div>'+
+      '<div>获赞<b>'+st.like+'</b></div>'+
     '</div>'+
-    '<div class="fb-dcard"><div class="fb-dcard-main">'+
-      '<div class="dtag-row"><span class="dtag" style="background:'+b.c+'">'+b.n+'</span>'+hlTag+'</div>'+
-      '<h3>'+esc(p.title)+'</h3>'+
-      '<div class="fb-dauthor">'+
-        '<div class="fb-davatar">'+av+'</div>'+
-        '<div class="fb-dinfo"><span class="name">'+esc(p.author||'匿名')+'</span><span class="time">'+fbT(p.time)+'</span></div>'+
-      '</div>'+
-      '<div class="fb-dbody">'+fmtPostBody(p.body)+(p.images?p.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div>'+
+    '<div class="fb-as-points">江湖声望 <b>'+rep+'</b></div>'+
+    '<button class="fb-as-msg" onclick="toast(\'私信功能即将上线 \')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg> 私信 TA</button>'+
+  '</aside>';
+  /* 右：主帖 + 回复 */
+  h+='<div class="fb-dmain">'+
+    '<div class="fb-dmain-head"><h1>'+esc(p.title)+'</h1>'+
+      '<div class="acts"><button class="fb-back" onclick="fbBack()">← 返回列表</button></div>'+
     '</div>'+
+    '<div class="fb-dmain-meta">'+
+      '<span class="dtag" style="background:'+b.c+'">'+b.n+'</span>'+
+      '<span class="lz-badge">楼主</span>'+
+      '<span>发表于 '+fbT(p.time)+'</span>'+
+      hlTag+
+    '</div>'+
+    '<div class="fb-dmain-body">'+fmtPostBody(p.body)+(p.images?p.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div>'+
     '<div class="fb-dacts">'+
-      '<button class="fb-like'+(p.liked?' on':'')+'" onclick="fbLike(\''+p.id+'\')">👍 '+p.likes+' 有用</button>'+
-      (isAdmin?'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',1)">'+(p.hl===1?'取消精华':'🔥 设精华')+'</button>'+'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',2)">'+(p.hl===2?'取消优秀':'⭐ 设优秀')+'</button>':'')+
-    '</div></div>';
+      '<button class="fb-like'+(p.liked?' on':'')+'" onclick="fbLike(\''+p.id+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> '+p.likes+' 有用</button>'+
+      (isAdmin?'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',1)">'+(p.hl===1?'取消精华':'设精华')+'</button>'+'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',2)">'+(p.hl===2?'取消优秀':'设优秀')+'</button>':'')+
+    '</div>';
   /* 回复区 */
-  h+='<div class="fb-rsec"><div class="fb-rsec-title">💬 支招 <span>('+(p.replies.length)+' 条回复)</span></div>';
+  h+='<div class="fb-rsec"><div class="fb-rsec-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z"/></svg> 江湖支招 <span>('+(p.replies.length)+' 条)</span></div>';
   if(!p.replies.length){h+='<div class="fb-empty">还没有回复，来出个主意？</div>';}
   const FL=['楼主','沙发','板凳','3楼','4楼','5楼','6楼','7楼','8楼','9楼'];
   p.replies.forEach((r,ri)=>{
     const rav=(r.author||'匿')[0].toUpperCase();
     const fl=FL[ri+1]||((ri+1)+'楼');
-    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+rav+'</div><div class="rmeta"><b>'+esc(r.author||'匿名')+'</b> · '+fbT(r.time)+'</div><span class="floor">'+fl+'</span></div>'+
+    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+fbAvatarHTML(r.author||'匿名','fav-xs')+'</div><div class="rmeta" data-au="'+esc(r.author||'匿名')+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer"><b>'+esc(r.author||'匿名')+'</b> · '+fbT(r.time)+'</div><span class="floor">'+fl+'</span></div>'+
       '<div class="rbody">'+fmtPostBody(r.body)+(r.images?r.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div></div>';
   });
   /* 回复表单（含图片上传） */
   h+='<div class="fb-rform">'+
-    '<div class="fb-rform-head"><div class="ravatar">✎</div><input id="fbReplyWho" placeholder="署名：站名·姓名" maxlength="20"></div>'+
+    '<div class="fb-rform-head"><div class="ravatar"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></div><input id="fbReplyWho" placeholder="署名：站名·姓名" maxlength="20"></div>'+
     '<div class="fb-rform-body"><textarea id="fbReplyIn" placeholder="你的建议/经验，可贴图…" maxlength="1000"></textarea>'+
       '<div class="fb-rform-imgs" id="fbReplyImgs"></div>'+
     '</div>'+
     '<div class="fb-rform-toolbar">'+
-      '<label class="fb-img-btn">📷 插入图片<input type="file" accept="image/*" id="fbImgInput" style="display:none" onchange="fbAddImg(this)"></label>'+
+      '<label class="fb-img-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 插入图片<input type="file" accept="image/*" id="fbImgInput" style="display:none" onchange="fbAddImg(this)"></label>'+
       '<button class="fb-send-btn" onclick="fbReply(\''+p.id+'\')">发送回复</button>'+
-    '</div></div></div>';
+    '</div></div>';
+  h+='</div></div></div>';
   c.innerHTML=h;
   fbScrollToTop();
-  const r=document.getElementById('fbReplyIn');}
+}
 function fmtPostBody(s){
   return String(s).replace(/\n/g,'<br>');
 }
@@ -4985,6 +5245,102 @@ function fbLike(id){
 function fbSetHl(id,hl){
   const p=FB.posts.find(x=>x.id===id);if(!p)return;
   p.hl=(p.hl===hl?0:hl);if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.markDirty)YF_CLOUD.markDirty(id);fbSave();toast(p.hl?(hl===1?'已设为精华':'已设为优秀'):'已取消标记');fbDetail();fbList();}
+
+/* ============ 江湖成长体系（声望 / 头衔 / 成就）+ 个人空间 ============ */
+function fbProfileOf(author){ FB.profiles=FB.profiles||{}; return FB.profiles[author]||null; }
+function fbAvatarHTML(author,cls){
+  const prof=fbProfileOf(author);
+  if(prof&&prof.avatar) return '<img class="'+cls+'" src="'+prof.avatar+'" alt="'+esc(author)+'">';
+  return '<span class="'+cls+' av-init">'+(author||'匿')[0].toUpperCase()+'</span>';
+}
+/* 江湖声望：论坛贡献的统一计分（后续可接入扬帆OS其他模块：数据上报/任务完成等） */
+function fbStats(author){
+  const thread=FB.posts.filter(p=>p.author===author).length;
+  const reply=FB.posts.reduce((s,p)=>s+((p.replies||[]).filter(r=>r.author===author).length),0);
+  const like=FB.posts.reduce((s,p)=>s+(p.author===author?(p.likes||0):0),0);
+  const ess=FB.posts.filter(p=>p.author===author&&p.hl===1).length;
+  const exc=FB.posts.filter(p=>p.author===author&&p.hl===2).length;
+  const rep=thread*3+reply*2+like+ess*10+exc*5;
+  return {thread:thread,reply:reply,like:like,ess:ess,exc:exc,rep:rep};
+}
+/* 头衔阶梯（阈值递增，进度条指向下一阶） */
+var FB_RANKS=[{n:'初出茅庐',need:0},{n:'初入江湖',need:20},{n:'江湖新秀',need:60},{n:'一方好手',need:150},{n:'名动一方',need:350},{n:'泰山北斗',need:700}];
+function fbRankInfo(rep){
+  let idx=0; for(let i=0;i<FB_RANKS.length;i++){ if(rep>=FB_RANKS[i].need) idx=i; }
+  const cur=FB_RANKS[idx], nxt=FB_RANKS[idx+1]||null, base=cur.need;
+  const span=nxt?(nxt.need-base):1, pct=nxt?Math.min(100,Math.round((rep-base)/span*100)):100;
+  return {idx:idx,name:cur.n,next:nxt?nxt.n:null,need:nxt?nxt.need:null,pct:pct};
+}
+/* 成就勋章（按统计自动点亮） */
+function fbAch(author,st){
+  return [
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V10"/><path d="M12 10C12 7 10 5 7 5c0 3 2 5 5 5zM12 12c0-2.5 2-4 5-4 0 2.8-2 4.5-5 4.5z"/></svg>',name:'初来乍到',desc:'发过第一帖',got:st.thread>0},
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 4 20l4 0 12-12a2 2 0 0 0-4-4L4 16 4 20z"/></svg>',name:'妙笔生花',desc:'主帖≥5',got:st.thread>=5},
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z"/></svg>',name:'乐于助人',desc:'回复≥10',got:st.reply>=10},
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',name:'以德服人',desc:'获赞≥30',got:st.like>=30},
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s5 4 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 3 3-1-3 0-5 0-8z"/></svg>',name:'精华制造机',desc:'产出精华帖',got:st.ess>=1},
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9.3l-4 4 1 5.7L12 16.5 7 19l1-5.7-4-4 5.5-.8z"/></svg>',name:'优秀标杆',desc:'产出优秀帖',got:st.exc>=1},
+    {icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18L14 7l-3 5-2-3z"/></svg>',name:'泰山北斗',desc:'声望≥700',got:st.rep>=700}
+  ];
+}
+/* 个人空间视图 */
+var fbProfileView=null;
+function fbProfile(author){ fbProfileView=author; fbView=null; fbList(); fbScrollToTop(); }
+function fbProfileBack(){ fbProfileView=null; fbList(); fbScrollToTop(); }
+function fbProfileBack2(pid){ fbProfileView=null; fbOpen(pid); }
+function fbProfStat(label,val){ return '<div class="fb-prof-stat"><b>'+val+'</b><span>'+label+'</span></div>'; }
+function fbProfileRender(){
+  const c=document.getElementById('fbList'); if(!c) return;
+  const au=fbProfileView; if(!au){fbList();return;}
+  const me=yfUsername(); const canEdit=!!(me&&me===au);
+  const st=fbStats(au), ri=fbRankInfo(st.rep), prof=fbProfileOf(au)||{}, ach=fbAch(au,st);
+  const recent=FB.posts.filter(p=>p.author===au).sort((a,b)=>b.time-a.time).slice(0,8);
+  let h='<div class="fb-profile">';
+  h+='<div class="fb-prof-head"><button class="fb-back" onclick="fbProfileBack()">← 返回列表</button></div>';
+  h+='<div class="fb-prof-card">';
+  h+='<div class="fb-prof-avatar">'+fbAvatarHTML(au,'fb-pa')+'</div>';
+  h+='<div class="fb-prof-main">';
+  h+='<div class="fb-prof-name">'+esc(au)+'</div>';
+  h+='<div class="fb-prof-rank"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M12 2 9 8h6z"/><circle cx="12" cy="15" r="4.5"/><path d="M10.5 15h3"/></svg> '+ri.name+(ri.next?' <span class="fb-prof-next">距「'+ri.next+'」还差 '+(ri.need-st.rep)+' 声望</span>':' <span class="fb-prof-next">已达最高头衔</span>')+'</div>';
+  h+='<div class="fb-prof-repbar"><i style="width:'+ri.pct+'%"></i></div>';
+  h+='<div class="fb-prof-rep">江湖声望 <b>'+st.rep+'</b></div>';
+  h+='</div>';
+  h+='<div class="fb-prof-actions">'+(canEdit?'<label class="fb-img-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>上传头像<input type="file" accept="image/*" style="display:none" onchange="fbUpAvatar(this)"></label>':'<span class="fb-prof-tip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>这是 '+esc(au)+' 的专属空间'+(me?'，<a class="fb-link" onclick="fbMySpace()">进入我的空间</a>':'，登录后可管理你的头像')+'</span>')+'</div>';
+  h+='</div>';
+  h+='<div class="fb-prof-bio">'+(prof.bio?'<span>'+esc(prof.bio)+'</span>':'<span class="muted">这位江湖侠客还没留下简介…</span>')+(canEdit?' <button class="mini-btn" onclick="fbEditBio()">编辑简介</button>':'')+'</div>';
+  h+='<div class="fb-prof-stats">'+fbProfStat('主帖',st.thread)+fbProfStat('回复',st.reply)+fbProfStat('获赞',st.like)+fbProfStat('精华',st.ess)+fbProfStat('优秀',st.exc)+'</div>';
+  h+='<div class="fb-prof-sec-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3M9 13h6M8 21h8M12 17v4"/></svg>江湖成就</div><div class="fb-prof-ach">';
+  ach.forEach(a=>{ h+='<div class="fb-ach'+(a.got?' got':'')+'"><div class="fb-ach-ic">'+a.icon+'</div><div class="fb-ach-tx"><b>'+a.name+'</b><span>'+a.desc+'</span></div></div>'; });
+  h+='</div>';
+  h+='<div class="fb-prof-sec-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M7 7h10M7 11h10M7 15h6"/></svg> '+esc(au)+' 的帖子</div>';
+  if(!recent.length){ h+='<div class="fb-empty">还没有发帖。</div>'; }
+  else{
+    h+='<div class="fb-prof-posts">'+recent.map(p=>{ const b=fbB(p.bid);
+      return '<div class="fb-pp" onclick="fbProfileBack2(\''+p.id+'\')"><span class="fb-pp-bid" style="background:'+b.c+'">'+b.n+'</span><span class="fb-pp-title">'+esc(p.title)+'</span><span class="fb-pp-meta">'+fbT(p.time)+' · <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-1px;margin-right:1px"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+p.likes+'</span></div>';
+    }).join('')+'</div>';
+  }
+  h+='</div>';
+  c.innerHTML=h;
+}
+function fbUpAvatar(inp){
+  const me=yfUsername();
+  if(!me){ toast('请先登录后再设置头像'); if(inp)inp.value=''; return; }
+  const f=inp.files[0]; if(!f){ return; }
+  if(f.size>2*1024*1024){ toast('头像图片不超过 2MB'); inp.value=''; return; }
+  const rd=new FileReader();
+  rd.onload=function(){ FB.profiles=FB.profiles||{}; FB.profiles[me]=FB.profiles[me]||{}; FB.profiles[me].avatar=rd.result; fbSave(); toast('头像已更新'); fbProfileRender(); };
+  rd.readAsDataURL(f);
+}
+function fbMySpace(){ const me=yfUsername(); if(!me){ toast('请先登录后再管理你的专属空间'); return; } fbProfile(me); }
+function fbEditBio(){
+  const me=yfUsername(); if(!me) return;
+  const cur=(fbProfileOf(me)||{}).bio||'';
+  const t=prompt('一句话简介（限30字）：',cur);
+  if(t===null) return;
+  const v=t.trim().slice(0,30);
+  FB.profiles=FB.profiles||{}; FB.profiles[me]=FB.profiles[me]||{}; FB.profiles[me].bio=v; fbSave(); toast('简介已更新'); fbProfileRender();
+}
+
 function fbRank(){
   const now=new Date();const y=now.getFullYear(),m=now.getMonth();
   const monthStart=new Date(y,m,1).getTime();const monthEnd=new Date(y,m+1,1).getTime();
@@ -5016,7 +5372,7 @@ function fbNew(){
   sel.innerHTML=BOARDS.map(b=>'<option value="'+b.id+'">'+b.n+'（'+b.d+'）</option>').join('');
   document.getElementById('fbTitle').value='';
   document.getElementById('fbBody').value='';
-  document.getElementById('fbAuthor').value='';
+  document.getElementById('fbAuthor').value=yfUsername()||'';  /* 完成版：署名预填当前登录名 */
   _postImages=[];renderPostImgs();
   document.getElementById('fbMask').style.display='flex';}
 function fbMaskHide(){document.getElementById('fbMask').style.display='none';}
