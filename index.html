@@ -1700,7 +1700,10 @@ window.__yfLoadLib=(function(){
       <div class="dash-base">数据基准：各站上报月度汇总 · 含半年度会议材料 · 非实时，供运营参考</div>
       <div class="legend">数据来自各站上报的月度汇总（招募漏斗 / 学生发展 / 入营结构 / 家长参与）+ 半年度会议材料。上方为可视化仪表盘（漏斗 / 性别结构 / 参与率 / 各站对比）；点任意站卡片 → 看该站数据汇总与<b>针对性分析</b>。对外分享默认隐藏负责人个人信息，内部点顶部开关切「管理视图」即可查看。</div>
     </div>
-    <button class="up-enter" id="dashUpBtn" onclick="openUpModal()">📤 更新数据</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="up-enter" id="dashRefreshBtn" onclick="dashRefresh()" style="background:var(--blue-200);color:var(--blue-700)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> 刷新</button>
+      <button class="up-enter" id="dashUpBtn" onclick="openUpModal()">📤 更新数据</button>
+    </div>
   </div>
   <!-- 本站诊断卡（batch2 Phase 2 · 仅 station 角色显示，yfFilterNav 控制；数据来自 /v1 云端，规则表 R1-R14 见 §2.3） -->
   <div class="dg-card" id="dgCard" style="display:none">
@@ -4258,34 +4261,42 @@ function initDash(){
   pullCloudDash();
 }
 
-/* 从云存储拉取最新看板数据，成功后刷新地图和所有看板 */
-function pullCloudDash(){
-  if(typeof yfApi!=='function') return;
-  yfApi('/data?col=dash_data','GET').then(function(j){
+/* 从云存储拉取最新看板数据：stale-while-revalidate——本地先渲染，静默拉云端覆盖；
+   数据无变化则跳过重渲染（不闪烁）；bust=true 时带时间戳绕过中间层缓存 */
+function pullCloudDash(bust,cb){
+  if(typeof yfApi!=='function'){ if(cb)cb(false); return; }
+  var url='/data?col=dash_data'+(bust?('&_ts='+Date.now()):'');
+  yfApi(url,'GET').then(function(j){
     if(!j||!j.ok||!j.data){
       if(j&&!j.ok)console.warn('[扬帆OS] 云端看板拉取未成功：'+(j.error||''));
+      if(cb)cb(false);
       return;
     }
     try{
       var cloudData=typeof j.data==='string'?JSON.parse(j.data):j.data;
       if(cloudData&&typeof cloudData==='object'&&Object.keys(cloudData).length){
-        var oldKeys=Object.keys(DASH_DB).slice();
+        var before='',after='';
+        try{before=JSON.stringify(DASH_DB);}catch(e){}
+        try{after=JSON.stringify(cloudData);}catch(e){}
+        if(before===after){ console.log('[扬帆OS] 云端看板数据无变化，跳过重渲染'); if(cb)cb(false); return; }
         Object.keys(cloudData).forEach(function(k){ DASH_DB[k]=cloudData[k]; });
         DASH_ORDER=Object.keys(DASH_DB);
         DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
         DASH_CUR=dLatest()||'all';
-        /* 刷新所有看板组件和地图 */
+        /* 数据有变化才刷新所有看板组件和地图（无变化不闪烁） */
         renderMonthSwitch();
         dashKpi();dashGrid();
         applyDashView();renderDashCharts();
         renderChinaMap();
-        console.log('[扬帆OS] 云端看板数据已加载，地图已刷新');
-      }
-    }catch(e){console.warn('[扬帆OS] 云端看板数据解析失败',e);}
+        console.log('[扬帆OS] 云端看板数据已更新，地图已刷新');
+        if(cb)cb(true);
+      }else{ if(cb)cb(false); }
+    }catch(e){console.warn('[扬帆OS] 云端看板数据解析失败',e);if(cb)cb(false);}
   }).catch(function(e){
     /* 不再静默失败：控制台留痕 + 用户可见的降级提示（仍使用本地/静态数据渲染） */
     console.warn('[扬帆OS] 云端看板拉取失败，使用本地数据',e);
     toast('云端数据拉取失败，当前显示本地缓存数据');
+    if(cb)cb(false);
   });
 }
 
@@ -4300,6 +4311,18 @@ function pushCloudDash(){
       toast(j&&j.conflict?(j.error||'数据已被他人更新，请刷新后重试'):'看板已本地生效，云端同步失败：'+((j&&j.error)||'未知原因')+'，可稍后重试');
     }
   }).catch(function(e){console.warn('[扬帆OS] 看板数据云端同步失败',e);toast('看板已本地生效，云端同步失败，请稍后重试');});
+}
+
+/* 看板显式刷新：绕过全部缓存强制重拉云端（诊断卡缓存一并失效，带时间戳防中间缓存） */
+function dashRefresh(){
+  var btn=document.getElementById('dashRefreshBtn');if(btn)btn.disabled=true;
+  toast('正在从云端刷新最新数据…');
+  try{ if(typeof dgInvalidate==='function')dgInvalidate(); }catch(e){}
+  try{ if(typeof dgBoot==='function')dgBoot(true); }catch(e){}
+  pullCloudDash(true,function(changed){
+    if(btn)btn.disabled=false;
+    toast(changed?'已更新到云端最新数据':'已是最新数据，无需更新');
+  });
 }
 
 /* ============ 全国浆站分布地图（中国地图 + 站点标注） ============ */
@@ -5089,6 +5112,7 @@ function fullRestore(inp){
         document.getElementById('pptStation').value=d.station;
       }
       toast('恢复完成：'+restored.join('、')+'，页面将刷新以加载数据');
+      try{ if(typeof dgInvalidate==='function')dgInvalidate(); }catch(e){}
       setTimeout(function(){location.reload();},1000);
     }catch(err){toast('恢复失败：'+err.message);}
   };
@@ -7716,7 +7740,7 @@ function applyTab(tab){
   /* 平滑回顶：不再瞬移，切换有过渡感 */
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
   try{ closeSidebar(); }catch(e){}
-  try{ if(tab==='dash'&&typeof dgBoot==='function')dgBoot(); }catch(e){}
+  try{ if(tab==='dash'){ if(typeof dgBoot==='function')dgBoot(); if(typeof pullCloudDash==='function')pullCloudDash(); } }catch(e){}
 }
 function toggleSidebar(){
   var sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay'),hm=document.getElementById('sbHamburger');
@@ -7774,7 +7798,7 @@ yfSafe('工作台', function(){
 /* ============ 本站诊断卡（batch2 Phase 2 · §2.1-2.4） ============ */
 /* 数据源（一次进站 3+1 个请求）：GET /v1/dash/aggregate（含本站行 + 各能力第一名站，L0 全站可见）
    + GET /v1/dash/alerts + GET /v1/profiles?tier=l1；GET /v1/growth/mine 为 501 planned 时静默降级（R12/R13 不出）。
-   缓存：sessionStorage，key 带 month（yf:diag:cache:{month}，指针 yf:diag:ptr），30 分钟；先渲染缓存再静默更新。
+   缓存：sessionStorage，key 带 month（yf:diag:cache:{month}，指针 yf:diag:ptr），30 分钟仅作弱网兜底；每次进入必发真实云端请求（stale-while-revalidate），数据无变化不重渲染。
    规则引擎：纯前端、无状态、幂等（设计 §2.3）；排序 R7 > R4/R5/R10 > R1 > R2 > R12/R13 > R3；
    防重复：localStorage yf:diag:seen:{key} 记时间戳（R1/R2 同 cap 7 天、R3 30 天、R13 一次性；R4/R5/R7/R8/R10/R12 常驻）。
    红线：站点名来自 rankTrack 第一名站的运行时数据，模板只有变量，不写死站名；标杆篇目未定（§九-1），标杆入口一律降级为论坛标签搜索。 */
@@ -7949,8 +7973,7 @@ function dgBoot(force){
   var cached=dgCacheGet();
   if(cached&&(Date.now()-cached.ts)<30*60*1000){
     try{ dgRender(cached.model); }catch(e){ console.warn('[扬帆OS] 诊断卡渲染失败',e); }
-    /* 弱网策略：先渲染缓存再静默更新；5 分钟内不重复发请求 */
-    if(!force&&(Date.now()-DG_LAST_FETCH)<5*60*1000)return;
+    /* stale-while-revalidate：缓存仅弱网兜底，必发真实云端请求覆盖（命中缓存也不提前返回） */
   }else{
     dgState('正在从云端读取本站数据…');
   }
@@ -7978,8 +8001,11 @@ function dgBoot(force){
       prescriptions:(grw&&grw.ok&&grw.data&&grw.data.prescriptions)||null,
       profile:(prf&&prf.ok&&prf.data&&prf.data.stations&&prf.data.stations[my])||null
     };
+    var unchanged=false;
+    if(cached&&cached.model){ try{ unchanged=(JSON.stringify(cached.model)===JSON.stringify(model)); }catch(e){} }
     dgCacheSet(model);
-    try{ dgRender(model); }catch(e){ console.warn('[扬帆OS] 诊断卡渲染失败',e); }
+    if(unchanged){ console.log('[扬帆OS] 诊断卡数据无变化，沿用当前渲染'); }
+    else{ try{ dgRender(model); }catch(e){ console.warn('[扬帆OS] 诊断卡渲染失败',e); } }
   }).catch(function(e){
     DG_LOADING=false;
     console.warn('[扬帆OS] 诊断卡数据加载失败',e);
