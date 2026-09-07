@@ -1909,7 +1909,7 @@ window.__yfLoadLib=(function(){
   <div id="dashWeak" style="display:none"></div>
   <div id="dashDetail" style="display:none"></div>
   <div class="dash-note">注：参与度=参与人数/入营人数（个别站&gt;100%系家长及亲属重复到场）；入营人数以招募汇总表为准，性别结构取自入营总人数表（口径差异以原始表为准）。</div>
-  <!-- ============ 浆站自主月上报（station 专属，4 步 13 字段，字段名与用户 Excel 模板逐字一致） ============ -->
+  <!-- ============ 浆站自主月上报（station 专属，4 步 14 字段，字段名与用户 Excel 模板逐字一致） ============ -->
   <div class="um-mask" id="rpMask" style="display:none">
     <div class="um-modal" style="max-width:560px">
       <div class="um-head"><h3>月上报</h3><button class="um-x" onclick="rpMaskHide()">×</button></div>
@@ -2190,15 +2190,15 @@ window.__yfLoadLib=(function(){
     <p class="gw-sub">本驾驶舱即集团上报口径：20 站健康度、风险预警、北极星指标与经验复用，均来自各站真实漏斗与「我的成长」回填结果。右上「导出」可一键生成集团汇报材料。</p>
     <div class="grid g3" style="margin:8px 0 14px">
       <div style="background:var(--ice);border:1px solid var(--line);border-radius:12px;padding:14px 16px">
-        <div style="font-size:24px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums">20</div>
+        <div style="font-size:24px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums" id="hqStations">20</div>
         <div class="muted">在运营浆站</div>
       </div>
       <div style="background:var(--ice);border:1px solid var(--line);border-radius:12px;padding:14px 16px">
-        <div style="font-size:24px;font-weight:800;color:var(--navy)">—</div>
+        <div style="font-size:24px;font-weight:800;color:var(--navy)" id="hqNps">—</div>
         <div class="muted">北极星·整体达成</div>
       </div>
       <div style="background:var(--ice);border:1px solid var(--line);border-radius:12px;padding:14px 16px">
-        <div style="font-size:24px;font-weight:800;color:var(--navy)">—</div>
+        <div style="font-size:24px;font-weight:800;color:var(--navy)" id="hqRisk">—</div>
         <div class="muted">风险预警站</div>
       </div>
     </div>
@@ -7067,6 +7067,12 @@ function renderHQ(){
   var el=document.getElementById('hqBody'); if(!el)return;
   if(!yfIsAdmin()){ el.innerHTML='<div style="text-align:center;padding:60px 20px;color:#90a0b3"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#b0bec5" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div style="margin-top:14px;font-size:15px;font-weight:600;color:#5a6b7b">中台总览仅管理员可见</div><div style="margin-top:6px;font-size:12.5px;color:#90a0b3">该模块包含全部 20 站的对比数据与预警信息，仅事业部层级可查看。</div></div>'; return; }
   var north=YF_FLOW.north(), ref=YF_FLOW.reflux(), list=GW.stationList(), bk=GW.bench();
+  /* 修2：成效总览卡 KPI 接线——静态卡由真实数据回填（与 northH 同口径），数据缺失时保持占位 */
+  try{
+    var kst=document.getElementById('hqStations'); if(kst)kst.textContent=String(list.length);
+    var knps=document.getElementById('hqNps'); if(knps)knps.textContent=north.healthy+'/'+list.length;
+    var krisk=document.getElementById('hqRisk'); if(krisk)krisk.textContent=String(north.risk);
+  }catch(e){}
   var northH='<div class="hq-north">'
     + hqNk(north.camp7.toLocaleString(),'7月入营总规模','20站合计 · 漏斗终点','')
     + hqNk(north.healthy+'<span style="font-size:16px;color:var(--muted)">/'+list.length+'</span>','能力健康站','≥3/5项能力达中位',north.healthy>=list.length*0.6?'ok':'')
@@ -8033,12 +8039,16 @@ function yfVerifyToken(tok){
     .then(function(r){ if(!r.ok) return null; return r.json(); }).catch(function(){return null;});
 }
 function yfEnter(user, tok){
+  /* 修1c 角色白名单：只认 station，其余一律 admin——绝不把 undefined/junk 写进 yf_role */
+  var r=(user.role==='station')?'station':'admin';
   try{
     localStorage.setItem(YF_TOKEN_KEY, tok);
     localStorage.setItem(YF_USER_KEY, user.username||'');
-    localStorage.setItem(YF_ROLE_KEY, user.role);
+    localStorage.setItem(YF_ROLE_KEY, r);
     localStorage.setItem(YF_STATION_KEY, user.station||'');
   }catch(e){}
+  /* 修1e station 角色预置默认站：登录后「我的成长」直接是本人站（选择器另有 gwLockStation 双保险） */
+  if(typeof GW!=='undefined'&&GW&&r==='station'&&user.station){ try{ var d=GW.load(); d.st=user.station; GW.save(d); }catch(e){} }
   var gate=document.getElementById('loginGate'), out=document.getElementById('logoutBtn');
   if(gate) gate.classList.add('hidden');
   if(out) out.style.display='block';
@@ -8049,6 +8059,8 @@ function yfEnter(user, tok){
   if(h) h.textContent = yfIsStation() ? ('你好，'+yfMyStation()+'浆站负责人') : '你好，史毅（管理端）';
   var admin=document.getElementById('wbAdmin');
   if(admin) admin.style.display = yfIsAdmin() ? '' : 'none';
+  /* 修1b 登录/会话恢复后重渲染当前 Tab：登录前画的锁屏占位不能留在屏上 */
+  yfRefreshActiveTab();
 }
 function setupGateMode(){
   var head=document.getElementById('lgHead'), tip=document.getElementById('lgTip');
@@ -8079,8 +8091,10 @@ function lgLogin(){
     yfEnter({role:j.role, station:j.station, username:j.username}, j.token);
   });
 }
+/* 修1d 会话清理公共函数：登出与 token 校验失败共用同一份清理清单（yf_token/yf_user/yf_role/yf_mystation） */
+function lgClearSession(){ try{ localStorage.removeItem(YF_TOKEN_KEY); localStorage.removeItem(YF_USER_KEY); localStorage.removeItem(YF_ROLE_KEY); localStorage.removeItem(YF_STATION_KEY); }catch(e){} }
 function lgLogout(){
-  try{ localStorage.removeItem(YF_TOKEN_KEY); localStorage.removeItem(YF_USER_KEY); localStorage.removeItem(YF_ROLE_KEY); localStorage.removeItem(YF_STATION_KEY); }catch(e){}
+  lgClearSession();
   var gate=document.getElementById('loginGate'), out=document.getElementById('logoutBtn'), pwd=document.getElementById('lgPwd'), user=document.getElementById('lgUser');
   if(gate) gate.classList.remove('hidden');
   if(out) out.style.display='none';
@@ -8096,7 +8110,7 @@ function lgBoot(){
   if(tok){
     yfVerifyToken(tok).then(function(me){
       if(me && me.ok){ yfEnter({role:me.role, station:me.station, username:me.username}, tok); }
-      else { showGateLogin(); }
+      else { lgClearSession(); showGateLogin(); } /* 修1d：token 校验失败先清残留会话再进登录门，避免半登录态 */
     });
   }else{
     yfCloudStatus().then(function(init){
@@ -8195,6 +8209,16 @@ function loadAcctList(){
 function acctDel(u){ if(!confirm('确认删除账号「'+u+'」？')) return; yfApi('/accounts','DELETE',{username:u}).then(function(j){ if(j&&j.ok) loadAcctList(); else acctMsg((j&&j.error)||'删除失败'); }); }
 
 /* ============ 侧边栏导航 ============ */
+/* 修1b 当前 Tab 重渲染助手：登录/会话恢复后调用，按 yangfan_lasttab 重画当前页（与 applyTab 分发同一映射） */
+function yfRefreshActiveTab(){
+  var t='dash';
+  try{ var s=localStorage.getItem('yangfan_lasttab'); if(s)t=s; }catch(e){}
+  try{ if(t==='dash'&&typeof dgBoot==='function')dgBoot(); }catch(e){}
+  try{ if(t==='learn'&&typeof lrOnLearnTab==='function')lrOnLearnTab(); }catch(e){}
+  try{ if(t==='hq'&&typeof renderHQ==='function')renderHQ(); }catch(e){}
+  try{ if(t==='exp'&&typeof renderBench==='function')renderBench(); }catch(e){}
+  try{ if(t==='rhythm'&&typeof renderRhythm==='function')renderRhythm(); }catch(e){}
+}
 function applyTab(tab){
   /* 站级权限拦截：中台总览 / 经验对标 仅管理端可见 */
   var sec = document.getElementById(tab);
@@ -8210,6 +8234,10 @@ function applyTab(tab){
   try{ closeSidebar(); }catch(e){}
   try{ if(tab==='dash'){ if(typeof dgBoot==='function')dgBoot(); if(typeof dgSoftRerender==='function')dgSoftRerender(); if(typeof pullCloudDash==='function')pullCloudDash(); } }catch(e){}
   try{ if(tab==='learn'&&typeof lrOnLearnTab==='function')lrOnLearnTab(); }catch(e){}
+  /* 修1a 按 Tab 分发重渲染：中台总览/经验对标/我的成长切回时基于当前登录态重画（登录前画的锁不留屏） */
+  try{ if(tab==='hq'&&typeof renderHQ==='function')renderHQ(); }catch(e){}
+  try{ if(tab==='exp'&&typeof renderBench==='function')renderBench(); }catch(e){}
+  try{ if(tab==='rhythm'&&typeof renderRhythm==='function')renderRhythm(); }catch(e){}
 }
 function toggleSidebar(){
   var sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay'),hm=document.getElementById('sbHamburger');
@@ -9140,7 +9168,7 @@ function closeReport(){ var m=document.getElementById('reportModal'); if(m) m.st
 
 <script>
 /*RP-BEGIN*/
-/* ============ 浆站自主月上报（station 专属 · 用户 Excel 模板原字段，4 步 13 字段） ============ */
+/* ============ 浆站自主月上报（station 专属 · 用户 Excel 模板原字段，4 步 14 字段） ============ */
 /* 字段映射（与用户模板一致）：reg[0]=报名 reg[1]=面试 reg[2]=入营；
    dev[0]=全站学生新卡 dev[1]=全站学生采量 dev[2]=在营学生无偿献浆 dev[3]=在营学生科普数 dev[4]=科普转化新卡；
    camp[0]=入营总人数(季累计) camp[1]=男 camp[2]=女；par[0]=家长参与人数 par[1]=家长参与度%。
@@ -9160,7 +9188,8 @@ var RP_FIELDS=[
  {g:'camp',step:3,name:'入营结构',items:[
    {i:0,label:'入营总人数',hint:'本季累计入营学生总数（不是本月新增）。'},
    {i:1,label:'男',hint:'入营学生中男性人数。'},
-   {i:2,label:'女',hint:'入营学生中女性人数。'}]},
+   {i:2,label:'女',hint:'入营学生中女性人数。'},
+   {i:3,label:'当前在营学生数（选填）',hint:'下季度起作为人均科普的精准分母，本期仅存档不参与计算。',opt:true}]},
  {g:'par',step:4,name:'家站经营',items:[
    {i:0,label:'家长参与人数',hint:'参与站内活动的家长人数；问卷、科普、献浆等均算参与。'},
    {i:1,label:'家长参与度',hint:'问卷、科普、献浆等均算参与；一个学生的家庭无论几人参与均按 1 个名额。',unit:'%'}]}
@@ -9201,7 +9230,7 @@ function rpSetMonth(v){ RP_STATE.month=v; }
 function rpGo(n){ RP_STATE.step=n; rpMsg(''); rpRender(); }
 function rpStepDone(no){
   var g=RP_FIELDS[no-1]; if(!g)return false;
-  return g.items.every(function(it){ var v=RP_STATE.vals[g.g+'.'+it.i]; return v!=null&&String(v).trim()!==''; });
+  return g.items.every(function(it){ if(it.opt)return true; /* 选填字段不挡「已填完」标记 */ var v=RP_STATE.vals[g.g+'.'+it.i]; return v!=null&&String(v).trim()!==''; });
 }
 function rpWarnText(g,it,v){ /* 即时校验文案：null=无 */
   var err=rpValidate(v,!!it.unit);
@@ -9241,7 +9270,7 @@ function rpFieldsHTML(g){
     var id='rp_'+g.g+'_'+it.i;
     var v=(RP_STATE.vals[g.g+'.'+it.i]!=null)?RP_STATE.vals[g.g+'.'+it.i]:'';
     return '<div class="rp-f"><label class="lab" for="'+id+'">'+rpEsc(it.label)+(it.unit?'（'+it.unit+'）':'')+'</label>'
-      +'<input id="'+id+'" type="number" min="0" step="1" inputmode="numeric" value="'+rpEsc(v)+'" placeholder="0" oninput="rpOnInput(\''+g.g+'\','+it.i+',this.value)">'
+      +'<input id="'+id+'" type="number" min="0" step="1" inputmode="numeric" value="'+rpEsc(v)+'" placeholder="'+(it.opt?'选填':'0')+'" oninput="rpOnInput(\''+g.g+'\','+it.i+',this.value)">'
       +'<div class="rp-hint">'+rpEsc(it.hint)+'</div>'
       +'<div class="rp-warn" id="rpw_'+g.g+'_'+it.i+'"></div></div>';
   }).join('');
@@ -9280,9 +9309,12 @@ function rpNext(){
   if(err){ rpMsg('<div class="rp-warn">'+rpEsc(err)+'</div>'); return; }
   rpGo(RP_STATE.step+1);
 }
-function rpPayload(){ /* 提交结构：{month, metrics:{reg[3], dev[5], camp[3], par[2]}}（空值按 0；par[1] 允许一位小数；station 由服务端从登录态解析，不传） */
+function rpPayload(){ /* 提交结构：{month, metrics:{reg[3], dev[5], camp[3], par[2], students?}}（空值按 0；par[1] 允许一位小数；students=当前在营学生数选填——空则整个字段不传，不是 0；station 由服务端从登录态解析，不传） */
   function arr(g,n){ var a=[]; for(var i=0;i<n;i++)a.push(rpNum(RP_STATE.vals[g+'.'+i])); return a; }
-  return {month:RP_STATE.month, metrics:{reg:arr('reg',3), dev:arr('dev',5), camp:arr('camp',3), par:arr('par',2)}};
+  var p={month:RP_STATE.month, metrics:{reg:arr('reg',3), dev:arr('dev',5), camp:arr('camp',3), par:arr('par',2)}};
+  var sv=String(RP_STATE.vals['camp.3']==null?'':RP_STATE.vals['camp.3']).trim();
+  if(sv!==''&&/^\d+$/.test(sv))p.metrics.students=Number(sv); /* 当前在营学生数（选填）：填了合法非负整数才传，绝不传 0 冒充 */
+  return p;
 }
 function rpPreview(){
   for(var s=1;s<=4;s++){
@@ -9296,7 +9328,7 @@ function rpPreview(){
     +'<div class="rp-hint" style="font-size:13.5px;color:var(--navy);font-weight:700">将写入 '+rpEsc(RP_STATE.month)+' · '+rpEsc(st||'本人站')+'</div></div>';
   h+=RP_FIELDS.map(function(g){
     return g.items.map(function(it){
-      return '<div class="rp-pv-row"><span class="k">'+rpEsc(it.label)+'</span><span class="v">'+rpEsc(RP_STATE.vals[g.g+'.'+it.i]||'0')+(it.unit?'%':'')+'</span><button type="button" class="mini-btn" onclick="rpGo('+g.step+')">修改</button></div>';
+      return '<div class="rp-pv-row"><span class="k">'+rpEsc(it.label)+'</span><span class="v">'+rpEsc((it.opt&&!String(RP_STATE.vals[g.g+'.'+it.i]||'').trim())?'—':(RP_STATE.vals[g.g+'.'+it.i]||'0'))+(it.unit?'%':'')+'</span><button type="button" class="mini-btn" onclick="rpGo('+g.step+')">修改</button></div>';
     }).join('');
   }).join('');
   body.innerHTML=h;
@@ -9336,7 +9368,7 @@ function rpEntryRefresh(){ /* 看板顶部上报条：截止日倒计时（次�
   var days=Math.ceil((dl.getTime()-Date.now())/86400000);
   cd.textContent=v+' 数据上报截止 '+(dl.getMonth()+1)+'月'+dl.getDate()+'日'+(days>=0?('，还剩 '+days+' 天'):'（已过截止，补报联系管理员）');
 }
-try{ window.__RP_TEST__={RP_FIELDS:RP_FIELDS,rpValidate:rpValidate,rpNum:rpNum,rpSeasonMonths:rpSeasonMonths,rpMonthList:rpMonthList,rpPayload:rpPayload,rpWarnText:rpWarnText,RP_STATE:RP_STATE}; }catch(e){}
+try{ window.__RP_TEST__={RP_FIELDS:RP_FIELDS,rpValidate:rpValidate,rpNum:rpNum,rpSeasonMonths:rpSeasonMonths,rpMonthList:rpMonthList,rpPayload:rpPayload,rpWarnText:rpWarnText,RP_STATE:RP_STATE,rpStepDone:rpStepDone,rpCheckStep:rpCheckStep}; }catch(e){}
 /*RP-END*/
 </script>
 </div><!-- /main-area -->
