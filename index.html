@@ -8030,9 +8030,10 @@ function yfRetry(fn, _unused, delays){
   return attempt(0);
 }
 function yfCloudStatus(){
+  /* 网络失败与「未初始化」必须区分：探测失败只置标志，绝不诱导进「首次使用」模式（防误引导重建管理员） */
   return fetch(window.YF_API_URL+'/status',{headers:{'X-App-Token':(window.YF_APP_TOKEN||'')}})
-    .then(function(r){return r.json();}).then(function(j){return !!(j&&j.initialized);})
-    .catch(function(){return false;});
+    .then(function(r){return r.json();}).then(function(j){ window.YF_NET_FAIL=false; return !!(j&&j.initialized); })
+    .catch(function(){ window.YF_NET_FAIL=true; return false; });
 }
 function yfVerifyToken(tok){
   return fetch(window.YF_API_URL+'/me',{headers:{'X-App-Token':(window.YF_APP_TOKEN||''),'Authorization':'Bearer '+tok}})
@@ -8114,7 +8115,14 @@ function lgBoot(){
     });
   }else{
     yfCloudStatus().then(function(init){
+      /* 网络探测失败 ≠ 未初始化：保持登录模式并给人话提示，绝不进「首次使用」模式（账号数据在云端不会丢） */
+      if(window.YF_NET_FAIL){ init=true; }
       yfNeedBootstrap = !init; setupGateMode();
+      if(window.YF_NET_FAIL){
+        var tip=document.getElementById('lgTip');
+        if(tip) tip.textContent='云端连接失败，请检查网络或代理后重试（账号数据在云端，不会丢失）';
+        if(typeof toast==='function')toast('网络异常：无法连接云端服务器');
+      }
       if(gate) gate.classList.remove('hidden');
       if(out) out.style.display='none';
       if(pwd) pwd.focus();
