@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="zh-CN" data-page-node-id="rlTyoXOEyEaGiFgw62KxxN">
+<head data-page-node-id="LKDkPFjT2cOLOmfjLWhiqw">
+<meta charset="UTF-8" data-page-node-id="LwMJbDIRLETo2C7fgxsG45">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="qsK9lrfwK97bo33LIGbeko">
 <title>扬帆OS · 配色参考方案预览</title>
 <style>
   /* ========== 基础 ========== */
@@ -43,6 +43,46 @@
     --danger:#d64541; --danger-ink:#bd3531;
     --h-1:#c6431f; --h-1n:#c6431f; --h-2:#6d5bd0; --h-2-ink:#5a48b8; --h-3:#0e7490;
     --focus:rgba(11,93,115,.35);
+  }
+  body[data-scheme="d"]{
+    --bg:#faf7f2; --surface:#ffffff; --fg:#3d3229; --muted:#6e6455;
+    --anchor:#4a3222; --accent:#c07a2e; --accent-strong:#8f5614; --accent-soft:#f7ede0;
+    --paper:#f6f1e8; --paper-line:#e4dcc9; --line:#e6ddd0;
+    --gold:#c9882d; --gold-ink:#7d5210; --gold-soft:#f8efdc; --gold-line:#e2cf9e;
+    --ok:#4e7d46; --ok-ink:#3d6636; --ok-soft:#ecf2e8;
+    --danger:#b04a2a; --danger-ink:#9a3a1c;
+    --h-1:#c07a2e; --h-1n:#8f5614; --h-2:#8a5a2e; --h-2-ink:#7a4a1e;
+    --focus:rgba(143,86,20,.35);
+  }
+  body[data-scheme="e"]{
+    --bg:#f8fbf9; --surface:#ffffff; --fg:#22352f; --muted:#5f7a70;
+    --anchor:#2a6e5e; --accent:#3a8272; --accent-strong:#1f5a4c; --accent-soft:#e9f4f0;
+    --paper:#f4f6ef; --paper-line:#e0e5d6; --line:#d8e6e0;
+    --gold:#d19c3f; --gold-ink:#8a6516; --gold-soft:#f8f1dc; --gold-line:#e4d6a4;
+    --ok:#2e8b70; --ok-ink:#17705a; --ok-soft:#e6f4ee;
+    --danger:#b34a3a; --danger-ink:#98382a;
+    --h-1:#3a8272; --h-1n:#1f5a4c; --h-2:#3f5a8f; --h-2-ink:#3a5285;
+    --focus:rgba(31,90,76,.35);
+  }
+  body[data-scheme="f"]{
+    --bg:#fdf9f7; --surface:#ffffff; --fg:#3a2e2a; --muted:#7d6b64;
+    --anchor:#b03e2e; --accent:#e2604a; --accent-strong:#b03e2e; --accent-soft:#fdeeec;
+    --paper:#f8f0ea; --paper-line:#e9dcd1; --line:#e8ddd6;
+    --gold:#e0982e; --gold-ink:#8f5e10; --gold-soft:#fbf1dc; --gold-line:#eed6a0;
+    --ok:#2e8b62; --ok-ink:#177052; --ok-soft:#e7f4ec;
+    --danger:#c22f2f; --danger-ink:#a52525;
+    --h-1:#e2604a; --h-1n:#b03e2e; --h-2:#1f8a70; --h-2-ink:#177052;
+    --focus:rgba(176,62,46,.35);
+  }
+  body[data-scheme="g"]{
+    --bg:#fbfafd; --surface:#ffffff; --fg:#2f2a3d; --muted:#6e6584;
+    --anchor:#463a68; --accent:#8a5cc9; --accent-strong:#5e46a0; --accent-soft:#f1edfa;
+    --paper:#f7f5f2; --paper-line:#e7e2da; --line:#e2dcee;
+    --gold:#d1912e; --gold-ink:#8a5c12; --gold-soft:#f9f0dc; --gold-line:#e6d3a0;
+    --ok:#2f8560; --ok-ink:#1c6b4c; --ok-soft:#e7f4ec;
+    --danger:#c23a52; --danger-ink:#a52a42;
+    --h-1:#8a5cc9; --h-1n:#5e46a0; --h-2:#b0576e; --h-2-ink:#a04a5e;
+    --focus:rgba(94,70,160,.35);
   }
 
   /* ========== 预览页骨架 ========== */
@@ -134,7 +174,7 @@
   .f-chip.c1{background:var(--accent-soft);color:var(--accent-strong);border:1px solid var(--line)}
   .f-chip.c2{background:rgba(109,91,208,.1);color:var(--h-2-ink,var(--accent-strong));border:1px solid var(--line)}
   .f-chip.c3{background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold-line)}
-  body:not([data-scheme="c"]) .f-chip.c2{background:var(--accent-soft);color:var(--accent-strong)}
+  body[data-scheme="a"] .f-chip.c2,body[data-scheme="b"] .f-chip.c2{background:var(--accent-soft);color:var(--accent-strong)}
   .forum .f-note{font-size:12px;color:var(--muted);margin-top:12px;border-top:1px dashed var(--paper-line);padding-top:10px}
 
   /* ========== Token 表 ========== */
@@ -162,143 +202,147 @@
   }
 </style>
 </head>
-<body data-scheme="a">
-<div class="wrap">
+<body data-scheme="a" data-page-node-id="LutAMCMC4DfEFLecqbeGfI">
+<div class="wrap" data-page-node-id="kPlfvpbBFdotGGo108HFXb">
 
   <!-- 预览页头 + 切换器 -->
-  <div class="pv-head">
-    <h1>扬帆OS · 配色参考方案预览</h1>
-    <p class="pv-sub">三套完整方案，点击切换整套 token，看真实组件在各自体系下的呈现。选定后按该套 token 全平台实施。</p>
-    <div class="switcher" role="group" aria-label="配色方案切换">
-      <button class="sw-btn" data-s="a" aria-pressed="true">A · 蓝锚墨金</button>
-      <button class="sw-btn" data-s="b" aria-pressed="false">B · 墨绿暖纸</button>
-      <button class="sw-btn" data-s="c" aria-pressed="false">C · 青空多色相</button>
+  <div class="pv-head" data-page-node-id="bZSODfvx2ca583Ns0IrYo2">
+    <h1 data-page-node-id="GNIMomKWyaXJzXHrgMz1NB">扬帆OS · 配色参考方案预览</h1>
+    <p class="pv-sub" data-page-node-id="0MHFLr05C8rHat5SfxHgh9">七套完整方案，点击切换整套 token，看真实组件在各自体系下的呈现。选定后按该套 token 全平台实施。</p>
+    <div class="switcher" role="group" aria-label="配色方案切换" data-page-node-id="NExmWmjmWByycufNNhPYW1">
+      <button class="sw-btn" data-s="a" aria-pressed="true" data-page-node-id="vYynWyywbJtD9OKsWC3yXK">A · 蓝锚墨金</button>
+      <button class="sw-btn" data-s="b" aria-pressed="false" data-page-node-id="bJEYdYZdKN11OE96TL3D72">B · 墨绿暖纸</button>
+      <button class="sw-btn" data-s="c" aria-pressed="false" data-page-node-id="Poy6tTyYbtfHq43ITl7YVK">C · 青空多色相</button>
+      <button class="sw-btn" data-s="d" aria-pressed="false" data-page-node-id="8Os2LzMcHvMnvVTBBmYqdQ">D · 琥珀暖棕</button>
+      <button class="sw-btn" data-s="e" aria-pressed="false" data-page-node-id="ZBFd9Y1j7o3kYnN5L7XHnP">E · 竹青黛蓝</button>
+      <button class="sw-btn" data-s="f" aria-pressed="false" data-page-node-id="DJTOtccecXUwTHQM6Z5Xt6">F · 珊瑚活力</button>
+      <button class="sw-btn" data-s="g" aria-pressed="false" data-page-node-id="6XNltvm4WEE5Ay2pDMX7Ck">G · 紫韵暮山</button>
     </div>
-    <div class="scheme-desc" id="schemeDesc"></div>
+    <div class="scheme-desc" id="schemeDesc" data-page-node-id="s00ADsgShe4GsDQIqYU1z7"></div>
   </div>
 
   <!-- 导航条 -->
-  <div class="pv-section">
-    <div class="pv-label">导航条（锚色 + 金色活动位）</div>
-    <nav class="navbar" aria-label="样例导航">
-      <div class="nav-brand">
-        <svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/></svg>
+  <div class="pv-section" data-page-node-id="GeuYjOO4HVkemhRQKPFS7i">
+    <div class="pv-label" data-page-node-id="OphbcqXntTV4WnEc8YG5dT">导航条（锚色 + 金色活动位）</div>
+    <nav class="navbar" aria-label="样例导航" data-page-node-id="ZVJ4kttaXUGAXrtY6xZDAd">
+      <div class="nav-brand" data-page-node-id="JqSBX2Vq18sFVyc5y9EcjD">
+        <svg class="eic" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="3uPXivrrdZZ3AzFz0PDwEQ"><circle cx="12" cy="12" r="9" data-page-node-id="84F7kRe7ZUUaRGSJLeGJBV"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z" data-page-node-id="90AcgYsl9dd8JCt5IJRtiS"/></svg>
         扬帆OS
       </div>
-      <div class="nav-tabs">
-        <span class="nav-tab on"><span class="nav-dot" style="background:var(--h-1,#fff)"></span>数据看板</span>
-        <span class="nav-tab"><span class="nav-dot" style="background:var(--ok)"></span>我的成长</span>
-        <span class="nav-tab"><span class="nav-dot" style="background:var(--h-2,#fff)"></span>中台总览</span>
-        <span class="nav-tab"><span class="nav-dot" style="background:var(--gold)"></span>浆站论坛</span>
-        <span class="nav-tab"><span class="nav-dot" style="background:var(--accent)"></span>学习营</span>
+      <div class="nav-tabs" data-page-node-id="SBQQlQBwd82trml6TUNsPC">
+        <span class="nav-tab on" data-page-node-id="fI1ISgILUhJZl3aq1iU7Jj"><span class="nav-dot" style="background:var(--h-1,#fff)" data-page-node-id="9GzHDGkFqrMkHxU581oZme"></span>数据看板</span>
+        <span class="nav-tab" data-page-node-id="ZuElfQ9gMKhMJzvxRiVRvT"><span class="nav-dot" style="background:var(--ok)" data-page-node-id="9dGFDJCiLVCytoSUB4nE0E"></span>我的成长</span>
+        <span class="nav-tab" data-page-node-id="AdOZ4ipZB7PWWBBEjsI5Su"><span class="nav-dot" style="background:var(--h-2,#fff)" data-page-node-id="EXGrdzvkaTWqxXEVYf4RQ9"></span>中台总览</span>
+        <span class="nav-tab" data-page-node-id="FAqgRLUonIFMGNGtvKvKbD"><span class="nav-dot" style="background:var(--gold)" data-page-node-id="UZcDfDHgo4LMbpscK8imnv"></span>浆站论坛</span>
+        <span class="nav-tab" data-page-node-id="udS9pB3phbqKrQJXjxwG7A"><span class="nav-dot" style="background:var(--accent)" data-page-node-id="HCHCuQqY7jUl58ZkyBETLX"></span>学习营</span>
       </div>
-      <div class="nav-user"><span class="nav-avatar">王</span>舒城站 · 王
+      <div class="nav-user" data-page-node-id="S6l6c5jsr7ZvH02JpgM6iy"><span class="nav-avatar" data-page-node-id="FS3EncNHX13DXaLWrH8oYN">王</span>舒城站 · 王
       </div>
     </nav>
   </div>
 
   <!-- KPI 卡 -->
-  <div class="pv-section">
-    <div class="pv-label">KPI 卡（锚色数字；方案 C 按模块分色相）</div>
-    <div class="kpi-row">
-      <div class="kpi k-hot">
-        <div class="k">报名人数</div>
-        <div class="n num">86</div>
-        <div class="d">较上月 <b class="num">+12</b></div>
+  <div class="pv-section" data-page-node-id="v39JvAnFsuFRkWlfk3w9V1">
+    <div class="pv-label" data-page-node-id="A4KTqQ2cnDmZ9IYe0DA1ZR">KPI 卡（锚色数字；方案 C 按模块分色相）</div>
+    <div class="kpi-row" data-page-node-id="9GIYF8FhcS5MQhbPZQfjWv">
+      <div class="kpi k-hot" data-page-node-id="lj0UvSnWpDtEVcgD26MXlS">
+        <div class="k" data-page-node-id="LqJDCLiM2fHASGfSDftrEo">报名人数</div>
+        <div class="n num" data-page-node-id="PcmMCXbJDr7eGjEZk1tcte">86</div>
+        <div class="d" data-page-node-id="48ym66o2phlz29UShjVjMR">较上月 <b class="num" data-page-node-id="Tm7QeK2BqzE5OIa9OO2uo6">+12</b></div>
       </div>
-      <div class="kpi k-good">
-        <div class="k">入营人数</div>
-        <div class="n num">47</div>
-        <div class="d">较上月 <b class="num">+5</b></div>
+      <div class="kpi k-good" data-page-node-id="uTGBSiNwbqDA5HjXBJ2624">
+        <div class="k" data-page-node-id="2SA1LghyCBi6bJED6PMIrv">入营人数</div>
+        <div class="n num" data-page-node-id="Ly0jGJH8IviCpedCRjdFqR">47</div>
+        <div class="d" data-page-node-id="XNqZF8bzHdpBL3UHUkmg0T">较上月 <b class="num" data-page-node-id="bG44iXY2goTa9AiRHmf3fr">+5</b></div>
       </div>
-      <div class="kpi">
-        <div class="k">科普转化率</div>
-        <div class="n num">42%</div>
-        <div class="d">集团线 40% · <b>达标</b></div>
+      <div class="kpi" data-page-node-id="QGjoBVVxrjY4PVo48m0u3x">
+        <div class="k" data-page-node-id="jlNAVvFrcAFvKY0B3UXerf">科普转化率</div>
+        <div class="n num" data-page-node-id="AD6yxmF8uE6tCHLoUf3cG3">42%</div>
+        <div class="d" data-page-node-id="Ca8EiHwAdRqgRweQqJ8Axq">集团线 40% · <b data-page-node-id="OMpryw7A7I0bKLP2QNOcHP">达标</b></div>
       </div>
     </div>
   </div>
 
   <!-- 预警横幅 + 主建议容器 -->
-  <div class="pv-section">
-    <div class="pv-label">预警横幅 + 主建议容器（金墨行动色）</div>
-    <div class="banner">
-      <svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 22 20H2z"/><path d="M12 10v4"/><path d="M12 17.5v.5"/></svg>
-      <span class="sev">严重</span>
-      <p><b>没筛选：</b>本周内完成全部邀约家长筛选，未筛名单不得进入面试环节。</p>
+  <div class="pv-section" data-page-node-id="zXtPv6SHzjRTtMKFYHI9Df">
+    <div class="pv-label" data-page-node-id="YAW4IBWEUjCyEMXE83L3G6">预警横幅 + 主建议容器（金墨行动色）</div>
+    <div class="banner" data-page-node-id="EI81CTL94Bu717B60ZHNre">
+      <svg class="eic" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="l6GZGR2jgfIl1yBbrSEiBo"><path d="M12 3 22 20H2z" data-page-node-id="7t0sqJGKN5X1ExlMSIm8A8"/><path d="M12 10v4" data-page-node-id="rnb8F2ztqAhuaPVLo621Ab"/><path d="M12 17.5v.5" data-page-node-id="1FiwiHQ1Ai4KOyRdH3Yizj"/></svg>
+      <span class="sev" data-page-node-id="soArjMR9uHowfBEty9orxm">严重</span>
+      <p data-page-node-id="7sirVAMRGgRDH4g6gDsaPN"><b data-page-node-id="8uX5piiBXuubtgcDSn01mX">没筛选：</b>本周内完成全部邀约家长筛选，未筛名单不得进入面试环节。</p>
     </div>
-    <div style="height:12px"></div>
-    <div class="dg-sub" style="max-width:640px">
-      <div class="st">
-        <svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1.5 1.6 1.5 2.5h5c0-.9.7-1.7 1.5-2.5A6 6 0 0 0 12 3z"/></svg>
+    <div style="height:12px" data-page-node-id="KNLuBUbY0hl1lLpijhNB29"></div>
+    <div class="dg-sub" style="max-width:640px" data-page-node-id="xF7dGbX3XgBbeLlQsAyUZ2">
+      <div class="st" data-page-node-id="NKA57yDFZPx2dANkgEdAG5">
+        <svg class="eic" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="FCCTTu8NzH8NEvZHwtRpId"><path d="M9 18h6" data-page-node-id="zPbQq1JRtlLztMUlzKQfLS"/><path d="M10 21h4" data-page-node-id="ZxrEXBj13a4wIYZlSYSc3S"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1.5 1.6 1.5 2.5h5c0-.9.7-1.7 1.5-2.5A6 6 0 0 0 12 3z" data-page-node-id="Q7wcqPJGjgncrgaW342yDX"/></svg>
         本周主建议
       </div>
-      <p>优先补家长参与：本周完成 8 位家长邀约，参与度距集团线 70% 还差 25 个百分点。</p>
-      <a class="anchor-link" href="#" onclick="return false">学习锚点：干系人管理</a>
+      <p data-page-node-id="ykfnVyydYGzjD0N91Gp3nD">优先补家长参与：本周完成 8 位家长邀约，参与度距集团线 70% 还差 25 个百分点。</p>
+      <a class="anchor-link" href="#" onclick="return false" data-page-node-id="7Bt7GYJqqULERZPoG7m2mu">学习锚点：干系人管理</a>
     </div>
   </div>
 
   <!-- 诊断卡 -->
-  <div class="pv-section">
-    <div class="pv-label">诊断卡（暖纸卡头 + 双轨指标 + 档位徽章）</div>
-    <div class="dg">
-      <div class="dg-head">
-        <span class="t">舒城站 · 综合诊断</span>
-        <span class="dg-rank">总榜第四</span>
-        <span class="dg-rank" style="background:var(--ok-soft);border-color:transparent;color:var(--ok-ink)">双达标</span>
+  <div class="pv-section" data-page-node-id="aEKZKnNOrMKhmma9fsJxFL">
+    <div class="pv-label" data-page-node-id="GtGkmzMPL3m4U6QeOEaAWI">诊断卡（暖纸卡头 + 双轨指标 + 档位徽章）</div>
+    <div class="dg" data-page-node-id="JJAzX1uWraliMmRedpcSG2">
+      <div class="dg-head" data-page-node-id="wEGoeN8l2KwPcFDIFYaUH7">
+        <span class="t" data-page-node-id="hB0niCykCxTAV6RHFAl5NV">舒城站 · 综合诊断</span>
+        <span class="dg-rank" data-page-node-id="MP6whQw7oy6o81GMPs2EAB">总榜第四</span>
+        <span class="dg-rank" style="background:var(--ok-soft);border-color:transparent;color:var(--ok-ink)" data-page-node-id="HyvB0VoVUsyV4SznFfyuGv">双达标</span>
       </div>
-      <div class="dg-body">
-        <div class="dg-row">
-          <span>学生科普</span>
-          <span class="v num">5.2 次/人<span class="gt">集团线 4.0</span><span class="tag okt">达标</span></span>
+      <div class="dg-body" data-page-node-id="bXzy6QZ36fqpA16RPQw9dA">
+        <div class="dg-row" data-page-node-id="FAKo8ELwFyH5xkNmP2mlTx">
+          <span data-page-node-id="3Igz6wwBbraKkavcocdPHM">学生科普</span>
+          <span class="v num" data-page-node-id="CBHvcaZRBSTizOvPnKA7sF">5.2 次/人<span class="gt" data-page-node-id="BRI0LorD7AebzxamBrCMOp">集团线 4.0</span><span class="tag okt" data-page-node-id="C7cc9fBmgWMenwcHhLrwkR">达标</span></span>
         </div>
-        <div class="dg-row">
-          <span>科普转化率</span>
-          <span class="v num">42%<span class="gt">集团线 40%</span><span class="tag okt">达标</span></span>
+        <div class="dg-row" data-page-node-id="Qb5A15YPYI8AYHDGIE9gV6">
+          <span data-page-node-id="CjZ4f7XvNuO8woGT1GM7Xa">科普转化率</span>
+          <span class="v num" data-page-node-id="agWYxKzYZ4PuTA27yvXrgq">42%<span class="gt" data-page-node-id="KG8lWOzexhoWaEJTermPwm">集团线 40%</span><span class="tag okt" data-page-node-id="7OAqaRa6NwgsaCyrI9Xeja">达标</span></span>
         </div>
-        <div class="dg-row">
-          <span>家长参与度</span>
-          <span class="v miss num">45%<span class="gt">集团线 70%</span><span class="tag wart">预警</span></span>
+        <div class="dg-row" data-page-node-id="pr8CMb1xMTgSrOvWTmY3PM">
+          <span data-page-node-id="QVNE7Kz46jG3tGpZWxtD00">家长参与度</span>
+          <span class="v miss num" data-page-node-id="Wx4O8DRKdlwgkFHwrDNliC">45%<span class="gt" data-page-node-id="XVSHEDFtA9YAGeIokDNV69">集团线 70%</span><span class="tag wart" data-page-node-id="Ge6eg7syC6HjcP5yh7BqRh">预警</span></span>
         </div>
-        <div class="dg-row">
-          <span>面试到场率</span>
-          <span class="v miss num">58%<span class="gt">集团线 80%</span><span class="tag badt">硬线</span></span>
+        <div class="dg-row" data-page-node-id="eTh7wqQdxxPacNt2aaGhDp">
+          <span data-page-node-id="Tde5PFFA6bHjdRA6wcksKE">面试到场率</span>
+          <span class="v miss num" data-page-node-id="j6fYuTRDbVPBWuRj73dRwy">58%<span class="gt" data-page-node-id="PaTNttGB4QhGUBxTlxj1C9">集团线 80%</span><span class="tag badt" data-page-node-id="IBYOglLG1hgNYxCmS3gBI2">硬线</span></span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 按钮组 -->
-  <div class="pv-section">
-    <div class="pv-label">按钮组（行动色只留给主操作）</div>
-    <div class="btn-row">
-      <button class="btn btn-pri">提交本月上报</button>
-      <button class="btn btn-sec">查看诊断详情</button>
-      <button class="btn btn-ghost">复制分析文字</button>
-      <button class="btn btn-dis" disabled>导出中…</button>
+  <div class="pv-section" data-page-node-id="4l5wCDS1ut6DfdORCiOxbS">
+    <div class="pv-label" data-page-node-id="6Us7aGBcWXPC84De4JXTSc">按钮组（行动色只留给主操作）</div>
+    <div class="btn-row" data-page-node-id="xuXJwCZ0GGGuv1ZFzlXDV3">
+      <button class="btn btn-pri" data-page-node-id="VD91PETXVXsGItfVIAHt2A">提交本月上报</button>
+      <button class="btn btn-sec" data-page-node-id="mNtgiEosLKNdSqZYoDJgE8">查看诊断详情</button>
+      <button class="btn btn-ghost" data-page-node-id="k90grzUqHqDL9z6LKk25eW">复制分析文字</button>
+      <button class="btn btn-dis" disabled data-page-node-id="IdypjFS4Icogk2zoUTbvtF">导出中…</button>
     </div>
   </div>
 
   <!-- 论坛强调色适配 -->
-  <div class="pv-section">
-    <div class="pv-label">论坛强调色适配（暖纸底不动，只换强调色）</div>
-    <div class="forum">
-      <div class="f-head">浆站论坛 · 版块标签预览</div>
-      <div class="f-chips">
-        <span class="f-chip c1">学生科普</span>
-        <span class="f-chip c2">科普转化</span>
-        <span class="f-chip c3">家长活动</span>
+  <div class="pv-section" data-page-node-id="HHEujfGwZQqHW6CI0Kf2rq">
+    <div class="pv-label" data-page-node-id="IQSL1SRFeIiecXet0Ouonu">论坛强调色适配（暖纸底不动，只换强调色）</div>
+    <div class="forum" data-page-node-id="jaAKF1MBaddtbygdeNLd7u">
+      <div class="f-head" data-page-node-id="nqeKyZR8mibkTFQNNR8Quj">浆站论坛 · 版块标签预览</div>
+      <div class="f-chips" data-page-node-id="HkogCAEmr3lDiFk7eRVCGf">
+        <span class="f-chip c1" data-page-node-id="AZfFWrGZeFq9FfHLMx3OZh">学生科普</span>
+        <span class="f-chip c2" data-page-node-id="C2PD4JGpo7hEb1Fk8z03kt">科普转化</span>
+        <span class="f-chip c3" data-page-node-id="Bx3peGbESoX98aiFqrD2iI">家长活动</span>
       </div>
-      <div class="f-note" id="forumNote"></div>
+      <div class="f-note" id="forumNote" data-page-node-id="55aNqdaTfSnfWyljg0tUKv"></div>
     </div>
   </div>
 
   <!-- Token 表 -->
-  <div class="pv-section">
-    <div class="pv-label">Token 定义（当前方案的 :root 变量）</div>
-    <div class="tok-card">
-      <div class="tok-head"><span id="tokName"></span><span>变量 / 值 / 用途</span></div>
-      <div id="tokBody"></div>
+  <div class="pv-section" data-page-node-id="m4LQv7E8BjsNtZ7TlfVrAo">
+    <div class="pv-label" data-page-node-id="DnFsP8lUX6VaGXfijkzRJJ">Token 定义（当前方案的 :root 变量）</div>
+    <div class="tok-card" data-page-node-id="D2erPvzAadZBIhYMnjswGG">
+      <div class="tok-head" data-page-node-id="W6Jah04cwoHOKSlzDxGK1j"><span id="tokName" data-page-node-id="qOtKzei8ekRkKzdoFLdaJr"></span><span data-page-node-id="t5GOTbCMRJ8yy2ZQSjqsTp">变量 / 值 / 用途</span></div>
+      <div id="tokBody" data-page-node-id="n4FHgynn6w5tP4PX0EO0uX"></div>
     </div>
   </div>
 
@@ -386,9 +430,125 @@
         ['--muted','#64748b','次级文字（4.8:1）'],
         ['--line','#dbe4ea','常规描边']
       ]
+    },
+    d:{
+      name:'方案 D · 琥珀暖棕（暖调权威）',
+      desc:'<b>政务的庄重 + 棕的体温。</b>深棕做锚、米白纸底、焦糖橙做行动色——像图书馆与档案馆的木质书架，权威但不冷。金色警示与焦糖行动同属暖域，全屏无一处冷蓝，最「暖」的一套。',
+      forum:'论坛暖纸底不动：版块标签改焦糖橙强调，活动区金棕同域——论坛像一杯手冲咖啡区，社区温度感最强。',
+      tokens:[
+        ['--bg','#faf7f2','全局底色（米白纸）'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#4a3222','深棕锚：导航 / 大数字'],
+        ['--accent','#c07a2e','琥珀强调：图表 / 装饰'],
+        ['--accent-strong','#8f5614','行动色：按钮 / 链接（白字 5.4:1）'],
+        ['--accent-soft','#f7ede0','强调浅底'],
+        ['--h-1','#c07a2e','琥珀（招募条 / 热点顶条）'],
+        ['--h-1n','#8f5614','热点数字（白底 5.4:1）'],
+        ['--h-2','#8a5a2e','暖棕辅助'],
+        ['--h-2-ink','#7a4a1e','暖棕文字（6.5:1）'],
+        ['--paper','#f6f1e8','暖纸中性底'],
+        ['--paper-line','#e4dcc9','暖纸描边'],
+        ['--gold','#c9882d','警示底 / 进度条'],
+        ['--gold-ink','#7d5210','警示 / 行动容器文字（6.2:1）'],
+        ['--gold-soft','#f8efdc','主建议容器底'],
+        ['--ok','#4e7d46','达标底'],
+        ['--ok-ink','#3d6636','成果文字（5.4:1）'],
+        ['--danger','#b04a2a','风险底'],
+        ['--danger-ink','#9a3a1c','风险文字（5.5:1）'],
+        ['--fg','#3d3229','正文（暖墨棕）'],
+        ['--muted','#6e6455','次级文字（5.3:1）'],
+        ['--line','#e6ddd0','常规描边']
+      ]
+    },
+    e:{
+      name:'方案 E · 竹青黛蓝（江南文人）',
+      desc:'<b>清雅而不寡淡。</b>竹青做锚（比墨绿明亮一档，像雨后竹叶）、黛蓝只做辅助点缀、暖纸偏青——像一册竖排诗笺，适合想传达「文化气质」的方向；是 B 的清亮版，但多了呼吸感。',
+      forum:'论坛暖纸底偏青：科普竹青、转化黛蓝、活动金——版块像文人的几方印章，各安其位。',
+      tokens:[
+        ['--bg','#f8fbf9','全局底色（青白）'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#2a6e5e','竹青锚：导航 / 大数字（白字 6.2:1）'],
+        ['--accent','#3a8272','竹青强调：图表 / 装饰'],
+        ['--accent-strong','#1f5a4c','行动色：按钮 / 链接（白字 7.2:1）'],
+        ['--accent-soft','#e9f4f0','强调浅底'],
+        ['--h-1','#3a8272','竹青（招募条 / 热点顶条）'],
+        ['--h-1n','#1f5a4c','热点数字（白底 7.2:1）'],
+        ['--h-2','#3f5a8f','黛蓝辅助（学习模块）'],
+        ['--h-2-ink','#3a5285','黛蓝文字（6.4:1）'],
+        ['--paper','#f4f6ef','暖纸中性底（偏青）'],
+        ['--paper-line','#e0e5d6','暖纸描边'],
+        ['--gold','#d19c3f','警示底 / 进度条'],
+        ['--gold-ink','#8a6516','警示 / 行动容器文字（5.5:1）'],
+        ['--gold-soft','#f8f1dc','主建议容器底'],
+        ['--ok','#2e8b70','达标底'],
+        ['--ok-ink','#17705a','成果文字（5.6:1）'],
+        ['--danger','#b34a3a','风险底'],
+        ['--danger-ink','#98382a','风险文字（5.5:1）'],
+        ['--fg','#22352f','正文（青墨）'],
+        ['--muted','#5f7a70','次级文字（4.9:1）'],
+        ['--line','#d8e6e0','常规描边']
+      ]
+    },
+    f:{
+      name:'方案 F · 珊瑚活力（青年社区）',
+      desc:'<b>青年营该有的热闹。</b>珊瑚暖红做锚、浅暖灰底、青绿做成果——像青年社区的旗帜与水杯，最外向最有号召力；行动色与锚同域所以按钮不突兀，适合主打社区氛围的方向。',
+      forum:'论坛暖纸偏暖：科普珊瑚、转化青绿、活动金——版块像社区公告栏的彩色便签，互动感最强。',
+      tokens:[
+        ['--bg','#fdf9f7','全局底色（浅暖灰白）'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#b03e2e','珊瑚锚：导航 / 大数字（白字 5.5:1）'],
+        ['--accent','#e2604a','珊瑚强调：图表 / 装饰'],
+        ['--accent-strong','#b03e2e','行动色：按钮 / 链接（白字 5.5:1）'],
+        ['--accent-soft','#fdeeec','强调浅底'],
+        ['--h-1','#e2604a','珊瑚亮（热点顶条）'],
+        ['--h-1n','#b03e2e','热点数字（白底 5.5:1）'],
+        ['--h-2','#1f8a70','青绿辅助（转化模块）'],
+        ['--h-2-ink','#177052','青绿文字（5.7:1）'],
+        ['--paper','#f8f0ea','暖纸中性底'],
+        ['--paper-line','#e9dcd1','暖纸描边'],
+        ['--gold','#e0982e','警示底 / 进度条'],
+        ['--gold-ink','#8f5e10','警示 / 行动容器文字（5.4:1）'],
+        ['--gold-soft','#fbf1dc','主建议容器底'],
+        ['--ok','#2e8b62','达标底'],
+        ['--ok-ink','#177052','成果文字（5.7:1）'],
+        ['--danger','#c22f2f','风险底'],
+        ['--danger-ink','#a52525','风险文字（5.9:1）'],
+        ['--fg','#3a2e2a','正文（暖墨）'],
+        ['--muted','#7d6b64','次级文字（4.8:1）'],
+        ['--line','#e8ddd6','常规描边']
+      ]
+    },
+    g:{
+      name:'方案 G · 紫韵暮山（精致现代）',
+      desc:'<b>区别于一切蓝系的现代感。</b>黛紫做锚、藤紫做强调、暮山玫红做风险——像精品咖啡店的菜单板，精致、克制、有设计感；紫色纯色使用（非渐变），是七套里「最不像传统政务系统」的一套。',
+      forum:'论坛暖纸底不动：科普藤紫、转化玫红、活动金——版块像杂志栏目条，精致感延续到社区。',
+      tokens:[
+        ['--bg','#fbfafd','全局底色（暖白偏紫）'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#463a68','黛紫锚：导航 / 大数字'],
+        ['--accent','#8a5cc9','藤紫强调：图表 / 装饰'],
+        ['--accent-strong','#5e46a0','行动色：按钮 / 链接（白字 6.2:1）'],
+        ['--accent-soft','#f1edfa','强调浅底'],
+        ['--h-1','#8a5cc9','藤紫（热点顶条）'],
+        ['--h-1n','#5e46a0','热点数字（白底 6.2:1）'],
+        ['--h-2','#b0576e','暮山玫红辅助'],
+        ['--h-2-ink','#a04a5e','玫红文字（5.0:1）'],
+        ['--paper','#f7f5f2','暖纸中性底'],
+        ['--paper-line','#e7e2da','暖纸描边'],
+        ['--gold','#d1912e','警示底 / 进度条'],
+        ['--gold-ink','#8a5c12','警示 / 行动容器文字（5.7:1）'],
+        ['--gold-soft','#f9f0dc','主建议容器底'],
+        ['--ok','#2f8560','达标底'],
+        ['--ok-ink','#1c6b4c','成果文字（5.8:1）'],
+        ['--danger','#c23a52','风险底'],
+        ['--danger-ink','#a52a42','风险文字（5.9:1）'],
+        ['--fg','#2f2a3d','正文（紫墨）'],
+        ['--muted','#6e6584','次级文字（5.1:1）'],
+        ['--line','#e2dcee','常规描边']
+      ]
     }
   };
-  var KEY={a:'a',b:'b',c:'c'};
+  var KEY={a:'a',b:'b',c:'c',d:'d',e:'e',f:'f',g:'g'};
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function render(k){
     var d=SCHEMES[k];
