@@ -5027,7 +5027,7 @@ function fbList(){
   if(fbView){fbDetail();return;}
   if(fbProfileView){fbProfileRender();return;}
   const arr=fbFiltered();
-  if(!arr.length){c.innerHTML='<div class="fb-empty">还没有帖子。<br>这里可以发求助、分享做法、互相支招。<br><b style="color:var(--blue-700)">点右上角「＋ 发新帖」发第一帖</b>。</div>';return;}
+  if(!arr.length){c.innerHTML='<div class="fb-empty">还没有帖子。<br>这里可以发求助、分享做法、互相支招。<br><b style="color:var(--blue-700)">点上方「＋ 发新帖」发第一帖</b>。</div>';return;}
   c.innerHTML='<div class="fb-thead"><span class="th-stat">状态</span><span class="th-title">标题 / 版块</span><span class="th-author">作者</span><span class="th-cnt">回复 / 赞</span><span class="th-last">最后发表</span></div>'+arr.map(p=>{
     const b=fbB(p.bid);const rc=p.replies.length;const ri=fbRankInfo(fbStats(p.author||'匿名').rep);
     const lw=p.replies.length?p.replies[p.replies.length-1].author:'';
