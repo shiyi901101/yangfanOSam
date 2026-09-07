@@ -1407,6 +1407,26 @@ window.__yfLoadLib=(function(){
   .dg-tag{flex:none;font-size:var(--fs-2xs);padding:1px 8px;border-radius:10px;background:var(--ice);color:var(--muted)}
   .dg-tag.ok{background:var(--ok);color:#fff}
   .dg-tag.bad{background:var(--warn);color:#fff}
+  /* ===== 浆站自主月上报（station 专属） ===== */
+  .rp-entry{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--blue-200);border-radius:12px;padding:10px 14px;margin:0 0 12px}
+  .rp-entry .rp-cd{font-size:12px;color:var(--muted)}
+  .rp-steps{display:flex;gap:6px;align-items:center;margin:0 0 12px;flex-wrap:wrap}
+  .rp-step{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:7px 12px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;font-family:inherit;min-height:36px}
+  .rp-step .no{width:20px;height:20px;border-radius:50%;background:var(--ice-2);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--blue-700);flex:none}
+  .rp-step.on{border-color:var(--blue-700);color:var(--blue-800);font-weight:700}
+  .rp-step.on .no{background:var(--blue-700);color:#fff}
+  .rp-step.done .no{background:var(--ok);color:#fff}
+  .rp-f{margin:10px 0}
+  .rp-f .lab{display:block;font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:4px}
+  .rp-f input{width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit;background:#fff}
+  .rp-f input:focus{border-color:var(--blue-400);outline:none}
+  .rp-hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px}
+  .rp-warn{font-size:12.5px;color:var(--warn);font-weight:700;margin-top:4px}
+  .rp-foot{display:flex;gap:10px;margin-top:16px}
+  .rp-pv-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .rp-pv-row .k{color:var(--muted);flex:1}
+  .rp-pv-row .v{font-weight:700;font-variant-numeric:tabular-nums}
+  @media(max-width:460px){.rp-step{padding:6px 9px;font-size:11.5px}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
   .dg-main-h svg{flex:none;color:var(--gold)}
@@ -1481,6 +1501,7 @@ window.__yfLoadLib=(function(){
     <div class="sb-group-label">成长 · 工具</div>
     <button class="sb-item" data-tab="learn" onclick="applyTab('learn');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>项目化学习</button>
     <button class="sb-item" data-tab="rhythm" onclick="applyTab('rhythm');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>我的成长</button>
+    <button class="sb-item" id="sbReport" data-tab="report" onclick="openReportForm();closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>月上报</button>
     <button class="sb-item" data-tab="exp" onclick="applyTab('exp');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>经验对标</button>
     <button class="sb-item" data-tab="factory" onclick="applyTab('factory');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>提效工具</button>
     <div class="sb-footer">
@@ -1854,6 +1875,11 @@ window.__yfLoadLib=(function(){
       </div>
     </div>
   </div>
+  <div class="rp-entry" id="rpEntryBar" style="display:none">
+    <b style="font-size:14px;color:var(--navy)">月上报</b>
+    <span class="rp-cd" id="rpCountdown">数据来自每月自主上报，上报后诊断自动更新</span>
+    <button class="up-btn" style="margin-left:auto;min-height:44px" onclick="openReportForm()">去上报</button>
+  </div>
     <div class="month-switch" id="monthSwitch"></div>
 
   <!-- ============ 全国浆站分布地图（紧凑单栏 · 省份旁气泡标注） ============ -->
@@ -1883,6 +1909,18 @@ window.__yfLoadLib=(function(){
   <div id="dashWeak" style="display:none"></div>
   <div id="dashDetail" style="display:none"></div>
   <div class="dash-note">注：参与度=参与人数/入营人数（个别站&gt;100%系家长及亲属重复到场）；入营人数以招募汇总表为准，性别结构取自入营总人数表（口径差异以原始表为准）。</div>
+  <!-- ============ 浆站自主月上报（station 专属，4 步 13 字段，字段名与用户 Excel 模板逐字一致） ============ -->
+  <div class="um-mask" id="rpMask" style="display:none">
+    <div class="um-modal" style="max-width:560px">
+      <div class="um-head"><h3>月上报</h3><button class="um-x" onclick="rpMaskHide()">×</button></div>
+      <div style="padding:14px 16px">
+        <div class="rp-steps" id="rpSteps"></div>
+        <div id="rpBody"></div>
+        <div id="rpMsg" style="margin-top:8px"></div>
+        <div class="rp-foot" id="rpFoot"></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ============ 交流论坛（升级为：经验广场 + 讨论区） ============ -->
@@ -7917,6 +7955,11 @@ function yfFilterNav(){
   /* 本站诊断卡：仅 station 角色显示（admin 端呈现归 Phase 5） */
   var dg = document.getElementById('dgCard');
   if(dg) dg.style.display = yfIsStation() ? '' : 'none';
+  /* 月上报入口：仅 station 可见（侧栏项 + 看板顶部上报条） */
+  var sr = document.getElementById('sbReport');
+  if(sr) sr.style.display = yfIsStation() ? '' : 'none';
+  var reb = document.getElementById('rpEntryBar');
+  if(reb) reb.style.display = yfIsStation() ? '' : 'none';
 }
 
 /* 头部显示当前身份（仅管理端显示，浆站负责人不显示） */
@@ -7949,6 +7992,8 @@ function yfApi(path, method, body, timeoutMs){
       if(timer)clearTimeout(timer);
       /* 乐观锁冲突（409）：明确告知用户数据已被他人更新，不要笼统说网络异常 */
       if(r.status===409)return {ok:false,conflict:true,error:'数据已被他人更新，请刷新后重试'};
+      /* 403（如上报月锁）：尽量透传服务端 body，并打 forbidden 标记供调用方给明确文案 */
+      if(r.status===403)return r.json().then(function(j){ j=j||{}; if(j.ok!==true){ j.forbidden=true; if(!j.error)j.error='请求被拒绝（403）'; } return j; }).catch(function(){ return {ok:false,forbidden:true,error:'请求被拒绝（403）'}; });
       return r.json();
     })
     .catch(function(e){
@@ -8223,30 +8268,30 @@ yfSafe('工作台', function(){
 /* 数据源（一次进站 3+1 个请求）：GET /v1/dash/aggregate（含本站行 + 各能力第一名站，L0 全站可见）
    + GET /v1/dash/alerts + GET /v1/profiles?tier=l1；GET /v1/growth/mine 为 501 planned 时静默降级（R12/R13 不出）。
    缓存：sessionStorage，key 带 month（yf:diag:cache:{month}，指针 yf:diag:ptr），30 分钟仅作弱网兜底；每次进入必发真实云端请求（stale-while-revalidate），数据无变化不重渲染。
-   规则引擎：纯前端、无状态、幂等（设计 §2.3）；排序 R7 > R4/R5/R10 > R1 > R2 > R12/R13 > R3；
-   防重复：localStorage yf:diag:seen:{key} 记时间戳（R1/R2 同 cap 7 天、R3 30 天、R13 一次性；R4/R5/R7/R8/R10/R12 常驻）。
+   规则引擎：纯前端、无状态、幂等（评估新标准）；排序 R4家站硬线 > S3没筛选 > S2邀约 > S1蓄水/R10 > R4B转化线 > R1 > R2 > R12/R13 > R3；
+   防重复：localStorage yf:diag:seen:{key} 记时间戳（R1/R2 同 cap 7 天、R3 30 天、R13 一次性；R4/R4B/R7/R8/R10/R12 常驻），键随新 capKey（outreach/conv/family）。
    红线：站点名来自 rankTrack 第一名站的运行时数据，模板只有变量，不写死站名；标杆篇目未定（§九-1），标杆入口一律降级为论坛标签搜索。 */
 /*DG-RULES-BEGIN*/
 var DG_CAPS=[
-  {k:'arrive', n:'到场把控', u:'%', pct:1},
-  {k:'enroll', n:'入营守成', u:'%', pct:1},
-  {k:'cardper',n:'转化设计', u:' 张/人'},
-  {k:'volper', n:'深度经营', u:' 份/人'},
-  {k:'parent', n:'家校经营', u:'%', pct:1}
+  {k:'outreach', n:'学生科普', u:' 次/人', pct:0},
+  {k:'conv',     n:'科普转化率', u:'%', pct:1},
+  {k:'family',   n:'家站经营', u:'%', pct:1}
 ];
-var DG_ANCHOR={ /* capKey → [首选章节锚点，备选章节锚点]（design-batch2 §2.4 静态映射） */
-  arrive:['ka-comm','ka-risk'], enroll:['pg-exec','ka-stake'], cardper:['ka-scope','ka-qual'],
-  volper:['ka-cost','ka-res'], parent:['ka-stake','ka-comm']
+var DG_ANCHOR={ /* capKey → [首选章节锚点，备选章节锚点]（评估新标准映射：学生动员/科普→资源管理、科普转化→质量管理、家站→干系人） */
+  outreach:['ka-res','pg-exec'], conv:['ka-qual','pg-mon'], family:['ka-stake','ka-comm']
 };
-var DG_ANCHOR_NAME={'ka-comm':'沟通管理','ka-risk':'风险管理','pg-exec':'执行过程组','ka-stake':'干系人管理','ka-scope':'范围管理','ka-qual':'质量管理','ka-cost':'成本管理','ka-res':'资源管理'};
-var DG_FORUM_TAG={arrive:'面试组织',enroll:'入营转化',cardper:'新卡发展',volper:'复采经营',parent:'家长活动'}; /* 标杆降级：论坛「经验广场」标签搜索 */
-var DG_CODE_CAP={ENROLL:'enroll',ARRIVE:'arrive',PARENT:'parent',CARD:'cardper',VOL:'volper'}; /* 预警 code 前缀 → capKey */
+var DG_ANCHOR_NAME={'ka-comm':'沟通管理','ka-risk':'风险管理','pg-exec':'执行过程组','ka-stake':'干系人管理','ka-scope':'范围管理','ka-qual':'质量管理','ka-cost':'成本管理','ka-res':'资源管理','pg-mon':'监控过程组'};
+var DG_FORUM_TAG={outreach:'学生科普',conv:'科普转化',family:'家长活动'}; /* 标杆降级：论坛「经验广场」标签搜索 */
+var DG_S_META={ /* S 系列预警 → 建议优先级（小者先）+ 学习锚点（评估新标准：没筛选→范围管理学会说「不」、邀约→沟通、蓄水→资源/动员） */
+  S3:{order:1,anchor:'ka-scope'},
+  S2:{order:2,anchor:'ka-comm'},
+  S1:{order:3,anchor:'ka-res'}
+};
 var DG_SEASON_END=['03','08'];   /* 季末月：暂用契约示例值，后续由 /v1/dash/progress 的 deadlineRules 下发替换（不写死的约定） */
 var DG_SEASON_START=['01','06']; /* 季首月 = 季末月前推 2 个月（03→01、08→06），同上待下发 */
 function dgCapOf(k){ for(var i=0;i<DG_CAPS.length;i++){ if(DG_CAPS[i].k===k)return DG_CAPS[i]; } return null; }
 function dgPct(v){ var n=Number(v); if(!isFinite(n))return null; return n<=1.5?Math.round(n*1000)/10:Math.round(n*10)/10; } /* 兼容 0.45 与 45 两种下发形态，统一为百分数 */
 function dgFV(c,v){ if(v==null||!isFinite(Number(v)))return '—'; return c&&c.pct?(dgPct(v)+'%'):(Math.round(Number(v)*100)/100+(c?c.u:'')); }
-function dgCodeCap(code){ var t=String(code||'').toUpperCase(); for(var p in DG_CODE_CAP){ if(t.indexOf(p)===0)return DG_CODE_CAP[p]; } return null; }
 function dgTopStation(stations,cap){ /* 该能力第一名站：来自 rankTrack 运行时数据 */
   var best=null;
   (stations||[]).forEach(function(st){
@@ -8265,7 +8310,10 @@ function dgSeen(key,days){ /* 防重复读取：days=null 表示一次性（永�
 }
 function dgMark(key){ try{ localStorage.setItem('yf:diag:seen:'+key,String(Date.now())); }catch(e){} }
 function dgActs(model,cap){ return (model.prescriptions&&model.prescriptions[cap]&&model.prescriptions[cap].acts)||[]; }
-/* 规则引擎（§2.3 R1-R14）：输入 model={month,me,stations,alerts,rx,ev,prescriptions}，输出按序建议数组。R6/R9/R14 为呈现/抑制规则在此落实。 */
+/* 规则引擎（评估新标准）：输入 model={month,me,stations,alerts,rx,ev,prescriptions}，输出按序建议数组。
+   新优先级：R4 家站硬线(0) > S3 没筛选(1) > S2 邀约(2) > S1 蓄水/R10(3) > R4B conv 线(4) > R1(5) > R2(6) > R12/R13(7) > R3(8)；R11 核实类阻断一切。
+   双轨 3 键：outreach（无线，R6 灰标绝不判罚）/ conv（线 0.40）/ family（线 0.70）。
+   alerts 只驱动 S 系列横幅（sev 分色，S4 过滤兜底）；family/conv 绝对线卡由 absTrack 驱动（R4/R4B），避免同一问题双卡。 */
 function dgRules(model){
   var out=[];
   var health=(model.me&&model.me.health)||{};
@@ -8274,51 +8322,51 @@ function dgRules(model){
   var alerts=model.alerts||[];
   var rx=model.rx||{}, ev=model.ev||[];
   var mm=(model.month||'').slice(5,7);
-  var isSeasonEnd=DG_SEASON_END.indexOf(mm)>=0;
   var isSeasonStart=DG_SEASON_START.indexOf(mm)>=0;
-  /* R11 数据核实（如入营守成 >110%）：核实前不推送其他建议 */
+  /* R11 数据核实（参与度/转化率 >100%：1 学生=1 名额，超 100% 是口径问题；核实前不推送其他建议） */
   var r11=null;
   DG_CAPS.forEach(function(c){
     if(!c.pct)return;
     var pc=per[c.k]; if(!pc)return;
     var v=dgPct(pc.value);
-    if(v!=null&&v>110){ r11={r:'R11',cap:c.k,title:c.n+'数据超出物理范围，请核实',
-      body:'你的'+c.n+'是 '+dgFV(c,pc.value)+'，物理上不应超过 100%——请核对本月相关字段是否填成了累计/当月混填，修正后诊断才会恢复。',acts:[],order:9}; }
+    if(v!=null&&v>100){ r11={r:'R11',cap:c.k,sev:2,title:c.n+'数据超出物理范围，请核实',
+      body:'你的'+c.n+'是 '+dgFV(c,pc.value)+'——请核对本月上报字段是否把人数与名额/人次填混（1 个学生=1 个名额），修正后诊断才会恢复。',acts:[],order:9}; }
   });
   if(r11)return [r11];
-  /* R14 季首月抑制：累计归零后环比/位次类建议无意义，只出绝对线类（R4/R5/R10）与预警类（R7/R8/R9） */
-  /* R7/R8 预警（sev 3 红 / 2 橙，常驻至消除） */
+  /* S 系列横幅（服务端 alerts 驱动，sev 3 红/2 橙，常驻至消除；S4 不生成预警——前端过滤兜底） */
   alerts.forEach(function(a){
     if(!a)return;
-    var cap=dgCodeCap(a.code);
-    if(a.sev===3){
-      push({r:'R7',cap:cap,title:a.title,body:a.desc,acts:dgActs(model,cap),
-        anchor:cap?DG_ANCHOR[cap][0]:null,forumTag:cap?DG_FORUM_TAG[cap]:null,order:0});
-    }else if(a.sev===2){
-      push({r:'R8',cap:cap,title:a.title,body:a.desc,acts:[],
-        anchor:cap?DG_ANCHOR[cap][0]:null,forumTag:null,order:6});
+    var code=String(a.code||'').toUpperCase();
+    if(code.indexOf('S4')===0)return;
+    var sm=null;
+    for(var p in DG_S_META){ if(code.indexOf(p)===0){ sm=DG_S_META[p]; break; } }
+    if(sm){
+      push({r:(a.sev===3?'R7':'R8'),cap:null,sev:a.sev,title:a.title,body:a.desc,acts:[],
+        anchor:sm.anchor,order:sm.order});
     }
   });
-  /* R4 家校经营硬线（常驻） */
-  var lp=null; lines.forEach(function(l){ if(l&&l.capKey==='parent')lp=l; });
-  if(lp&&lp.reached===false){
-    push({r:'R4',cap:'parent',title:'家校经营没过集团硬线',
-      body:'家长参与度 '+dgFV(DG_CAPS[4],lp.value)+'，集团线 '+(lp.target!=null?dgPct(lp.target)+'%':'70%')+'。家长不是可选项：高利益的干系人让你活（实战案例：家长群里起火、孩子退出）。',
-      acts:dgActs(model,'parent'),anchor:'ka-stake',forumTag:DG_FORUM_TAG.parent,order:1});
-  }
-  /* R5 到场把控硬线（仅季末月结算） */
-  var la=null; lines.forEach(function(l){ if(l&&l.capKey==='arrive')la=l; });
-  if(la&&la.reached===false&&isSeasonEnd){
-    push({r:'R5',cap:'arrive',title:'到场把控未过硬线（季末结算）',
-      body:'面试到场率 '+dgFV(DG_CAPS[0],la.value)+'，集团线 '+(la.target!=null?dgPct(la.target)+'%':'70%')+'（仅季末判定）。开学前两周是面试高峰——确认单 + 24 小时回访两个动作这周落地。',
-      acts:dgActs(model,'arrive'),anchor:'ka-comm',forumTag:DG_FORUM_TAG.arrive,order:1});
+  /* R4 家站经营硬线（集团线 0.70，常驻，最高优先） */
+  var lp=null; lines.forEach(function(l){ if(l&&l.capKey==='family')lp=l; });
+  if(lp&&lp.target!=null&&lp.reached===false){
+    push({r:'R4',cap:'family',title:'家站经营没过集团硬线',
+      body:'家长参与度 '+dgFV(dgCapOf('family'),lp.value)+'，集团线 '+(lp.target!=null?dgPct(lp.target)+'%':'70%')+'。家长不是可选项：高利益的干系人让你活（实战案例：家长群里起火、孩子退出）。',
+      acts:dgActs(model,'family'),anchor:'ka-stake',forumTag:DG_FORUM_TAG.family,order:0});
   }
   /* R10 家长从未进站（<1% 视为从未参与，常驻） */
-  var pp=per.parent, ppv=pp?dgPct(pp.value):null;
-  if(ppv!=null&&ppv<1){
-    push({r:'R10',cap:'parent',title:'家长从未进站',
-      body:'招募一旦触高中生会因家长关过不去。本月安排 1 场家长开放日，先让 5 个家长进来看一次。',
-      acts:['本月安排 1 场家长开放日','先让 5 个家长进站看一次'],anchor:'ka-stake',anchor2:'ka-comm',forumTag:DG_FORUM_TAG.parent,order:1});
+  if(lp&&lp.value!=null){
+    var pv=dgPct(lp.value);
+    if(pv!=null&&pv<1){
+      push({r:'R10',cap:'family',title:'家长从未进站',
+        body:'家长参与度 '+dgFV(dgCapOf('family'),lp.value)+'，约等于 0。招募一旦触高中生会因家长关过不去。本月安排 1 场家长开放日，先让 5 个家长进来看一次。',
+        acts:['本月安排 1 场家长开放日','先让 5 个家长进站看一次'],anchor:'ka-stake',anchor2:'ka-comm',forumTag:DG_FORUM_TAG.family,order:3});
+    }
+  }
+  /* R4B 科普转化率硬线（集团线 0.40，常驻） */
+  var lc=null; lines.forEach(function(l){ if(l&&l.capKey==='conv')lc=l; });
+  if(lc&&lc.target!=null&&lc.reached===false){
+    push({r:'R4B',cap:'conv',title:'科普转化率没过集团线',
+      body:'科普转化率 '+dgFV(dgCapOf('conv'),lc.value)+'，集团线 '+(lc.target!=null?dgPct(lc.target)+'%':'40%')+'。质量是做出来的：科普不是发传单，讲透一次比扫过十次有用。',
+      acts:dgActs(model,'conv'),anchor:'ka-qual',forumTag:DG_FORUM_TAG.conv,order:4});
   }
   if(!isSeasonStart){
     DG_CAPS.forEach(function(c){
@@ -8328,20 +8376,20 @@ function dgRules(model){
         var top=dgTopStation(model.stations,c.k);
         push({r:'R1',cap:c.k,title:'向 '+(top?top.name:'标杆站')+' 学'+c.n,
           body:'你的'+c.n+'是 '+dgFV(c,pc.value)+'，20 站第 '+pc.rank+'，中位 '+dgFV(c,pc.median)+'。差距在方法不在努力——看 '+(top?top.name:'标杆站')+' 的做法，对一遍你和他站的原始数据。',
-          acts:dgActs(model,c.k),anchor:DG_ANCHOR[c.k][0],forumTag:DG_FORUM_TAG[c.k],order:2,dedupeKey:'R1:'+c.k});
+          acts:dgActs(model,c.k),anchor:DG_ANCHOR[c.k][0],forumTag:DG_FORUM_TAG[c.k],order:5,dedupeKey:'R1:'+c.k});
       }
       /* R2 中段 11-15：差一口气（防重复：同 cap 7 天 1 次） */
       if(pc.rank>=11&&pc.rank<=15&&!dgSeen('R2:'+c.k,7)){
         var gap=Math.abs((Number(pc.median)||0)-(Number(pc.value)||0));
         push({r:'R2',cap:c.k,title:c.n+'差一口气：补一节',
           body:dgFV(c,pc.value)+'，第 '+pc.rank+'，离中位 '+dgFV(c,pc.median)+' 还差 '+dgFV(c,gap)+'。多数卡在这一步的站，是缺一个固定动作——读完这节，挑 1 个动作本周做。',
-          acts:dgActs(model,c.k),anchor:DG_ANCHOR[c.k][0],forumTag:null,order:3,dedupeKey:'R2:'+c.k});
+          acts:dgActs(model,c.k),anchor:DG_ANCHOR[c.k][0],forumTag:null,order:6,dedupeKey:'R2:'+c.k});
       }
       /* R3 头部站贡献方法（rank<=3 且该 cap 无未闭环处方，30 天 1 次） */
       if(pc.rank<=3&&!(rx[c.k]&&rx[c.k].status==='doing')&&!dgSeen('R3:'+c.k,30)){
         push({r:'R3',cap:c.k,title:'你'+c.n+'做得好：把方法交出来',
           body:'你的'+c.n+'排第 '+pc.rank+'（'+dgFV(c,pc.value)+'）。这套做法只有你会，就是风险——把它拆成别人照着能跑的步骤，沉淀成知识卡。',
-          acts:['把做法拆成 3-5 步，到论坛「经验案例」发一帖沉淀'],anchor:null,forumTag:null,order:5,dedupeKey:'R3:'+c.k,deposit:true});
+          acts:['把做法拆成 3-5 步，到论坛「经验案例」发一帖沉淀'],anchor:null,forumTag:null,order:8,dedupeKey:'R3:'+c.k,deposit:true});
       }
     });
   }
@@ -8353,13 +8401,13 @@ function dgRules(model){
       var pt=(model.prescriptions&&model.prescriptions[k]&&model.prescriptions[k].title)||'处方';
       push({r:'R12',cap:k,title:'执行中 · 第 '+days+' 天',
         body:'已开始「'+pt+'」，验收线 '+dgFV(c,it.target)+'。下月上报后系统自动反算效果（只展示，不打分）。',
-        acts:[],anchor:DG_ANCHOR[k]?DG_ANCHOR[k][0]:null,order:4});
+        acts:[],anchor:DG_ANCHOR[k]?DG_ANCHOR[k][0]:null,order:7});
     }else if(it.status==='done'){
       var okEv=ev.some(function(e){return e&&e.k===k&&e.verified==='evidenced';});
       if(okEv&&!dgSeen('R13:'+k,null)){
         push({r:'R13',cap:k,title:'已完成，进了成长档案',
           body:'这条已计入集团经验复用率。下月反算值出来后，档案里能看到前后对比。',
-          acts:[],anchor:null,order:4,dedupeKey:'R13:'+k});
+          acts:[],anchor:null,order:7,dedupeKey:'R13:'+k});
       }
     }
   });
@@ -8470,7 +8518,7 @@ function dgForumLink(tag){
 }
 function dgAdviceHTML(it,primary){
   var h='<div class="dg-sub">';
-  h+='<div class="t">'+dgEsc(it.title)+'</div>';
+  h+='<div class="t">'+(it.sev===3?'<span class="dg-tag bad">紧急</span> ':(it.sev===2?'<span class="dg-tag">关注</span> ':''))+dgEsc(it.title)+'</div>';
   h+='<div class="w">为什么：'+dgEsc(it.body)+'</div>';
   if(it.acts&&it.acts.length){
     h+='<ul class="dg-acts">'+it.acts.map(function(a){return '<li>'+dgEsc(a)+'</li>';}).join('')+'</ul>';
@@ -8529,7 +8577,7 @@ function dgRender(model){
       }).join('');
     }else{ qw.style.display='none'; }
   }
-  /* 规则引擎出卡（R7 > R4/R5/R10 > R1 > R2 > R12/R13 > R3） */
+  /* 规则引擎出卡（R4 > S3 > S2 > S1/R10 > R4B > R1 > R2 > R12/R13 > R3） */
   var items=dgRules(model);
   var main=document.getElementById('dgMain');
   var moreWrap=document.getElementById('dgMoreWrap');
@@ -8555,6 +8603,7 @@ function dgRender(model){
   if(body)body.style.display='';
   var stEl=document.getElementById('dgState');
   if(stEl)stEl.style.display='none';
+  try{ if(typeof rpEntryRefresh==='function')rpEntryRefresh(); }catch(e){}
 }
 /* 已学回流：诊断卡轻量重渲（读 localStorage 里的已学标记；不动缓存与请求） */
 function dgSoftRerender(){ try{ if(DG_LAST_MODEL&&typeof dgRender==='function')dgRender(DG_LAST_MODEL); }catch(e){} }
@@ -8668,10 +8717,10 @@ var LR_CH=[
 ];
 var LR_NAME={'intro':'导读','pg-init':'启动过程组','pg-plan':'规划过程组','pg-exec':'执行过程组','pg-mon':'监控过程组','pg-close':'收尾过程组','ka-int':'整合管理','ka-scope':'范围管理','ka-sched':'进度管理','ka-cost':'成本管理','ka-qual':'质量管理','ka-res':'资源管理','ka-comm':'沟通管理','ka-risk':'风险管理','ka-proc':'采购管理','ka-stake':'干系人管理','agile':'敏捷管理','quiz':'自测练习','cases':'案例库'};
 /* 诊断卡 8 个锚点：这些章「读过」→ 回流诊断卡「已学」标记 */
-var LR_LEARN_ANCHORS=['ka-comm','ka-risk','pg-exec','ka-stake','ka-scope','ka-qual','ka-cost','ka-res'];
+var LR_LEARN_ANCHORS=['ka-comm','ka-scope','ka-res','ka-qual','ka-stake','pg-exec','pg-mon','ka-risk'];
 /* L3 同行层：capKey ↔ 论坛标签（与诊断卡 DG_FORUM_TAG 同源） */
-var LR_CAPS={'arrive':{'tag':'面试组织'},'enroll':{'tag':'入营转化'},'cardper':{'tag':'新卡发展'},'volper':{'tag':'复采经营'},'parent':{'tag':'家长活动'}};
-var LR_CH_TAGS={'ka-comm':['arrive','parent'],'ka-risk':['arrive'],'pg-exec':['enroll'],'ka-stake':['enroll','parent'],'ka-scope':['cardper'],'ka-qual':['cardper'],'ka-cost':['volper'],'ka-res':['volper']};
+var LR_CAPS={'outreach':{'tag':'学生科普'},'conv':{'tag':'科普转化'},'family':{'tag':'家长活动'}};
+var LR_CH_TAGS={'ka-comm':['family'],'ka-risk':['family'],'pg-exec':['outreach'],'ka-stake':['family'],'ka-scope':['conv'],'ka-qual':['conv'],'ka-cost':['conv'],'ka-res':['outreach']};
 var LR_ROUTE_NAME={'A':'路线 A · 新手上路','B':'路线 B · 按短板补','C':'路线 C · 完整学习'};
 
 var LR_INJECTED=false, LR_CUR=null;
@@ -9087,6 +9136,208 @@ function closeReport(){ var m=document.getElementById('reportModal'); if(m) m.st
   var lf=document.getElementById('learnFrame');
   if(lf&&document.getElementById('learnSrc')) lf.srcdoc=b64dec(document.getElementById('learnSrc').textContent.trim());
 })();
+</script>
+
+<script>
+/*RP-BEGIN*/
+/* ============ 浆站自主月上报（station 专属 · 用户 Excel 模板原字段，4 步 13 字段） ============ */
+/* 字段映射（与用户模板一致）：reg[0]=报名 reg[1]=面试 reg[2]=入营；
+   dev[0]=全站学生新卡 dev[1]=全站学生采量 dev[2]=在营学生无偿献浆 dev[3]=在营学生科普数 dev[4]=科普转化新卡；
+   camp[0]=入营总人数(季累计) camp[1]=男 camp[2]=女；par[0]=家长参与人数 par[1]=家长参与度%。
+   月锁：POST /v1/dash/records 过截止返回 403 → 明确提示「已过上报截止，联系管理员」。
+   admin 不用此表单（管理端批量入口保留现状）。 */
+var RP_FIELDS=[
+ {g:'reg',step:1,name:'招募',items:[
+   {i:0,label:'报名人数',hint:'所有表达意向并登记的学生人数（含口头咨询后登记）。报名是蓄水，宜多；少=工作没到位。'},
+   {i:1,label:'面试人数',hint:'实际参加面试的学生人数（含线上面试）。'},
+   {i:2,label:'入营人数',hint:'通过面试并实际入营的学生数。入营是你自己控制的出口，少不判罚；入营≈面试=没筛选。'}]},
+ {g:'dev',step:2,name:'学生发展',items:[
+   {i:0,label:'全站学生新卡数',hint:'本站新发展的学生献血浆卡数（全站口径，含非在营）。'},
+   {i:1,label:'全站学生采量',hint:'学生浆员本月采浆人次（全站口径，含去年存量学生）。'},
+   {i:2,label:'在营学生无偿献浆数',hint:'在营学生本月完成无偿献浆的人次。'},
+   {i:3,label:'在营学生科普数',hint:'在营学生本月参与科普宣传的人次。'},
+   {i:4,label:'科普转化新卡数',hint:'经科普宣传转化来的新卡数，一般不应超过在营学生科普数。'}]},
+ {g:'camp',step:3,name:'入营结构',items:[
+   {i:0,label:'入营总人数',hint:'本季累计入营学生总数（不是本月新增）。'},
+   {i:1,label:'男',hint:'入营学生中男性人数。'},
+   {i:2,label:'女',hint:'入营学生中女性人数。'}]},
+ {g:'par',step:4,name:'家站经营',items:[
+   {i:0,label:'家长参与人数',hint:'参与站内活动的家长人数；问卷、科普、献浆等均算参与。'},
+   {i:1,label:'家长参与度',hint:'问卷、科普、献浆等均算参与；一个学生的家庭无论几人参与均按 1 个名额。',unit:'%'}]}
+];
+var RP_STATE={step:1,month:null,vals:{}};
+function rpEsc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];}); }
+function rpValidate(v,pct){ /* 纯校验：返回 null=通过，否则错误文案；空值放行（提交按 0 处理） */
+  var s=String(v==null?'':v).trim();
+  if(s==='')return null;
+  if(!/^\d+(\.\d+)?$/.test(s))return '请填写非负数字';
+  if(!pct&&s.indexOf('.')>=0)return '请填写整数';
+  return null;
+}
+function rpNum(v){ var s=String(v==null?'':v).trim(); if(s==='')return 0; var n=Number(s); return isFinite(n)?n:0; }
+function rpSeasonMonths(){ /* 仅季内月份可选（DG_SEASON_START/END 契约；待 /v1/dash/progress 下发 deadlineRules 后替换） */
+  var allowed=[];
+  for(var s=0;s<DG_SEASON_START.length;s++){
+    var a=Number(DG_SEASON_START[s]), b=Number(DG_SEASON_END[s]);
+    for(var m=a;m<=b;m++)allowed.push(m);
+  }
+  return allowed.sort(function(x,y){return y-x;});
+}
+function rpMonthList(){
+  var now=new Date(), y=now.getFullYear(), cm=now.getMonth()+1;
+  var list=rpSeasonMonths().map(function(mo){ return {m:mo,v:y+'-'+(mo<10?'0':'')+mo,label:y+' 年 '+mo+' 月'}; });
+  var def=list.filter(function(o){return o.m<=cm;})[0]||list[list.length-1];
+  return {list:list,def:def?def.v:''};
+}
+function rpMaskHide(){ var m=document.getElementById('rpMask'); if(m)m.style.display='none'; }
+function openReportForm(){
+  if(typeof yfIsStation!=='function'||!yfIsStation()){ toast('月上报仅浆站账号使用'); return; }
+  var m=document.getElementById('rpMask'); if(!m)return;
+  m.style.display='flex';
+  if(!RP_STATE.month)RP_STATE.month=rpMonthList().def;
+  RP_STATE.step=1; rpMsg(''); rpRender();
+}
+function rpSetMonth(v){ RP_STATE.month=v; }
+function rpGo(n){ RP_STATE.step=n; rpMsg(''); rpRender(); }
+function rpStepDone(no){
+  var g=RP_FIELDS[no-1]; if(!g)return false;
+  return g.items.every(function(it){ var v=RP_STATE.vals[g.g+'.'+it.i]; return v!=null&&String(v).trim()!==''; });
+}
+function rpWarnText(g,it,v){ /* 即时校验文案：null=无 */
+  var err=rpValidate(v,!!it.unit);
+  if(err)return err;
+  var n=Number(v);
+  if(v!==''&&isNaN(n))return '请填写数字';
+  if(g.g==='par'&&it.i===1&&n>100)return '请核对（1 学生=1 名额）';
+  if(g.g==='dev'&&it.i===4){
+    var d3=Number(RP_STATE.vals['dev.3']);
+    if(isFinite(n)&&isFinite(d3)&&d3>0&&n>d3)return '科普转化新卡数大于科普数，请核对';
+  }
+  return null;
+}
+function rpOnInput(g,i,val){
+  RP_STATE.vals[g+'.'+i]=val;
+  var it=null,grp=null;
+  RP_FIELDS.forEach(function(gr){ if(gr.g===g){grp=gr; gr.items.forEach(function(x){ if(x.i===i)it=x; }); } });
+  var w=document.getElementById('rpw_'+g+'_'+i);
+  if(w){ var t=it?rpWarnText(grp,it,val):null; w.textContent=t||''; }
+  if(g==='par'&&i===0)rpSuggestPar();
+  if(g==='par'&&i===1){ var inp1=document.getElementById('rp_par_1'); if(inp1)inp1.dataset.auto=''; } /* 手改参与度后不再自动试算覆盖 */
+}
+function rpSuggestPar(){ /* 参与度可由人数自动试算（不强制）：参与度 = 参与人数/入营总人数 */
+  var p0=RP_STATE.vals['par.0'], c0=RP_STATE.vals['camp.0'];
+  var inp=document.getElementById('rp_par_1'); if(!inp)return;
+  var cur=String(RP_STATE.vals['par.1']!=null?RP_STATE.vals['par.1']:'').trim();
+  if(cur!==''&&!inp.dataset.auto)return; /* 用户手填过且非试算值：不覆盖 */
+  if(p0!=null&&String(p0).trim()!==''&&c0!=null&&Number(c0)>0){
+    var sug=Math.round(Number(p0)/Number(c0)*1000)/10;
+    inp.value=String(sug); inp.dataset.auto='1'; RP_STATE.vals['par.1']=String(sug);
+    var w=document.getElementById('rpw_par_1');
+    if(w)w.textContent='';
+  }
+}
+function rpFieldsHTML(g){
+  return g.items.map(function(it){
+    var id='rp_'+g.g+'_'+it.i;
+    var v=(RP_STATE.vals[g.g+'.'+it.i]!=null)?RP_STATE.vals[g.g+'.'+it.i]:'';
+    return '<div class="rp-f"><label class="lab" for="'+id+'">'+rpEsc(it.label)+(it.unit?'（'+it.unit+'）':'')+'</label>'
+      +'<input id="'+id+'" type="number" min="0" step="1" inputmode="numeric" value="'+rpEsc(v)+'" placeholder="0" oninput="rpOnInput(\''+g.g+'\','+it.i+',this.value)">'
+      +'<div class="rp-hint">'+rpEsc(it.hint)+'</div>'
+      +'<div class="rp-warn" id="rpw_'+g.g+'_'+it.i+'"></div></div>';
+  }).join('');
+}
+function rpMonthSelHTML(){
+  var ml=rpMonthList();
+  return '<div class="rp-f"><label class="lab" for="rpMonth">上报月份</label>'
+    +'<select id="rpMonth" onchange="rpSetMonth(this.value)" style="min-height:44px;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit;background:#fff">'
+    +ml.list.map(function(o){ return '<option value="'+o.v+'"'+(o.v===RP_STATE.month?' selected':'')+'>'+rpEsc(o.label)+'</option>'; }).join('')
+    +'</select><div class="rp-hint">仅可报本季内月份；已过截止的月份由云端锁定。</div></div>';
+}
+function rpRender(){
+  var steps=document.getElementById('rpSteps'), body=document.getElementById('rpBody'), foot=document.getElementById('rpFoot');
+  if(!steps||!body||!foot)return;
+  steps.innerHTML=RP_FIELDS.map(function(g){
+    var no=g.step;
+    return '<button type="button" class="rp-step'+(RP_STATE.step===no?' on':'')+(rpStepDone(no)?' done':'')+'" onclick="rpGo('+no+')"><span class="no">'+no+'</span>'+rpEsc(g.name)+'</button>';
+  }).join('');
+  var g=RP_FIELDS[RP_STATE.step-1];
+  body.innerHTML=(RP_STATE.step===1?rpMonthSelHTML():'')+'<div class="rp-f"><label class="lab" style="font-size:15px">'+rpEsc(g.name)+'</label></div>'+rpFieldsHTML(g);
+  foot.innerHTML=(RP_STATE.step>1?'<button type="button" class="mini-btn" style="min-height:44px" onclick="rpGo('+(RP_STATE.step-1)+')">上一步</button>':'')
+    +(RP_STATE.step<4?'<button type="button" class="up-btn" style="min-height:44px;margin-left:auto" onclick="rpNext()">下一步</button>'
+                      :'<button type="button" class="up-btn" style="min-height:44px;margin-left:auto" onclick="rpPreview()">预览确认</button>');
+}
+function rpCheckStep(no){
+  var g=RP_FIELDS[no-1]; if(!g)return null;
+  for(var i=0;i<g.items.length;i++){
+    var it=g.items[i];
+    var t=rpWarnText(g,it,RP_STATE.vals[g.g+'.'+it.i]);
+    if(t)return it.label+'：'+t;
+  }
+  return null;
+}
+function rpNext(){
+  var err=rpCheckStep(RP_STATE.step);
+  if(err){ rpMsg('<div class="rp-warn">'+rpEsc(err)+'</div>'); return; }
+  rpGo(RP_STATE.step+1);
+}
+function rpPayload(){ /* 提交结构：{month, reg[3], dev[5], camp[3], par[2]}（空值按 0；par[1] 允许一位小数） */
+  function arr(g,n){ var a=[]; for(var i=0;i<n;i++)a.push(rpNum(RP_STATE.vals[g+'.'+i])); return a; }
+  return {month:RP_STATE.month, reg:arr('reg',3), dev:arr('dev',5), camp:arr('camp',3), par:arr('par',2)};
+}
+function rpPreview(){
+  for(var s=1;s<=4;s++){
+    var err=rpCheckStep(s);
+    if(err){ RP_STATE.step=s; rpRender(); rpMsg('<div class="rp-warn">'+rpEsc(err)+'</div>'); return; }
+  }
+  var body=document.getElementById('rpBody'), foot=document.getElementById('rpFoot');
+  if(!body||!foot)return;
+  var st=(typeof yfMyStation==='function')?yfMyStation():'';
+  var h='<div class="rp-f"><div class="lab" style="font-size:15px">确认上报</div>'
+    +'<div class="rp-hint" style="font-size:13.5px;color:var(--navy);font-weight:700">将写入 '+rpEsc(RP_STATE.month)+' · '+rpEsc(st||'本人站')+'</div></div>';
+  h+=RP_FIELDS.map(function(g){
+    return g.items.map(function(it){
+      return '<div class="rp-pv-row"><span class="k">'+rpEsc(it.label)+'</span><span class="v">'+rpEsc(RP_STATE.vals[g.g+'.'+it.i]||'0')+(it.unit?'%':'')+'</span><button type="button" class="mini-btn" onclick="rpGo('+g.step+')">修改</button></div>';
+    }).join('');
+  }).join('');
+  body.innerHTML=h;
+  foot.innerHTML='<button type="button" class="mini-btn" style="min-height:44px" onclick="rpGo(4)">返回修改</button>'
+    +'<button type="button" class="up-btn" style="min-height:44px;margin-left:auto" id="rpSubmitBtn" onclick="rpSubmit()">确认上报</button>';
+  rpMsg('');
+}
+function rpMsg(h){ var el=document.getElementById('rpMsg'); if(el)el.innerHTML=h||''; }
+function rpSubmit(){
+  var btn=document.getElementById('rpSubmitBtn');
+  if(btn){ btn.disabled=true; btn.textContent='上报中…'; }
+  yfApi('/v1/dash/records','POST',rpPayload()).then(function(j){
+    if(btn){ btn.disabled=false; btn.textContent='确认上报'; }
+    if(j&&j.ok){
+      /* 缓存失效闭环：诊断卡 + 看板全量刷新 */
+      try{ if(typeof dgInvalidate==='function')dgInvalidate(); }catch(e){}
+      try{ if(typeof dgBoot==='function')dgBoot(true); }catch(e){}
+      var done=false, fin=function(){ if(!done){ done=true; toast('上报成功，诊断已更新'); } };
+      try{
+        if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD&&YF_CLOUD.pullCloudDash){ YF_CLOUD.pullCloudDash(true,function(){ fin(); }); setTimeout(fin,2500); }
+        else fin();
+      }catch(e){ fin(); }
+      rpMaskHide();
+    }else{
+      var msg=(j&&(j.error||j.msg))||'上报失败，请稍后重试';
+      if(j&&(j.forbidden||/截止|锁定|403/.test(String(msg)))) msg='已过上报截止，联系管理员';
+      rpMsg('<div class="rp-warn">'+rpEsc(msg)+'</div>');
+    }
+  });
+}
+function rpEntryRefresh(){ /* 看板顶部上报条：截止日倒计时（次月 5 日兜底，待 deadlineRules 下发替换） */
+  var cd=document.getElementById('rpCountdown'); if(!cd)return;
+  var ml=rpMonthList(); var v=ml.def;
+  if(!v){ cd.textContent='数据来自每月自主上报，上报后诊断自动更新'; return; }
+  var p=v.split('-'), y=Number(p[0]), mo=Number(p[1]);
+  var dl=new Date(y, mo, 5); /* 上月末数据截止次月 5 日 */
+  var days=Math.ceil((dl.getTime()-Date.now())/86400000);
+  cd.textContent=v+' 数据上报截止 '+(dl.getMonth()+1)+'月'+dl.getDate()+'日'+(days>=0?('，还剩 '+days+' 天'):'（已过截止，补报联系管理员）');
+}
+try{ window.__RP_TEST__={RP_FIELDS:RP_FIELDS,rpValidate:rpValidate,rpNum:rpNum,rpSeasonMonths:rpSeasonMonths,rpMonthList:rpMonthList,rpPayload:rpPayload,rpWarnText:rpWarnText,RP_STATE:RP_STATE}; }catch(e){}
+/*RP-END*/
 </script>
 </div><!-- /main-area -->
 </div><!-- /app-shell -->
