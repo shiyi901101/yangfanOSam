@@ -5854,13 +5854,21 @@ function closeAnn(){
 /* ===== 公告编辑（独立密码验证） ===== */
 var ANN_PW='101622';
 function annEditOpen(){
+  /* 修复：原用浏览器原生 prompt()，被「阻止此页面创建更多对话」抑制时点击无反应——改用页内密码弹窗（与管理视图同款），并保留 prompt 兜底 */
+  function openPanel(){
+    try{annEditRender();}catch(e){console.error('annEditRender:',e);toast('渲染出错');return;}
+    var m=document.getElementById('annEditMask');
+    if(m){m.style.display='flex';m.style.zIndex='9999';}
+    else{toast('找不到编辑面板');}
+  }
+  if(typeof openPwModal==='function'){
+    openPwModal(function(){ openPanel(); });
+    return;
+  }
   var pw=prompt('请输入公告编辑密码：');
   if(!pw||pw==='')return;
   if(pw!==String(ANN_PW)){toast('密码错误');return;}
-  try{annEditRender();}catch(e){console.error('annEditRender:',e);toast('渲染出错');return;}
-  var m=document.getElementById('annEditMask');
-  if(m){m.style.display='flex';m.style.zIndex='9999';}
-  else{toast('找不到编辑面板');}
+  openPanel();
 }
 function annEditRender(){
   var box=document.getElementById('annEditList');if(!box)return;
