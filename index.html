@@ -9393,7 +9393,8 @@ function rpSubmit(){
       try{ if(typeof dgBoot==='function')dgBoot(true); }catch(e){}
       var done=false, fin=function(){ if(!done){ done=true; toast('上报成功，诊断已更新'); } };
       try{
-        if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD&&YF_CLOUD.pullCloudDash){ YF_CLOUD.pullCloudDash(true,function(){ fin(); }); setTimeout(fin,2500); }
+        var pc=(typeof YF_CLOUD!=='undefined'&&YF_CLOUD&&YF_CLOUD.pullCloudDash)?YF_CLOUD.pullCloudDash:((typeof pullCloudDash==='function')?pullCloudDash:null);
+        if(pc){ pc(true,function(){ fin(); }); setTimeout(fin,2500); }
         else fin();
       }catch(e){ fin(); }
       rpMaskHide();
