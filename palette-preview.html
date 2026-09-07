@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>扬帆OS · 配色参考方案预览</title>
+<style>
+  /* ========== 基础 ========== */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;color:var(--fg);background:var(--bg);line-height:1.6;transition:background-color .2s ease,color .2s ease}
+  button{font-family:inherit;cursor:pointer}
+  a{color:var(--accent-strong)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ========== 方案 Token（三套，切换器换 data-scheme） ========== */
+  body[data-scheme="a"]{
+    --bg:#f4f8fc; --surface:#ffffff; --fg:#17324d; --muted:#5e7da0;
+    --anchor:#0d2c4d; --accent:#2b7cd3; --accent-strong:#1d5fa8; --accent-soft:#eef5fc;
+    --paper:#f8f6f1; --paper-line:#e8e4dc; --line:#d3e2f0;
+    --gold:#e08c2e; --gold-ink:#a86310; --gold-soft:#fdf3e3; --gold-line:#ecd9a8;
+    --ok:#10a37f; --ok-ink:#0b7d61; --ok-soft:#e7f5ef;
+    --danger:#c0392b; --danger-ink:#a93226;
+    --h-1:#e08c2e; --h-1n:#a86310; --h-2:#2b7cd3;
+    --focus:rgba(29,95,168,.35);
+  }
+  body[data-scheme="b"]{
+    --bg:#faf9f5; --surface:#ffffff; --fg:#26332b; --muted:#6b7a70;
+    --anchor:#1e4034; --accent:#20684e; --accent-strong:#17503b; --accent-soft:#eef4ef;
+    --paper:#f6f3ea; --paper-line:#e6e1d2; --line:#dfe3d9;
+    --gold:#c98a2d; --gold-ink:#8a5a12; --gold-soft:#faf1de; --gold-line:#e3cf9e;
+    --ok:#2e7d32; --ok-ink:#1c6b3c; --ok-soft:#e9f2e9;
+    --danger:#b03a20; --danger-ink:#963017;
+    --h-1:#c98a2d; --h-1n:#8a5a12; --h-2:#20684e;
+    --focus:rgba(23,80,59,.35);
+  }
+  body[data-scheme="c"]{
+    --bg:#fbfcfe; --surface:#ffffff; --fg:#1f2d3d; --muted:#64748b;
+    --anchor:#0f4c5c; --accent:#0e7490; --accent-strong:#0b5d73; --accent-soft:#e6f6fa;
+    --paper:#f7f8f7; --paper-line:#e4e8e6; --line:#dbe4ea;
+    --gold:#e58e26; --gold-ink:#9c5c0a; --gold-soft:#fdf2df; --gold-line:#f0d9a8;
+    --ok:#0d9463; --ok-ink:#0a7a50; --ok-soft:#e5f6ee;
+    --danger:#d64541; --danger-ink:#bd3531;
+    --h-1:#c6431f; --h-1n:#c6431f; --h-2:#6d5bd0; --h-2-ink:#5a48b8; --h-3:#0e7490;
+    --focus:rgba(11,93,115,.35);
+  }
+
+  /* ========== 预览页骨架 ========== */
+  .wrap{max-width:1060px;margin:0 auto;padding:28px 20px 72px}
+  .pv-head h1{font-size:22px;font-weight:800;color:var(--anchor);letter-spacing:-.3px}
+  .pv-head .pv-sub{font-size:13px;color:var(--muted);margin-top:6px}
+  .switcher{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .sw-btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 18px;font-size:14px;font-weight:600;transition:all .15s ease}
+  .sw-btn:hover{border-color:var(--accent)}
+  .sw-btn[aria-pressed="true"]{background:var(--anchor);border-color:var(--anchor);color:#fff}
+  .sw-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus)}
+  .scheme-desc{margin-top:14px;padding:12px 16px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;font-size:14px;color:var(--fg)}
+  .scheme-desc b{color:var(--anchor)}
+  .pv-section{margin-top:34px}
+  .pv-label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+
+  /* ========== 组件样例：导航条 ========== */
+  .navbar{background:var(--anchor);border-radius:12px;padding:0 18px;display:flex;align-items:center;gap:18px;height:52px;overflow:hidden}
+  .nav-brand{display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;font-size:15px;flex-shrink:0}
+  .nav-brand .eic{width:18px;height:18px}
+  .nav-tabs{display:flex;gap:4px;flex:1;min-width:0;overflow:hidden}
+  .nav-tab{color:rgba(255,255,255,.78);font-size:13px;padding:0 12px;line-height:52px;white-space:nowrap;position:relative}
+  .nav-tab .nav-dot{display:none;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px}
+  body[data-scheme="c"] .nav-tab .nav-dot{display:inline-block}
+  .nav-tab.on{color:#fff;font-weight:700}
+  .nav-tab.on::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;border-radius:2px 2px 0 0;background:var(--gold)}
+  .nav-user{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;flex-shrink:0}
+  .nav-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--anchor);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+
+  /* ========== 组件样例：KPI 卡 ========== */
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent)}
+  .kpi.k-hot::before{background:var(--h-1)}
+  .kpi.k-good::before{background:var(--ok)}
+  .kpi .k{font-size:12px;color:var(--muted)}
+  .kpi .n{font-size:28px;font-weight:900;color:var(--anchor);line-height:1.15;letter-spacing:-.5px;margin-top:2px}
+  .kpi.k-hot .n{color:var(--h-1n,var(--anchor))}
+  .kpi.k-good .n{color:var(--ok-ink)}
+  .kpi .d{font-size:12px;margin-top:4px;color:var(--muted)}
+  .kpi .d b{color:var(--ok-ink)}
+  .kpi .d b.down{color:var(--danger-ink)}
+
+  /* ========== 组件样例：诊断卡 ========== */
+  .dg{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:640px}
+  .dg-head{background:var(--paper);border-bottom:1px solid var(--paper-line);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .dg-head .t{font-weight:800;font-size:15px;color:var(--anchor)}
+  .dg-rank{background:var(--gold-soft);border:1px solid var(--gold-line);color:var(--gold-ink);font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px}
+  .dg-body{padding:14px 16px 16px}
+  .dg-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .dg-row:last-of-type{border-bottom:none}
+  .dg-row .v{font-weight:700;color:var(--anchor)}
+  .dg-row .v .gt{font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+  .dg-row .v.miss{color:var(--danger-ink)}
+  .dg-row .tag{font-size:11px;border-radius:999px;padding:1px 8px;margin-left:8px;font-weight:600}
+  .tag.okt{background:var(--ok-soft);color:var(--ok-ink)}
+  .tag.wart{background:var(--gold-soft);color:var(--gold-ink)}
+  .tag.badt{background:#fbeae7;color:var(--danger-ink)}
+  .dg-sub{margin-top:12px;border:1px solid var(--gold-line);background:var(--gold-soft);border-radius:12px;padding:12px 14px}
+  .dg-sub .st{font-weight:800;font-size:13px;color:var(--gold-ink);display:flex;align-items:center;gap:6px}
+  .dg-sub .st .eic{width:15px;height:15px}
+  .dg-sub p{font-size:13px;margin-top:6px}
+  .dg-sub .anchor-link{font-size:12px;color:var(--accent-strong);text-decoration:underline;margin-top:6px;display:inline-block}
+
+  /* ========== 组件样例：预警横幅 ========== */
+  .banner{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--gold-line);background:var(--gold-soft);border-radius:12px;padding:12px 16px;max-width:640px}
+  .banner .eic{width:18px;height:18px;color:var(--gold-ink);flex:none;margin-top:2px}
+  .banner .sev{background:var(--danger-ink);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;flex:none;margin-top:2px}
+  .banner p{font-size:13px}
+  .banner p b{color:var(--gold-ink)}
+
+  /* ========== 组件样例：按钮组 ========== */
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;min-height:40px;transition:background .15s ease,border-color .15s ease}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus)}
+  .btn-pri{background:var(--accent-strong);border:1px solid var(--accent-strong);color:#fff}
+  .btn-pri:hover{filter:brightness(.94)}
+  .btn-sec{background:var(--surface);border:1px solid var(--accent-strong);color:var(--accent-strong)}
+  .btn-sec:hover{background:var(--accent-soft)}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--fg)}
+  .btn-ghost:hover{border-color:var(--muted)}
+  .btn-dis{background:var(--paper);border:1px solid var(--paper-line);color:var(--muted);cursor:not-allowed}
+
+  /* ========== 组件样例：论坛强调色适配 ========== */
+  .forum{background:var(--paper);border:1px solid var(--paper-line);border-radius:12px;padding:16px;max-width:640px}
+  .forum .f-head{font-size:12px;color:var(--muted)}
+  .f-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .f-chip{font-size:12px;font-weight:600;border-radius:999px;padding:3px 12px}
+  .f-chip.c1{background:var(--accent-soft);color:var(--accent-strong);border:1px solid var(--line)}
+  .f-chip.c2{background:rgba(109,91,208,.1);color:var(--h-2-ink,var(--accent-strong));border:1px solid var(--line)}
+  .f-chip.c3{background:var(--gold-soft);color:var(--gold-ink);border:1px solid var(--gold-line)}
+  body:not([data-scheme="c"]) .f-chip.c2{background:var(--accent-soft);color:var(--accent-strong)}
+  .forum .f-note{font-size:12px;color:var(--muted);margin-top:12px;border-top:1px dashed var(--paper-line);padding-top:10px}
+
+  /* ========== Token 表 ========== */
+  .tok-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:640px}
+  .tok-head{background:var(--anchor);color:#fff;font-size:12px;padding:8px 16px;display:flex;justify-content:space-between}
+  .tok-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:7px 16px;border-bottom:1px solid var(--line);align-items:center}
+  .tok-row:last-child{border-bottom:none}
+  .tok-row .tn{font-family:ui-monospace,"SF Mono",Consolas,monospace;color:var(--accent-strong);font-weight:600;flex-shrink:0}
+  .tok-row .tr{color:var(--muted);flex:1;text-align:left}
+  .tok-row .tv{display:flex;align-items:center;gap:6px;font-family:ui-monospace,"SF Mono",Consolas,monospace;color:var(--fg);flex-shrink:0}
+  .tok-sw{width:14px;height:14px;border-radius:4px;border:1px solid var(--line);display:inline-block}
+
+  /* ========== 内联 SVG 图标 ========== */
+  .eic{width:1.05em;height:1.05em;vertical-align:-0.16em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+  @media(max-width:720px){
+    .kpi-row{grid-template-columns:1fr}
+    .nav-tabs .nav-tab:nth-child(n+4){display:none}
+    .navbar{height:auto;padding:10px 14px;flex-wrap:wrap;gap:8px}
+    .nav-tab{line-height:34px}
+    .nav-tab.on::after{bottom:4px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body data-scheme="a">
+<div class="wrap">
+
+  <!-- 预览页头 + 切换器 -->
+  <div class="pv-head">
+    <h1>扬帆OS · 配色参考方案预览</h1>
+    <p class="pv-sub">三套完整方案，点击切换整套 token，看真实组件在各自体系下的呈现。选定后按该套 token 全平台实施。</p>
+    <div class="switcher" role="group" aria-label="配色方案切换">
+      <button class="sw-btn" data-s="a" aria-pressed="true">A · 蓝锚墨金</button>
+      <button class="sw-btn" data-s="b" aria-pressed="false">B · 墨绿暖纸</button>
+      <button class="sw-btn" data-s="c" aria-pressed="false">C · 青空多色相</button>
+    </div>
+    <div class="scheme-desc" id="schemeDesc"></div>
+  </div>
+
+  <!-- 导航条 -->
+  <div class="pv-section">
+    <div class="pv-label">导航条（锚色 + 金色活动位）</div>
+    <nav class="navbar" aria-label="样例导航">
+      <div class="nav-brand">
+        <svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11z"/></svg>
+        扬帆OS
+      </div>
+      <div class="nav-tabs">
+        <span class="nav-tab on"><span class="nav-dot" style="background:var(--h-1,#fff)"></span>数据看板</span>
+        <span class="nav-tab"><span class="nav-dot" style="background:var(--ok)"></span>我的成长</span>
+        <span class="nav-tab"><span class="nav-dot" style="background:var(--h-2,#fff)"></span>中台总览</span>
+        <span class="nav-tab"><span class="nav-dot" style="background:var(--gold)"></span>浆站论坛</span>
+        <span class="nav-tab"><span class="nav-dot" style="background:var(--accent)"></span>学习营</span>
+      </div>
+      <div class="nav-user"><span class="nav-avatar">王</span>舒城站 · 王
+      </div>
+    </nav>
+  </div>
+
+  <!-- KPI 卡 -->
+  <div class="pv-section">
+    <div class="pv-label">KPI 卡（锚色数字；方案 C 按模块分色相）</div>
+    <div class="kpi-row">
+      <div class="kpi k-hot">
+        <div class="k">报名人数</div>
+        <div class="n num">86</div>
+        <div class="d">较上月 <b class="num">+12</b></div>
+      </div>
+      <div class="kpi k-good">
+        <div class="k">入营人数</div>
+        <div class="n num">47</div>
+        <div class="d">较上月 <b class="num">+5</b></div>
+      </div>
+      <div class="kpi">
+        <div class="k">科普转化率</div>
+        <div class="n num">42%</div>
+        <div class="d">集团线 40% · <b>达标</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 预警横幅 + 主建议容器 -->
+  <div class="pv-section">
+    <div class="pv-label">预警横幅 + 主建议容器（金墨行动色）</div>
+    <div class="banner">
+      <svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 22 20H2z"/><path d="M12 10v4"/><path d="M12 17.5v.5"/></svg>
+      <span class="sev">严重</span>
+      <p><b>没筛选：</b>本周内完成全部邀约家长筛选，未筛名单不得进入面试环节。</p>
+    </div>
+    <div style="height:12px"></div>
+    <div class="dg-sub" style="max-width:640px">
+      <div class="st">
+        <svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1.5 1.6 1.5 2.5h5c0-.9.7-1.7 1.5-2.5A6 6 0 0 0 12 3z"/></svg>
+        本周主建议
+      </div>
+      <p>优先补家长参与：本周完成 8 位家长邀约，参与度距集团线 70% 还差 25 个百分点。</p>
+      <a class="anchor-link" href="#" onclick="return false">学习锚点：干系人管理</a>
+    </div>
+  </div>
+
+  <!-- 诊断卡 -->
+  <div class="pv-section">
+    <div class="pv-label">诊断卡（暖纸卡头 + 双轨指标 + 档位徽章）</div>
+    <div class="dg">
+      <div class="dg-head">
+        <span class="t">舒城站 · 综合诊断</span>
+        <span class="dg-rank">总榜第四</span>
+        <span class="dg-rank" style="background:var(--ok-soft);border-color:transparent;color:var(--ok-ink)">双达标</span>
+      </div>
+      <div class="dg-body">
+        <div class="dg-row">
+          <span>学生科普</span>
+          <span class="v num">5.2 次/人<span class="gt">集团线 4.0</span><span class="tag okt">达标</span></span>
+        </div>
+        <div class="dg-row">
+          <span>科普转化率</span>
+          <span class="v num">42%<span class="gt">集团线 40%</span><span class="tag okt">达标</span></span>
+        </div>
+        <div class="dg-row">
+          <span>家长参与度</span>
+          <span class="v miss num">45%<span class="gt">集团线 70%</span><span class="tag wart">预警</span></span>
+        </div>
+        <div class="dg-row">
+          <span>面试到场率</span>
+          <span class="v miss num">58%<span class="gt">集团线 80%</span><span class="tag badt">硬线</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 按钮组 -->
+  <div class="pv-section">
+    <div class="pv-label">按钮组（行动色只留给主操作）</div>
+    <div class="btn-row">
+      <button class="btn btn-pri">提交本月上报</button>
+      <button class="btn btn-sec">查看诊断详情</button>
+      <button class="btn btn-ghost">复制分析文字</button>
+      <button class="btn btn-dis" disabled>导出中…</button>
+    </div>
+  </div>
+
+  <!-- 论坛强调色适配 -->
+  <div class="pv-section">
+    <div class="pv-label">论坛强调色适配（暖纸底不动，只换强调色）</div>
+    <div class="forum">
+      <div class="f-head">浆站论坛 · 版块标签预览</div>
+      <div class="f-chips">
+        <span class="f-chip c1">学生科普</span>
+        <span class="f-chip c2">科普转化</span>
+        <span class="f-chip c3">家长活动</span>
+      </div>
+      <div class="f-note" id="forumNote"></div>
+    </div>
+  </div>
+
+  <!-- Token 表 -->
+  <div class="pv-section">
+    <div class="pv-label">Token 定义（当前方案的 :root 变量）</div>
+    <div class="tok-card">
+      <div class="tok-head"><span id="tokName"></span><span>变量 / 值 / 用途</span></div>
+      <div id="tokBody"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var SCHEMES={
+    a:{
+      name:'方案 A · 蓝锚墨金（当前体系改良版）',
+      desc:'<b>专业平台气质。</b>蓝从满屏收编到「权威位」：导航与数字锚保留藏蓝，行动归金墨、成果归绿墨、中性信息归暖纸——每个屏幕是「蓝 + 一个语义色相」，可信、克制。',
+      forum:'论坛暖纸底 #f8f6f1 不动：版块标签用蓝系强调，家长活动保留金系——与看板语义一致。',
+      tokens:[
+        ['--bg','#f4f8fc','全局底色'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#0d2c4d','权威锚：导航 / 大数字'],
+        ['--accent','#2b7cd3','强调：图表 / 装饰'],
+        ['--accent-strong','#1d5fa8','行动色：按钮 / 链接（白字 5.9:1）'],
+        ['--accent-soft','#eef5fc','强调浅底'],
+        ['--paper','#f8f6f1','暖纸中性底'],
+        ['--paper-line','#e8e4dc','暖纸描边'],
+        ['--gold','#e08c2e','警示底 / 进度条'],
+        ['--gold-ink','#a86310','警示 / 行动容器文字（4.7:1）'],
+        ['--gold-soft','#fdf3e3','主建议容器底'],
+        ['--ok','#10a37f','达标底'],
+        ['--ok-ink','#0b7d61','成果文字（5.1:1）'],
+        ['--danger','#c0392b','风险底'],
+        ['--danger-ink','#a93226','风险文字'],
+        ['--fg','#17324d','正文'],
+        ['--muted','#5e7da0','次级文字（4.9:1）'],
+        ['--line','#d3e2f0','常规描边']
+      ]
+    },
+    b:{
+      name:'方案 B · 墨绿暖纸（沉稳政务风）',
+      desc:'<b>最庄重的一套。</b>墨绿做锚、暖纸做底、金线点缀——像一份浆站年报或政务档案，权威感最强，适合对外展示与半年度汇报场景；代价是活力最弱。',
+      forum:'论坛暖纸底不动：版块标签改墨绿强调，整站像「档案区」，与学习营的章节感最搭。',
+      tokens:[
+        ['--bg','#faf9f5','全局底色（米白）'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#1e4034','墨绿锚：导航 / 大数字'],
+        ['--accent','#20684e','强调绿'],
+        ['--accent-strong','#17503b','行动色：按钮 / 链接（白字 7:1）'],
+        ['--accent-soft','#eef4ef','强调浅底'],
+        ['--paper','#f6f3ea','暖纸中性底'],
+        ['--paper-line','#e6e1d2','暖纸描边'],
+        ['--gold','#c98a2d','金线点缀 / 进度条'],
+        ['--gold-ink','#8a5a12','警示 / 行动容器文字（5.5:1）'],
+        ['--gold-soft','#faf1de','主建议容器底'],
+        ['--ok','#2e7d32','达标底'],
+        ['--ok-ink','#1c6b3c','成果文字（5.6:1）'],
+        ['--danger','#b03a20','风险底'],
+        ['--danger-ink','#963017','风险文字'],
+        ['--fg','#26332b','正文（墨绿灰）'],
+        ['--muted','#6b7a70','次级文字（4.6:1）'],
+        ['--line','#dfe3d9','常规描边']
+      ]
+    },
+    c:{
+      name:'方案 C · 青空多色相（清爽青年风）',
+      desc:'<b>最轻快的一套。</b>深青海做锚，模块各领一色相：招募珊瑚、学习紫、活动金、成果绿——像青年实践营的分区旗帜，导航带彩色圆点、KPI 按模块分色。信息密度高的页面需要自律，否则容易花。',
+      forum:'论坛暖纸底不动：科普蓝、转化紫、活动金三色相分区——论坛本身版块多，天然适合多色相。',
+      tokens:[
+        ['--bg','#fbfcfe','全局底色'],
+        ['--surface','#ffffff','卡片底'],
+        ['--anchor','#0f4c5c','深青海锚：导航 / 大数字'],
+        ['--accent','#0e7490','青空强调'],
+        ['--accent-strong','#0b5d73','行动色：按钮 / 链接（白字 5.9:1）'],
+        ['--accent-soft','#e6f6fa','强调浅底'],
+        ['--h-1','#c6431f','珊瑚（招募模块专属，白字 4.6:1）'],
+        ['--h-1n','#c6431f','招募数字（白底 4.6:1）'],
+        ['--h-2','#6d5bd0','紫（学习模块专属）'],
+        ['--h-2-ink','#5a48b8','紫系文字（白底 5.9:1）'],
+        ['--h-3','#0e7490','青（入营模块专属）'],
+        ['--paper','#f7f8f7','暖纸中性底'],
+        ['--paper-line','#e4e8e6','暖纸描边'],
+        ['--gold','#e58e26','活动金 / 进度条'],
+        ['--gold-ink','#9c5c0a','警示 / 行动容器文字（4.9:1）'],
+        ['--gold-soft','#fdf2df','主建议容器底'],
+        ['--ok','#0d9463','达标底'],
+        ['--ok-ink','#0a7a50','成果文字（5.0:1）'],
+        ['--danger','#d64541','风险底'],
+        ['--danger-ink','#bd3531','风险文字'],
+        ['--fg','#1f2d3d','正文'],
+        ['--muted','#64748b','次级文字（4.8:1）'],
+        ['--line','#dbe4ea','常规描边']
+      ]
+    }
+  };
+  var KEY={a:'a',b:'b',c:'c'};
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function render(k){
+    var d=SCHEMES[k];
+    document.getElementById('schemeDesc').innerHTML=d.desc;
+    document.getElementById('forumNote').textContent=d.forum;
+    document.getElementById('tokName').textContent=d.name;
+    var h='';
+    d.tokens.forEach(function(t){
+      h+='<div class="tok-row"><span class="tn">'+esc(t[0])+'</span><span class="tr">'+esc(t[2])+'</span><span class="tv"><span class="tok-sw" style="background:'+esc(t[1])+'"></span>'+esc(t[1])+'</span></div>';
+    });
+    document.getElementById('tokBody').innerHTML=h;
+    var btns=document.querySelectorAll('.sw-btn');
+    for(var i=0;i<btns.length;i++){
+      btns[i].setAttribute('aria-pressed',btns[i].getAttribute('data-s')===k?'true':'false');
+    }
+    document.body.setAttribute('data-scheme',k);
+    try{localStorage.setItem('yf:palette-preview',k);}catch(e){}
+  }
+  var btns=document.querySelectorAll('.sw-btn');
+  for(var i=0;i<btns.length;i++){
+    btns[i].addEventListener('click',function(){render(this.getAttribute('data-s'));});
+  }
+  var saved=null;
+  try{saved=localStorage.getItem('yf:palette-preview');}catch(e){}
+  render(KEY[saved]||'a');
+})();
+</script>
+</body>
+</html>
