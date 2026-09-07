@@ -9372,7 +9372,9 @@ function rpErrMsg(j){ /* S7 错误文案归一：月锁/截止优先 → errors 
   var m=String(j.msg||''), e=String(j.error||'');
   if(j.forbidden||e==='month_locked'||/截止|锁定|403/.test(m+e))return '已过上报截止，联系管理员';
   if(Array.isArray(j.errors)&&j.errors.length){
-    var parts=j.errors.map(function(er){ if(!er)return ''; if(er.msg)return String(er.msg); return RP_ERR_TEXT[String(er.code||'')]||''; }).filter(function(s){return s;});
+    var e0=j.errors[0];
+    if(e==='validation_failed'&&e0&&e0.code==='E6')return '所选月份不在上报开放窗口内，请选择季内月份'; /* E6 窗口级：内部标记（not_season_month）不透出 */
+    var parts=j.errors.map(function(er){ if(!er)return ''; if(er&&er.code==='E6')return ''; /* E6 窗口级不透传（混排双保险） */ if(er.msg)return String(er.msg); return RP_ERR_TEXT[String(er.code||'')]||''; }).filter(function(s){return s;});
     if(parts.length)return parts.join('；');
   }
   if(RP_ERR_TEXT[e])return RP_ERR_TEXT[e];
