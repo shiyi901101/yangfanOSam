@@ -151,7 +151,10 @@ window.__yfLoadLib=(function(){
   .sb-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.07);margin-top:auto}
   .sb-user{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);transition:.2s}
   .sb-user:hover{background:rgba(255,255,255,.08)}
-  .sb-avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2b7cd3,#1a5aa0);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;flex-shrink:0}
+  .sb-avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2b7cd3,#1a5aa0);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;flex-shrink:0;overflow:hidden}
+  .sb-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+  /* 内联 SVG 图标基类（emoji 替换专用，统一描边/继承字色字号） */
+  .eic{width:1.05em;height:1.05em;vertical-align:-0.16em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
   .sb-user-info{flex:1;min-width:0}
   .sb-user-name{font-size:13px;font-weight:700;color:#e8f0fa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sb-user-role{font-size:11px;color:rgba(160,195,232,.55);margin-top:1px}
@@ -1524,10 +1527,10 @@ window.__yfLoadLib=(function(){
 
 <!-- 公告栏 -->
 <div id="announceBar" class="announce-bar" style="display:none">
-  <span class="ann-icon">📢</span>
+  <span class="ann-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
   <div class="ann-wrap" id="annWrap"><span class="ann-text" id="annText"></span></div>
   <div class="ann-nav" id="annNav"></div>
-  <button class="ann-edit-btn" id="annEditBtn" onclick="annEditOpen()" title="编辑公告" style="display:none">✏️</button>
+  <button class="ann-edit-btn" id="annEditBtn" onclick="annEditOpen()" title="编辑公告" style="display:none"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg></button>
   <button class="ann-close" onclick="closeAnn()" title="关闭">✕</button>
 </div>
 
@@ -1620,8 +1623,8 @@ window.__yfLoadLib=(function(){
   <section id="learn">
   <div class="legend">PMP 不是考证教材，是「把扬帆干漂亮」的操作手册。十大知识领域 + 五大过程组 + 敏捷管理，每个知识点都配了真实标杆和咱们自己的做法。按需翻、随时查。</div>
   <div class="learn-tabs">
-    <button class="ltab active" data-lt="book" onclick="learnTab('book')">📚 图书化课程</button>
-    <button class="ltab" data-lt="drill" onclick="learnTab('drill')">🎯 智子情景演练</button>
+    <button class="ltab active" data-lt="book" onclick="learnTab('book')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 图书化课程</button>
+    <button class="ltab" data-lt="drill" onclick="learnTab('drill')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 智子情景演练</button>
   </div>
   <iframe id="learnFrame" title="扬帆计划 PMP 学习系统" style="width:100%;height:calc(100dvh - 150px);border:1px solid var(--line);border-radius:12px;background:#fff"></iframe>
   <div id="drillPanel" class="drill-panel" style="display:none">
@@ -1667,19 +1670,19 @@ window.__yfLoadLib=(function(){
 <section id="factory">
   <div class="legend">效率工具：把重复体力活直接干掉，产出有设计感、能直接用的文件。组件库已随项目本地部署，<b>无需联网 CDN</b>。生成的 Excel 可直接导入腾讯文档在线表格。</div>
   <div class="toolbar-search">
-    <input id="toolSearch" placeholder="🔍 搜工具：PPT / 证书 / 短信 / 接龙 / 报表…" oninput="toolFilter()">
+    <input id="toolSearch" placeholder="搜工具：PPT / 证书 / 短信 / 接龙 / 报表…" oninput="toolFilter()">
     <span class="muted" style="font-size:12px">标「常用」的已钉到最前</span>
   </div>
   <div class="grid g2">
     <div class="gen">
-      <h3>📒 学生成长报告生成器 <span class="tag">图文→报告</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> 学生成长报告生成器 <span class="tag">图文→报告</span></h3>
       <p class="muted">工具包5活化：集中导入学生名单 → 逐人录五时刻（图片+文字）→ 一键生成个人成长报告，可打印PDF/下载HTML。数据存本机，隐私安全。</p>
       <button class="btn" onclick="openReport()">打开成长报告生成器</button>
       <div class="out">流程：①导入名单 → ②选学生录五时刻 → ③生成报告。五时刻＝开营/首次招募/家长活动/过半复盘/结营。</div>
     </div>
 
     <div class="gen">
-      <h3>📊 汇报 PPT 生成 <span class="tag">.pptx</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M3 3v18h18"/><path d="M7 16v-5m5 5V8m5 8v-8"/></svg> 汇报 PPT 生成 <span class="tag">.pptx</span></h3>
       <p class="muted">填入你的真实数据 → 引擎自动生成浅色商务 PPT（白底＋藏蓝/金/青点缀），布局规范、下载即用。支持插图，图文混排。</p>
       <label>汇报类型</label>
       <select id="pptTpl"><option value="recruit">招募启动方案</option><option value="mid">运营中期进展</option><option value="close">结营成果总结</option><option value="train">负责人培训课件</option><option value="custom">自定义汇报</option></select>
@@ -1691,16 +1694,16 @@ window.__yfLoadLib=(function(){
       <textarea id="pptFocus" rows="3" placeholder="家长群已建3个覆盖120人&#10;义卖活动筹集善款860元&#10;学员满意度评分4.6/5"></textarea>
       <label>配图（可选，封面或成果页使用，可多选）</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-        <label class="fb-img-btn" style="font-size:12px">📷 选择图片<input type="file" accept="image/*" multiple id="pptImgInput" style="display:none" onchange="pptAddImages(this)"></label>
+        <label class="fb-img-btn" style="font-size:12px"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 选择图片<input type="file" accept="image/*" multiple id="pptImgInput" style="display:none" onchange="pptAddImages(this)"></label>
         <span id="pptImgCount" style="font-size:12px;color:var(--muted)"></span>
       </div>
       <div class="ppt-img-preview" id="pptImgPreview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-      <button class="btn" onclick="genPPT()">✨ 生成并下载 PPT</button>
+      <button class="btn" onclick="genPPT()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> 生成并下载 PPT</button>
       <div class="out" id="pptOut">填写信息后点击生成，引擎根据内容量自动规划页数和排版。</div>
     </div>
 
     <div class="gen">
-      <h3>📑 运营执行表生成 <span class="tag">.xlsx</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8m8 4H8"/></svg> 运营执行表生成 <span class="tag">.xlsx</span></h3>
       <p class="muted">选表 → 填站情 → 生成带格式执行表（招募漏斗 / 家长沟通排期 / 活动清单 / 接龙名单）。</p>
       <label>表格类型</label>
       <select id="xlsTpl"><option value="funnel">招募转化漏斗表</option><option value="parent">家长沟通排期表</option><option value="act">假期活动执行清单</option><option value="roll">接龙报名名单表</option></select>
@@ -1711,7 +1714,7 @@ window.__yfLoadLib=(function(){
     </div>
 
     <div class="gen">
-      <h3>📡 在线收集表生成（导入腾讯文档） <span class="tag">.xlsx</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg> 在线收集表生成（导入腾讯文档） <span class="tag">.xlsx</span></h3>
       <p class="muted">你们日常用<b>在线表格收集信息</b>。这里生成可直接导入腾讯文档在线表格的收集表（积分统计 / 签到 / 报名汇总），自己填或发群填报。</p>
       <label>表类型</label>
       <select id="onTpl"><option value="score">学生积分统计表</option><option value="sign">出勤签到表</option><option value="reg">报名汇总审核表</option><option value="survey">家长满意度量表</option></select>
@@ -1722,7 +1725,7 @@ window.__yfLoadLib=(function(){
     </div>
 
     <div class="gen">
-      <h3>📝 接龙 / 报名生成 <span class="tag">复制+下载</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> 接龙 / 报名生成 <span class="tag">复制+下载</span></h3>
       <p class="muted">生成可直接发浆站群 / 腾讯文档接龙的报名模板，含字段与示例。</p>
       <label>接龙主题</label><input id="rollTopic" value="扬帆计划学员报名接龙">
       <label>收集字段（逗号分隔）</label><input id="rollFields" value="姓名,学校,年级,联系电话,可参加时段">
@@ -1733,7 +1736,7 @@ window.__yfLoadLib=(function(){
     </div>
 
     <div class="gen">
-      <h3>📜 通知书 / 结业证书 <span class="tag">批量出图</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg> 通知书 / 结业证书 <span class="tag">批量出图</span></h3>
       <p class="muted">粘贴名单（姓名,学校 每行一人）→ 批量生成录取通知书 / 结业证书图片（A4尺寸），可单张或批量下载。</p>
       <label>类型</label>
       <select id="certTpl"><option value="accept">录取通知书</option><option value="close">结业证书</option></select>
@@ -1746,7 +1749,7 @@ window.__yfLoadLib=(function(){
     </div>
 
     <div class="gen">
-      <h3>💬 短信 / 播报话术生成</h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg> 短信 / 播报话术生成</h3>
       <p class="muted">生成家长每日播报、开营邀约、亲子开放日话术，可直接复制群发。</p>
       <label>类型</label>
       <select id="msgTpl"><option value="daily">家长每日播报</option><option value="invite">开营邀约短信</option><option value="open">亲子开放日邀请</option></select>
@@ -1757,7 +1760,7 @@ window.__yfLoadLib=(function(){
     </div>
 
     <div class="gen">
-      <h3>🎨 招募海报生成器 <span class="tag">一键出图</span></h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg> 招募海报生成器 <span class="tag">一键出图</span></h3>
       <p class="muted">填站名 / 时间 / 地点 / 主标题 → 自动出招募 / 献浆科普 / 爱心助考三类海报，冷蓝系专业设计，可下载 PNG。</p>
       <label>海报类型</label>
       <select id="posterType">
@@ -1769,13 +1772,13 @@ window.__yfLoadLib=(function(){
       <label>主标题</label><input id="posterTitle" placeholder="如：暑期社会实践招募">
       <label>时间地点</label><input id="posterTime" placeholder="如：7月15日 / 县文化中心">
       <label>报名联系方式</label><input id="posterContact" placeholder="如：扫码报名 / 致电 0552-xxx">
-      <button class="btn" onclick="genPoster()">✨ 生成海报</button>
+      <button class="btn" onclick="genPoster()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> 生成海报</button>
       <div class="out" id="posterOut">填写信息后点击生成，海报自动出图，可下载。</div>
       <div id="posterPreview" style="margin-top:10px;text-align:center"></div>
     </div>
 
     <div class="gen">
-      <h3>🧩 待接入的效率工具（方向）</h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/></svg> 待接入的效率工具（方向）</h3>
       <p class="muted">按你「根本解决工作痛点」的要求排的后续项，当前为入口占位，已规划真实产出逻辑：</p>
       <div class="pill">周报自动汇总（导入漏斗数据→出周报）</div>
       <div class="pill">舆情口径一键卡（输入场景→出回应话术）</div>
@@ -1789,7 +1792,7 @@ window.__yfLoadLib=(function(){
 <!-- ============ 智子（训战机器人） ============ -->
 <section id="bot">
   <div class="legend">智子 = <b>带新人快速上手</b>（结合扬帆核心策略 + 真实数据 + 工具包）+ <b>常见问题自己查</b> + <b>直接输出方案材料</b>。底部可<b>直接打字问</b>：问站名出该站详情（如「怀远怎么做」）、问策略出专属内容（如「今年目标怎么定」「家长活动怎么设计」）、问案例出经典启示。若后端接大模型则为真对话，否则自动降级为知识库精准匹配。</div>
-  <div class="bot-privacy">🔒 <b>隐私说明</b>：你与智子的对话仅本人可见，关掉再开智子仍记得你聊过什么，但<b>绝不会显示给其他站点</b>。只有你主动点「教智子」提交、或点「沉淀本次对话」提炼成知识卡后，该条知识才会共享给全站智子（且会脱敏处理，不含你的站点名/人名/具体数字）。</div>
+  <div class="bot-privacy"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <b>隐私说明</b>：你与智子的对话仅本人可见，关掉再开智子仍记得你聊过什么，但<b>绝不会显示给其他站点</b>。只有你主动点「教智子」提交、或点「沉淀本次对话」提炼成知识卡后，该条知识才会共享给全站智子（且会脱敏处理，不含你的站点名/人名/具体数字）。</div>
 
   <div class="bot">
     <div>
@@ -1800,7 +1803,7 @@ window.__yfLoadLib=(function(){
           <span>扬帆计划训战机器人 · 问站名出详情 · 问策略出打法 · 问案例出启示</span>
         </div>
         <span id="botMode" class="mode-badge">检测中…</span>
-        <button class="btn ghost" title="配置大模型 Key" onclick="toggleBotKey()">⚙ 模型</button>
+        <button class="btn ghost" title="配置大模型 Key" onclick="toggleBotKey()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> 模型</button>
       </div>
       <div class="chat" id="chat"></div>
       <div class="progress"><i id="botProg"></i></div>
@@ -1808,8 +1811,8 @@ window.__yfLoadLib=(function(){
       <div class="chat-input">
         <input id="botFree" placeholder="直接问智子，聊透了它会主动建议出文件" onkeydown="if(event.key==='Enter'){event.preventDefault();sendFree()}">
         <button class="btn" onclick="sendFree()">发送</button>
-        <button class="btn ghost" title="基于对话内容生成表格（建议先聊相关话题再点）" onclick="genXLSX()">📊</button>
-        <button class="btn ghost" title="基于对话内容生成文档（建议先聊相关话题再点）" onclick="genDOCX()">📄</button>
+        <button class="btn ghost" title="基于对话内容生成表格（建议先聊相关话题再点）" onclick="genXLSX()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;vertical-align:-4px"><path d="M3 3v18h18"/><path d="M7 16v-5m5 5V8m5 8v-8"/></svg></button>
+        <button class="btn ghost" title="基于对话内容生成文档（建议先聊相关话题再点）" onclick="genDOCX()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;vertical-align:-4px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
       </div>
       <div class="bot-actions">
         <button class="btn ghost" onclick="openKbModal()">教智子（提交知识）</button>
@@ -1837,7 +1840,7 @@ window.__yfLoadLib=(function(){
   <!-- 话术库：高频问答弹药库（给智子供弹药，负责人也能直接搜） -->
   <div class="script-lib">
     <div class="sl-head">
-      <span class="sl-title">💬 话术库</span>
+      <span class="sl-title"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg> 话术库</span>
       <span class="sl-sub">高频场景标准话术，按场景搜，直接复制用</span>
       <input id="slQ" class="sl-search" placeholder="搜场景/标签/来源…" oninput="slRender()">
     </div>
@@ -1855,7 +1858,7 @@ window.__yfLoadLib=(function(){
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="up-enter" id="dashRefreshBtn" onclick="dashRefresh()" style="background:var(--blue-200);color:var(--blue-800)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> 刷新</button>
-      <button class="up-enter" id="dashUpBtn" onclick="openUpModal()">📤 更新数据</button>
+      <button class="up-enter" id="dashUpBtn" onclick="openUpModal()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg> 更新数据</button>
     </div>
   </div>
   <!-- 本站诊断卡（batch2 Phase 2 · 仅 station 角色显示，yfFilterNav 控制；数据来自 /v1 云端，规则表 R1-R14 见 §2.3） -->
@@ -1887,7 +1890,7 @@ window.__yfLoadLib=(function(){
   <!-- ============ 全国浆站分布地图（紧凑单栏 · 省份旁气泡标注） ============ -->
   <div class="dash-map-wrap" id="dashMapWrap">
     <div class="dash-map-inner">
-      <div class="dash-map-head"><span class="dm-title">🗺️ 全国浆站布局</span><span class="dm-sub">数据随看板实时更新 · 共 20 站</span></div>
+      <div class="dash-map-head"><span class="dm-title"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg> 全国浆站布局</span><span class="dm-sub">数据随看板实时更新 · 共 20 站</span></div>
       <div class="dash-map-main">
         <svg id="chinaMap" viewBox="0 0 1050 780" preserveAspectRatio="xMidYMid meet"></svg>
         <div id="mapTooltip" class="map-tooltip" style="display:none"></div>
@@ -1931,16 +1934,16 @@ window.__yfLoadLib=(function(){
 
   <!-- 顶层tab：讨论区（默认） / 经验广场 -->
   <div class="forum-tabs">
-    <button class="ftab active" data-ft="discuss" onclick="forumTab('discuss')">💬 集思广议</button>
-    <button class="ftab" data-ft="exp" onclick="forumTab('exp')">📚 经验广场</button>
+    <button class="ftab active" data-ft="discuss" onclick="forumTab('discuss')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg> 集思广议</button>
+    <button class="ftab" data-ft="exp" onclick="forumTab('exp')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 经验广场</button>
   </div>
 
   <!-- ============ 经验广场面板（默认隐藏，进入交流优先展示集思广议） ============ -->
   <div id="forumExp" class="forum-panel" style="display:none">
     <!-- 子tab：案例拆解 / 方案模板 -->
     <div class="exp-subtabs">
-      <button class="estab active" data-et="cases" onclick="expTab('cases')">📋 案例拆解 <span class="exp-cnt" id="cntCases">0</span></button>
-      <button class="estab" data-et="templates" onclick="expTab('templates')">📑 方案模板 <span class="exp-cnt" id="cntTpls">0</span></button>
+      <button class="estab active" data-et="cases" onclick="expTab('cases')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 案例拆解 <span class="exp-cnt" id="cntCases">0</span></button>
+      <button class="estab" data-et="templates" onclick="expTab('templates')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8m8 4H8"/></svg> 方案模板 <span class="exp-cnt" id="cntTpls">0</span></button>
       <div class="exp-search"><input id="expQ" placeholder="搜索标题/标签/作者…" oninput="expRender()"></div>
     </div>
     <div id="expContent" class="exp-content"></div>
@@ -1954,7 +1957,7 @@ window.__yfLoadLib=(function(){
         <div id="fbBoardIndex" class="fb-board-index"></div>
         <!-- 热门帖子网格 -->
         <div class="fb-hot" id="fbHot">
-          <div class="fb-hot-head"><span class="fb-hot-icon">🔥</span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
+          <div class="fb-hot-head"><span class="fb-hot-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;fill:currentColor;stroke:none;vertical-align:-3px"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
           <div class="fb-grid" id="fbCarousel"></div>
         </div>
         <div class="fbar">
@@ -1972,17 +1975,17 @@ window.__yfLoadLib=(function(){
         <div class="fb-tools">
           <span class="muted" style="font-size:12px">发帖请署名浆站，方便对号交流；内容说清「发生了什么、试过什么、卡在哪」。</span>
           <span>
-            <button class="mini-btn" onclick="fbExport()">⬇ 导出交流备份</button>
-            <label class="mini-btn">⬆ 导入交流备份<input type="file" id="fbFile" accept=".json" style="display:none"></label>
-            <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fullBackup()">📦 全平台备份</button>
-            <label class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)">📂 恢复数据<input type="file" accept=".json" style="display:none" onchange="fullRestore(this)"></label>
+            <button class="mini-btn" onclick="fbExport()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 导出交流备份</button>
+            <label class="mini-btn"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg> 导入交流备份<input type="file" id="fbFile" accept=".json" style="display:none"></label>
+            <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fullBackup()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> 全平台备份</button>
+            <label class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg> 恢复数据<input type="file" accept=".json" style="display:none" onchange="fullRestore(this)"></label>
           </span>
         </div>
         <div id="fbList" class="fb-list"></div>
       </div>
       <div class="fb-sidebar">
         <div class="fb-rank-panel">
-          <h4>📊 本月发帖榜</h4>
+          <h4><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16v-5m5 5V8m5 8v-8"/></svg> 本月发帖榜</h4>
           <div id="fbRankStations" class="fb-rank-box"></div>
           <div id="fbRankAuthors" class="fb-rank-box"></div>
         </div>
@@ -1991,11 +1994,11 @@ window.__yfLoadLib=(function(){
     <!-- 发帖模态框 -->
     <div class="um-mask" id="fbMask" style="display:none">
       <div class="um-modal" style="max-width:660px">
-        <div class="um-head"><h3>📝 发新帖</h3><button class="um-x" onclick="fbMaskHide()">✕</button></div>
+        <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> 发新帖</h3><button class="um-x" onclick="fbMaskHide()">✕</button></div>
         <div class="frow"><span>板块</span><select id="fbBid"></select></div>
         <div class="frow"><span>标题</span><input id="fbTitle" maxlength="60" placeholder="一句话说清，如：暑期招募差一半，大家怎么破？"></div>
         <div class="frow"><span>内容</span><textarea id="fbBody" rows="5" maxlength="2000" placeholder="把事情说清楚：发生了什么、试过什么、卡在哪。越具体，别人越能支招。"></textarea></div>
-        <div class="frow"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex">📷 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
+        <div class="frow"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
         <div class="frow"><span>署名</span><input id="fbAuthor" maxlength="20" placeholder="如：丰镇站·李闯"></div>
         <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="fbPost()">发布</button></div>
       </div>
@@ -2009,12 +2012,12 @@ window.__yfLoadLib=(function(){
 
   <!-- 顶部入口条 -->
   <div class="stu-top">
-    <button class="stu-navbtn active" data-st="ledger" onclick="stuGo('ledger')">📋 台账总览</button>
-    <button class="stu-navbtn" data-st="sign" onclick="stuGo('sign')">✅ 签到点名</button>
-    <button class="stu-navbtn" data-st="mat" onclick="stuGo('mat')">📁 材料跟踪</button>
-    <button class="stu-navbtn" data-st="cert" onclick="stuGo('cert')">🏅 证书管理</button>
-    <button class="stu-navbtn" data-st="note" onclick="stuGo('note')">📣 通知话术</button>
-    <button class="stu-navbtn stu-screen" onclick="stuBigScreen()">📺 签到大屏</button>
+    <button class="stu-navbtn active" data-st="ledger" onclick="stuGo('ledger')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 台账总览</button>
+    <button class="stu-navbtn" data-st="sign" onclick="stuGo('sign')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> 签到点名</button>
+    <button class="stu-navbtn" data-st="mat" onclick="stuGo('mat')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg> 材料跟踪</button>
+    <button class="stu-navbtn" data-st="cert" onclick="stuGo('cert')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg> 证书管理</button>
+    <button class="stu-navbtn" data-st="note" onclick="stuGo('note')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> 通知话术</button>
+    <button class="stu-navbtn stu-screen" onclick="stuBigScreen()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg> 签到大屏</button>
   </div>
 
   <!-- ===== 台账总览 ===== -->
@@ -2029,13 +2032,13 @@ window.__yfLoadLib=(function(){
     </div>
     <div class="stu-ledger-tool" style="margin-top:8px">
       <span style="font-size:12px;color:var(--muted)">Excel 建台账：</span>
-      <button class="mini-btn" onclick="stuTpl()">📥 下载模板</button>
-      <label class="mini-btn">⬆ 导入 Excel<input type="file" accept=".xlsx,.xls" style="display:none" onchange="stuImport(this)"></label>
-      <button class="mini-btn" onclick="stuExportXls()">⬇ 导出 Excel</button>
+      <button class="mini-btn" onclick="stuTpl()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载模板</button>
+      <label class="mini-btn"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg> 导入 Excel<input type="file" accept=".xlsx,.xls" style="display:none" onchange="stuImport(this)"></label>
+      <button class="mini-btn" onclick="stuExportXls()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 导出 Excel</button>
       <button class="mini-btn" onclick="stuAddOpen()">＋ 手动录入</button>
-      <button class="mini-btn" onclick="stuSeed()">🧪 示例数据</button>
-      <button class="mini-btn" style="color:#c0392b" onclick="stuClear()">🗑 清空</button>
-      <button class="mini-btn" style="margin-left:auto" onclick="stuRuleOpen()">⚙ 积分规则</button>
+      <button class="mini-btn" onclick="stuSeed()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2v7.5L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9.5V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg> 示例数据</button>
+      <button class="mini-btn" style="color:#c0392b" onclick="stuClear()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 清空</button>
+      <button class="mini-btn" style="margin-left:auto" onclick="stuRuleOpen()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> 积分规则</button>
     </div>
     <div id="stuListWrap" style="margin-top:12px"></div>
   </div>
@@ -2049,13 +2052,13 @@ window.__yfLoadLib=(function(){
     </div>
     <div id="stuSignList"></div>
     <div class="stu-sign-foot" id="stuSignFoot" style="display:none">
-      <button class="mini-btn" onclick="stuSignAll()">✅ 全选</button>
+      <button class="mini-btn" onclick="stuSignAll()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> 全选</button>
       <button class="mini-btn" onclick="stuSignNone()">清空选择</button>
       <button class="up-btn" onclick="stuSignSave()">✓ 保存本场签到</button>
       <span class="muted" style="font-size:12px" id="stuSignSel">已选 0 人</span>
     </div>
     <div class="stu-add-card" style="margin-top:14px">
-      <h3 style="margin:0 0 10px;font-size:15px">📅 今日到场名单（签到大屏数据源）</h3>
+      <h3 style="margin:0 0 10px;font-size:15px"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> 今日到场名单（签到大屏数据源）</h3>
       <div class="muted" style="font-size:12px;margin-bottom:8px">点名保存后自动写入；漏签的也可手动补登：
         <select id="stuChkName" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px"></select>
         <input id="stuChkAct" placeholder="活动名" value="暑期公益集市" style="width:150px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px">
@@ -2107,7 +2110,7 @@ window.__yfLoadLib=(function(){
   <!-- 学员详情 弹窗 -->
   <div class="um-mask" id="stuDetailMask" style="display:none">
     <div class="um-modal" style="max-width:640px">
-      <div class="um-head"><h3>📋 学员详情</h3><button class="um-x" onclick="stuDetailClose()">✕</button></div>
+      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 学员详情</h3><button class="um-x" onclick="stuDetailClose()">✕</button></div>
       <div id="stuDetailBody"></div>
     </div>
   </div>
@@ -2115,7 +2118,7 @@ window.__yfLoadLib=(function(){
   <!-- 公告编辑 弹窗（仅管理员） -->
   <div class="um-mask" id="annEditMask" style="display:none">
     <div class="um-modal" style="max-width:620px">
-      <div class="um-head"><h3>✏️ 编辑公告</h3><button class="um-x" onclick="annEditClose()">✕</button></div>
+      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg> 编辑公告</h3><button class="um-x" onclick="annEditClose()">✕</button></div>
       <p class="muted" style="font-size:12px;margin:2px 0 10px">增删改公告内容，实时生效。留空过期时间则永不过期。</p>
       <div id="annEditList" style="max-height:40vh;overflow-y:auto;margin-bottom:10px"></div>
       <div style="border-top:1px dashed var(--line);padding-top:10px">
@@ -2130,7 +2133,7 @@ window.__yfLoadLib=(function(){
   <!-- 积分规则 弹窗 -->
   <div class="um-mask" id="stuRuleMask" style="display:none">
     <div class="um-modal" style="max-width:680px">
-      <div class="um-head"><h3>⚙ 积分规则</h3><button class="um-x" onclick="stuRuleClose()">✕</button></div>
+      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> 积分规则</h3><button class="um-x" onclick="stuRuleClose()">✕</button></div>
       <p class="muted" style="font-size:12.5px;margin:2px 0 10px">参考凤台2025模板，每项分值均可由项目负责人修改。保存后学员详情的积分明细按规则实时推导；加「活动分」时按类型预填默认分。</p>
       <div class="stu-rule-table-wrap">
         <table class="stu-rule-table" id="ruleTable">
@@ -2162,7 +2165,7 @@ window.__yfLoadLib=(function(){
   <!-- 证书预览 弹窗 -->
   <div class="um-mask" id="stuCertMask" style="display:none">
     <div class="um-modal" style="max-width:620px">
-      <div class="um-head"><h3>🏅 结业证书</h3><button class="um-x" onclick="stuCertClose()">✕</button></div>
+      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg> 结业证书</h3><button class="um-x" onclick="stuCertClose()">✕</button></div>
       <div id="stuCertBody"></div>
     </div>
   </div>
@@ -2231,7 +2234,7 @@ window.__yfLoadLib=(function(){
 <div class="ob-mask" id="obMask">
   <div class="ob-card">
     <div class="ob-head">
-      <h3>👋 欢迎来到扬帆OS · 新负责人 7 步上手</h3>
+      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> 欢迎来到扬帆OS · 新负责人 7 步上手</h3>
       <p>扬帆计划每年 6-8 月落地，你接手一个浆站的项目负责。这 7 步走完，就知道「该看什么、去哪做、做完怎么留痕」。每完成一步点一下，进度自动记下来；以后想重看，随时能再开。</p>
     </div>
     <div class="ob-bar"><i id="obBar"></i></div>
@@ -2246,13 +2249,13 @@ window.__yfLoadLib=(function(){
 <!-- 更新数据 模态框 -->
 <div class="um-mask" id="upMask" style="display:none">
   <div class="um-modal">
-    <div class="um-head"><h3>📤 更新看板数据</h3><button class="um-x" onclick="closeUpModal()">✕</button></div>
+    <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg> 更新看板数据</h3><button class="um-x" onclick="closeUpModal()">✕</button></div>
     <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → 下载新数据文件 → 替换部署目录的 <b>dash_data.js</b> 重新发布。解析在本机完成；保存后同步到集团云端，供各站与看板共用。</p>
     <div class="up-row">
-      <button class="up-btn" id="dlTpl">⬇ 下载模版</button>
-      <label class="up-file">📂 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls"></label>
+      <button class="up-btn" id="dlTpl"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载模版</button>
+      <label class="up-file"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg> 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls"></label>
       <button class="up-btn" id="dashParse">解析并预览</button>
-      <button class="up-btn" id="dashDl" disabled>⬇ 下载新 dash_data.js</button>
+      <button class="up-btn" id="dashDl" disabled><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载新 dash_data.js</button>
     </div>
     <div class="up-msg" id="dashUpMsg"></div>
     <div class="um-note">模版格式与「6月扬帆计划数据汇总.xlsx」一致：<b>sheet 名字就是月份</b>（如「8月」，改一下模版 sheet 名即可）；列头保持 报名人数/面试人数/入营人数 等不动；站名可带空格，自动识别。上传哪个月，看板月份切换就多哪个月，并自动切到该月展示；也可以单月传，不强制要求两个月一起。</div>
@@ -2262,7 +2265,7 @@ window.__yfLoadLib=(function(){
 <!-- 管理视图密码验证 -->
 <div class="um-mask" id="pwMask" style="display:none">
   <div class="um-modal" style="width:min(380px,92vw);text-align:center;padding:28px 24px">
-    <div class="um-head" style="justify-content:center;margin-bottom:12px"><h3>🔒 管理视图验证</h3></div>
+    <div class="um-head" style="justify-content:center;margin-bottom:12px"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 管理视图验证</h3></div>
     <p style="margin:0 0 16px;font-size:13px;color:var(--muted)">将展示各站负责人姓名、岗位、成熟度与画像等内部信息。<br>仅限内部使用。</p>
     <input type="password" id="pwInput" placeholder="请输入密码" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;text-align:center;letter-spacing:4px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')pwConfirm()">
     <div id="pwErr" style="color:#c0392b;font-size:12px;margin-top:8px;min-height:18px"></div>
@@ -3350,7 +3353,7 @@ function pushMsg(text,cls,reasoning){
     let html='<div class="m-av">智</div><div class="m-body">';
     if(reasoning && reasoning.trim()){
       const safe=reasoning.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      html+='<div class="bot-reason"><div class="br-head"><span class="br-caret">▸</span>💭 智子思考过程</div><div class="br-body">'+safe+'</div></div>';
+      html+='<div class="bot-reason"><div class="br-head"><span class="br-caret">▸</span><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg> 智子思考过程</div><div class="br-body">'+safe+'</div></div>';
     }
     html+='<div class="bot-answer">'+fmtBotText(text)+'</div></div>';
     d.innerHTML=html;
@@ -3549,7 +3552,7 @@ function suggestGen(reply, history){
 function renderSuggestChip(suggestion){
   var c=document.getElementById('chat'); if(!c)return;
   var d=document.createElement('div'); d.className='msg bot';
-  var tip = suggestion.type === 'xlsx' ? '📊' : '📄';
+  var tip = suggestion.type === 'xlsx' ? '<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16v-5m5 5V8m5 8v-8"/></svg>' : '<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
   d.innerHTML='<div class="m-av">智</div><div class="m-body"><div class="gen-suggest-chip" onclick="doSuggestedGen(\''+suggestion.type+'\')"><span class="gs-icon">'+tip+'</span><span class="gs-text">'+suggestion.text+'</span><span class="gs-action">点此生成 ›</span></div></div>';
   c.appendChild(d); yfScrollChat(d,'bottom');
 }
@@ -4719,8 +4722,8 @@ var _MAP_LABELS=[["北京市", 649.4, 273.0], ["天津市", 661.9, 282.9], ["河
   /* 下方汇总行 */
   if(gridEl){
     var summary='<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;font-size:10.5px;color:'+C.textMuted+';padding:4px 0">';
-    summary+='<span>📍 共 <b style="color:'+C.textDark+'">'+grandStations+'</b> 站</span>';
-    summary+='<span>👥 入营 <b style="color:'+C.dotHi+'">'+grandTotal+'</b> 人</span>';
+    summary+='<span><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.99-5.54 10.19-7.4 11.79a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> 共 <b style="color:'+C.textDark+'">'+grandStations+'</b> 站</span>';
+    summary+='<span><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 入营 <b style="color:'+C.dotHi+'">'+grandTotal+'</b> 人</span>';
     summary+='<span style="color:'+C.textMuted+'">· 数据随看板实时更新</span>';
     summary+='</div>';
     gridEl.innerHTML=summary;
@@ -4974,7 +4977,7 @@ function fbHotRender(){
       '<div class="fb-gcard-body">'+
       '<span class="fb-gcard-tag" style="background:'+b.c+'">'+b.n+'</span>'+
       '<div class="fb-gcard-title">'+esc(p.title)+'</div>'+
-      '<div class="fb-gcard-meta"><span>'+esc(p.author||'匿名')+'</span><span class="likes">👍 '+p.likes+'</span></div>'+
+      '<div class="fb-gcard-meta"><span>'+esc(p.author||'匿名')+'</span><span class="likes"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> '+p.likes+'</span></div>'+
       '</div></div>';
   }).join('');}
 
@@ -5368,7 +5371,7 @@ function fbUpAvatar(inp){
   const f=inp.files[0]; if(!f){ return; }
   if(f.size>2*1024*1024){ toast('头像图片不超过 2MB'); inp.value=''; return; }
   const rd=new FileReader();
-  rd.onload=function(){ FB.profiles=FB.profiles||{}; FB.profiles[me]=FB.profiles[me]||{}; FB.profiles[me].avatar=rd.result; fbSave(); toast('头像已更新'); fbProfileRender(); };
+  rd.onload=function(){ FB.profiles=FB.profiles||{}; FB.profiles[me]=FB.profiles[me]||{}; FB.profiles[me].avatar=rd.result; fbSave(); toast('头像已更新'); fbProfileRender(); try{ if(typeof sbUpdateUser==='function')sbUpdateUser(); }catch(e){} };
   rd.readAsDataURL(f);
 }
 function fbMySpace(){ const me=yfUsername(); if(!me){ toast('请先登录后再管理你的专属空间'); return; } fbProfile(me); }
@@ -5404,8 +5407,8 @@ function fbRank(){
     h+='</div>';
     return h;
   };
-  const el=document.getElementById('fbRankStations');if(el)el.innerHTML=rbox(stArr,'🏢 浆站排行');
-  const el2=document.getElementById('fbRankAuthors');if(el2)el2.innerHTML=rbox(auArr,'👤 员工排行');
+  const el=document.getElementById('fbRankStations');if(el)el.innerHTML=rbox(stArr,'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg> 浆站排行');
+  const el2=document.getElementById('fbRankAuthors');if(el2)el2.innerHTML=rbox(auArr,'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg> 员工排行');
 }
 function fbNew(){
   const sel=document.getElementById('fbBid');
@@ -5649,7 +5652,7 @@ function expRender(){
 }
 function expRenderCases(q){
   const cases=SEED_CASES.filter(c=>!q||(c.title+c.summary+c.station+c.author+(c.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
-  if(!cases.length)return '<div class="exp-empty"><div class="ee-icon">📋</div><div class="ee-txt">暂无匹配的案例</div></div>';
+  if(!cases.length)return '<div class="exp-empty"><div class="ee-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div><div class="ee-txt">暂无匹配的案例</div></div>';
   return '<div class="case-grid">'+cases.map(c=>{
     const tags=(c.tags||[]).slice(0,4).map(t=>'<span class="cc-tag">'+esc(t)+'</span>').join('');
     const pc=c.photos&&c.photos.length?c.photos.length+' 张照片':'暂无照片';
@@ -5658,13 +5661,13 @@ function expRenderCases(q){
       +'<div class="cc-title">'+esc(c.title)+'</div>'
       +'<div class="cc-sum">'+esc(c.summary)+'</div>'
       +'<div class="cc-tags">'+tags+'</div>'
-      +'<div class="cc-foot"><span class="cc-photos">📷 '+pc+'</span><span>点击查看详情 →</span></div>'
+      +'<div class="cc-foot"><span class="cc-photos"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> '+pc+'</span><span>点击查看详情 →</span></div>'
       +'</div>';
   }).join('')+'</div>';
 }
 function expRenderTemplates(q){
   const tpls=SEED_TEMPLATES.filter(t=>!q||(t.name+t.desc+t.station+t.author+(t.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
-  if(!tpls.length)return '<div class="exp-empty"><div class="ee-icon">📑</div><div class="ee-txt">暂无匹配的方案模板</div></div>';
+  if(!tpls.length)return '<div class="exp-empty"><div class="ee-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8m8 4H8"/></svg></div><div class="ee-txt">暂无匹配的方案模板</div></div>';
   return '<div class="tpl-grid">'+tpls.map(t=>{
     return '<div class="tpl-card" onclick="tplShow(\''+t.id+'\')">'
       +'<span class="tc-cat">'+esc(t.category)+'</span>'
@@ -5683,10 +5686,10 @@ function expRenderPhotos(q){
     });
   });
   const list=all.filter(p=>!q||(p.cap+p.st+p.caseTitle).toLowerCase().indexOf(q)>=0);
-  if(!list.length)return '<div class="exp-empty"><div class="ee-icon">📷</div><div class="ee-txt">暂无照片素材</div></div>';
+  if(!list.length)return '<div class="exp-empty"><div class="ee-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></div><div class="ee-txt">暂无照片素材</div></div>';
   return '<div class="photo-grid">'+list.map((p,i)=>{
     return '<div class="photo-card" onclick="caseShow(\''+p.cid+'\')">'
-      +'<div class="pc-photo">📷<span class="pc-station">'+esc(p.st)+'</span></div>'
+      +'<div class="pc-photo"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span class="pc-station">'+esc(p.st)+'</span></div>'
       +'<div class="pc-body"><div class="pc-cap">'+esc(p.cap)+'</div><div class="pc-case">'+esc(p.caseTitle)+'</div></div>'
       +'</div>';
   }).join('')+'</div>';
@@ -5694,7 +5697,7 @@ function expRenderPhotos(q){
 function caseShow(id){
   const c=SEED_CASES.find(x=>x.id===id);if(!c)return;
   const resHtml=c.results?'<div class="res-grid">'+Object.entries(c.results).map(([k,v])=>'<div class="res-item"><div class="rn">'+esc(v)+'</div><div class="rm">'+esc(k)+'</div></div>').join('')+'</div>':'';
-  const photosHtml=(c.photos&&c.photos.length)?'<div class="cm-photos">'+c.photos.map(p=>'<div class="cm-photo"><div class="pn">📷 '+esc(p.st||'')+'</div><div class="pc">'+esc(p.cap)+'</div></div>').join('')+'</div>':'<div style="color:#5e7da0;font-size:12.5px">暂无照片</div>';
+  const photosHtml=(c.photos&&c.photos.length)?'<div class="cm-photos">'+c.photos.map(p=>'<div class="cm-photo"><div class="pn"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> '+esc(p.st||'')+'</div><div class="pc">'+esc(p.cap)+'</div></div>').join('')+'</div>':'<div style="color:#5e7da0;font-size:12.5px">暂无照片</div>';
   const noteHtml=c.note?'<div class="cm-section"><h4>补充说明</h4><div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:10px 12px;color:#7a4a1a;font-size:12.5px;line-height:1.7">'+esc(c.note)+'</div></div>':'';
   const h='<div class="um-head"><h3>'+esc(c.title)+'</h3><button class="um-x" onclick="caseHide()">✕</button></div>'
     +'<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center"><span class="cc-cat">'+esc(c.category)+'</span><span style="color:#5e7da0;font-size:12.5px">'+esc(c.station)+' · '+esc(c.author)+'</span></div>'
@@ -5721,7 +5724,7 @@ function tplShow(id){
     +'<div style="margin-bottom:14px;color:#5e7da0;font-size:12.5px">'+esc(t.station)+' · '+esc(t.author)+' · '+esc(t.category)+'</div>'
     +'<div style="background:#eef5fc;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#17324d;line-height:1.7">'+esc(t.desc)+'</div>'
     +t.sections.map(s=>'<div class="tm-section"><h5>'+esc(s.title)+'</h5><div class="tm-body '+(s.editable?'tm-editable':'')+'">'+esc(s.body)+'</div></div>').join('')
-    +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="tplCopy(\''+t.id+'\')">📋 复制全文</button><button class="up-btn" onclick="tplHide()">知道了</button></div>';
+    +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="tplCopy(\''+t.id+'\')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 复制全文</button><button class="up-btn" onclick="tplHide()">知道了</button></div>';
   let m=document.getElementById('tplMask');
   if(!m){m=document.createElement('div');m.id='tplMask';m.className='um-mask';m.innerHTML='<div class="um-modal tpl-modal">'+h+'</div>';document.body.appendChild(m);}
   else{m.querySelector('.um-modal').innerHTML=h;m.style.display='';}
@@ -5770,11 +5773,11 @@ function slRender(){
   const el=document.getElementById('slGrid');
   if(!el)return;
   const list=SEED_FAQ.filter(s=>!q||(s.q+s.ctx+s.src+(s.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
-  if(!list.length){el.innerHTML='<div class="exp-empty" style="grid-column:1/-1"><div class="ee-icon">💬</div><div class="ee-txt">暂无匹配的话术</div></div>';return;}
+  if(!list.length){el.innerHTML='<div class="exp-empty" style="grid-column:1/-1"><div class="ee-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg></div><div class="ee-txt">暂无匹配的话术</div></div>';return;}
   el.innerHTML=list.map(s=>{
     return '<div class="sl-card" onclick="slShow(\''+s.id+'\')">'
       +'<div class="sl-q">'+esc(s.q)+'</div>'
-      +'<div class="sl-context">📌 '+esc(s.ctx)+'</div>'
+      +'<div class="sl-context"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> '+esc(s.ctx)+'</div>'
       +'<div class="sl-preview">'+esc(s.a)+'</div>'
       +'<div class="sl-foot"><span class="sl-src">'+esc(s.src)+'</span><span>查看全文 →</span></div>'
       +'</div>';
@@ -5784,10 +5787,10 @@ function slShow(id){
   const s=SEED_FAQ.find(x=>x.id===id);if(!s)return;
   const h='<div class="um-head"><h3>话术详情</h3><button class="um-x" onclick="slHide()">✕</button></div>'
     +'<div class="sm-question">'+esc(s.q)+'</div>'
-    +'<div class="sm-context">📌 场景：'+esc(s.ctx)+'</div>'
+    +'<div class="sm-context"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/></svg> 场景：'+esc(s.ctx)+'</div>'
     +'<div class="sm-answer">'+esc(s.a)+'</div>'
     +'<div class="sm-meta"><div class="sm-tags">'+(s.tags||[]).map(t=>'<span class="sm-tag">'+esc(t)+'</span>').join('')+'</div><div style="color:#2b7cd3;font-weight:600">来源：'+esc(s.src)+'</div></div>'
-    +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="slCopy(\''+s.id+'\')">📋 复制全文</button><button class="up-btn" onclick="slHide()">知道了</button></div>';
+    +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="slCopy(\''+s.id+'\')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 复制全文</button><button class="up-btn" onclick="slHide()">知道了</button></div>';
   let m=document.getElementById('scriptMask');
   if(!m){m=document.createElement('div');m.id='scriptMask';m.className='um-mask';m.innerHTML='<div class="um-modal script-modal">'+h+'</div>';document.body.appendChild(m);}
   else{m.querySelector('.um-modal').innerHTML=h;m.style.display='';}
@@ -5803,10 +5806,10 @@ function slInit(){slRender();}
 
 /* ============ 公告栏 ============ */
 const ANNOUNCEMENTS=[
-  {id:'a2',text:'<b>🎯 经验广场已上线</b>：5 站真实案例 + 4 套方案模板，进「交流」模块即可查阅。',until:'2026-09-30'},
-  {id:'a3',text:'<b>📚 话术库已上线</b>：7 条高频场景标准话术，进「解惑」模块即可搜索复制。',until:'2026-09-30'},
-  {id:'a4',text:'<b>📊 7月数据看板已更新</b>：20站招募/入营/新卡/家长参与数据，点击「看板」查阅。',until:'2026-09-15'},
-  {id:'a5',text:'<b>🎓 学员证书系统已上线</b>：达标学员在线生成结业证书，SVG/PNG可下载打印。',until:'2026-09-30'}
+  {id:'a2',text:'<b><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 经验广场已上线</b>：5 站真实案例 + 4 套方案模板，进「交流」模块即可查阅。',until:'2026-09-30'},
+  {id:'a3',text:'<b><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 话术库已上线</b>：7 条高频场景标准话术，进「解惑」模块即可搜索复制。',until:'2026-09-30'},
+  {id:'a4',text:'<b><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16v-5m5 5V8m5 8v-8"/></svg> 7月数据看板已更新</b>：20站招募/入营/新卡/家长参与数据，点击「看板」查阅。',until:'2026-09-15'},
+  {id:'a5',text:'<b><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg> 学员证书系统已上线</b>：达标学员在线生成结业证书，SVG/PNG可下载打印。',until:'2026-09-30'}
 ];
 let annActiveList=[],annIdx=0,annTimer=null;
 function annInit(){
@@ -5930,10 +5933,10 @@ const SEED_STUDENTS=[
   {name:'张浩然',id4:'5526',station:'灵璧浆站',points:64,status:'面试通过',signs:0,mats:[false,false,false,false]}
 ];
 const SEED_NOTES=[
-  {ic:'📢',t:'开营通知',tag:'给已报名学员 / 家长',body:'【扬帆计划·开营通知】{学员}同学：你好！恭喜你通过面试，成为今年扬帆计划的学员。{浆站}定于{月}月{日}上午{点}在{地址}举行开营仪式，请带好{材料}准时到场。当天有事到不了，提前给{负责人}（{电话}）说一声。扬帆计划项目组'},
+  {ic:'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',t:'开营通知',tag:'给已报名学员 / 家长',body:'【扬帆计划·开营通知】{学员}同学：你好！恭喜你通过面试，成为今年扬帆计划的学员。{浆站}定于{月}月{日}上午{点}在{地址}举行开营仪式，请带好{材料}准时到场。当天有事到不了，提前给{负责人}（{电话}）说一声。扬帆计划项目组'},
   {ic:'⏰',t:'活动提醒',tag:'每次活动前一天发',body:'【活动提醒】{学员}同学：明天{月}月{日}上午{点}我们在{地址}开展{活动名}，记得穿营服准时到。有特殊情况提前说一声，别让小组长联系不上你。{负责人} {电话}'},
-  {ic:'📁',t:'材料催交',tag:'材料没交齐的学员',body:'【扬帆计划·材料提醒】{学员}同学：你还有{缺的材料}没交，麻烦{时间}前带到浆站，或拍清晰照片发我。结业证书和优秀学员评选都看材料齐不齐，别耽误。{负责人} {电话}'},
-  {ic:'🏅',t:'结业证书领取',tag:'满足结营条件的学员',body:'【扬帆计划·结营通知】{学员}同学：恭喜你完成今年暑期实践！结业证书已生成，请于{时间}到{浆站}领取（或查收电子版）。这个暑假的表现我们都看在眼里，谢谢你的付出，欢迎以后常回来看看。{负责人} {电话}'}
+  {ic:'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>',t:'材料催交',tag:'材料没交齐的学员',body:'【扬帆计划·材料提醒】{学员}同学：你还有{缺的材料}没交，麻烦{时间}前带到浆站，或拍清晰照片发我。结业证书和优秀学员评选都看材料齐不齐，别耽误。{负责人} {电话}'},
+  {ic:'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg>',t:'结业证书领取',tag:'满足结营条件的学员',body:'【扬帆计划·结营通知】{学员}同学：恭喜你完成今年暑期实践！结业证书已生成，请于{时间}到{浆站}领取（或查收电子版）。这个暑假的表现我们都看在眼里，谢谢你的付出，欢迎以后常回来看看。{负责人} {电话}'}
 ];
 function stuLoad(){
   try{var raw=localStorage.getItem(STU_KEY);if(raw)return JSON.parse(raw);}catch(e){}
@@ -6046,7 +6049,7 @@ function stuListRender(){
       +'<td><b style="color:var(--blue-700)">'+(s.points||0)+'</b></td>'
       +'<td>'+(s.signs||0)+' 场</td>'
       +'<td style="white-space:nowrap">'+((s.parentPhone&&/^1\d{10}$/.test(s.parentPhone))?('<a href="tel:'+esc(s.parentPhone)+'" style="color:var(--blue-700)">'+esc(s.parentPhone)+'</a>'):(s.parentPhone?esc(s.parentPhone):'<span style="color:var(--muted)">—</span>'))+'</td>'
-      +'<td><span style="font-size:12px;color:'+(mok===4?'var(--ok)':'var(--warn)')+'">'+(mok===4?'✅ 齐':'⏳ '+mok+'/4')+'</span></td>'
+      +'<td><span style="font-size:12px;color:'+(mok===4?'var(--ok)':'var(--warn)')+'">'+(mok===4?'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> 齐':'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg> '+mok+'/4')+'</span></td>'
       +'<td style="text-align:right;white-space:nowrap"><button class="mini-btn" onclick="stuDetailShow('+r.i+')">详情</button> <button class="mini-btn" style="color:#c0392b" onclick="stuDel('+r.i+')">删除</button></td>'
       +'</tr>';
   });
@@ -6064,7 +6067,7 @@ function stuDetailShow(i){
   var mats=s.mats||[];
   document.getElementById('stuDetailBody').innerHTML='<div class="stu-card" style="margin-top:0"><div class="stu-card-head"><div class="stu-avatar">'+esc((s.name||'?')[0])+'</div><div><h3>'+esc(s.name)+'</h3><div style="font-size:12px;color:var(--muted)">'+esc(s.station)+' · 证件尾号 '+esc(s.id4)+'</div></div><span class="stu-tag '+(s.status==='已入营'||s.status==='已结营'?'in':(s.status==='面试通过'?'wt':'off'))+'">'+esc(s.status)+'</span></div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:10px 22px;margin:10px 0 4px;font-size:13px"><div><b style="color:var(--muted);font-weight:600">家长手机号</b><div style="color:var(--blue-700)">'+(s.parentPhone?('<a href="tel:'+esc(s.parentPhone)+'">'+esc(s.parentPhone)+'</a>'):'<span style="color:var(--muted)">未填</span>')+'</div></div><div><b style="color:var(--muted);font-weight:600">学校/班级</b><div>'+(s.school?esc(s.school):'<span style="color:var(--muted)">未填</span>')+'</div></div></div>'
-    +'<div class="stu-kpis"><div class="stu-kpi"><b>'+(s.points||0)+'</b><span>总积分</span></div><div class="stu-kpi"><b>'+rank+'</b><span>站内排名 / '+tot+'人</span></div><div class="stu-kpi"><b>'+(s.signs||0)+'</b><span>签到场次</span></div><div class="stu-kpi"><b>'+(s.status==='已入营'&&s.signs>=3&&s.points>=100?'✅':'…')+'</b><span>结营资格</span></div></div>'
+    +'<div class="stu-kpis"><div class="stu-kpi"><b>'+(s.points||0)+'</b><span>总积分</span></div><div class="stu-kpi"><b>'+rank+'</b><span>站内排名 / '+tot+'人</span></div><div class="stu-kpi"><b>'+(s.signs||0)+'</b><span>签到场次</span></div><div class="stu-kpi"><b>'+(s.status==='已入营'&&s.signs>=3&&s.points>=100?'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>':'…')+'</b><span>结营资格</span></div></div>'
     +'<h4 style="margin:6px 0 2px;font-size:14px">积分明细</h4>'
     +'<table class="stu-table"><tr><th>项目</th><th>说明</th><th style="text-align:right">分值</th></tr>'
     +rows.map(function(r){return '<tr><td>'+esc(r.it)+'</td><td style="color:var(--muted)">'+esc(r.d)+'</td><td class="p" style="text-align:right">+'+r.p+'</td></tr>';}).join('')
@@ -6072,7 +6075,7 @@ function stuDetailShow(i){
     +'<div style="margin-top:10px"><button class="up-btn" onclick="stuScoreOpen('+i+')">＋ 加积分</button></div>'
     +(s.scoreLog&&s.scoreLog.length?'<h4 style="margin:12px 0 2px;font-size:14px">加分流水（'+s.scoreLog.length+' 笔）</h4><div class="stu-score-log">'+s.scoreLog.slice(0,8).map(function(l){return '<div class="stu-score-row"><span class="stu-score-tag">'+esc(l.type)+'</span><b>+'+l.p+'</b><span class="muted">'+esc(l.memo||'')+'</span><span class="muted">'+stuFmtTime(l.t)+'</span></div>';}).join('')+'</div>':'')
     +'<h4 style="margin:12px 0 2px;font-size:14px">材料收齐（'+mats.filter(Boolean).length+'/'+MAT_ITEMS.length+'）</h4>'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+MAT_ITEMS.map(function(m,mi){return '<span class="stu-mat-chip '+(mats[mi]?'on':'')+'">'+(mats[mi]?'✅ ':'⏳ ')+esc(m.t)+'</span>';}).join('')+'</div></div>';
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+MAT_ITEMS.map(function(m,mi){return '<span class="stu-mat-chip '+(mats[mi]?'on':'')+'">'+(mats[mi]?'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> ':'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg> ')+esc(m.t)+'</span>';}).join('')+'</div></div>';
   document.getElementById('stuDetailMask').style.display='block';
 }
 function stuDetailClose(){document.getElementById('stuDetailMask').style.display='none';}
@@ -6308,7 +6311,7 @@ function stuMatRender(){
     var mats=s.mats||[false,false,false,false];
     return '<div class="stu-mat-row"><div class="stu-mat-row-name"><span class="stu-avatar sm">'+esc((s.name||'?')[0])+'</span><div><b>'+esc(s.name)+'</b><div style="font-size:11px;color:var(--muted)">'+esc(s.station||'')+'</div></div></div>'
       +'<div class="stu-mat-chips">'+MAT_ITEMS.map(function(m,mi){
-        return '<label class="stu-mat-chip '+(mats[mi]?'on':'')+'"><input type="checkbox" '+(mats[mi]?'checked':'')+' onchange="stuMatTick('+i+','+mi+',this.checked)">'+(mats[mi]?'✅ ':'☐ ')+esc(m.t)+'</label>';
+        return '<label class="stu-mat-chip '+(mats[mi]?'on':'')+'"><input type="checkbox" '+(mats[mi]?'checked':'')+' onchange="stuMatTick('+i+','+mi+',this.checked)">'+(mats[mi]?'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> ':'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg> ')+esc(m.t)+'</label>';
       }).join('')+'</div></div>';
   }).join('');
 }
@@ -6340,9 +6343,9 @@ function stuCertRender(){
   var html='';
   if(okList.length){
     html+='<div class="stu-cert-toolbar"><label class="stu-cert-selall"><input type="checkbox" id="stuCertAll" onchange="stuCertAll(this.checked)"> 全选达标</label>'
-      +'<button class="up-btn" onclick="stuCertBatch()">🏅 批量生成证书（<span id="stuCertSelN">0</span>）</button>'
+      +'<button class="up-btn" onclick="stuCertBatch()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg> 批量生成证书（<span id="stuCertSelN">0</span>）</button>'
       +'<span class="muted" style="font-size:12px">勾选后逐张下载 PNG，可批量打印</span></div>';
-    html+='<div class="stu-cert-sec"><h4 style="margin:0 0 8px;font-size:14px">✅ 已达标 · 可生成证书</h4>'
+    html+='<div class="stu-cert-sec"><h4 style="margin:0 0 8px;font-size:14px"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> 已达标 · 可生成证书</h4>'
       +okList.map(function(r){
         return '<div class="stu-cert-row ok"><label class="stu-cert-cb"><input type="checkbox" data-i="'+r.i+'" onchange="stuCertToggle(this)"></label><div class="stu-cert-row-name"><span class="stu-avatar sm">'+esc((r.s.name||'?')[0])+'</span><div><b>'+esc(r.s.name)+'</b><div style="font-size:11px;color:var(--muted)">'+esc(r.s.station)+' · 积分 '+r.s.points+' · 签到 '+r.s.signs+' 场</div></div></div><button class="up-btn" onclick="stuCertGen('+r.i+')">生成证书</button></div>';
       }).join('')+'</div>';
@@ -6382,7 +6385,7 @@ function stuCertGen(i){
   var s=stuLoad()[i];if(!s)return;
   var svg=stuCertSvg(s);
   var dataUrl='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
-  document.getElementById('stuCertBody').innerHTML='<div class="stu-card" style="margin-top:0"><div class="stu-card-head"><div><h3>🏅 '+esc(s.name)+' 的结业证书</h3><div style="font-size:12px;color:var(--muted)">'+esc(s.station)+' · 积分 '+s.points+'</div></div></div>'
+  document.getElementById('stuCertBody').innerHTML='<div class="stu-card" style="margin-top:0"><div class="stu-card-head"><div><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg> '+esc(s.name)+' 的结业证书</h3><div style="font-size:12px;color:var(--muted)">'+esc(s.station)+' · 积分 '+s.points+'</div></div></div>'
     +'<div style="text-align:center"><a href="'+dataUrl+'" download="结业证书_'+esc(s.name)+'.svg" class="up-btn" style="display:inline-block;text-decoration:none;margin-bottom:12px">⬇ 下载 SVG</a>'
     +'<button class="up-btn" style="margin-left:8px;background:linear-gradient(120deg,#0d2c4d,#2b7cd3)" onclick="stuCertPng('+i+')">⬇ 下载 PNG</button></div>'
     +'<div style="display:inline-block;border:2px solid var(--line);border-radius:8px;overflow:hidden;max-width:100%">'+svg+'</div></div>';
@@ -6488,8 +6491,8 @@ function stuNoteHistToggle(){
 function stuNoteHistRender(){
   var h=document.getElementById('stuNoteHist');if(!h)return;
   var arr=(function(){try{var a=JSON.parse(localStorage.getItem('yf_note_hist'));return Array.isArray(a)?a:[];}catch(e){return [];}})();
-  if(!arr.length){h.innerHTML='<div class="muted" style="font-size:12.5px">还没有复制记录。点卡片「📋 复制话术」后会自动留痕，方便每周重复发同类通知时直接翻。</div>';return;}
-  h.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px">🕘 复制历史（最近 '+arr.length+' 条）</div>'+arr.map(function(r){return '<div class="stu-note-hist-item"><b>'+esc(r.t)+'</b>'+(r.who?('<span>→ '+esc(r.who)+' 家长</span>'):'<span>未指定收件人</span>')+'<span class="muted">'+stuFmtTime(r.time)+'</span></div>';}).join('');
+  if(!arr.length){h.innerHTML='<div class="muted" style="font-size:12.5px">还没有复制记录。点卡片「<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 复制话术」后会自动留痕，方便每周重复发同类通知时直接翻。</div>';return;}
+  h.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 复制历史（最近 '+arr.length+' 条）</div>'+arr.map(function(r){return '<div class="stu-note-hist-item"><b>'+esc(r.t)+'</b>'+(r.who?('<span>→ '+esc(r.who)+' 家长</span>'):'<span>未指定收件人</span>')+'<span class="muted">'+stuFmtTime(r.time)+'</span></div>';}).join('');
 }
 function stuNoteHistPush(t,who){
   var arr=(function(){try{var a=JSON.parse(localStorage.getItem('yf_note_hist'));return Array.isArray(a)?a:[];}catch(e){return [];}})();
@@ -6504,21 +6507,21 @@ function stuNoteRender(){
     var list=stuLoad();
     var opts='<option value="-1">① 不指定（保留 {学员}/{浆站} 占位，手动替换）</option>';
     list.forEach(function(s,i){opts+='<option value="'+i+'">'+esc(s.name)+'（'+esc(s.station||'')+'）'+(s.parentPhone?(' · '+esc(s.parentPhone)):'')+'</option>';});
-    whoWrap.innerHTML='<div class="stu-note-who"><b>📇 收件学员</b><select id="stuNoteWho">'+opts+'</select><span class="muted">选后复制话术自动带入姓名、浆站，并附家长手机</span></div>';
+    whoWrap.innerHTML='<div class="stu-note-who"><b><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M7 15h5"/></svg> 收件学员</b><select id="stuNoteWho">'+opts+'</select><span class="muted">选后复制话术自动带入姓名、浆站，并附家长手机</span></div>';
   }
   var bar=document.getElementById('stuNoteBar');
   if(bar){
     var fav=stuNoteFavGet();
-    bar.innerHTML='<button class="mini-btn '+(STU_NOTE_FAVONLY?'on':'')+'" onclick="stuNoteFavOnly()">⭐ 只看收藏（'+fav.length+'）</button>'
-      +'<button class="mini-btn" onclick="stuNoteHistToggle()">🕘 复制历史</button>';
+    bar.innerHTML='<button class="mini-btn '+(STU_NOTE_FAVONLY?'on':'')+'" onclick="stuNoteFavOnly()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--gold);stroke:var(--gold)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.02 3.25L7.16 14.2 2 9.27l6.91-1.01z"/></svg> 只看收藏（'+fav.length+'）</button>'
+      +'<button class="mini-btn" onclick="stuNoteHistToggle()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 复制历史</button>';
   }
   var favSet=stuNoteFavGet();
   var arr=SEED_NOTES.map(function(n,i){return {n:n,i:i};}).filter(function(o){return !STU_NOTE_FAVONLY||favSet.indexOf(o.i)>=0;});
   box.innerHTML=arr.map(function(o){
     var i=o.i,n=o.n,isFav=favSet.indexOf(i)>=0;
-    return '<div class="stu-note-card"><div class="stu-note-head"><span class="stu-note-ic">'+n.ic+'</span><div style="flex:1"><b>'+esc(n.t)+'</b><div style="font-size:11px;color:var(--muted);margin-top:2px">'+esc(n.tag)+'</div></div><button class="stu-fav-btn '+(isFav?'on':'')+'" onclick="stuNoteFavToggle('+i+')" title="收藏">'+(isFav?'⭐':'☆')+'</button></div>'
+    return '<div class="stu-note-card"><div class="stu-note-head"><span class="stu-note-ic">'+n.ic+'</span><div style="flex:1"><b>'+esc(n.t)+'</b><div style="font-size:11px;color:var(--muted);margin-top:2px">'+esc(n.tag)+'</div></div><button class="stu-fav-btn '+(isFav?'on':'')+'" onclick="stuNoteFavToggle('+i+')" title="收藏">'+(isFav?'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--gold);stroke:var(--gold)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.02 3.25L7.16 14.2 2 9.27l6.91-1.01z"/></svg>':'<svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="opacity:.45"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.02 3.25L7.16 14.2 2 9.27l6.91-1.01z"/></svg>')+'</button></div>'
       +'<pre class="stu-note-body">'+esc(n.body)+'</pre>'
-      +'<div style="text-align:right;margin-top:8px"><button class="mini-btn" onclick="stuNoteCopy('+i+')">📋 复制话术</button></div></div>';
+      +'<div style="text-align:right;margin-top:8px"><button class="mini-btn" onclick="stuNoteCopy('+i+')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 复制话术</button></div></div>';
   }).join('');
   stuNoteHistRender();
 }
@@ -6570,7 +6573,7 @@ function stuTodayRender(){
   var acts=(today.date===todayStr)?today.acts:[];
   if(!acts.length){box.innerHTML='<div class="muted" style="font-size:12px">今日暂无签到登记。</div>';}
   else{box.innerHTML='<div class="muted" style="font-size:12px;margin-bottom:6px">今日到场 <b style="color:var(--blue-700)">'+acts.length+'</b> 人：</div>'
-    +acts.map(function(a){return '<span style="display:inline-block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0">✅ '+esc(a.name)+' · '+esc(a.act)+'</span>';}).join('');}
+    +acts.map(function(a){return '<span style="display:inline-block;background:#fff;border:1px solid var(--line);border-radius:8px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> '+esc(a.name)+' · '+esc(a.act)+'</span>';}).join('');}
 }
 function stuBigScreen(){
   var mask=document.getElementById('stuScreen');
@@ -6589,7 +6592,7 @@ function stuScrRender(){
   if(!body)return;
   document.getElementById('scrCount').textContent=acts.length;
   var list=stuLoad();
-  var html='<div class="stu-screen-today"><span class="ic">📅</span><div><b>'+esc(acts[0]?acts[0].act:'今日活动')+'</b><div class="n">'+(acts.length?('已签到 '+acts.length+' 人'):'暂无签到，请现场登记')+'</div></div></div>';
+  var html='<div class="stu-screen-today"><span class="ic"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><div><b>'+esc(acts[0]?acts[0].act:'今日活动')+'</b><div class="n">'+(acts.length?('已签到 '+acts.length+' 人'):'暂无签到，请现场登记')+'</div></div></div>';
   var chips=acts.map(function(a){
     var s=list.find(function(x){return x.name===a.name;});
     var av=(s&&s.name?s.name[0]:'?');
@@ -6602,7 +6605,7 @@ function stuRenderCount(){
 }
 function stuInit(){stuListRender();stuFillChk();stuTodayRender();}
 
-function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined'){YF_CLOUD.pullForum();if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll();}}
+function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined'){YF_CLOUD.pullForum();if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll();}try{if(typeof sbUpdateUser==='function')sbUpdateUser();}catch(e){}}
 
 /* ============ 通用交互增强（Toast / Loading / 搜索钉选 / 模块记忆） ============ */
 function toast(msg){
@@ -8259,12 +8262,22 @@ function closeSidebar(){
   document.getElementById('sbOverlay').classList.remove('show');
   document.getElementById('sbHamburger').classList.remove('open');
 }
+function sbAvatarHTML(fallback){
+  /* 复用论坛个人空间头像存储（FB.profiles[yfUsername()].avatar，fbUpAvatar 上传通道）；仅接受 data:image，防注入；无头像回退首字方块 */
+  try{
+    var pr=(typeof FB!=='undefined'&&FB.profiles)?FB.profiles[yfUsername()]:null;
+    if(pr&&pr.avatar&&typeof pr.avatar==='string'&&pr.avatar.indexOf('data:image')===0){
+      return '<img src="'+pr.avatar+'" alt="">';
+    }
+  }catch(e){}
+  return fallback;
+}
 function sbUpdateUser(){
   var nameEl=document.getElementById('sbUserName'),roleEl=document.getElementById('sbUserRole'),avEl=document.getElementById('sbAvatar');
   if(!nameEl)return;
   var role=yfRole(),st=yfMyStation();
-  if(role==='admin'){nameEl.textContent='史毅';roleEl.textContent='管理端';if(avEl)avEl.textContent='史';}
-  else if(role==='station'){nameEl.textContent=st||'负责人';roleEl.textContent=st+'浆站';if(avEl)avEl.textContent=(st||'负')[0];}
+  if(role==='admin'){nameEl.textContent='史毅';roleEl.textContent='管理端';if(avEl)avEl.innerHTML=sbAvatarHTML('史');}
+  else if(role==='station'){nameEl.textContent=st||'负责人';roleEl.textContent=st+'浆站';if(avEl)avEl.innerHTML=sbAvatarHTML((st||'负')[0]);}
   else{nameEl.textContent='用户';roleEl.textContent='--';}
 }
 (function(){
