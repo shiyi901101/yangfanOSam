@@ -57,6 +57,8 @@ window.__yfLoadLib=(function(){
     --cyan:#4ea3e8; --ice:#eef5fc; --ice-2:#f5f9ff;
     --line:#d3e2f0; --ink:#0d2c4d; --muted:#5e7da0; --warn:#e08c2e; --ok:#10a37f;
     --gold:#e08c2e;            /* 活力橙点睛：品牌活力，克制使用 */
+    --gold-ink:#a86310;        /* 金橙墨色：金橙系文字与白字徽章底（白底 4.7:1；#e08c2e 作小字文字仅 2.6:1 不达标） */
+    --ok-ink:#0b7d61;          /* 达标墨色：绿色系文字与白字徽章底（白底 5.1:1；#10a37f 作小字文字仅 3.2:1 不达标） */
     --shadow-sm:0 1px 2px rgba(13,44,77,.05);
     --shadow-md:0 6px 18px rgba(13,44,77,.07);
     --shadow-lg:0 14px 36px rgba(13,44,77,.10);
@@ -1215,7 +1217,7 @@ window.__yfLoadLib=(function(){
   .gw-acts{margin:0 0 16px;padding:0;list-style:none;counter-reset:a}
   .gw-acts li{counter-increment:a;position:relative;padding:9px 0 9px 34px;font-size:13.5px;line-height:1.7;color:#31465c;border-bottom:1px dashed #eef2f6}
   .gw-acts li:last-child{border-bottom:none}
-  .gw-acts li::before{content:counter(a);position:absolute;left:0;top:9px;width:22px;height:22px;background:#2b7cd3;color:#fff;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .gw-acts li::before{content:counter(a);position:absolute;left:0;top:9px;width:22px;height:22px;background:var(--blue-800);color:#fff;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .gw-acts li b{color:#0d2c4d}
   .gw-accept{background:#e8f7ed;border:1px solid #b9e2c6;border-radius:10px;padding:12px 16px;font-size:13.5px;color:#12833f;line-height:1.7;margin-bottom:16px;font-variant-numeric:tabular-nums}
   .gw-accept b{font-weight:800}
@@ -1265,7 +1267,7 @@ window.__yfLoadLib=(function(){
   .gw-pi .cap{font-size:12px;color:#7b93ab;margin-bottom:5px}
   .gw-pi .tgt{font-size:14px;font-weight:700;color:#0d2c4d;margin-bottom:5px;font-variant-numeric:tabular-nums}
   .gw-pi .gap{font-size:12.5px;color:#5a7a99;line-height:1.65;margin-bottom:9px}
-  .gw-pi button{background:#f2f7fc;border:1px solid #cfe2f5;color:#2b7cd3;padding:7px 14px;border-radius:8px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:600}
+  .gw-pi button{background:#f2f7fc;border:1px solid #cfe2f5;color:var(--blue-800);padding:7px 14px;border-radius:8px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:600}
   .gw-pi button:hover{background:#eaf3ff}
   .gw-pc.give .gw-pi button{background:#f0faf3;border-color:#b9e2c6;color:#12833f}
   .gw-demo-hint{background:linear-gradient(120deg,#fff7e8,#fff2d8);border:1px solid #f0d9a0;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:#7a5a10;cursor:pointer;transition:.15s}
@@ -1348,6 +1350,7 @@ window.__yfLoadLib=(function(){
 .hq-cap-row .cn{width:78px;color:var(--muted);flex:none}
 .hq-cap-bar{flex:1;height:8px;background:var(--ice);border-radius:5px;overflow:hidden}
 .hq-cap-bar i{display:block;height:100%}
+.hq-cap-row>span:last-child{font-variant-numeric:tabular-nums}
 /* ===== 经验闭环 + 站间对标（#174） ===== */
 .exp-pick{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0}
 .exp-pick select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;min-width:140px}
@@ -1394,39 +1397,39 @@ window.__yfLoadLib=(function(){
   .dg-ownerline{width:100%;font-size:var(--fs-xs);color:var(--muted)}
   .dg-tracks{display:grid;grid-template-columns:1fr}
   @media (min-width:640px){.dg-tracks{grid-template-columns:1fr 1fr}}
-  .dg-track{padding:10px 16px;min-width:0}
+  .dg-track{padding:12px 16px;min-width:0}
   .dg-track+.dg-track{border-top:1px solid var(--line)}
   @media (min-width:640px){.dg-track+.dg-track{border-top:none;border-left:1px solid var(--line)}}
   .dg-track h4{margin:0 0 8px;font-size:var(--fs-xs);letter-spacing:.06em;color:var(--muted);font-weight:700}
-  .dg-line{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:var(--fs-sm);color:var(--ink);min-width:0}
-  .dg-line .n{flex:none;width:4.5em;color:var(--muted)}
+  .dg-line{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:var(--fs-sm);color:var(--ink);min-width:0}
+  .dg-line .n{flex:none;width:5.5em;white-space:nowrap;color:var(--muted)}
   .dg-line .v{font-variant-numeric:tabular-nums;font-weight:600;flex:none}
   .dg-line .r{margin-left:auto;flex:none;font-variant-numeric:tabular-nums;color:var(--muted)}
-  .dg-line .r.top{color:var(--ok);font-weight:700}
-  .dg-line .r.low{color:var(--warn);font-weight:700}
+  .dg-line .r.top{color:var(--ok-ink);font-weight:700}
+  .dg-line .r.low{color:var(--gold-ink);font-weight:700}
   .dg-tag{flex:none;font-size:var(--fs-2xs);padding:1px 8px;border-radius:10px;background:var(--ice);color:var(--muted)}
-  .dg-tag.ok{background:var(--ok);color:#fff}
-  .dg-tag.bad{background:var(--warn);color:#fff}
+  .dg-tag.ok{background:var(--ok-ink);color:#fff}
+  .dg-tag.bad{background:var(--gold-ink);color:#fff}
   /* ===== 浆站自主月上报（station 专属） ===== */
   .rp-entry{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--blue-200);border-radius:12px;padding:10px 14px;margin:0 0 12px}
   .rp-entry .rp-cd{font-size:12px;color:var(--muted)}
   .rp-steps{display:flex;gap:6px;align-items:center;margin:0 0 12px;flex-wrap:wrap}
-  .rp-step{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:7px 12px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;font-family:inherit;min-height:36px}
+  .rp-step{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:7px 12px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;font-family:inherit;min-height:44px}
   .rp-step .no{width:20px;height:20px;border-radius:50%;background:var(--ice-2);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--blue-700);flex:none}
   .rp-step.on{border-color:var(--blue-700);color:var(--blue-800);font-weight:700}
-  .rp-step.on .no{background:var(--blue-700);color:#fff}
-  .rp-step.done .no{background:var(--ok);color:#fff}
+  .rp-step.on .no{background:var(--blue-800);color:#fff}
+  .rp-step.done .no{background:var(--ok-ink);color:#fff}
   .rp-f{margin:10px 0}
   .rp-f .lab{display:block;font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:4px}
-  .rp-f input{width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit;background:#fff}
-  .rp-f input:focus{border-color:var(--blue-400);outline:none}
+  .rp-f input{width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;background:#fff}
+  .rp-f input:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px rgba(43,124,211,.15)}
   .rp-hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:4px}
-  .rp-warn{font-size:12.5px;color:var(--warn);font-weight:700;margin-top:4px}
+  .rp-warn{font-size:12.5px;color:var(--gold-ink);font-weight:700;margin-top:4px}
   .rp-foot{display:flex;gap:10px;margin-top:16px}
   .rp-pv-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
   .rp-pv-row .k{color:var(--muted);flex:1}
   .rp-pv-row .v{font-weight:700;font-variant-numeric:tabular-nums}
-  @media(max-width:460px){.rp-step{padding:6px 9px;font-size:11.5px}}
+  @media(max-width:460px){.rp-step{padding:6px 9px;font-size:11.5px;min-height:38px}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
   .dg-main-h svg{flex:none;color:var(--gold)}
@@ -1852,7 +1855,7 @@ window.__yfLoadLib=(function(){
       <div class="legend">数据来自各站上报的月度汇总（招募漏斗 / 学生发展 / 入营结构 / 家长参与）+ 半年度会议材料。上方为可视化仪表盘（漏斗 / 性别结构 / 参与率 / 各站对比）；点任意站卡片 → 看该站数据汇总与<b>针对性分析</b>。对外分享默认隐藏负责人个人信息，内部点顶部开关切「管理视图」即可查看。</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="up-enter" id="dashRefreshBtn" onclick="dashRefresh()" style="background:var(--blue-200);color:var(--blue-700)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> 刷新</button>
+      <button class="up-enter" id="dashRefreshBtn" onclick="dashRefresh()" style="background:var(--blue-200);color:var(--blue-800)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> 刷新</button>
       <button class="up-enter" id="dashUpBtn" onclick="openUpModal()">📤 更新数据</button>
     </div>
   </div>
@@ -7090,8 +7093,8 @@ function renderHQ(){
     var m=GW.metrics(s), q=GW.quadrant(s), w=YF_WARN.warns(s), wk=GW.weakness(s);
     var okc=0; GW.CAPS.forEach(function(c){if(m[c.k]>=bk.B[c.k].med*0.9)okc++;});
     var t=GW.TYPES[q.key], tier=GW.tier(m._raw.r2);
-    var badgeColor=q.key==='model'?'#12833f':q.key==='wide'?'#2b7cd3':q.key==='sharp'?'#e0a020':'#c8161d';
-    var hw=''; if(w.red)hw+='<span class="hw" style="background:#c0392b">红'+w.red+'</span>'; if(w.orange)hw+='<span class="hw" style="background:#e08c2e">橙'+w.orange+'</span>'; if(w.blue)hw+='<span class="hw" style="background:#2b7cd3">蓝'+w.blue+'</span>';
+    var badgeColor=q.key==='model'?'#12833f':q.key==='wide'?'var(--blue-800)':q.key==='sharp'?'var(--gold-ink)':'#c8161d';
+    var hw=''; if(w.red)hw+='<span class="hw" style="background:#c0392b">红'+w.red+'</span>'; if(w.orange)hw+='<span class="hw" style="background:var(--gold-ink)">橙'+w.orange+'</span>'; if(w.blue)hw+='<span class="hw" style="background:var(--blue-800)">蓝'+w.blue+'</span>';
     gridH+='<div class="hq-st" data-s="'+s+'" onclick="hqOpen(this.dataset.s)">'
       +'<div><span class="hn">'+s+'</span><span class="ht">'+tier+'</span></div>'
       +'<div class="hrow"><span class="hq-badge" style="background:'+badgeColor+'">'+t.n+'</span><span style="font-size:12px;color:var(--muted)">能力 '+okc+'/5</span></div>'
@@ -7116,7 +7119,7 @@ function hqOpen(st){
   h+='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">规模档：'+GW.tier(m._raw.r2)+' ｜ 负责人：'+GW.ownerOf(st)+' ｜ 7月入营 '+Math.round(m._raw.r2)+' 人</div>';
   h+='<div style="background:var(--ice-2);border:1px solid var(--line);border-left:4px solid '+t.color+';border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px">'+t.core+'</div>';
   h+='<div class="hq-sec-t" style="margin-top:0">能力诊断（vs 全站中位）</div>';
-  GW.CAPS.forEach(function(c){ var v=m[c.k], med=bk.B[c.k].med, pct=med>0?Math.min(100,v/med*100):0; var col=v>=med?'#10a37f':(v>=med*0.7?'#e0a020':'#c0392b'); h+='<div class="hq-cap-row"><span class="cn">'+c.n+'</span><div class="hq-cap-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div><span style="width:130px;text-align:right;color:'+col+';font-weight:700">'+gwFmt(v,c.u)+' / 中位'+gwFmt(med,c.u)+'</span></div>'; });
+  GW.CAPS.forEach(function(c){ var v=m[c.k], med=bk.B[c.k].med, pct=med>0?Math.min(100,v/med*100):0; var col=v>=med?'var(--ok-ink)':(v>=med*0.7?'var(--gold-ink)':'#c0392b'); h+='<div class="hq-cap-row"><span class="cn">'+c.n+'</span><div class="hq-cap-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div><span style="width:130px;text-align:right;color:'+col+';font-weight:700">'+gwFmt(v,c.u)+' / 中位'+gwFmt(med,c.u)+'</span></div>'; });
   if(w.list.length){ h+='<div class="hq-sec-t">风险预警</div><div class="hq-warn-list">'; w.list.forEach(function(x){ h+='<div class="hq-wi"><span class="sev sev'+x.sev+'">'+(x.sev===3?'高危':x.sev===2?'重点':'关注')+'</span><div class="wt"><b>'+x.t+'</b><br><span style="color:var(--muted)">'+x.d+'</span></div></div>'; }); h+='</div>'; }
   var semi=(typeof SEMI!=='undefined'&&SEMI[st])?SEMI[st]:null;
   if(semi){ h+='<div class="hq-sec-t">半年度真实记录</div><div style="font-size:13px;line-height:1.7"><div><b style="color:var(--blue-700)">亮点做法：</b>'+(semi.yf||'—')+'</div><div style="margin-top:6px"><b style="color:var(--warn)">短板：</b>'+(semi.weak||'—')+'</div><div style="margin-top:6px"><b style="color:var(--blue-700)">Q3方向：</b>'+(semi.q3||'—')+'</div></div>'; }
@@ -8545,7 +8548,7 @@ function dgForumLink(tag){
   return '<button type="button" class="dg-link" onclick="dgGoForum(\''+tag+'\')">'+DG_ICON_USERS+'看标杆：经验广场 · '+dgEsc(tag)+'帖</button>';
 }
 function dgAdviceHTML(it,primary){
-  var h='<div class="dg-sub">';
+  var h='<div class="dg-sub'+(primary?' dg-sub-primary':'')+(it.sev===3?' dg-sub-urgent':'')+'">';
   h+='<div class="t">'+(it.sev===3?'<span class="dg-tag bad">紧急</span> ':(it.sev===2?'<span class="dg-tag">关注</span> ':''))+dgEsc(it.title)+'</div>';
   h+='<div class="w">为什么：'+dgEsc(it.body)+'</div>';
   if(it.acts&&it.acts.length){
