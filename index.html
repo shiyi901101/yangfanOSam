@@ -1502,6 +1502,13 @@ window.__yfLoadLib=(function(){
   .fbe-pf-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .fbe-medals-line{margin-top:6px;line-height:2}
   @media(max-width:414px){.fbe-dm-last{max-width:120px}.fbe-bub{max-width:86%}.fbe-dm-ts{display:none}.fbe-rule-grid{grid-template-columns:1fr}}
+  /* 论坛管理独立模块（fa-sec 全宽分区）+ 私信发起新会话行 */
+  .fa-sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 14px}
+  .fa-sec-t{font-size:var(--fs-h3,16px);font-weight:800;color:var(--navy,#1f3a5f);margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .fa-sec .fbe-ck-title:first-child{margin-top:0}
+  .fbe-dm-newrow{display:flex;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);flex-shrink:0}
+  .fbe-dm-newrow .um-input{flex:1;min-width:0}
+  @media(max-width:414px){.fa-sec{padding:12px 10px}.fa-sec-t{font-size:15px}.fbe-dm-newrow{flex-wrap:wrap}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
   .dg-main-h svg{flex:none;color:var(--gold)}
@@ -1581,6 +1588,7 @@ window.__yfLoadLib=(function(){
     <button class="sb-item" data-tab="learn" onclick="applyTab('learn');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>项目化学习</button>
     <button class="sb-item" data-tab="rhythm" onclick="applyTab('rhythm');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>我的成长</button>
     <button class="sb-item" data-tab="exp" onclick="applyTab('exp');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>经验对标</button>
+    <button class="sb-item" data-tab="forumadmin" onclick="applyTab('forumadmin');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>论坛管理</button>
     <button class="sb-item" data-tab="factory" onclick="applyTab('factory');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>提效工具</button>
     <div class="sb-footer">
       <div class="sb-user">
@@ -2302,6 +2310,20 @@ window.__yfLoadLib=(function(){
     </div>
   </div>
   <div id="expBody"></div>
+</section>
+
+<!-- ============ 论坛管理（仅管理端：版主/积分/勋章/档案审核） ============ -->
+<section id="forumadmin">
+  <div class="gw-top">
+    <div>
+      <h2>论坛管理</h2>
+      <p class="gw-sub">版主与超级版主任命、积分规则、勋章管理与负责人档案审批。改动保存后即时生效，请谨慎操作。</p>
+    </div>
+  </div>
+  <div class="fa-sec"><div class="fa-sec-t">版主与超级版主</div><div id="frRoles">加载中…</div></div>
+  <div class="fa-sec"><div class="fa-sec-t">积分规则</div><div id="frRules">加载中…</div></div>
+  <div class="fa-sec"><div class="fa-sec-t">勋章管理（增删改 + 授予 / 撤销）</div><div id="frMedals">加载中…</div></div>
+  <div class="fa-sec"><div class="fa-sec-t">档案审核</div><div id="pfPendingList">加载中…</div></div>
 </section>
 
 <!-- 新手 7 步引导 -->
@@ -5642,7 +5664,6 @@ function fullRestore(inp){
   rd.readAsText(f);inp.value='';
 }
 
-function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();if(typeof fbeBoot==="function")try{fbeBoot();}catch(e){}}
 
 /* ============ 经验广场 ============ */
 // 种子数据（来源：4 站真实案例结构化，2026-08-19）
@@ -6710,7 +6731,7 @@ function stuRenderCount(){
 }
 function stuInit(){stuListRender();stuFillChk();stuTodayRender();}
 
-function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined'){YF_CLOUD.pullForum();if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll();}try{if(typeof sbUpdateUser==='function')sbUpdateUser();}catch(e){}}
+function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined'){YF_CLOUD.pullForum();if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll();}try{if(typeof sbUpdateUser==='function')sbUpdateUser();}catch(e){}if(typeof fbeBoot==="function")try{fbeBoot();}catch(e){}}
 
 /* ============ 通用交互增强（Toast / Loading / 搜索钉选 / 模块记忆） ============ */
 function toast(msg){
@@ -8037,7 +8058,7 @@ function yfIsAdmin(){ return yfRole()==='admin'; }
 function yfIsStation(){ return yfRole()==='station'; }
 
 /* 仅管理端可见的板块（浆站负责人不可见） */
-var YF_ADMIN_ONLY = {hq:1, exp:1};
+var YF_ADMIN_ONLY = {hq:1, exp:1, forumadmin:1};
 /* 导航按角色过滤 —— 同时兼容侧边栏(.sb-item) 与旧版顶部 nav button
    注意：页面实际没有 <nav> 元素，导航全在 <aside class="sidebar"> 里，
    早期只查 'nav button[data-tab]' 导致过滤静默失效（项目负责人能看到中台总览）。 */
@@ -8271,18 +8292,10 @@ function openAcctModal(){
       '<button class="btn" onclick="acctAdd()">添加账号</button></div>'+
     '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
     '<div class="um-sub">现有账号</div><div id="acList" style="max-height:200px;overflow:auto"></div>'+
-    '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
-    '<div class="um-sub">论坛角色（超级版主 / 版主）</div><div id="frRoles">加载中…</div>'+
-    '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
-    '<div class="um-sub">积分与勋章</div><div id="frRules">加载中…</div>'+
-    '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
-    '<div class="um-sub">档案审核</div><div id="pfPendingList">加载中…</div>'+
     '<div id="acMsg" class="lg-err"></div>'+
   '</div>';
   m.onclick=function(e){ if(e.target===m) closeAcctModal(); };
   loadAcctList();
-  try{ if(typeof frLoadAdmin==='function')frLoadAdmin(); }catch(e){}
-  try{ if(typeof pfLoadPending==='function')pfLoadPending(); }catch(e){}
 }
 function closeAcctModal(){ var m=document.getElementById('acctMask'); if(m) m.style.display='none'; }
 function acctMsg(t){ var e=document.getElementById('acMsg'); if(e) e.textContent=t||''; }
@@ -8362,6 +8375,7 @@ function applyTab(tab){
   try{ if(tab==='hq'&&typeof renderHQ==='function')renderHQ(); }catch(e){}
   try{ if(tab==='exp'&&typeof renderBench==='function')renderBench(); }catch(e){}
   try{ if(tab==='rhythm'&&typeof renderRhythm==='function')renderRhythm(); }catch(e){}
+  try{ if(tab==='forumadmin'&&typeof frLoadAdmin==='function'){ frLoadAdmin(); pfLoadPending(); } }catch(e){}
 }
 function toggleSidebar(){
   var sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay'),hm=document.getElementById('sbHamburger');
@@ -9741,6 +9755,7 @@ function fbDmOpen(){
   FB_DM_STATE={open:true,view:'list',tid:null,peer:null};
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
     '<div class="fbe-dm-head"><b>私信</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="fbDmClose()">×</span></div>'+
+    '<div class="fbe-dm-newrow"><input id="dmNewPeer" class="um-input" placeholder="输入对方账号名，发起新会话" maxlength="40"><button class="fbe-dm-send" onclick="fbDmStart()">开始对话</button></div>'+
     '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载会话中…</div></div>'+
   '</div>';
   m.onclick=function(e){ if(e.target===m) fbDmClose(); };
@@ -9761,7 +9776,7 @@ function fbDmLoadList(){
 }
 function fbDmRenderList(threads){
   var box=document.getElementById('dmBody'); if(!box) return;
-  if(!threads.length){ box.innerHTML='<div class="fbe-dm-empty">还没有私信会话。<br>在帖子作者旁或帖子页点「私信」开始对话。</div>'; return; }
+  if(!threads.length){ box.innerHTML='<div class="fbe-dm-empty">还没有会话。在上方输入对方账号名发起，或去帖子详情点「私信 TA」。</div>'; return; }
   box.innerHTML=threads.map(function(t){
     var un=(t.unread||0)>0?'<span class="fbe-dm-unread">'+(t.unread>99?'99+':t.unread)+'</span>':'';
     return '<div class="fbe-dm-row" onclick="fbDmOpenThread(\''+fbeJ(t.threadId)+'\')">'+
@@ -9828,6 +9843,12 @@ function fbDmTo(enc){
   if(name===yfUsername()){ toast('不能给自己发私信'); return; }
   fbDmThread(fbeThreadId(yfUsername(),name),name);
 }
+function fbDmStart(){
+  var inp=document.getElementById('dmNewPeer');
+  var v=inp?(inp.value||'').trim():'';
+  if(!v){ toast('请输入对方账号名'); return; }
+  fbDmTo(fbeJ(v));
+}
 /* ---------- 版主操作（置顶 / 删帖） ---------- */
 function fbSetTop(id){
   var p=FB.posts.find(function(x){ return x.id===id; }); if(!p) return;
@@ -9888,22 +9909,30 @@ function frSave(){
 /* ---------- 管理端：积分与勋章 ---------- */
 var RULE_KEYS=[['post_new','发新帖'],['reply','回复'],['elite','被加精'],['liked_recv','被点赞'],['avatar_set','设置头像'],['bio_set','设置简介']];
 function frRenderRules(){
-  var box=document.getElementById('frRules'); if(!box) return;
+  var pbox=document.getElementById('frRules');
+  var mbox=document.getElementById('frMedals');
+  if(!pbox&&!mbox) return;
   var pts=(FB_RULES&&FB_RULES.points)||{};
   _frMedalsEdit=((FB_RULES&&FB_RULES.medals)||[]).map(function(m){ return {id:m.id||'',name:m.name||'',desc:m.desc||''}; });
-  var h='<div class="fbe-rule-grid">'+RULE_KEYS.map(function(k){
+  var gridH='<div class="fbe-rule-grid">'+RULE_KEYS.map(function(k){
     var v=(typeof pts[k[0]]==='number')?pts[k[0]]:0;
     return '<label class="fbe-rule-item"><span>'+k[1]+'（积分/次）</span><input type="number" min="0" step="1" class="fr-pt" data-k="'+k[0]+'" value="'+v+'"></label>';
   }).join('')+'</div>';
-  h+='<div class="fbe-ck-title">勋章列表（id 建档后不可改；改完点下方保存）</div><div id="frMedalRows"></div>'+
+  var medalH='<div class="fbe-ck-title">勋章列表（id 建档后不可改；改完点「积分规则」区的保存）</div><div id="frMedalRows"></div>'+
      '<div style="margin:6px 0"><button class="mini-btn" onclick="frMedalAdd()">+ 添加勋章</button></div>';
-  h+='<div class="fbe-ck-title">授予 / 撤销勋章（超版也可操作）</div>'+
+  medalH+='<div class="fbe-ck-title">授予 / 撤销勋章（超版也可操作）</div>'+
      '<div class="fbe-grant-row"><input id="frGrantUser" class="um-input" placeholder="账号名">'+
      '<select id="frGrantMedal" class="um-input"></select>'+
-     '<button class="mini-btn" onclick="frMedalGrant(\'grant\')">授予</button>'+
-     '<button class="mini-btn" onclick="frMedalGrant(\'revoke\')">撤销</button></div>';
-  h+='<button class="btn" onclick="frRulesSave()">保存积分与勋章</button><div id="frMsg2" class="fbe-sec-msg"></div>';
-  box.innerHTML=h;
+     '<button class="mini-btn" onclick="frMedalGrant(\'grant\")">授予</button>'+
+     '<button class="mini-btn" onclick="frMedalGrant(\'revoke\")">撤销</button></div>';
+  if(pbox&&mbox){
+    /* 论坛管理页：积分规则与勋章分区分容器；保存按钮覆盖两区（rules 全量覆写契约） */
+    pbox.innerHTML=gridH+'<button class="btn" onclick="frRulesSave()">保存积分与勋章</button><div id="frMsg2" class="fbe-sec-msg"></div>';
+    mbox.innerHTML=medalH;
+  }else{
+    var box=pbox||mbox;
+    box.innerHTML=gridH+medalH+'<button class="btn" onclick="frRulesSave()">保存积分与勋章</button><div id="frMsg2" class="fbe-sec-msg"></div>';
+  }
   frRenderMedalRows();
 }
 function frMedalRow(m,i){
