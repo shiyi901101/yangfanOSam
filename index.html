@@ -1504,7 +1504,6 @@ window.__yfLoadLib=(function(){
     <div class="sb-group-label">成长 · 工具</div>
     <button class="sb-item" data-tab="learn" onclick="applyTab('learn');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>项目化学习</button>
     <button class="sb-item" data-tab="rhythm" onclick="applyTab('rhythm');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>我的成长</button>
-    <button class="sb-item" id="sbReport" data-tab="report" onclick="openReportForm();closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>月上报</button>
     <button class="sb-item" data-tab="exp" onclick="applyTab('exp');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>经验对标</button>
     <button class="sb-item" data-tab="factory" onclick="applyTab('factory');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>提效工具</button>
     <div class="sb-footer">
@@ -7964,9 +7963,7 @@ function yfFilterNav(){
   /* 本站诊断卡：仅 station 角色显示（admin 端呈现归 Phase 5） */
   var dg = document.getElementById('dgCard');
   if(dg) dg.style.display = yfIsStation() ? '' : 'none';
-  /* 月上报入口：仅 station 可见（侧栏项 + 看板顶部上报条） */
-  var sr = document.getElementById('sbReport');
-  if(sr) sr.style.display = yfIsStation() ? '' : 'none';
+  /* 月上报入口：仅 station 可见（看板顶部上报条；侧栏项已按用户要求移除） */
   var reb = document.getElementById('rpEntryBar');
   if(reb) reb.style.display = yfIsStation() ? '' : 'none';
 }
