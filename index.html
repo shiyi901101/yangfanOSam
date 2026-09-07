@@ -1437,6 +1437,56 @@ window.__yfLoadLib=(function(){
   .rp-pv-row .k{color:var(--muted);flex:1}
   .rp-pv-row .v{font-weight:700;font-variant-numeric:tabular-nums}
   @media(max-width:460px){.rp-step{padding:6px 9px;font-size:11.5px;min-height:38px}}
+  /* FBE：论坛私信/版主徽章/勋章/档案（2026-09-09） */
+  .fbe-badge{display:inline-block;font-size:10px;line-height:1.4;padding:1px 5px;border-radius:8px;margin-left:4px;vertical-align:1px;font-weight:700;color:#fff}
+  .fbe-admin{background:#14559c}
+  .fbe-super{background:#d6463c}
+  .fbe-mod{background:#0c6b74}
+  .fbe-medals{display:inline}
+  .fbe-medal{display:inline-block;font-size:10px;line-height:1.4;padding:1px 5px;border-radius:8px;background:#fff2e2;color:#b06a1a;border:1px solid #f3cfa6;margin-left:3px;vertical-align:1px;cursor:default;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fbe-dm-mini{font-size:11px;color:#14559c;cursor:pointer;margin-left:5px;border-bottom:1px dashed #b9d6f2;white-space:nowrap}
+  .fbe-dm-mini:hover{color:#0d417d;border-color:#0d417d}
+  #fbDmDot{display:none;width:8px;height:8px;border-radius:50%;background:#d6463c;margin-left:6px;vertical-align:middle}
+  .fbe-dm-modal{width:min(520px,94vw);max-height:82dvh;display:flex;flex-direction:column}
+  .fbe-dm-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--line);flex-shrink:0}
+  .fbe-dm-back{font-size:12.5px;color:#14559c;cursor:pointer}
+  .fbe-dm-body{flex:1;overflow:auto;padding:10px 2px;min-height:200px;max-height:52dvh}
+  .fbe-dm-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .fbe-dm-row:hover{background:var(--ice-2)}
+  .fbe-dm-peer{font-weight:700;font-size:14px;color:var(--ink,#31465c)}
+  .fbe-dm-last{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+  .fbe-dm-ts{color:var(--muted);font-size:11px;white-space:nowrap}
+  .fbe-dm-unread{min-width:18px;height:18px;border-radius:9px;background:#d6463c;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0}
+  .fbe-dm-empty{color:var(--muted);font-size:13px;text-align:center;padding:36px 12px;line-height:1.9}
+  .fbe-dm-loading{color:var(--muted);font-size:13px;text-align:center;padding:30px 0}
+  .fbe-bub{max-width:78%;margin:5px 0;padding:8px 12px;border-radius:12px;font-size:13.5px;line-height:1.55;word-break:break-word;box-sizing:border-box}
+  .fbe-bub .t{display:block;font-size:10.5px;opacity:.65;margin-top:3px}
+  .fbe-me{margin-left:auto;background:#d7eefb;color:#14559c;border-bottom-right-radius:3px}
+  .fbe-them{background:#eef2f6;color:#31465c;border-bottom-left-radius:3px}
+  .fbe-dm-inputrow{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--line);flex-shrink:0}
+  .fbe-dm-inputrow textarea{flex:1;resize:none;height:56px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box}
+  .fbe-dm-send{background:#14559c;color:#fff;border:none;border-radius:8px;padding:0 16px;cursor:pointer;font-size:13px;min-height:44px}
+  .fbe-dm-send:disabled{opacity:.5;cursor:default}
+  .fbe-ck-title{font-size:12.5px;font-weight:700;color:#31465c;margin-top:10px}
+  .fbe-ck-grid{display:flex;flex-wrap:wrap;gap:6px 14px;padding:6px 0}
+  .fbe-ck{font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;min-height:24px}
+  .fbe-sec-msg{color:#d6463c;font-size:12.5px;margin-top:6px;min-height:16px}
+  .fbe-rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 0}
+  .fbe-rule-item{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px}
+  .fbe-rule-item input{width:70px;border:1px solid var(--line);border-radius:6px;padding:4px 8px;box-sizing:border-box}
+  .fbe-medal-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+  .fbe-medal-row .um-input{flex:1;min-width:80px}
+  .fbe-medal-row .fr-mid{flex:0 0 76px}
+  .fbe-grant-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0}
+  .fbe-grant-row .um-input{flex:1;min-width:110px}
+  .fbe-pf-modal{width:min(480px,94vw);max-height:86dvh;overflow:auto}
+  .fbe-pf-pending{display:none;background:#fff8e8;border:1px solid #f3cfa6;color:#8a6116;border-radius:8px;padding:8px 10px;font-size:12.5px;margin-bottom:10px;line-height:1.6}
+  .fbe-pf-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .fbe-pf-info{flex:1;min-width:170px;font-size:13px;display:flex;flex-direction:column;gap:2px}
+  .fbe-pf-info span{color:var(--muted);font-size:12px}
+  .fbe-pf-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .fbe-medals-line{margin-top:6px;line-height:2}
+  @media(max-width:414px){.fbe-dm-last{max-width:120px}.fbe-bub{max-width:86%}.fbe-dm-ts{display:none}.fbe-rule-grid{grid-template-columns:1fr}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
   .dg-main-h svg{flex:none;color:var(--gold)}
@@ -1510,7 +1560,7 @@ window.__yfLoadLib=(function(){
     <button class="sb-item" data-tab="dash" onclick="applyTab('dash');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg>数据看板</button>
     <button class="sb-item" data-tab="hq" onclick="applyTab('hq');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>中台总览</button>
     <button class="sb-item" data-tab="bot" onclick="applyTab('bot');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>智子解惑</button>
-    <button class="sb-item" data-tab="forum" onclick="applyTab('forum');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>交流论坛</button>
+    <button class="sb-item" data-tab="forum" onclick="applyTab('forum');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>交流论坛<i id="fbDmDot"></i></button>
     <button class="sb-item" data-tab="student" onclick="applyTab('student');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M17 3H7v6a5 5 0 0 0 10 0V3z"/><path d="M7 5H3v2a3 3 0 0 0 3 3h1"/><path d="M17 5h4v2a3 3 0 0 1-3 3h-1"/></svg>学员管理</button>
     <div class="sb-group-label">成长 · 工具</div>
     <button class="sb-item" data-tab="learn" onclick="applyTab('learn');closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>项目化学习</button>
@@ -1978,6 +2028,7 @@ window.__yfLoadLib=(function(){
             </select>
             <button class="up-btn" onclick="fbNew()">＋ 发新帖</button>
             <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fbMySpace()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的空间</button>
+            <button class="mini-btn" style="background:var(--ice-2);border-color:var(--blue-200);color:var(--blue-700)" onclick="fbDmOpen()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>私信</button>
           </div>
         </div>
         <div class="fb-tools">
@@ -3166,7 +3217,7 @@ var YF_CLOUD=(function(){
   }
   function startForumPoll(){
     if(_forumPollTimer)clearInterval(_forumPollTimer);
-    _forumPollTimer=setInterval(function(){if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.pullForum)YF_CLOUD.pullForum();},45000);
+    _forumPollTimer=setInterval(function(){if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.pullForum)YF_CLOUD.pullForum();if(typeof fbDmPoll==='function')try{fbDmPoll();}catch(e){}},45000);
   }
   return {enabled:en,pushForum:pushForum,pullForum:pullForum,markDirty:markDirty,startForumPoll:startForumPoll};
 })();
@@ -5045,7 +5096,7 @@ function fbList(){
     return '<div class="frow" data-pid="'+p.id+'" onclick="fbOpen(\''+p.id+'\')">'+
       '<div class="fstat">'+st+'</div>'+
       '<a class="ftitle" onclick="event.stopPropagation();fbOpen(\''+p.id+'\')">'+esc(p.title)+'</a>'+
-      '<div class="fauthor" data-au="'+esc(p.author||'匿名')+'" onclick="event.stopPropagation();fbProfile(this.dataset.au)">'+fbAvatarHTML(p.author||'匿名','fav-sm')+'<span class="fa-name">'+esc(p.author||'匿名')+'</span><span class="fauthor-rank'+(ri.idx>=3?' r-top':'')+'">'+ri.name+'</span></div>'+
+      '<div class="fauthor" data-au="'+esc(p.author||'匿名')+'" onclick="event.stopPropagation();fbProfile(this.dataset.au)">'+fbAvatarHTML(p.author||'匿名','fav-sm')+'<span class="fa-name">'+esc(p.author||'匿名')+'</span>'+(typeof fbeBadgeSafe==='function'?fbeBadgeSafe(p.author||'匿名'):'')+(typeof fbeDmMiniSafe==='function'?fbeDmMiniSafe(p.author||'匿名'):'')+'<span class="fauthor-rank'+(ri.idx>=3?' r-top':'')+'">'+ri.name+'</span></div>'+
       '<div class="fcnt"><b>'+rc+'</b> / '+p.likes+'</div>'+
       '<div class="flast">'+fbT(p.time)+'<br><span class="who">'+esc(lw)+'</span></div></div>';}).join('');
   if(window._fbJust){var _el=c.querySelector('[data-pid="'+window._fbJust+'"]');if(_el){_el.classList.add('fb-just');_el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){_el.classList.remove('fb-just');},2400);}window._fbJust=null;}
@@ -5207,6 +5258,7 @@ function fbDetail(){
   const av=(p.author||'匿')[0].toUpperCase();
   const hlTag=(p.hl===1)?'<span class="fb-hl-tag hl1">精华</span>':(p.hl===2)?'<span class="fb-hl-tag hl2">优秀</span>':'';
   const isAdmin=yfIsAdmin();
+  const canMod=(typeof fbeCanMod==="function")?fbeCanMod(yfUsername(),p.bid,(typeof FB_ROLES!=="undefined")?FB_ROLES:null,isAdmin):isAdmin;
   const au=p.author||'匿名';
   const st=fbStats(au);
   const rep=st.rep;
@@ -5215,7 +5267,7 @@ function fbDetail(){
   /* 左：作者江湖档案（点击进入个人空间） */
   h+='<aside class="fb-author-sidebar">'+
     '<div class="fb-as-avatar" data-au="'+esc(au)+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer">'+fbAvatarHTML(au,'fb-as-ava')+'</div>'+
-    '<div class="fb-as-name" data-au="'+esc(au)+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer">'+esc(au)+'</div>'+
+    '<div class="fb-as-name" data-au="'+esc(au)+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer">'+esc(au)+(typeof fbeBadgeSafe==='function'?fbeBadgeSafe(au):'')+'</div>'+
     '<div class="fb-as-rank">'+ri.name+'</div>'+
     '<div class="fb-as-rankbar"><i style="width:'+ri.pct+'%"></i></div>'+
     '<div class="fb-as-stats">'+
@@ -5224,7 +5276,8 @@ function fbDetail(){
       '<div>获赞<b>'+st.like+'</b></div>'+
     '</div>'+
     '<div class="fb-as-points">江湖声望 <b>'+rep+'</b></div>'+
-    '<button class="fb-as-msg" onclick="toast(\'私信功能即将上线 \')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg> 私信 TA</button>'+
+    '<div class="fbe-medals-line" id="fbeMedalsDetail"></div>'+
+    '<button class="fb-as-msg" onclick="fbDmTo(\''+fbeJ(au)+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg> 私信 TA</button>'+
   '</aside>';
   /* 右：主帖 + 回复 */
   h+='<div class="fb-dmain">'+
@@ -5240,7 +5293,7 @@ function fbDetail(){
     '<div class="fb-dmain-body">'+fmtPostBody(p.body)+(p.images?p.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div>'+
     '<div class="fb-dacts">'+
       '<button class="fb-like'+(p.liked?' on':'')+'" onclick="fbLike(\''+p.id+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg> '+p.likes+' 有用</button>'+
-      (isAdmin?'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',1)">'+(p.hl===1?'取消精华':'设精华')+'</button>'+'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',2)">'+(p.hl===2?'取消优秀':'设优秀')+'</button>':'')+
+      (canMod?'<button class="mini-btn" onclick="fbSetTop(\''+p.id+'\')">'+(p.top?'取消置顶':'置顶')+'</button><button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',1)">'+(p.hl===1?'取消精华':'设精华')+'</button>'+'<button class="mini-btn" onclick="fbSetHl(\''+p.id+'\',2)">'+(p.hl===2?'取消优秀':'设优秀')+'</button>'+'<button class="mini-btn" style="color:#d6463c" onclick="fbDelPost(\''+p.id+'\')">删除</button>':'')+
     '</div>';
   /* 回复区 */
   h+='<div class="fb-rsec"><div class="fb-rsec-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z"/></svg> 江湖支招 <span>('+(p.replies.length)+' 条)</span></div>';
@@ -5249,7 +5302,7 @@ function fbDetail(){
   p.replies.forEach((r,ri)=>{
     const rav=(r.author||'匿')[0].toUpperCase();
     const fl=FL[ri+1]||((ri+1)+'楼');
-    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+fbAvatarHTML(r.author||'匿名','fav-xs')+'</div><div class="rmeta" data-au="'+esc(r.author||'匿名')+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer"><b>'+esc(r.author||'匿名')+'</b> · '+fbT(r.time)+'</div><span class="floor">'+fl+'</span></div>'+
+    h+='<div class="fb-reply"><div class="rhead"><div class="ravatar">'+fbAvatarHTML(r.author||'匿名','fav-xs')+'</div><div class="rmeta" data-au="'+esc(r.author||'匿名')+'" onclick="fbProfile(this.dataset.au)" style="cursor:pointer"><b>'+esc(r.author||'匿名')+'</b>'+(typeof fbeBadgeSafe==='function'?fbeBadgeSafe(r.author||'匿名'):'')+' · '+fbT(r.time)+'</div><span class="floor">'+fl+'</span></div>'+
       '<div class="rbody">'+fmtPostBody(r.body)+(r.images?r.images.map(i=>'<img src="'+i+'">').join(''):'')+'</div></div>';
   });
   /* 回复表单（含图片上传） */
@@ -5264,6 +5317,7 @@ function fbDetail(){
     '</div></div>';
   h+='</div></div></div>';
   c.innerHTML=h;
+  if(typeof fbeFillMedals==='function')try{fbeFillMedals(au,'fbeMedalsDetail');}catch(e){}
   fbScrollToTop();
 }
 function fmtPostBody(s){
@@ -5315,7 +5369,11 @@ function fbStats(author){
   const like=FB.posts.reduce((s,p)=>s+(p.author===author?(p.likes||0):0),0);
   const ess=FB.posts.filter(p=>p.author===author&&p.hl===1).length;
   const exc=FB.posts.filter(p=>p.author===author&&p.hl===2).length;
-  const rep=thread*3+reply*2+like+ess*10+exc*5;
+  const RP=(typeof FB_RULES!=='undefined'&&FB_RULES&&FB_RULES.points)?FB_RULES.points:null;
+  const _pt=(k,d)=>(RP&&typeof RP[k]==='number')?RP[k]:d;
+  const _prof=(FB.profiles||{})[author]||{};
+  const _pts=(_pt('avatar_set',0)&&_prof.avatar?_pt('avatar_set',0):0)+(_pt('bio_set',0)&&_prof.bio?_pt('bio_set',0):0);
+  const rep=thread*_pt('post_new',3)+reply*_pt('reply',2)+like*_pt('liked_recv',1)+ess*_pt('elite',10)+exc*5+_pts;
   return {thread:thread,reply:reply,like:like,ess:ess,exc:exc,rep:rep};
 }
 /* 头衔阶梯（阈值递增，进度条指向下一阶） */
@@ -5360,9 +5418,11 @@ function fbProfileRender(){
   h+='<div class="fb-prof-repbar"><i style="width:'+ri.pct+'%"></i></div>';
   h+='<div class="fb-prof-rep">江湖声望 <b>'+st.rep+'</b></div>';
   h+='</div>';
-  h+='<div class="fb-prof-actions">'+(canEdit?'<label class="fb-img-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>上传头像<input type="file" accept="image/*" style="display:none" onchange="fbUpAvatar(this)"></label>':'<span class="fb-prof-tip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>这是 '+esc(au)+' 的专属空间'+(me?'，<a class="fb-link" onclick="fbMySpace()">进入我的空间</a>':'，登录后可管理你的头像')+'</span>')+'</div>';
+  h+='<div class="fb-prof-actions">'+(canEdit?'<label class="fb-img-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>上传头像<input type="file" accept="image/*" style="display:none" onchange="fbUpAvatar(this)"></label>'+(typeof yfRole==='function'&&yfRole()==='station'?' <button class="mini-btn" onclick="pfOpen()">完善我的档案</button>':''):'<span class="fb-prof-tip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>这是 '+esc(au)+' 的专属空间'+(me?'，<a class="fb-link" onclick="fbMySpace()">进入我的空间</a>':'，登录后可管理你的头像')+'</span>')+'</div>';
   h+='</div>';
   h+='<div class="fb-prof-bio">'+(prof.bio?'<span>'+esc(prof.bio)+'</span>':'<span class="muted">这位江湖侠客还没留下简介…</span>')+(canEdit?' <button class="mini-btn" onclick="fbEditBio()">编辑简介</button>':'')+'</div>';
+  h+=(canEdit&&typeof pfPendingHTML==='function')?pfPendingHTML((typeof PF_MINE!=='undefined')?PF_MINE:null):'';
+  h+='<div class="fbe-medals-line" id="fbeMedalsProf"></div>';
   h+='<div class="fb-prof-stats">'+fbProfStat('主帖',st.thread)+fbProfStat('回复',st.reply)+fbProfStat('获赞',st.like)+fbProfStat('精华',st.ess)+fbProfStat('优秀',st.exc)+'</div>';
   h+='<div class="fb-prof-sec-title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3M9 13h6M8 21h8M12 17v4"/></svg>江湖成就</div><div class="fb-prof-ach">';
   ach.forEach(a=>{ h+='<div class="fb-ach'+(a.got?' got':'')+'"><div class="fb-ach-ic">'+a.icon+'</div><div class="fb-ach-tx"><b>'+a.name+'</b><span>'+a.desc+'</span></div></div>'; });
@@ -5376,6 +5436,7 @@ function fbProfileRender(){
   }
   h+='</div>';
   c.innerHTML=h;
+  if(typeof fbeFillMedals==='function')try{fbeFillMedals(au,'fbeMedalsProf');}catch(e){}
 }
 function fbUpAvatar(inp){
   const me=yfUsername();
@@ -5557,7 +5618,7 @@ function fullRestore(inp){
   rd.readAsText(f);inp.value='';
 }
 
-function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();}
+function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();if(typeof fbeBoot==="function")try{fbeBoot();}catch(e){}}
 
 /* ============ 经验广场 ============ */
 // 种子数据（来源：4 站真实案例结构化，2026-08-19）
@@ -8186,10 +8247,18 @@ function openAcctModal(){
       '<button class="btn" onclick="acctAdd()">添加账号</button></div>'+
     '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
     '<div class="um-sub">现有账号</div><div id="acList" style="max-height:200px;overflow:auto"></div>'+
+    '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
+    '<div class="um-sub">论坛角色（超级版主 / 版主）</div><div id="frRoles">加载中…</div>'+
+    '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
+    '<div class="um-sub">积分与勋章</div><div id="frRules">加载中…</div>'+
+    '<hr style="margin:16px 0;border:none;border-top:1px solid var(--line)">'+
+    '<div class="um-sub">档案审核</div><div id="pfPendingList">加载中…</div>'+
     '<div id="acMsg" class="lg-err"></div>'+
   '</div>';
   m.onclick=function(e){ if(e.target===m) closeAcctModal(); };
   loadAcctList();
+  try{ if(typeof frLoadAdmin==='function')frLoadAdmin(); }catch(e){}
+  try{ if(typeof pfLoadPending==='function')pfLoadPending(); }catch(e){}
 }
 function closeAcctModal(){ var m=document.getElementById('acctMask'); if(m) m.style.display='none'; }
 function acctMsg(t){ var e=document.getElementById('acMsg'); if(e) e.textContent=t||''; }
@@ -9456,6 +9525,513 @@ function rpEntryRefresh(){ /* 看板顶部上报条：截止日倒计时（次�
 }
 try{ window.__RP_TEST__={RP_FIELDS:RP_FIELDS,rpValidate:rpValidate,rpNum:rpNum,rpSeasonMonths:rpSeasonMonths,rpMonthList:rpMonthList,rpPayload:rpPayload,rpWarnText:rpWarnText,RP_STATE:RP_STATE,rpStepDone:rpStepDone,rpCheckStep:rpCheckStep,rpIsSeasonEnd:rpIsSeasonEnd,rpErrMsg:rpErrMsg,RP_ERR_TEXT:RP_ERR_TEXT}; }catch(e){}
 /*RP-END*/
+/*FBE-BEGIN*/
+/* ============ 论坛扩容 FBE：私信 / 版主角色 / 积分规则勋章 / 档案自提交（2026-09-09） ============
+   契约来源：yangfan-cloud/yf-api/index.js @2715c26（实读核实，非派发转述）
+   - GET  /v1/forum/dm            无 threadId → {threads:[{threadId,peer,count,unread,lastMessage,lastTs}]}
+                                  带 threadId → {threadId,peer,messages:[{_id,from,to,text,ts,readAt}]} + 自动已读回执
+   - POST /v1/forum/dm            {to,text} 1-500 字；每日 50 条 → 429 {error:'rate_limited'}
+                                  threadId=[a,b].sort().join('|')（可客户端预算，直达会话）
+   - GET  /v1/forum/roles         公开读 {roles:{super:[],boards:{board:[...]}}}
+   - POST /v1/forum/roles         仅 admin，全量覆写 {super,boards}
+   - GET  /v1/forum/rules         公开读 {rules:{points:{post_new,reply,elite,liked_recv,avatar_set,bio_set},medals:[{id,name,desc}]}}
+   - POST /v1/forum/rules         仅 admin，全量覆写（勋章增删改走此端点，medals desc 可省）
+   - GET  /v1/forum/medals?user=  {user,medals:[{id,name,desc}]}（默认本人）
+   - POST /v1/forum/medals        仅 admin/超版 {user,medalId,action:'grant'|'revoke'} → {user,medals:[id...]}
+   - GET/POST /v1/profiles/mine   station 本人；白名单 owner/exp/avatar/bio（空值丢弃，逐字段 slice 2000）
+                                  pending 重复提交覆盖；admin 调用会被 400 拒绝
+   - GET  /v1/profiles/pending    admin → {pending:[{station,slug,fields,submittedAt,by}]}
+   - POST /v1/profiles/approve    admin {station,decision:'approve'|'reject',note?}
+   实现口径差异：avatar dataURL 不走 profiles/mine（后端逐字段 slice(0,2000) 会截断大 dataURL 产生脏数据），
+   头像沿用 fbUpAvatar 即时生效通道（FB.profiles + 论坛云同步）；表单内「更换头像」即复用该通道。 */
+var FB_ROLES={super:[],boards:{}};
+var FB_RULES=null;
+var PF_MINE=null;
+var FB_DM_STATE={open:false,view:'list',tid:null,peer:null};
+var _frMedalsEdit=[];
+var _frAccts=[];
+
+/* ---------- 纯函数（window.__FBE_TEST__ 导出，mock 断言用） ---------- */
+function fbeThreadId(a,b){ return [a,b].sort().join('|'); }
+function fbeCanMod(user,bid,roles,isAdmin){
+  if(isAdmin) return true;
+  if(!user) return false;
+  var r=roles||{super:[],boards:{}};
+  if((r.super||[]).indexOf(user)>=0) return true;
+  var bl=r.boards||{};
+  return !!bid&&(bl[bid]||[]).indexOf(user)>=0;
+}
+function fbeRoleOf(user,roles,isAdmin){
+  if(isAdmin) return 'admin';
+  if(!user) return '';
+  var r=roles||{super:[],boards:{}};
+  if((r.super||[]).indexOf(user)>=0) return 'super';
+  var bl=r.boards||{};
+  for(var k in bl){ if((bl[k]||[]).indexOf(user)>=0) return 'mod'; }
+  return '';
+}
+function fbeBadgeHTML(user,roles,isAdmin){
+  var role=fbeRoleOf(user,roles,isAdmin);
+  if(!role) return '';
+  var label=role==='admin'?'管理员':(role==='super'?'超版':'版主');
+  return '<span class="fbe-badge fbe-'+role+'">'+label+'</span>';
+}
+function fbeMedalsHTML(medals){
+  if(!medals||!medals.length) return '';
+  return '<span class="fbe-medals">'+medals.map(function(m){
+    return '<span class="fbe-medal" title="'+esc((m&&m.desc)||m.name||'')+'">'+esc((m&&m.name)||'')+'</span>';
+  }).join('')+'</span>';
+}
+function fbDmValidate(text){
+  var t=(text==null?'':String(text)).trim();
+  if(t.length<1) return '私信内容不能为空';
+  if(t.length>500) return '私信不能超过 500 字';
+  return '';
+}
+function dmErrMsg(j){
+  if(!j) return '发送失败，请稍后重试';
+  if(j.error==='rate_limited') return '今日私信已达 50 条上限，明天再来吧';
+  if(j.network) return j.error||'网络异常，无法连接服务器';
+  if(j.msg) return j.msg;
+  if(j.error) return '发送失败：'+j.error;
+  return '发送失败，请稍后重试';
+}
+function frRulesValidate(points,medals){
+  if(!points||typeof points!=='object'||Array.isArray(points)) return '积分规则必须是对象';
+  for(var k in points){
+    var v=points[k];
+    if(typeof v!=='number'||!isFinite(v)||Math.floor(v)!==v||v<0) return '积分值必须是非负整数：'+k;
+  }
+  if(!Array.isArray(medals)) return '勋章列表必须是数组';
+  var ids={};
+  for(var i=0;i<medals.length;i++){
+    var m=medals[i]||{};
+    var id=String(m.id||'').trim(), nm=String(m.name||'').trim();
+    if(!id) return '勋章 id 不能为空';
+    if(!nm) return '勋章名称不能为空（'+id+'）';
+    if(ids[id]) return '勋章 id 重复：'+id;
+    ids[id]=1;
+  }
+  return '';
+}
+var PF_CAPS={owner:20,exp:200,bio:30};
+function pfSanitize(owner,exp,avatar,bio){
+  var f={};
+  function put(k,v){
+    var cap=PF_CAPS[k]||2000;
+    var s=(v==null?'':String(v)).trim().slice(0,cap);
+    if(s) f[k]=s;
+  }
+  put('owner',owner); put('exp',exp); put('bio',bio);
+  var av=(avatar==null?'':String(avatar)).trim();
+  if(av&&av.length<=2000) f.avatar=av;   /* 超过 2000 字符的 dataURL 不送，避免后端截断出脏数据 */
+  return f;
+}
+function pfPendingText(pending){
+  if(!pending||!pending.submittedAt) return '';
+  var d=new Date(pending.submittedAt);
+  var pad=function(n){ return (n<10?'0':'')+n; };
+  var t=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  return '已提交审核，待管理员批准（提交于 '+t+'，可修改后重新提交覆盖）';
+}
+function pfPendingHTML(mine){
+  var t=pfPendingText(mine&&mine.pending);
+  return t?'<div class="fbe-pf-pending">'+esc(t)+'</div>':'';
+}
+/* ---------- 渲染期安全包装（主脚本块以 typeof 守卫调用，FBE 未加载时静默为空） ---------- */
+function fbeBadgeSafe(u){
+  try{
+    return fbeBadgeHTML(u,(typeof FB_ROLES!=='undefined')?FB_ROLES:{super:[],boards:{}},(typeof yfIsAdmin==='function')&&yfIsAdmin());
+  }catch(e){ return ''; }
+}
+function fbeDmMiniSafe(u){
+  try{
+    if(typeof yfToken!=='function'||!yfToken()) return '';
+    if(u===yfUsername()) return '';
+    return '<span class="fbe-dm-mini" onclick="event.stopPropagation();fbDmTo(\''+fbeJ(u)+'\')">私信</span>';
+  }catch(e){ return ''; }
+}
+function fbeJ(s){ return encodeURIComponent(String(s==null?'':s)); }
+/* ---------- 数据加载 ---------- */
+function fbeCloneRoles(r){
+  var out={super:((r&&r.super)||[]).slice(),boards:{}},k;
+  var bl=(r&&r.boards)||{};
+  for(k in bl) out.boards[k]=(bl[k]||[]).slice();
+  return out;
+}
+function fbeLoadRoles(cb){
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/forum/roles','GET',null).then(function(j){
+    if(j&&j.ok&&j.roles){ FB_ROLES=fbeCloneRoles(j.roles); }
+    if(typeof cb==='function') cb(j);
+  });
+}
+function fbeLoadRules(cb){
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/forum/rules','GET',null).then(function(j){
+    if(j&&j.ok&&j.rules) FB_RULES=j.rules;
+    if(typeof cb==='function') cb(j);
+  });
+}
+function fbeLoadMine(cb){
+  if(typeof yfRole!=='function'||yfRole()!=='station') return;
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/profiles/mine','GET',null).then(function(j){
+    if(j&&j.ok){ PF_MINE={profile:j.profile||{},pending:j.pending||null}; if(typeof cb==='function') cb(j); }
+  });
+}
+function fbeFillMedals(user,elId){
+  if(typeof yfToken!=='function'||!yfToken()) return;
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/forum/medals','GET',{user:user}).then(function(j){
+    var el=document.getElementById(elId); if(!el) return;
+    if(j&&j.ok){ _fbeMedalCache[user]=j.medals||[]; el.innerHTML=fbeMedalsHTML(j.medals||[]); }
+  });
+}
+var _fbeMedalCache={};
+function fbeBoot(){
+  fbeLoadRoles(); fbeLoadRules();
+  fbeLoadMine(function(){ try{ if(fbProfileView===yfUsername()&&typeof fbProfileRender==='function')fbProfileRender(); }catch(e){} });
+  fbDmPoll();
+}
+/* ---------- 私信 ---------- */
+function fbDmPoll(){
+  if(typeof yfToken!=='function'||!yfToken()){ fbDmBadge(0); return; }
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/forum/dm','GET',null).then(function(j){
+    if(!j||!j.ok) return;
+    var un=0; (j.threads||[]).forEach(function(t){ un+=(t.unread||0); });
+    fbDmBadge(un);
+    if(FB_DM_STATE.open&&FB_DM_STATE.view==='list') fbDmRenderList(j.threads||[]);
+  });
+}
+function fbDmBadge(n){
+  var d=document.getElementById('fbDmDot');
+  if(d) d.style.display=n>0?'inline-block':'none';
+}
+function fbDmOpen(){
+  if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
+  var m=document.getElementById('dmMask');
+  if(!m){ m=document.createElement('div'); m.id='dmMask'; m.className='um-mask'; document.body.appendChild(m); }
+  m.style.display='flex';
+  FB_DM_STATE={open:true,view:'list',tid:null,peer:null};
+  m.innerHTML='<div class="um-modal fbe-dm-modal">'+
+    '<div class="fbe-dm-head"><b>私信</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="fbDmClose()">×</span></div>'+
+    '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载会话中…</div></div>'+
+  '</div>';
+  m.onclick=function(e){ if(e.target===m) fbDmClose(); };
+  fbDmLoadList();
+}
+function fbDmClose(){
+  var m=document.getElementById('dmMask'); if(m) m.style.display='none';
+  FB_DM_STATE.open=false;
+}
+function fbDmLoadList(){
+  var box=document.getElementById('dmBody'); if(!box) return;
+  box.innerHTML='<div class="fbe-dm-loading">加载会话中…</div>';
+  yfApi('/v1/forum/dm','GET',null).then(function(j){
+    if(!box||!FB_DM_STATE.open||FB_DM_STATE.view!=='list') return;
+    if(!j||!j.ok){ box.innerHTML='<div class="fbe-dm-empty">'+esc((j&&j.msg)||(j&&j.error)||'会话加载失败')+'</div>'; return; }
+    fbDmRenderList(j.threads||[]);
+  });
+}
+function fbDmRenderList(threads){
+  var box=document.getElementById('dmBody'); if(!box) return;
+  if(!threads.length){ box.innerHTML='<div class="fbe-dm-empty">还没有私信会话。<br>在帖子作者旁或帖子页点「私信」开始对话。</div>'; return; }
+  box.innerHTML=threads.map(function(t){
+    var un=(t.unread||0)>0?'<span class="fbe-dm-unread">'+(t.unread>99?'99+':t.unread)+'</span>':'';
+    return '<div class="fbe-dm-row" onclick="fbDmOpenThread(\''+fbeJ(t.threadId)+'\')">'+
+      '<div style="min-width:0;flex:1"><div class="fbe-dm-peer">'+esc(t.peer||'')+'</div>'+
+      '<div class="fbe-dm-last">'+esc(t.lastMessage||'')+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="fbe-dm-ts">'+fbT(t.lastTs||0)+'</span>'+un+'</div>'+
+    '</div>';
+  }).join('');
+}
+function fbDmOpenThread(tidEnc){
+  var tid=decodeURIComponent(tidEnc);
+  var me=yfUsername();
+  var peer=(tid.split('|').filter(function(x){ return x!==me; })[0])||'';
+  fbDmThread(tid,peer);
+}
+function fbDmThread(tid,peer){
+  var m=document.getElementById('dmMask'); if(!m) return;
+  FB_DM_STATE={open:true,view:'thread',tid:tid,peer:peer};
+  m.innerHTML='<div class="um-modal fbe-dm-modal">'+
+    '<div class="fbe-dm-head"><b>'+esc(peer||'私信')+'</b><span><span class="fbe-dm-back" onclick="fbDmOpen()">会话列表</span><span style="cursor:pointer;font-size:22px;line-height:1;margin-left:10px" onclick="fbDmClose()">×</span></span></div>'+
+    '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载消息中…</div></div>'+
+    '<div class="fbe-dm-inputrow"><textarea id="dmInput" maxlength="500" placeholder="输入私信（1-500 字），Enter 发送，Shift+Enter 换行"></textarea>'+
+    '<button class="fbe-dm-send" id="dmSendBtn" onclick="fbDmSend()">发送</button></div>'+
+  '</div>';
+  m.onclick=function(e){ if(e.target===m) fbDmClose(); };
+  var inp=document.getElementById('dmInput');
+  if(inp){ inp.onkeydown=function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); fbDmSend(); } }; }
+  yfApi('/v1/forum/dm','GET',{threadId:tid}).then(function(j){
+    var box=document.getElementById('dmBody'); if(!box) return;
+    if(!j||!j.ok){ box.innerHTML='<div class="fbe-dm-empty">'+esc((j&&j.msg)||(j&&j.error)||'消息加载失败')+'</div>'; return; }
+    fbDmRenderMsgs(j.messages||[],peer);
+  });
+}
+function fbDmRenderMsgs(msgs,peer){
+  var box=document.getElementById('dmBody'); if(!box) return;
+  var me=yfUsername();
+  if(!msgs.length){ box.innerHTML='<div class="fbe-dm-empty">还没有消息，说句什么吧。</div>'; return; }
+  box.innerHTML=msgs.map(function(d){
+    var own=d.from===me;
+    return '<div class="fbe-bub '+(own?'fbe-me':'fbe-them')+'">'+esc(d.text||'')+
+      '<span class="t">'+(own?'我':esc(d.from||peer))+' · '+fbT(d.ts||0)+(own&&d.readAt?' · 已读':'')+'</span></div>';
+  }).join('');
+  box.scrollTop=box.scrollHeight;
+}
+function fbDmSend(){
+  var st=FB_DM_STATE;
+  if(!st.open||st.view!=='thread'||!st.peer) return;
+  var inp=document.getElementById('dmInput'); if(!inp) return;
+  var err=fbDmValidate(inp.value);
+  if(err){ toast(err); return; }
+  var btn=document.getElementById('dmSendBtn');
+  if(btn){ btn.disabled=true; }
+  yfApi('/v1/forum/dm','POST',{to:st.peer,text:inp.value.trim()}).then(function(j){
+    if(btn) btn.disabled=false;
+    if(j&&j.ok){ fbDmThread(st.tid,st.peer); }
+    else{ toast(dmErrMsg(j)); if(j&&j.error==='rate_limited'){ inp.value=''; } }
+  });
+}
+function fbDmTo(enc){
+  var name='';
+  try{ name=decodeURIComponent(String(enc||'')); }catch(e){ name=String(enc||''); }
+  if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
+  if(!name){ toast('未找到对方账号'); return; }
+  if(name===yfUsername()){ toast('不能给自己发私信'); return; }
+  fbDmThread(fbeThreadId(yfUsername(),name),name);
+}
+/* ---------- 版主操作（置顶 / 删帖） ---------- */
+function fbSetTop(id){
+  var p=FB.posts.find(function(x){ return x.id===id; }); if(!p) return;
+  p.top=!p.top;
+  if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.markDirty) YF_CLOUD.markDirty(id);
+  fbSave(); toast(p.top?'已置顶':'已取消置顶'); fbDetail(); fbList();
+}
+function fbDelPost(id){
+  var p=FB.posts.find(function(x){ return x.id===id; }); if(!p) return;
+  if(!confirm('确认删除帖子「'+p.title+'」？删除后不可恢复。')) return;
+  var i=FB.posts.indexOf(p); if(i>=0) FB.posts.splice(i,1);
+  if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD.markDirty) YF_CLOUD.markDirty(id);
+  fbSave(); toast('帖子已删除'); fbView=null; fbList();
+}
+/* ---------- 管理端：论坛角色 ---------- */
+function frLoadAdmin(){
+  if(typeof yfIsAdmin!=='function'||!yfIsAdmin()) return;
+  if(typeof yfApi!=='function') return;
+  yfApi('/accounts','GET',null).then(function(ja){
+    _frAccts=(ja&&ja.ok&&ja.accounts)?ja.accounts.map(function(a){ return a.username; }):[];
+    fbeLoadRoles(function(){ frRenderRoles(); });
+    fbeLoadRules(function(){ frRenderRules(); });
+  });
+}
+function frRenderRoles(){
+  var box=document.getElementById('frRoles'); if(!box) return;
+  var accts=_frAccts.slice();
+  (FB_ROLES.super||[]).forEach(function(u){ if(accts.indexOf(u)<0) accts.push(u); });
+  var bl=FB_ROLES.boards||{};
+  Object.keys(bl).forEach(function(bid){ bl[bid].forEach(function(u){ if(accts.indexOf(u)<0) accts.push(u); }); });
+  if(!accts.length){ box.innerHTML='<div class="fbe-sec-msg">暂无账号可分配</div>'; return; }
+  var h='<div class="fbe-ck-title">超级版主（全版块管理权）</div><div class="fbe-ck-grid">'+
+    accts.map(function(u){ return '<label class="fbe-ck"><input type="checkbox" class="fr-super" value="'+esc(u)+'"'+(FB_ROLS_ARR_HAS(FB_ROLES.super,u)?' checked':'')+'> '+esc(u)+'</label>'; }).join('')+'</div>';
+  var boards=(typeof BOARDS!=='undefined')?BOARDS:[];
+  h+=boards.map(function(b){
+    var mods=bl[b.id]||[];
+    return '<div class="fbe-ck-title">'+esc(b.n)+' · 版主</div><div class="fbe-ck-grid">'+
+      accts.map(function(u){ return '<label class="fbe-ck"><input type="checkbox" class="fr-mod" data-bid="'+esc(b.id)+'" value="'+esc(u)+'"'+(mods.indexOf(u)>=0?' checked':'')+'> '+esc(u)+'</label>'; }).join('')+'</div>';
+  }).join('');
+  h+='<button class="btn" onclick="frSave()">保存论坛角色</button><div id="frMsg" class="fbe-sec-msg"></div>';
+  box.innerHTML=h;
+}
+function FB_ROLS_ARR_HAS(arr,u){ return (arr||[]).indexOf(u)>=0; }
+function frMsg(t){ var e=document.getElementById('frMsg'); if(e) e.textContent=t||''; }
+function frSave(){
+  var sup=[].slice.call(document.querySelectorAll('#frRoles .fr-super:checked')).map(function(x){ return x.value; });
+  var boards={};
+  [].slice.call(document.querySelectorAll('#frRoles .fr-mod:checked')).forEach(function(x){
+    var b=x.getAttribute('data-bid');
+    if(!boards[b]) boards[b]=[];
+    boards[b].push(x.value);
+  });
+  yfApi('/v1/forum/roles','POST',{super:sup,boards:boards}).then(function(j){
+    if(j&&j.ok){ FB_ROLES=fbeCloneRoles({super:sup,boards:boards}); frMsg('论坛角色已保存'); if(typeof fbList==='function')fbList(); }
+    else frMsg((j&&j.msg)||(j&&j.error)||'保存失败');
+  });
+}
+/* ---------- 管理端：积分与勋章 ---------- */
+var RULE_KEYS=[['post_new','发新帖'],['reply','回复'],['elite','被加精'],['liked_recv','被点赞'],['avatar_set','设置头像'],['bio_set','设置简介']];
+function frRenderRules(){
+  var box=document.getElementById('frRules'); if(!box) return;
+  var pts=(FB_RULES&&FB_RULES.points)||{};
+  _frMedalsEdit=((FB_RULES&&FB_RULES.medals)||[]).map(function(m){ return {id:m.id||'',name:m.name||'',desc:m.desc||''}; });
+  var h='<div class="fbe-rule-grid">'+RULE_KEYS.map(function(k){
+    var v=(typeof pts[k[0]]==='number')?pts[k[0]]:0;
+    return '<label class="fbe-rule-item"><span>'+k[1]+'（积分/次）</span><input type="number" min="0" step="1" class="fr-pt" data-k="'+k[0]+'" value="'+v+'"></label>';
+  }).join('')+'</div>';
+  h+='<div class="fbe-ck-title">勋章列表（id 建档后不可改；改完点下方保存）</div><div id="frMedalRows"></div>'+
+     '<div style="margin:6px 0"><button class="mini-btn" onclick="frMedalAdd()">+ 添加勋章</button></div>';
+  h+='<div class="fbe-ck-title">授予 / 撤销勋章（超版也可操作）</div>'+
+     '<div class="fbe-grant-row"><input id="frGrantUser" class="um-input" placeholder="账号名">'+
+     '<select id="frGrantMedal" class="um-input"></select>'+
+     '<button class="mini-btn" onclick="frMedalGrant(\'grant\')">授予</button>'+
+     '<button class="mini-btn" onclick="frMedalGrant(\'revoke\')">撤销</button></div>';
+  h+='<button class="btn" onclick="frRulesSave()">保存积分与勋章</button><div id="frMsg2" class="fbe-sec-msg"></div>';
+  box.innerHTML=h;
+  frRenderMedalRows();
+}
+function frMedalRow(m,i){
+  return '<div class="fbe-medal-row">'+
+    '<input class="um-input fr-mid" data-i="'+i+'" data-f="id" placeholder="id" value="'+esc(m.id)+'"'+(m.id?' readonly':'')+' oninput="frMedalEdit('+i+',this)">'+
+    '<input class="um-input fr-mname" data-i="'+i+'" data-f="name" placeholder="名称" value="'+esc(m.name)+'" oninput="frMedalEdit('+i+',this)">'+
+    '<input class="um-input fr-mdesc" data-i="'+i+'" data-f="desc" placeholder="说明（可选）" value="'+esc(m.desc)+'" oninput="frMedalEdit('+i+',this)">'+
+    '<button class="mini-btn" onclick="frMedalDel('+i+')">删</button>'+
+  '</div>';
+}
+function frRenderMedalRows(){
+  var box=document.getElementById('frMedalRows'); if(!box) return;
+  box.innerHTML=_frMedalsEdit.map(frMedalRow).join('');
+  frRebuildGrantSelect();
+}
+function frRebuildGrantSelect(){
+  var sel=document.getElementById('frGrantMedal'); if(!sel) return;
+  var opts=_frMedalsEdit.filter(function(m){ return m.id&&m.name; }).map(function(m){ return '<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>'; }).join('');
+  sel.innerHTML=opts||'<option value="">（暂无勋章）</option>';
+}
+function frMedalEdit(i,el){
+  var f=el.getAttribute('data-f');
+  if(_frMedalsEdit[i]){ _frMedalsEdit[i][f]=el.value; if(f==='id'||f==='name') frRebuildGrantSelect(); }
+}
+function frMedalAdd(){ _frMedalsEdit.push({id:'',name:'',desc:''}); frRenderMedalRows(); }
+function frMedalDel(i){ _frMedalsEdit.splice(i,1); frRenderMedalRows(); }
+function frMsg2(t){ var e=document.getElementById('frMsg2'); if(e) e.textContent=t||''; }
+function frRulesSave(){
+  var pts={};
+  [].slice.call(document.querySelectorAll('#frRules .fr-pt')).forEach(function(x){
+    var v=parseInt(x.value,10);
+    pts[x.getAttribute('data-k')]=(!isNaN(v)&&v>=0)?v:0;
+  });
+  var medals=_frMedalsEdit.map(function(m){ return {id:String(m.id||'').trim(),name:String(m.name||'').trim(),desc:String(m.desc||'').trim()}; });
+  var err=frRulesValidate(pts,medals);
+  if(err){ frMsg2(err); return; }
+  yfApi('/v1/forum/rules','POST',{points:pts,medals:medals}).then(function(j){
+    if(j&&j.ok){ FB_RULES=(j.rules&&j.rules.points)?j.rules:{points:pts,medals:medals}; frMsg2('积分与勋章已保存'); }
+    else frMsg2((j&&j.msg)||(j&&j.error)||'保存失败');
+  });
+}
+function frMedalGrant(action){
+  var uEl=document.getElementById('frGrantUser'), sel=document.getElementById('frGrantMedal');
+  if(!uEl||!sel) return;
+  var u=(uEl.value||'').trim(), mid=sel.value;
+  if(!u){ frMsg2('请填写要授予/撤销勋章的账号名'); return; }
+  if(!mid){ frMsg2('没有可选勋章，请先添加并保存勋章'); return; }
+  yfApi('/v1/forum/medals','POST',{user:u,medalId:mid,action:action}).then(function(j){
+    if(j&&j.ok) frMsg2((action==='grant'?'已授予':'已撤销')+'：'+u+'（当前 '+(j.medals||[]).length+' 枚）');
+    else frMsg2((j&&j.msg)||(j&&j.error)||'操作失败');
+  });
+}
+/* ---------- 档案自提交（station 本人） ---------- */
+function pfOpen(){
+  if(typeof yfRole!=='function'||yfRole()!=='station'){ toast('档案自提交仅站点账号可用'); return; }
+  var m=document.getElementById('pfMask');
+  if(!m){ m=document.createElement('div'); m.id='pfMask'; m.className='um-mask'; document.body.appendChild(m); }
+  m.style.display='flex';
+  var prof=(PF_MINE&&PF_MINE.profile)||{};
+  m.innerHTML='<div class="um-modal fbe-pf-modal">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center"><b>完善我的档案</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="pfClose()">×</span></div>'+
+    '<div id="pfPending" class="fbe-pf-pending"></div>'+
+    '<div class="lg-field"><label>负责人姓名（20 字内）</label><input id="pfOwner" class="um-input" maxlength="20" value="'+esc(prof.owner||'')+'" placeholder="如：张三"></div>'+
+    '<div class="lg-field"><label>任职经历（200 字内）</label><textarea id="pfExp" class="um-input" rows="3" maxlength="200" placeholder="岗位、年限、主要职责…">'+esc(prof.exp||'')+'</textarea></div>'+
+    '<div class="lg-field"><label>头像（即时生效，走论坛头像通道）</label><label class="mini-btn" style="cursor:pointer">更换头像<input type="file" accept="image/*" style="display:none" onchange="fbUpAvatar(this)"></label></div>'+
+    '<div class="lg-field"><label>一句话简介（30 字内）</label><input id="pfBio" class="um-input" maxlength="30" value="'+esc(prof.bio||'')+'" placeholder="一句话介绍自己"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="pfSubmit()">提交审核</button><button class="btn" style="background:transparent;color:var(--muted);border:1px solid var(--line)" onclick="pfClose()">取消</button></div>'+
+    '<div id="pfMsg" class="fbe-sec-msg"></div>'+
+  '</div>';
+  m.onclick=function(e){ if(e.target===m) pfClose(); };
+  pfRefreshPending();
+}
+function pfRefreshPending(){
+  var el=document.getElementById('pfPending');
+  if(!el) return;
+  var t=pfPendingText(PF_MINE&&PF_MINE.pending);
+  el.innerHTML=t?esc(t):'';
+  el.style.display=t?'block':'none';
+}
+function pfMsg(t){ var e=document.getElementById('pfMsg'); if(e) e.textContent=t||''; }
+function pfSubmit(){
+  var oEl=document.getElementById('pfOwner'), eEl=document.getElementById('pfExp'), bEl=document.getElementById('pfBio');
+  if(!oEl||!eEl||!bEl) return;
+  var fields=pfSanitize(oEl.value,eEl.value,null,bEl.value);
+  if(!Object.keys(fields).length){ pfMsg('请至少填写一项内容（头像走「更换头像」即时生效）'); return; }
+  var btn=document.querySelector('#pfMask button[onclick="pfSubmit()"]');
+  if(btn){ btn.disabled=true; }
+  yfApi('/v1/profiles/mine','POST',fields).then(function(j){
+    if(btn) btn.disabled=false;
+    if(j&&j.ok){
+      PF_MINE=PF_MINE||{profile:{}};
+      PF_MINE.pending={fields:fields,submittedAt:Date.now()};
+      pfRefreshPending(); pfMsg('已提交审核，批准后生效');
+      toast('档案已提交，待管理员审核');
+    } else { pfMsg((j&&j.msg)||(j&&j.error)||'提交失败'); }
+  });
+}
+function pfClose(){ var m=document.getElementById('pfMask'); if(m) m.style.display='none'; }
+/* ---------- 管理端：档案审核 ---------- */
+function pfLoadPending(){
+  if(typeof yfIsAdmin!=='function'||!yfIsAdmin()) return;
+  var box=document.getElementById('pfPendingList'); if(!box) return;
+  box.innerHTML='<div class="fbe-dm-loading">加载待审档案中…</div>';
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/profiles/pending','GET',null).then(function(j){
+    var box2=document.getElementById('pfPendingList'); if(!box2) return;
+    if(!j||!j.ok){ box2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'加载失败')+'</div>'; return; }
+    var rows=j.pending||[];
+    if(!rows.length){ box2.innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:6px 0">暂无待审档案</div>'; return; }
+    box2.innerHTML=rows.map(function(r){
+      var f=r.fields||{};
+      var d=new Date(r.submittedAt||0);
+      var pad=function(n){ return (n<10?'0':'')+n; };
+      var t=pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+      var desc=[];
+      if(f.owner) desc.push('负责人 '+f.owner);
+      if(f.exp) desc.push('经历 '+String(f.exp).slice(0,14)+(String(f.exp).length>14?'…':''));
+      if(f.bio) desc.push('简介 '+f.bio);
+      if(f.avatar) desc.push('头像');
+      var slugEnc=fbeJ(r.station||r.slug||'');
+      return '<div class="fbe-pf-row">'+
+        '<div class="fbe-pf-info"><b>'+esc(r.station||'')+'</b><span>'+esc(desc.join(' · ')||'（空提交）')+'</span><span>'+esc(r.by||'')+' 提交于 '+t+'</span></div>'+
+        '<div class="fbe-pf-acts"><input id="pfNote_'+slugEnc+'" class="um-input" placeholder="驳回理由（可选）" style="font-size:12px;padding:4px 8px;max-width:130px">'+
+        '<button class="mini-btn" onclick="pfApprove(\''+slugEnc+'\',\'approve\')">批准</button>'+
+        '<button class="mini-btn" onclick="pfApprove(\''+slugEnc+'\',\'reject\')">驳回</button></div>'+
+      '</div>';
+    }).join('');
+  });
+}
+function pfApprove(stationEnc,decision){
+  var station='';
+  try{ station=decodeURIComponent(stationEnc); }catch(e){ station=String(stationEnc||''); }
+  var noteEl=document.getElementById('pfNote_'+stationEnc);
+  var note=noteEl?(noteEl.value||'').trim():'';
+  yfApi('/v1/profiles/approve','POST',{station:station,decision:decision,note:note}).then(function(j){
+    if(j&&j.ok){ toast(decision==='approve'?'已批准，档案即时生效':'已驳回'); pfLoadPending(); }
+    else toast((j&&j.msg)||(j&&j.error)||'操作失败');
+  });
+}
+/* ---------- 测试导出 ---------- */
+if(typeof window!=='undefined'){
+  window.__FBE_TEST__={
+    fbeThreadId:fbeThreadId,fbeCanMod:fbeCanMod,fbeRoleOf:fbeRoleOf,
+    fbeBadgeHTML:fbeBadgeHTML,fbeMedalsHTML:fbeMedalsHTML,
+    fbDmValidate:fbDmValidate,dmErrMsg:dmErrMsg,
+    frRulesValidate:frRulesValidate,pfSanitize:pfSanitize,
+    pfPendingText:pfPendingText,pfPendingHTML:pfPendingHTML,
+    FB_ROLES_REF:function(){ return FB_ROLES; }
+  };
+}
+/*FBE-END*/
+
 </script>
 </div><!-- /main-area -->
 </div><!-- /app-shell -->
