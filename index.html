@@ -9189,7 +9189,8 @@ var RP_FIELDS=[
    {i:0,label:'入营总人数',hint:'本季累计入营学生总数（不是本月新增）。'},
    {i:1,label:'男',hint:'入营学生中男性人数。'},
    {i:2,label:'女',hint:'入营学生中女性人数。'},
-   {i:3,label:'当前在营学生数（选填）',hint:'下季度起作为人均科普的精准分母，本期仅存档不参与计算。',opt:true}]},
+   {i:3,label:'当前在营学生数（选填）',hint:'下季度起作为人均科普的精准分母，本期仅存档不参与计算。',opt:true},
+   {i:4,label:'本季实际运营天数',hint:'本季实际开站运营的天数（1-200）。仅季末月（3 月 / 8 月）需要填写。',od:true}]},
  {g:'par',step:4,name:'家站经营',items:[
    {i:0,label:'家长参与人数',hint:'参与站内活动的家长人数；问卷、科普、献浆等均算参与。'},
    {i:1,label:'家长参与度',hint:'问卷、科普、献浆等均算参与；一个学生的家庭无论几人参与均按 1 个名额。',unit:'%'}]}
@@ -9218,6 +9219,10 @@ function rpMonthList(){
   var def=list.filter(function(o){return o.m<=cm;})[0]||list[list.length-1];
   return {list:list,def:def?def.v:''};
 }
+function rpIsSeasonEnd(){ /* 季末月判定：与后端 V1.SEASON_END_MONTHS=['03','08'] 同源（DG_SEASON_END 待 deadlineRules 下发替换） */
+  var mm=String(RP_STATE.month||'').slice(5,7);
+  return DG_SEASON_END.indexOf(mm)>=0;
+}
 function rpMaskHide(){ var m=document.getElementById('rpMask'); if(m)m.style.display='none'; }
 function openReportForm(){
   if(typeof yfIsStation!=='function'||!yfIsStation()){ toast('月上报仅浆站账号使用'); return; }
@@ -9226,13 +9231,22 @@ function openReportForm(){
   if(!RP_STATE.month)RP_STATE.month=rpMonthList().def;
   RP_STATE.step=1; rpMsg(''); rpRender();
 }
-function rpSetMonth(v){ RP_STATE.month=v; }
+function rpSetMonth(v){ RP_STATE.month=v; rpRender(); /* 切月即刷新：季末月专用字段（本季实际运营天数）随月份出现/消失 */ }
 function rpGo(n){ RP_STATE.step=n; rpMsg(''); rpRender(); }
 function rpStepDone(no){
   var g=RP_FIELDS[no-1]; if(!g)return false;
-  return g.items.every(function(it){ if(it.opt)return true; /* 选填字段不挡「已填完」标记 */ var v=RP_STATE.vals[g.g+'.'+it.i]; return v!=null&&String(v).trim()!==''; });
+  return g.items.every(function(it){ if(it.opt)return true; /* 选填字段不挡「已填完」标记 */ if(it.od&&!rpIsSeasonEnd())return true; /* od 字段：非季末月不显示不挡；季末月必填 */ var v=RP_STATE.vals[g.g+'.'+it.i]; return v!=null&&String(v).trim()!==''; });
 }
 function rpWarnText(g,it,v){ /* 即时校验文案：null=无 */
+  if(it.od){ /* 季末月专用字段：非季末月不显示不校验不提交；季末月必填 1-200（E7 契约同文案） */
+    if(!rpIsSeasonEnd())return null;
+    var sOd=String(v==null?'':v).trim();
+    if(sOd==='')return '季末月必填「本季实际运营天数」';
+    if(!/^\d+$/.test(sOd))return '运营天数须为 1-200 的整数';
+    var nOd=Number(sOd);
+    if(nOd<1||nOd>200)return '运营天数须在 1-200 之间';
+    return null;
+  }
   var err=rpValidate(v,!!it.unit);
   if(err)return err;
   var n=Number(v);
@@ -9266,7 +9280,7 @@ function rpSuggestPar(){ /* 参与度可由人数自动试算（不强制）：�
   }
 }
 function rpFieldsHTML(g){
-  return g.items.map(function(it){
+  return g.items.filter(function(it){ return !it.od||rpIsSeasonEnd(); }).map(function(it){
     var id='rp_'+g.g+'_'+it.i;
     var v=(RP_STATE.vals[g.g+'.'+it.i]!=null)?RP_STATE.vals[g.g+'.'+it.i]:'';
     return '<div class="rp-f"><label class="lab" for="'+id+'">'+rpEsc(it.label)+(it.unit?'（'+it.unit+'）':'')+'</label>'
@@ -9309,11 +9323,15 @@ function rpNext(){
   if(err){ rpMsg('<div class="rp-warn">'+rpEsc(err)+'</div>'); return; }
   rpGo(RP_STATE.step+1);
 }
-function rpPayload(){ /* 提交结构：{month, metrics:{reg[3], dev[5], camp[3], par[2], students?}}（空值按 0；par[1] 允许一位小数；students=当前在营学生数选填——空则整个字段不传，不是 0；station 由服务端从登录态解析，不传） */
+function rpPayload(){ /* 提交结构：{month, metrics:{reg[3], dev[5], camp[3], par[2], students?}, operationDays?}（空值按 0；par[1] 允许一位小数；students 选填空则不传；operationDays 仅季末月必填、body 顶层、1-200，非季末月绝不携带——E7 契约；station 由服务端从登录态解析，不传） */
   function arr(g,n){ var a=[]; for(var i=0;i<n;i++)a.push(rpNum(RP_STATE.vals[g+'.'+i])); return a; }
   var p={month:RP_STATE.month, metrics:{reg:arr('reg',3), dev:arr('dev',5), camp:arr('camp',3), par:arr('par',2)}};
   var sv=String(RP_STATE.vals['camp.3']==null?'':RP_STATE.vals['camp.3']).trim();
   if(sv!==''&&/^\d+$/.test(sv))p.metrics.students=Number(sv); /* 当前在营学生数（选填）：填了合法非负整数才传，绝不传 0 冒充 */
+  if(rpIsSeasonEnd()){
+    var od=String(RP_STATE.vals['camp.4']==null?'':RP_STATE.vals['camp.4']).trim();
+    if(od!==''&&/^\d+$/.test(od)&&Number(od)>=1&&Number(od)<=200)p.operationDays=Number(od); /* body 顶层（E7：季末月必填 1-200；非季末月携带会被服务端 400 拒绝） */
+  }
   return p;
 }
 function rpPreview(){
@@ -9327,7 +9345,7 @@ function rpPreview(){
   var h='<div class="rp-f"><div class="lab" style="font-size:15px">确认上报</div>'
     +'<div class="rp-hint" style="font-size:13.5px;color:var(--navy);font-weight:700">将写入 '+rpEsc(RP_STATE.month)+' · '+rpEsc(st||'本人站')+'</div></div>';
   h+=RP_FIELDS.map(function(g){
-    return g.items.map(function(it){
+    return g.items.filter(function(it){ return !it.od||rpIsSeasonEnd(); }).map(function(it){
       return '<div class="rp-pv-row"><span class="k">'+rpEsc(it.label)+'</span><span class="v">'+rpEsc((it.opt&&!String(RP_STATE.vals[g.g+'.'+it.i]||'').trim())?'—':(RP_STATE.vals[g.g+'.'+it.i]||'0'))+(it.unit?'%':'')+'</span><button type="button" class="mini-btn" onclick="rpGo('+g.step+')">修改</button></div>';
     }).join('');
   }).join('');
@@ -9337,6 +9355,31 @@ function rpPreview(){
   rpMsg('');
 }
 function rpMsg(h){ var el=document.getElementById('rpMsg'); if(el)el.innerHTML=h||''; }
+/* S7 错误码 → 用户文案（码表来自服务端 v1err 实际取值，不臆造） */
+var RP_ERR_TEXT={
+  'month_locked':'已过上报截止，联系管理员',
+  'forbidden':'已过上报截止，联系管理员',
+  'validation_failed':'上报数据未通过校验，请检查标红的字段',
+  'rev_conflict':'数据已被他人更新，请刷新后重试',
+  'bad_request':'上报数据格式有误，请刷新页面后重试',
+  'unlock_required':'该月已锁定，需管理员解锁后才能修改',
+  'bad_credentials':'登录已过期，请重新登录后再上报',
+  'not_found':'上报接口不存在，请联系管理员',
+  'not_implemented':'功能暂未开放，请联系管理员'
+};
+function rpErrMsg(j){ /* S7 错误文案归一：月锁/截止优先 → errors 数组逐条（E 系列人工 msg）→ 机器码映射 → 人工 msg 优先于裸码；绝不裸吐 validation_failed */
+  if(!j)return '上报失败，请稍后重试';
+  var m=String(j.msg||''), e=String(j.error||'');
+  if(j.forbidden||e==='month_locked'||/截止|锁定|403/.test(m+e))return '已过上报截止，联系管理员';
+  if(Array.isArray(j.errors)&&j.errors.length){
+    var parts=j.errors.map(function(er){ if(!er)return ''; if(er.msg)return String(er.msg); return RP_ERR_TEXT[String(er.code||'')]||''; }).filter(function(s){return s;});
+    if(parts.length)return parts.join('；');
+  }
+  if(RP_ERR_TEXT[e])return RP_ERR_TEXT[e];
+  if(m)return m;
+  if(e)return '上报失败（'+e+'），请稍后重试';
+  return '上报失败，请稍后重试';
+}
 function rpSubmit(){
   var btn=document.getElementById('rpSubmitBtn');
   if(btn){ btn.disabled=true; btn.textContent='上报中…'; }
@@ -9353,8 +9396,7 @@ function rpSubmit(){
       }catch(e){ fin(); }
       rpMaskHide();
     }else{
-      var msg=(j&&(j.error||j.msg))||'上报失败，请稍后重试';
-      if(j&&(j.forbidden||/截止|锁定|403/.test(String(msg)))) msg='已过上报截止，联系管理员';
+      var msg=rpErrMsg(j); /* S7：文案归一——月锁优先、errors 逐条、机器码映射，绝不裸吐 validation_failed */
       rpMsg('<div class="rp-warn">'+rpEsc(msg)+'</div>');
     }
   });
@@ -9368,7 +9410,7 @@ function rpEntryRefresh(){ /* 看板顶部上报条：截止日倒计时（次�
   var days=Math.ceil((dl.getTime()-Date.now())/86400000);
   cd.textContent=v+' 数据上报截止 '+(dl.getMonth()+1)+'月'+dl.getDate()+'日'+(days>=0?('，还剩 '+days+' 天'):'（已过截止，补报联系管理员）');
 }
-try{ window.__RP_TEST__={RP_FIELDS:RP_FIELDS,rpValidate:rpValidate,rpNum:rpNum,rpSeasonMonths:rpSeasonMonths,rpMonthList:rpMonthList,rpPayload:rpPayload,rpWarnText:rpWarnText,RP_STATE:RP_STATE,rpStepDone:rpStepDone,rpCheckStep:rpCheckStep}; }catch(e){}
+try{ window.__RP_TEST__={RP_FIELDS:RP_FIELDS,rpValidate:rpValidate,rpNum:rpNum,rpSeasonMonths:rpSeasonMonths,rpMonthList:rpMonthList,rpPayload:rpPayload,rpWarnText:rpWarnText,RP_STATE:RP_STATE,rpStepDone:rpStepDone,rpCheckStep:rpCheckStep,rpIsSeasonEnd:rpIsSeasonEnd,rpErrMsg:rpErrMsg,RP_ERR_TEXT:RP_ERR_TEXT}; }catch(e){}
 /*RP-END*/
 </script>
 </div><!-- /main-area -->
