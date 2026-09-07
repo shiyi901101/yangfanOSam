@@ -9280,9 +9280,9 @@ function rpNext(){
   if(err){ rpMsg('<div class="rp-warn">'+rpEsc(err)+'</div>'); return; }
   rpGo(RP_STATE.step+1);
 }
-function rpPayload(){ /* 提交结构：{month, reg[3], dev[5], camp[3], par[2]}（空值按 0；par[1] 允许一位小数） */
+function rpPayload(){ /* 提交结构：{month, metrics:{reg[3], dev[5], camp[3], par[2]}}（空值按 0；par[1] 允许一位小数；station 由服务端从登录态解析，不传） */
   function arr(g,n){ var a=[]; for(var i=0;i<n;i++)a.push(rpNum(RP_STATE.vals[g+'.'+i])); return a; }
-  return {month:RP_STATE.month, reg:arr('reg',3), dev:arr('dev',5), camp:arr('camp',3), par:arr('par',2)};
+  return {month:RP_STATE.month, metrics:{reg:arr('reg',3), dev:arr('dev',5), camp:arr('camp',3), par:arr('par',2)}};
 }
 function rpPreview(){
   for(var s=1;s<=4;s++){
