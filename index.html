@@ -1508,7 +1508,13 @@ window.__yfLoadLib=(function(){
   .fa-sec .fbe-ck-title:first-child{margin-top:0}
   .fbe-dm-newrow{display:flex;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);flex-shrink:0}
   .fbe-dm-newrow .um-input{flex:1;min-width:0}
-  @media(max-width:414px){.fa-sec{padding:12px 10px}.fa-sec-t{font-size:15px}.fbe-dm-newrow{flex-wrap:wrap}}
+  .fbe-dm-newrow select{flex:1;min-width:0;height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink,#31465c);box-sizing:border-box}
+  .fbe-dm-newrow select:focus{outline:none;border-color:#14559c}
+  .fbe-dm-tag{font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}
+  .fbe-ct-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 0 2px}
+  .fbe-ct-chip{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:4px 12px;border:1px solid var(--blue-200,#b9d6f2);border-radius:16px;background:var(--ice-2,#eef4fb);color:#14559c;font-size:13px;cursor:pointer;white-space:nowrap}
+  .fbe-ct-chip:hover{background:#dceaf9;border-color:#14559c}
+  @media(max-width:414px){.fa-sec{padding:12px 10px}.fa-sec-t{font-size:15px}.fbe-dm-newrow{flex-wrap:wrap}.fbe-dm-newrow select{flex:1 1 100%}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
   .dg-main-h svg{flex:none;color:var(--gold)}
@@ -9586,6 +9592,8 @@ var FB_ROLES={super:[],boards:{}};
 var FB_RULES=null;
 var PF_MINE=null;
 var FB_DM_STATE={open:false,view:'list',tid:null,peer:null};
+var FB_DM_CONTACTS=null;      /* 可选联系人 [{name,tag}]；admin 为全量账号，站级为论坛作者+版主 */
+var FB_DM_CONTACTS_FULL=false;/* 名单是否权威全量（admin /accounts 成功才置 true，用于拦截不存在的账号） */
 var _frMedalsEdit=[];
 var _frAccts=[];
 
@@ -9731,6 +9739,10 @@ function fbeBoot(){
   fbeLoadRoles(); fbeLoadRules();
   fbeLoadMine(function(){ try{ if(fbProfileView===yfUsername()&&typeof fbProfileRender==='function')fbProfileRender(); }catch(e){} });
   fbDmPoll();
+  /* 预载联系人名单（角色接口返回后再取，保证版主/超版也能进名单） */
+  if(typeof fbDmContacts==='function'){
+    setTimeout(function(){ try{ fbDmContacts(function(){}); }catch(e){} },300);
+  }
 }
 /* ---------- 私信 ---------- */
 function fbDmPoll(){
@@ -9747,6 +9759,77 @@ function fbDmBadge(n){
   var d=document.getElementById('fbDmDot');
   if(d) d.style.display=n>0?'inline-block':'none';
 }
+/* ---- 联系人名单：让「发给谁」可选，不再靠手打精确账号名 ----
+   来源：①论坛帖子作者与回复作者（全员可见，站级主来源）；②版主/超级版主（/v1/forum/roles 公开读）；
+   ③admin 额外调 /accounts 拿全量账号（含从未发帖的站点账号）。同一次登录内缓存于 FB_DM_CONTACTS。 */
+function fbDmContacts(cb){
+  var me=(typeof yfUsername==='function')?yfUsername():'';
+  var base=[];
+  try{
+    (FB&&FB.posts||[]).forEach(function(p){
+      if(p&&p.author) base.push({name:p.author,tag:''});
+      (p&&p.replies||[]).forEach(function(r){ if(r&&r.author) base.push({name:r.author,tag:''}); });
+    });
+  }catch(e){}
+  try{
+    (FB_ROLES.super||[]).forEach(function(u){ base.push({name:u,tag:'超级版主'}); });
+    Object.keys(FB_ROLES.boards||{}).forEach(function(bid){
+      (FB_ROLES.boards[bid]||[]).forEach(function(u){ base.push({name:u,tag:'版主'}); });
+    });
+  }catch(e){}
+  function fin(full){
+    var seen={},out=[];
+    base.forEach(function(it){
+      var n=(it&&it.name)||'';
+      if(!n||n===me||n==='匿名'||seen[n]) return;
+      seen[n]=1; out.push({name:n,tag:it.tag||''});
+    });
+    FB_DM_CONTACTS=out;
+    FB_DM_CONTACTS_FULL=!!full;
+    if(typeof cb==='function') cb(out);
+  }
+  if(typeof yfApi!=='function'){ fin(false); return; }
+  /* 权威名单优先走 /v1/forum/contacts（任意登录用户可读，含从未发帖的站点账号） */
+  yfApi('/v1/forum/contacts','GET',null).then(function(jc){
+    var cs=(jc&&jc.ok&&jc.contacts)?jc.contacts:null;
+    if(cs&&cs.length){
+      cs.forEach(function(a){ base.push({name:a.username,tag:a.role==='admin'?'管理员':(a.station||'浆站')}); });
+      try{ _frAccts=cs.map(function(a){ return a.username; }); }catch(e){}
+      fin(true); return;
+    }
+    /* 降级：admin 回退旧 /accounts；站级用论坛作者名单（发放前的老后端兼容） */
+    if(typeof yfIsAdmin==='function'&&yfIsAdmin()){
+      yfApi('/accounts','GET',null).then(function(ja){
+        var accs=(ja&&ja.ok&&ja.accounts)?ja.accounts:null;
+        if(accs){
+          accs.forEach(function(a){ base.push({name:a.username,tag:a.role==='admin'?'管理员':(a.station||'浆站')}); });
+          try{ _frAccts=accs.map(function(a){ return a.username; }); }catch(e){}
+          fin(true);
+        }else{ fin(false); }
+      });
+      return;
+    }
+    fin(false);
+  });
+}
+function fbDmContactTag(n){
+  var t=''; try{ (FB_DM_CONTACTS||[]).forEach(function(c){ if(c.name===n&&!t) t=c.tag||''; }); }catch(e){}
+  return t;
+}
+function fbDmSelHTML(){
+  var list=FB_DM_CONTACTS||[];
+  if(!list.length) return '<option value="">（暂无可选联系人）</option>';
+  return list.map(function(c){
+    return '<option value="'+esc(c.name)+'">'+esc(c.name)+(c.tag?'（'+esc(c.tag)+'）':'')+'</option>';
+  }).join('');
+}
+function fbDmFillSel(){
+  var s=document.getElementById('dmPeerSel'); if(!s) return;
+  s.innerHTML=fbDmSelHTML();
+  var box=document.getElementById('dmBody');
+  /* 名单晚于会话列表返回时，补渲染一次空态（把推荐联系人 chips 带出来） */
+  if(box&&FB_DM_STATE.open&&FB_DM_STATE.view==='list'&&/还没有会话/.test(box.textContent||'')) fbDmRenderList([]);
+}
 function fbDmOpen(){
   if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
   var m=document.getElementById('dmMask');
@@ -9755,11 +9838,14 @@ function fbDmOpen(){
   FB_DM_STATE={open:true,view:'list',tid:null,peer:null};
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
     '<div class="fbe-dm-head"><b>私信</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="fbDmClose()">×</span></div>'+
-    '<div class="fbe-dm-newrow"><input id="dmNewPeer" class="um-input" placeholder="输入对方账号名，发起新会话" maxlength="40"><button class="fbe-dm-send" onclick="fbDmStart()">开始对话</button></div>'+
+    '<div class="fbe-dm-newrow"><select id="dmPeerSel" aria-label="选择联系人"><option value="">加载联系人…</option></select>'+
+    '<button class="fbe-dm-send" onclick="fbDmStart()">开始对话</button></div>'+
     '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载会话中…</div></div>'+
   '</div>';
   m.onclick=function(e){ if(e.target===m) fbDmClose(); };
   fbDmLoadList();
+  if(FB_DM_CONTACTS){ fbDmFillSel(); }
+  else{ fbDmContacts(function(){ fbDmFillSel(); }); }
 }
 function fbDmClose(){
   var m=document.getElementById('dmMask'); if(m) m.style.display='none';
@@ -9776,7 +9862,15 @@ function fbDmLoadList(){
 }
 function fbDmRenderList(threads){
   var box=document.getElementById('dmBody'); if(!box) return;
-  if(!threads.length){ box.innerHTML='<div class="fbe-dm-empty">还没有会话。在上方输入对方账号名发起，或去帖子详情点「私信 TA」。</div>'; return; }
+  if(!threads.length){
+    var list=FB_DM_CONTACTS||[];
+    var chips=list.length?('<div class="fbe-ct-wrap">'+list.slice(0,12).map(function(c){
+      return '<span class="fbe-ct-chip" onclick="fbDmTo(\''+fbeJ(c.name)+'\')">'+esc(c.name)+(c.tag?' · '+esc(c.tag):'')+'</span>';
+    }).join('')+'</div>'):'';
+    box.innerHTML='<div class="fbe-dm-empty">还没有会话。在上方选择联系人点「开始对话」，或直接点下面的人发起。'+chips+
+      (list.length?'':'<div style="margin-top:8px">也可以去帖子详情，点作者旁边的「私信」发起。</div>')+'</div>';
+    return;
+  }
   box.innerHTML=threads.map(function(t){
     var un=(t.unread||0)>0?'<span class="fbe-dm-unread">'+(t.unread>99?'99+':t.unread)+'</span>':'';
     return '<div class="fbe-dm-row" onclick="fbDmOpenThread(\''+fbeJ(t.threadId)+'\')">'+
@@ -9795,8 +9889,9 @@ function fbDmOpenThread(tidEnc){
 function fbDmThread(tid,peer){
   var m=document.getElementById('dmMask'); if(!m) return;
   FB_DM_STATE={open:true,view:'thread',tid:tid,peer:peer};
+  var _tg=fbDmContactTag(peer);
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
-    '<div class="fbe-dm-head"><b>'+esc(peer||'私信')+'</b><span><span class="fbe-dm-back" onclick="fbDmOpen()">会话列表</span><span style="cursor:pointer;font-size:22px;line-height:1;margin-left:10px" onclick="fbDmClose()">×</span></span></div>'+
+    '<div class="fbe-dm-head"><b>'+esc(peer||'私信')+(_tg?'<span class="fbe-dm-tag">'+esc(_tg)+'</span>':'')+'</b><span><span class="fbe-dm-back" onclick="fbDmOpen()">会话列表</span><span style="cursor:pointer;font-size:22px;line-height:1;margin-left:10px" onclick="fbDmClose()">×</span></span></div>'+
     '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载消息中…</div></div>'+
     '<div class="fbe-dm-inputrow"><textarea id="dmInput" maxlength="500" placeholder="输入私信（1-500 字），Enter 发送，Shift+Enter 换行"></textarea>'+
     '<button class="fbe-dm-send" id="dmSendBtn" onclick="fbDmSend()">发送</button></div>'+
@@ -9832,7 +9927,12 @@ function fbDmSend(){
   yfApi('/v1/forum/dm','POST',{to:st.peer,text:inp.value.trim()}).then(function(j){
     if(btn) btn.disabled=false;
     if(j&&j.ok){ fbDmThread(st.tid,st.peer); }
-    else{ toast(dmErrMsg(j)); if(j&&j.error==='rate_limited'){ inp.value=''; } }
+    else{
+      /* 404 对方账号不存在：不再让用户停在一条发不出去的死会话里，直接退回会话列表重新选人 */
+      if(j&&j.error==='not_found'){ toast('对方账号「'+st.peer+'」不存在，已退回会话列表，请重新选择联系人'); fbDmOpen(); return; }
+      toast(dmErrMsg(j));
+      if(j&&j.error==='rate_limited'){ inp.value=''; }
+    }
   });
 }
 function fbDmTo(enc){
@@ -9841,12 +9941,18 @@ function fbDmTo(enc){
   if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
   if(!name){ toast('未找到对方账号'); return; }
   if(name===yfUsername()){ toast('不能给自己发私信'); return; }
+  /* 名单权威（admin 全量账号）时前置拦截，避免打开一条根本发不出去的会话 */
+  if(FB_DM_CONTACTS_FULL&&FB_DM_CONTACTS&&FB_DM_CONTACTS.length){
+    var hit=false;
+    FB_DM_CONTACTS.forEach(function(c){ if(c.name===name) hit=true; });
+    if(!hit){ toast('无此账号「'+name+'」，请从列表选择联系人'); return; }
+  }
   fbDmThread(fbeThreadId(yfUsername(),name),name);
 }
 function fbDmStart(){
-  var inp=document.getElementById('dmNewPeer');
-  var v=inp?(inp.value||'').trim():'';
-  if(!v){ toast('请输入对方账号名'); return; }
+  var sel=document.getElementById('dmPeerSel');
+  var v=sel?(sel.value||'').trim():'';
+  if(!v){ toast((FB_DM_CONTACTS&&FB_DM_CONTACTS.length)?'请先选择要私聊的联系人':'暂无可选联系人，去帖子详情点作者旁边的「私信」'); return; }
   fbDmTo(fbeJ(v));
 }
 /* ---------- 版主操作（置顶 / 删帖） ---------- */
