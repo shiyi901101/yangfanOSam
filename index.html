@@ -1476,6 +1476,9 @@ window.__yfLoadLib=(function(){
   .fbe-dm-loading{color:var(--muted);font-size:13px;text-align:center;padding:30px 0}
   .fbe-bub{max-width:78%;margin:5px 0;padding:8px 12px;border-radius:12px;font-size:13.5px;line-height:1.55;word-break:break-word;box-sizing:border-box}
   .fbe-bub .t{display:block;font-size:10.5px;opacity:.65;margin-top:3px}
+  .fbe-bub.fbe-sending{opacity:.6}
+  .fbe-bub.fbe-fail{background:#fdeaea;color:#a32020;border:1px solid #e8b4b4}
+  .fbe-bub .t.fbe-resend{color:#c62828;cursor:pointer;text-decoration:underline;opacity:1}
   .fbe-me{margin-left:auto;background:#d7eefb;color:#14559c;border-bottom-right-radius:3px}
   .fbe-them{background:#eef2f6;color:#31465c;border-bottom-left-radius:3px}
   .fbe-dm-inputrow{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--line);flex-shrink:0}
@@ -9597,6 +9600,7 @@ var FB_ROLES={super:[],boards:{}};
 var FB_RULES=null;
 var PF_MINE=null;
 var FB_DM_STATE={open:false,view:'list',tid:null,peer:null};
+var FB_DM_MSGS=[];      /* 当前会话的本地消息副本；乐观上屏时先 push 再 POST，成功后按 _id 转正，失败标红可重发 */
 var FB_DM_CONTACTS=null;      /* 可选联系人 [{name,tag}]；admin 为全量账号，站级为论坛作者+版主 */
 var FB_DM_CONTACTS_FULL=false;/* 名单是否权威全量（forum/contacts 成功才置 true，用于拦截不存在的账号） */
 var FB_DM_CONTACTS_LOADING=false;
@@ -9877,7 +9881,7 @@ function fbDmOpen(){
   if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
   var m=fbDmEnsureMask();
   m.style.display='flex';
-  FB_DM_STATE={open:true,view:'list',tid:null,peer:null};
+  FB_DM_STATE={open:true,view:'list',tid:null,peer:null}; FB_DM_MSGS=[];
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
     '<div class="fbe-dm-head"><b>私信</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="fbDmClose()">×</span></div>'+
     '<div class="fbe-dm-newrow"><select id="dmPeerSel" aria-label="选择联系人" disabled><option value="">加载联系人…</option></select>'+
@@ -9965,7 +9969,7 @@ function fbDmThread(tid,peer){
     '<div class="fbe-dm-head"><b>'+esc(peer||'私信')+(_tg?'<span class="fbe-dm-tag">'+esc(_tg)+'</span>':'')+'</b><span><span class="fbe-dm-back" onclick="fbDmOpen()">会话列表</span><span style="cursor:pointer;font-size:22px;line-height:1;margin-left:10px" onclick="fbDmClose()">×</span></span></div>'+
     '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载消息中…</div></div>'+
     '<div class="fbe-dm-inputrow"><textarea id="dmInput" maxlength="500" placeholder="输入私信（1-500 字），Enter 发送，Shift+Enter 换行"></textarea>'+
-    '<button class="fbe-dm-send" id="dmSendBtn" onclick="fbDmSend()">发送</button></div>'+
+    '<button class="fbe-dm-send" onclick="fbDmSend()">发送</button></div>'+
   '</div>';
   m.onclick=function(e){ if(e.target===m) fbDmClose(); };
   var inp=document.getElementById('dmInput');
@@ -9973,7 +9977,7 @@ function fbDmThread(tid,peer){
   yfApi('/v1/forum/dm','GET',{threadId:tid}).then(function(j){
     var box=document.getElementById('dmBody'); if(!box) return;
     if(!j||!j.ok){ box.innerHTML='<div class="fbe-dm-empty">'+esc((j&&j.msg)||(j&&j.error)||'消息加载失败')+'</div>'; return; }
-    fbDmRenderMsgs(j.messages||[],peer);
+    FB_DM_MSGS=j.messages||[]; fbDmRenderMsgs(FB_DM_MSGS,peer);
   });
 }
 function fbDmRenderMsgs(msgs,peer){
@@ -9982,8 +9986,12 @@ function fbDmRenderMsgs(msgs,peer){
   if(!msgs.length){ box.innerHTML='<div class="fbe-dm-empty">还没有消息，说句什么吧。</div>'; return; }
   box.innerHTML=msgs.map(function(d){
     var own=d.from===me;
-    return '<div class="fbe-bub '+(own?'fbe-me':'fbe-them')+'">'+esc(d.text||'')+
-      '<span class="t">'+(own?'我':esc(d.from||peer))+' · '+fbT(d.ts||0)+(own&&d.readAt?' · 已读':'')+'</span></div>';
+    var cls=(own?'fbe-me':'fbe-them')+(d._state==='sending'?' fbe-sending':(d._state==='fail'?' fbe-fail':''));
+    var meta;
+    if(d._state==='sending'){ meta='<span class="t">发送中…</span>'; }
+    else if(d._state==='fail'){ meta='<span class="t fbe-resend" onclick="fbDmResend(\''+String(d._id)+'\')">发送失败，点击重发</span>'; }
+    else { meta='<span class="t">'+(own?'我':esc(d.from||peer))+' · '+fbT(d.ts||0)+(own&&d.readAt?' · 已读':'')+'</span>'; }
+    return '<div class="fbe-bub '+cls+'">'+esc(d.text||'')+meta+'</div>';
   }).join('');
   box.scrollTop=box.scrollHeight;
 }
@@ -9993,18 +10001,50 @@ function fbDmSend(){
   var inp=document.getElementById('dmInput'); if(!inp) return;
   var err=fbDmValidate(inp.value);
   if(err){ toast(err); return; }
-  var btn=document.getElementById('dmSendBtn');
-  if(btn){ btn.disabled=true; }
-  yfApi('/v1/forum/dm','POST',{to:st.peer,text:inp.value.trim()}).then(function(j){
-    if(btn) btn.disabled=false;
-    if(j&&j.ok){ fbDmThread(st.tid,st.peer); }
-    else{
-      /* 404 对方账号不存在：不再让用户停在一条发不出去的死会话里，直接退回会话列表重新选人 */
-      if(j&&j.error==='not_found'){ toast('对方账号「'+st.peer+'」不存在，已退回会话列表，请重新选择联系人'); fbDmOpen(); return; }
+  var txt=inp.value.trim();
+  /* 乐观上屏：先把气泡 push 进本地副本并立即渲染，输入框立刻清空且保持焦点；
+     全程只走一趟 POST（见 fbDmPost），成功按 _id 转正、失败标红可重发，绝不二次 GET、绝不重建弹窗 */
+  var mid='local_'+Date.now()+'-'+Math.floor(Math.random()*1e6);
+  FB_DM_MSGS.push({from:yfUsername(),text:txt,_id:mid,_local:true,_state:'sending',ts:Date.now()});
+  fbDmRenderMsgs(FB_DM_MSGS,st.peer);
+  inp.value='';
+  inp.focus();
+  fbDmPost(mid,txt);
+}
+/* mid 为本地气泡的完整 _id（含 local_ 前缀）；全链路只传完整 _id，不再在内部拼前缀，
+   避免「渲染层传出完整 id、比对层又拼一次」导致重发永久失配 */
+function fbDmPost(mid,txt){
+  var st=FB_DM_STATE; if(!st.peer) return;
+  yfApi('/v1/forum/dm','POST',{to:st.peer,text:txt}).then(function(j){
+    if(j&&j.ok){
+      /* 成功：用后端返回的真实消息体替换本地气泡（按 _id 定位，不重渲染整窗、不二次 GET） */
+      var m=j.message||{};
+      for(var i=0;i<FB_DM_MSGS.length;i++){
+        if(FB_DM_MSGS[i]._id===mid){ FB_DM_MSGS[i]={from:(m.from||yfUsername()),text:(m.text||txt),_id:(m._id||FB_DM_MSGS[i]._id),readAt:(m.readAt||0),ts:(m.ts||FB_DM_MSGS[i].ts)}; break; }
+      }
+      if(FB_DM_STATE.view==='thread') fbDmRenderMsgs(FB_DM_MSGS,st.peer);
+    } else if(j&&j.error==='not_found'){
+      /* 对方账号不存在：移除这条发不出去的本地气泡，退回会话列表重新选人 */
+      FB_DM_MSGS=FB_DM_MSGS.filter(function(x){ return x._id!==mid; });
+      toast('对方账号「'+st.peer+'」不存在，已退回会话列表，请重新选择联系人');
+      fbDmOpen();
+    } else {
+      /* 失败：本地气泡标红可重发；除限流外回填原文到输入框 */
+      for(var k=0;k<FB_DM_MSGS.length;k++){ if(FB_DM_MSGS[k]._id===mid){ FB_DM_MSGS[k]._state='fail'; break; } }
+      if(FB_DM_STATE.view==='thread') fbDmRenderMsgs(FB_DM_MSGS,st.peer);
       toast(dmErrMsg(j));
-      if(j&&j.error==='rate_limited'){ inp.value=''; }
+      var inp2=document.getElementById('dmInput');
+      if(inp2&&j&&j.error!=='rate_limited'){ inp2.value=txt; }
     }
   });
+}
+function fbDmResend(mid){
+  var st=FB_DM_STATE; if(!st.peer) return;
+  var txt=null;
+  for(var i=0;i<FB_DM_MSGS.length;i++){ if(FB_DM_MSGS[i]._id===mid&&FB_DM_MSGS[i]._state==='fail'){ txt=FB_DM_MSGS[i].text; FB_DM_MSGS[i]._state='sending'; break; } }
+  if(txt===null) return;
+  fbDmRenderMsgs(FB_DM_MSGS,st.peer);
+  fbDmPost(mid,txt);
 }
 function fbDmTo(enc,_retry){
   var name='';
