@@ -10011,6 +10011,7 @@ function fbDmResolveName(raw){
 }
 function fbDmThread(tid,peer){
   var m=fbDmEnsureMask();
+  m.style.display='flex';   /* 从帖子详情/列表 mini「私信」直达时也需显式显示；DM 中心入口由 fbDmOpen 已置 flex，这里补齐避免关闭后再次打开时残留 display:none 导致「点不开」 */
   FB_DM_STATE={open:true,view:'thread',tid:tid,peer:peer};
   var _tg=fbDmContactTag(peer);
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
