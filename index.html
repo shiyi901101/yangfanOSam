@@ -9777,7 +9777,10 @@ function fbDmContacts(cb){
       (FB_ROLES.boards[bid]||[]).forEach(function(u){ base.push({name:u,tag:'版主'}); });
     });
   }catch(e){}
+  /* 兜底：云函数冷启动或网络异常时，10 秒后先用本地可推名单（论坛作者+版主）放开界面，不让用户卡在「加载联系人…」 */
+  var _tm=setTimeout(function(){ if(FB_DM_CONTACTS===null) fin(false); },10000);
   function fin(full){
+    try{ clearTimeout(_tm); }catch(e){}
     var seen={},out=[];
     base.forEach(function(it){
       var n=(it&&it.name)||'';
@@ -9826,6 +9829,7 @@ function fbDmSelHTML(){
 function fbDmFillSel(){
   var s=document.getElementById('dmPeerSel'); if(!s) return;
   s.innerHTML=fbDmSelHTML();
+  s.disabled=false;
   var box=document.getElementById('dmBody');
   /* 名单晚于会话列表返回时，补渲染一次空态（把推荐联系人 chips 带出来） */
   if(box&&FB_DM_STATE.open&&FB_DM_STATE.view==='list'&&/还没有会话/.test(box.textContent||'')) fbDmRenderList([]);
@@ -9838,7 +9842,7 @@ function fbDmOpen(){
   FB_DM_STATE={open:true,view:'list',tid:null,peer:null};
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
     '<div class="fbe-dm-head"><b>私信</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="fbDmClose()">×</span></div>'+
-    '<div class="fbe-dm-newrow"><select id="dmPeerSel" aria-label="选择联系人"><option value="">加载联系人…</option></select>'+
+    '<div class="fbe-dm-newrow"><select id="dmPeerSel" aria-label="选择联系人" disabled><option value="">加载联系人…</option></select>'+
     '<button class="fbe-dm-send" onclick="fbDmStart()">开始对话</button></div>'+
     '<div class="fbe-dm-body" id="dmBody"><div class="fbe-dm-loading">加载会话中…</div></div>'+
   '</div>';
@@ -9952,7 +9956,12 @@ function fbDmTo(enc){
 function fbDmStart(){
   var sel=document.getElementById('dmPeerSel');
   var v=sel?(sel.value||'').trim():'';
-  if(!v){ toast((FB_DM_CONTACTS&&FB_DM_CONTACTS.length)?'请先选择要私聊的联系人':'暂无可选联系人，去帖子详情点作者旁边的「私信」'); return; }
+  if(!v){
+    if(FB_DM_CONTACTS===null) toast('联系人还在加载，请稍候一秒再试');
+    else if(FB_DM_CONTACTS.length) toast('请先选择要私聊的联系人');
+    else toast('暂无可选联系人，去帖子详情点作者旁边的「私信」');
+    return;
+  }
   fbDmTo(fbeJ(v));
 }
 /* ---------- 版主操作（置顶 / 删帖） ---------- */
