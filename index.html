@@ -1559,6 +1559,8 @@ window.__yfLoadLib=(function(){
   .sr-ov-detail{padding:8px 4px 4px}
   .sr-ov-det{font-size:12.5px;color:var(--ink,#31465c);padding:3px 0;line-height:1.7}
   .sr-ov-det i{font-style:normal;color:var(--muted);margin-right:6px}
+  .sr-pend-body{padding:2px 12px 10px 16px;border-bottom:1px solid var(--line);background:var(--ice,rgba(20,85,156,.04))}
+  .sr-pend-badge{color:#c0392b;font-size:12px}
   @media(max-width:414px){.sr-item .sr-txt,.sr-item .sr-measure,.sr-hl .sr-title{flex:1 1 100%}.sr-ov-row .sr-ov-meta{margin-left:0;flex-basis:100%}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
@@ -10617,7 +10619,8 @@ function srLoadPending(){
       return '<div class="fbe-pf-row"><div class="fbe-pf-info"><b>'+esc(r.station||'')+'</b><span>'+esc(SEC[sec]||sec||'未知段落')+' · '+esc(srBrief(sec,r.payload))+'</span><span>'+(r.by?esc(r.by)+' · ':'')+'提交于 '+srDate(r.submittedAt)+'</span></div>'+
         '<div class="fbe-pf-acts"><input id="srNote_'+stEnc+'_'+sec+'" class="um-input" placeholder="驳回理由（可选）" style="font-size:12px;padding:4px 8px;max-width:130px">'+
         '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'approve\')">批准</button>'+
-        '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'reject\')">驳回</button></div></div>';
+        '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'reject\')">驳回</button></div></div>'+
+        '<div class="sr-pend-body">'+srPendDetail(sec,r.payload,r.goalTexts)+'</div>';
     }).join('');
   });
 }
@@ -10634,10 +10637,34 @@ function srApprove(stationEnc,section,decision){
 function srBrief(section,payload){
   try{
     if(section==='goals'){ var p=payload||{}; return '全年 '+((p.annual||[]).length)+' 条 / 寒假 '+((p.winter||[]).length)+' 条 / 暑假 '+((p.summer||[]).length)+' 条'; }
-    if(section==='completions'){ var a=(payload&&payload.items)||[], n=0; a.forEach(function(x){ if(x&&x.status) n++; }); return a.length+' 条完成情况（'+n+' 条已标状态）'; }
-    if(section==='highlights'){ var q=payload||{}; return '家长 '+((q.parent||[]).length)+' / 学生 '+((q.student||[]).length)+' / 社会 '+((q.social||[]).length); }
+    if(section==='completions'){ var o=payload||{}, ks=Object.keys(o), n=0; ks.forEach(function(k){ if(o[k]&&o[k].status) n++; }); return ks.length+' 条完成情况（'+n+' 条已标状态）'; }
+    if(section==='highlights'){ var q=payload||{}; return '家长 '+((q.parent||[]).length)+' / 学生 '+((q.student||[]).length)+' / 社会 '+(((q.social||[]).concat(q.society||[])).length); }
   }catch(e){}
   return '';
+}
+var SR_ST_CN={achieved:'达成',partial:'部分达成',missed:'未达成',adjusted:'调整'};
+/* 待审内容全文渲染：审核人必须看到提交原文才能批——goals 逐条（正文+口径）/ completions 逐条（状态+对应目标原文+结果）/ highlights 逐条（维度+标题+正文） */
+function srPendDetail(section,p,gtexts){
+  var d='', pl=p||{};
+  if(section==='goals'){
+    [['annual','全年'],['winter','寒假'],['summer','暑假']].forEach(function(cfg){
+      (pl[cfg[0]]||[]).forEach(function(it,idx){
+        d+='<div class="sr-ov-det"><i>'+cfg[1]+' '+(idx+1)+'</i>'+esc(it.text||'')+(it.measure?'｜口径：'+esc(it.measure):'')+'</div>';
+      });
+    });
+  }else if(section==='completions'){
+    Object.keys(pl).forEach(function(gid){
+      var it=pl[gid]||{};
+      d+='<div class="sr-ov-det"><i>'+esc(SR_ST_CN[it.status]||it.status||'未标状态')+'·'+esc((gtexts&&gtexts[gid])||('目标 '+gid))+'</i>'+esc(it.result||'')+'</div>';
+    });
+  }else if(section==='highlights'){
+    [['parent','家长'],['student','学生'],['social','社会'],['society','社会']].forEach(function(cfg){
+      (pl[cfg[0]]||[]).forEach(function(it){
+        d+='<div class="sr-ov-det"><i>'+cfg[1]+'·'+esc(it.title||'')+'</i>'+esc(it.body||'')+'</div>';
+      });
+    });
+  }
+  return d||'<div class="sr-ov-det"><i>空</i>该段无内容</div>';
 }
 function srLoadOverview(){
   if(typeof yfApi!=='function') return;
@@ -10648,14 +10675,15 @@ function srLoadOverview(){
     if(!j||!j.ok){ b2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'总览加载失败（依赖后端 /v1/selfreport/overview）')+'</div>'; return; }
     var rows=j.rows||[];
     if(!rows.length){ b2.innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:6px 0">暂无站点提交年度自报</div>'; return; }
-    b2.innerHTML='<div class="sr-card"><div class="sr-head"><b>年度自报总览（'+rows.length+' 站）</b><span class="sr-lock">点行展开该站目标/完成/亮点全文；灰色为未提交</span></div>'+rows.map(function(r,i){ return srOvRow(r,i); }).join('')+'</div>';
+    b2.innerHTML='<div class="sr-card"><div class="sr-head"><b>年度自报总览（'+rows.length+' 站）</b><span class="sr-lock">点行展开该站目标/完成/亮点全文；灰色为未提交；数字为已批准内容，待审批次见红色「待审」标记（批准后计入）</span></div>'+rows.map(function(r,i){ return srOvRow(r,i); }).join('')+'</div>';
   });
 }
 function srOvRow(r,i){
   var g=r.goals||{}, c=r.completions||{}, hl=r.highlights||{};
   var has=!!(r.lastSubmittedAt||r.report);
   var sum='目标 '+(g.annual||0)+'/'+(g.winter||0)+'/'+(g.summer||0)+'（年/寒/暑）　完成 '+((c.filled!=null)?c.filled:'—')+'/'+((c.total!=null)?c.total:'—')+'　亮点（家/学/社）'+(hl.parent||0)+'/'+(hl.student||0)+'/'+(hl.social||0);
-  var h='<div class="sr-ov-row'+(has?'':' sr-ov-none')+'" onclick="srOvToggle('+i+')"><b>'+esc(r.station||'')+'</b><span>'+sum+'</span><span class="sr-ov-meta">'+(r.lastSubmittedAt?('最近提交 '+srDate(r.lastSubmittedAt)):'未提交')+' ▾</span></div>';
+  var pendN=r.pendingCount||0;
+  var h='<div class="sr-ov-row'+(has?'':' sr-ov-none')+'" onclick="srOvToggle('+i+')"><b>'+esc(r.station||'')+'</b><span>'+sum+'</span><span class="sr-ov-meta">'+(r.lastSubmittedAt?('最近提交 '+srDate(r.lastSubmittedAt)):'未提交')+(pendN>0?'　<b class="sr-pend-badge">待审 '+pendN+' 段</b>':'')+' ▾</span></div>';
   if(r.report){
     var rep=r.report, d='';
     var gl=rep.goals||{};
@@ -10682,6 +10710,7 @@ if(typeof window!=='undefined'){
     pfPendingText:pfPendingText,pfPendingHTML:pfPendingHTML,
     fbHotSlice:(typeof fbHotSlice==='function')?fbHotSlice:null,
     srGoalRows:srGoalRows,srBrief:srBrief,srCompletionPayload:srCompletionPayload,
+    srPendDetail:srPendDetail,srStCn:function(){ return SR_ST_CN; },
     srGoalCaps:function(){ return SR_GOAL_MAX; },
     FB_ROLES_REF:function(){ return FB_ROLES; }
   };
