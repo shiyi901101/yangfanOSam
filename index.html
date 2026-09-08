@@ -5326,7 +5326,7 @@ function fbDetail(){
     '</div>'+
     '<div class="fb-as-points">江湖声望 <b>'+rep+'</b></div>'+
     '<div class="fbe-medals-line" id="fbeMedalsDetail"></div>'+
-    '<button class="fb-as-msg" onclick="fbDmTo(\''+fbeJ(au)+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg> 私信 TA</button>'+
+    (typeof fbeDmBigSafe==='function'?fbeDmBigSafe(au):'')+
   '</aside>';
   /* 右：主帖 + 回复 */
   h+='<div class="fb-dmain">'+
@@ -9695,6 +9695,15 @@ function fbeDmMiniSafe(u){
     if(typeof yfToken!=='function'||!yfToken()) return '';
     if(u===yfUsername()) return '';
     return '<span class="fbe-dm-mini" onclick="event.stopPropagation();fbDmTo(\''+fbeJ(u)+'\')">私信</span>';
+  }catch(e){ return ''; }
+}
+/* 帖子详情作者区「私信 TA」：与列表页同口径——本人的帖子不出现私信按钮，未登录也不出现 */
+function fbeDmBigSafe(u){
+  try{
+    if(typeof yfToken!=='function'||!yfToken()) return '';
+    if(!u||u==='匿名') return '';
+    if(u===yfUsername()) return '';
+    return '<button class="fb-as-msg" onclick="fbDmTo(\''+fbeJ(u)+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg> 私信 TA</button>';
   }catch(e){ return ''; }
 }
 function fbeJ(s){ return encodeURIComponent(String(s==null?'':s)); }
