@@ -8061,7 +8061,12 @@ var yfNeedBootstrap = false;        // 云端是否尚未初始化管理员
 /* 权限查询（全局可用） */
 function yfToken(){ try{ return localStorage.getItem(YF_TOKEN_KEY)||''; }catch(e){ return ''; } }
 function yfUsername(){ try{ return localStorage.getItem(YF_USER_KEY)||''; }catch(e){ return ''; } }
-function yfRole(){ try{ return localStorage.getItem(YF_ROLE_KEY)||'admin'; }catch(e){ return 'admin'; } }
+/* 最小权限默认值（角色隔离加固 2026-09-08）：yf_role 缺失时绝不能默认 admin。
+   缺失只有三种场景——①登录前首屏 ②lgLogout/lgClearSession 清了会话 ③localStorage 被手工清掉；
+   这三种都属于「身份未确认」，默认 admin 会让管理端侧栏/按钮在身份确认前先画出来（登出后残留一屏尤其明显）。
+   平台无免登录旁路（lgBoot 无 token 必弹门禁），登录成功后 yfEnter 一定会显式写入真实角色，
+   所以默认 station 不会影响任何正常链路，只是把「未确认身份」按最低权限渲染。 */
+function yfRole(){ try{ return localStorage.getItem(YF_ROLE_KEY)||'station'; }catch(e){ return 'station'; } }
 function yfMyStation(){ try{ return localStorage.getItem(YF_STATION_KEY)||''; }catch(e){ return ''; } }
 function yfIsAdmin(){ return yfRole()==='admin'; }
 function yfIsStation(){ return yfRole()==='station'; }
