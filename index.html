@@ -4020,7 +4020,50 @@ function buildFaq(){const f=document.getElementById('faqList');
   const list=[...KB.filter(x=>x.cat==='策略'),...KB.filter(x=>x.cat==='运营'),...KB.filter(x=>x.cat==='站点')];
   let h='';list.forEach((x,i)=>{h+=`<div class="faq-item" data-i="${i}">▸ ${x.t}<div class="faq-a">${x.a}</div></div>`;});f.innerHTML=h;
   f.querySelectorAll('.faq-item').forEach(it=>it.onclick=()=>{const a=it.querySelector('.faq-a');a.classList.toggle('show');});}
-function startBot(){pushMsg(BOT_FLOW[0].bot,'bot');renderBubbles(BOT_FLOW[0].bubbles);setProg(10);}
+function startBot(){pushMsg(BOT_FLOW[0].bot,'bot');window.botStep=0;renderBubbles(BOT_FLOW[0].bubbles);setProg(10);}
+/* ===== 分支对话引擎（BOT_FLOW 推进）：renderBubbles / botChoose / setProg / botStep =====
+   原先这 4 个函数整体缺失，导致「智子」分支引导卡在 startBot 即抛 ReferenceError，
+   气泡不渲染、点哪都没反应。此处按 BOT_FLOW 数据结构补全：
+   BOT_FLOW[i] = { bot: 字符串|(...keys)=>字符串, bubbles:[{t:显示文本, k:选择键}] }，
+   选一个 bubble 就把该步已收集到的 keys 喂给下一步 bot 生成回复，再渲染下一步 bubbles。 */
+var botStep=0;
+function setProg(p){ try{ var el=document.getElementById('botProg'); if(el) el.style.width=(p||0)+'%'; }catch(e){} }
+function renderBubbles(list){
+  var box=document.getElementById('botBubbles'); if(!box) return;
+  box.innerHTML='';
+  (list||[]).forEach(function(b){
+    if(!b) return;
+    var el=document.createElement('button');
+    el.className='bubble';
+    el.type='button';
+    el.textContent=b.t||b.k||'';
+    el.setAttribute('data-k', b.k||'');
+    el.onclick=function(){ botChoose(b.k); };
+    box.appendChild(el);
+  });
+}
+function botChoose(k){
+  if(!k) return;
+  /* 把用户选择回显为「我」气泡，再推进流程 */
+  pushMsg(k,'me');
+  var step=BOT_FLOW[botStep]; if(!step) return;
+  /* 收集截至当前步已选的 keys（含本步），用于驱动下一步 bot 函数 */
+  botStep=(botStep||0)+1;
+  var keys=[];
+  for(var i=0;i<botStep;i++){ var bk=(BOT_FLOW[i]._chosen)||''; if(bk) keys.push(bk); }
+  keys.push(k);
+  step._chosen=k;
+  var next=BOT_FLOW[botStep];
+  /* 用已选 keys 生成当前步 bot 回复（函数支持 (k,st,ph,act) 四参，未选位补 ''） */
+  var reply=step.bot;
+  if(typeof reply==='function'){
+    try{ reply=reply.apply(null, keys.concat(['','','','']).slice(0,4)); }catch(e){ reply=String(reply); }
+  }
+  if(reply) pushMsg(reply,'bot');
+  setProg(Math.min(90, 10+(botStep*16)));
+  if(next){ renderBubbles(next.bubbles); }
+  else{ var box=document.getElementById('botBubbles'); if(box) box.innerHTML=''; setProg(100); }
+}
 
 /* ============ 数据看板（6-7月全站） ============ */
 /* ============ 数据看板（动态月份：上传哪个月就进哪个月） ============ */
