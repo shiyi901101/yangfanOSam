@@ -944,13 +944,15 @@ window.__yfLoadLib=(function(){
   }
 
   /* ===== 热门帖子网格（替代旧轮播） ===== */
-  .fb-hot{background:linear-gradient(135deg,#0d2c4d 0%,#1a4a7a 40%,#2b7cd3 100%);border-radius:16px;padding:18px 20px 16px;margin-bottom:18px;position:relative;overflow:hidden}
+  .fb-hot{background:linear-gradient(135deg,#0d2c4d 0%,#1a4a7a 40%,#1e4468 100%);border-radius:16px;padding:14px 16px 12px;margin-bottom:14px;position:relative;overflow:hidden}
   .fb-hot::before{content:'';position:absolute;top:-30%;right:-8%;width:180px;height:180px;background:radial-gradient(circle,rgba(224,140,46,.10) 0%,transparent 70%);pointer-events:none}
   .fb-hot::after{content:'';position:absolute;bottom:-20%;left:-5%;width:140px;height:140px;background:radial-gradient(circle,rgba(78,163,232,.08) 0%,transparent 70%);pointer-events:none}
   .fb-hot-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;position:relative;z-index:1}
   .fb-hot-icon{font-size:18px}
   .fb-hot-head b{color:#fff;font-size:15px;letter-spacing:1px;font-weight:700}
   .fb-hot-sub{font-size:11.5px;color:#b8d8f5;margin-left:auto}
+  .fb-hot-toggle{flex-shrink:0;margin-left:8px;background:transparent;border:1px solid rgba(255,255,255,.38);color:#dceefc;border-radius:999px;padding:3px 12px;font-size:11.5px;cursor:pointer;line-height:1.6;font-family:inherit}
+  .fb-hot-toggle:hover{background:rgba(255,255,255,.12)}
   .fb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;position:relative;z-index:1}
   .fb-gcard{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s;display:flex;flex-direction:column}
   .fb-gcard:hover{background:rgba(255,255,255,.15);transform:translateY(-2px);border-color:rgba(224,140,46,.4);box-shadow:0 6px 18px rgba(0,0,0,.15)}
@@ -971,6 +973,7 @@ window.__yfLoadLib=(function(){
     .fb-gcard-title{font-size:11.5px;-webkit-line-clamp:1}
     .fb-hot{padding:14px 12px 10px}
     .fb-hot-sub{display:none}
+    .fb-hot-toggle{margin-left:auto}
   }
 
   /* ===== 交互与无障碍增强（界面审查后补强） ===== */
@@ -1518,6 +1521,45 @@ window.__yfLoadLib=(function(){
   .fbe-ct-chip{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:4px 12px;border:1px solid var(--blue-200,#b9d6f2);border-radius:16px;background:var(--ice-2,#eef4fb);color:#14559c;font-size:13px;cursor:pointer;white-space:nowrap}
   .fbe-ct-chip:hover{background:#dceaf9;border-color:#14559c}
   @media(max-width:414px){.fa-sec{padding:12px 10px}.fa-sec-t{font-size:15px}.fbe-dm-newrow{flex-wrap:wrap}.fbe-dm-newrow select{flex:1 1 100%}}
+  /* 年度自报三卡片 + 档案入口核对提示 + 审核页签 */
+  .gw-origin-hint{background:#fff8e8;border:1px solid #f3cfa6;color:#8a6116;border-radius:8px;padding:6px 10px;font-size:12.5px;margin:0 0 8px;line-height:1.7}
+  .gw-origin-hint .lk{cursor:pointer;color:#14559c;font-weight:600}
+  .gw-origin-hint .x{float:right;cursor:pointer;color:#b08c3f;padding:0 4px}
+  .sr-cards{margin:0 0 12px}
+  .sr-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 12px}
+  .sr-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+  .sr-head b{font-size:15px;color:var(--navy,#1f3a5f)}
+  .sr-lock{font-size:11.5px;color:var(--muted)}
+  .sr-empty{color:var(--muted);font-size:12.5px;background:var(--ice,#f2f6fb);border-radius:8px;padding:8px 12px;margin:0 0 8px;line-height:1.8}
+  .sr-hint{color:#8a5a16;background:#fff8e8;border:1px solid #f3cfa6;border-radius:8px;padding:6px 10px;font-size:12.5px;margin:8px 0 0}
+  .sr-group{margin:8px 0 12px}
+  .sr-group-t{font-size:13px;font-weight:700;color:var(--ink,#31465c);margin:0 0 6px}
+  .sr-item{display:flex;gap:6px;align-items:flex-start;margin:0 0 6px;flex-wrap:wrap}
+  .sr-item .sr-txt{flex:1 1 220px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box}
+  .sr-item .sr-measure{flex:1 1 150px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12.5px;font-family:inherit;box-sizing:border-box}
+  .sr-del{flex-shrink:0}
+  .sr-submit{margin-top:8px}
+  .sr-pending{font-size:12px;color:#1a5c33;background:#f0faf3;border:1px solid #bfe3cb;border-radius:8px;padding:5px 10px;margin:6px 0 0}
+  .sr-pending.sr-rej{color:#a32020;background:#fdeaea;border-color:#e8b4b4}
+  .sr-cpl{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:0 0 8px}
+  .sr-cpl-g{font-size:13px;font-weight:600;color:var(--ink,#31465c);margin:0 0 6px}
+  .sr-cpl-row{margin:0 0 6px}
+  .sr-sel{height:32px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font-size:12.5px;background:#fff;color:var(--ink,#31465c);font-family:inherit}
+  .sr-dim{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:0 0 8px}
+  .sr-dim summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--ink,#31465c)}
+  .sr-hl{margin-top:8px}
+  .sr-hl .sr-title{flex:1 1 200px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;font-family:inherit;box-sizing:border-box}
+  .fa-tabs{display:flex;gap:6px;margin:0 0 10px}
+  .fa-tab{border:1px solid var(--line);background:#fff;color:var(--ink,#31465c);border-radius:999px;padding:4px 14px;font-size:12.5px;cursor:pointer;font-family:inherit}
+  .fa-tab.on{background:#14559c;border-color:#14559c;color:#fff}
+  .sr-ov-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12.5px}
+  .sr-ov-row b{min-width:72px}
+  .sr-ov-row .sr-ov-meta{margin-left:auto;color:var(--muted)}
+  .sr-ov-none{opacity:.55}
+  .sr-ov-detail{padding:8px 4px 4px}
+  .sr-ov-det{font-size:12.5px;color:var(--ink,#31465c);padding:3px 0;line-height:1.7}
+  .sr-ov-det i{font-style:normal;color:var(--muted);margin-right:6px}
+  @media(max-width:414px){.sr-item .sr-txt,.sr-item .sr-measure,.sr-hl .sr-title{flex:1 1 100%}.sr-ov-row .sr-ov-meta{margin-left:0;flex-basis:100%}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
   .dg-main-h svg{flex:none;color:var(--gold)}
@@ -2047,7 +2089,7 @@ window.__yfLoadLib=(function(){
         <div id="fbBoardIndex" class="fb-board-index"></div>
         <!-- 热门帖子网格 -->
         <div class="fb-hot" id="fbHot">
-          <div class="fb-hot-head"><span class="fb-hot-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;fill:currentColor;stroke:none;vertical-align:-3px"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span></div>
+          <div class="fb-hot-head"><span class="fb-hot-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;fill:currentColor;stroke:none;vertical-align:-3px"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span><button class="fb-hot-toggle" id="fbHotToggleBtn" onclick="fbHotToggle()">更多热门 ›</button></div>
           <div class="fb-grid" id="fbCarousel"></div>
         </div>
         <div class="fbar">
@@ -2332,7 +2374,11 @@ window.__yfLoadLib=(function(){
   <div class="fa-sec"><div class="fa-sec-t">版主与超级版主</div><div id="frRoles">加载中…</div></div>
   <div class="fa-sec"><div class="fa-sec-t">积分规则</div><div id="frRules">加载中…</div></div>
   <div class="fa-sec"><div class="fa-sec-t">勋章管理（增删改 + 授予 / 撤销）</div><div id="frMedals">加载中…</div></div>
-  <div class="fa-sec"><div class="fa-sec-t">档案审核</div><div id="pfPendingList">加载中…</div></div>
+  <div class="fa-sec"><div class="fa-sec-t">档案与年度自报审核</div>
+    <div class="fa-tabs"><button class="fa-tab on" id="faTabPf" onclick="faAuditTab('pf')">档案审核</button><button class="fa-tab" id="faTabSr" onclick="faAuditTab('sr')">年度自报审核</button></div>
+    <div id="pfPendingList">加载中…</div>
+    <div id="srPendingList" style="display:none">加载中…</div>
+  </div>
 </section>
 
 <!-- 新手 7 步引导 -->
@@ -5113,10 +5159,14 @@ function fbT(ts){const d=new Date(ts),now=new Date();
 /* 热门帖子网格 */
 /* 天涯风：热门卡背景梯度（键对齐版块 id），图标统一用版块 SVG，不用 emoji */
 const HOT_GRADS={'recruit':'linear-gradient(135deg,#0e5f80,#14559c)','camp':'linear-gradient(135deg,#1a7a5a,#0e4a38)','review':'linear-gradient(135deg,#14559c,#14559c)','parent':'linear-gradient(135deg,#b5541e,#7c2d12)','cases':'linear-gradient(135deg,#1d5aa8,#0a3a63)','help':'linear-gradient(135deg,#c2410c,#7c2d12)'};
+let _fbHotOpen=false;   /* 热门话题默认 4 张，点「更多热门」展开 8 张；排序口径不动 */
+function fbHotToggle(){ _fbHotOpen=!_fbHotOpen; fbHotRender(); }
+function fbHotSlice(posts,open){ return posts.slice().sort((a,b)=>(b.likes*3+b.replies.length)-(a.likes*3+a.replies.length)).slice(0,open?8:4); }
 function fbHotRender(){
   const c=document.getElementById('fbCarousel');
   if(!FB.posts.length){c.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:13px;padding:20px 0;text-align:center;grid-column:1/-1">发帖后这里会展示热门话题</div>';return;}
-  const hot=FB.posts.slice().sort((a,b)=>(b.likes*3+b.replies.length)-(a.likes*3+a.replies.length)).slice(0,8);
+  const hot=fbHotSlice(FB.posts,_fbHotOpen);
+  const tb=document.getElementById('fbHotToggleBtn'); if(tb) tb.textContent=_fbHotOpen?'收起':'更多热门 ›';
   if(!hot.length){c.innerHTML='';return;}
   c.innerHTML=hot.map(p=>{
     const b=fbB(p.bid);
@@ -7395,7 +7445,7 @@ function gwPaint(){
   var st = gwSt();
   if(GW_TAB==='diag')      el.innerHTML = gwDiag(st);
   else if(GW_TAB==='rx')   el.innerHTML = gwRx(st);
-  else if(GW_TAB==='file') el.innerHTML = gwFile(st);
+  else if(GW_TAB==='file'){ el.innerHTML = gwFile(st); try{ if(typeof srMaybeLoad==='function') srMaybeLoad(st); }catch(e){} }
   else if(GW_TAB==='demo') el.innerHTML = gwDemo(st);
   else                     el.innerHTML = gwPair(st);
 }
@@ -7706,13 +7756,17 @@ function gwFile(st){
   var sm = (typeof SEMI!=='undefined'&&SEMI[st])?SEMI[st]:{};
   var ev = S.my.ev.slice().sort(function(a,b){ return b.t-a.t; });
   var h = '';
-  h += '<div class="gw-origin"><div class="t">起点 · 组织记录的原始画像</div>';
+  var _isStation=(typeof yfRole==='function')&&yfRole()==='station';
+  var _pfHint=''; if(_isStation&&!p.exp){ try{ if(localStorage.getItem('yf_pf_hint_dismissed')!=='1'){ _pfHint='<div class="gw-origin-hint">此信息由集团内置，建议核对更新。<span class="lk" onclick="pfOpen()">去更新 ›</span><span class="x" onclick="pfHintDismiss()" role="button" aria-label="关闭">×</span></div>'; } }catch(e){} }
+  h += '<div class="gw-origin"><div class="t">起点 · 组织记录的原始画像'+(_isStation?'<span style="float:right"><button class="mini-btn" onclick="pfOpen()">更新我的信息</button></span>':'')+'</div>'+_pfHint;
   h += '<div class="who">'+(p.owner||'—')+'　'+(p.post||'')+'</div>';
   h += '<div class="meta">带扬帆的经历：<b>'+(p.exp||'未记录')+'</b>'
      + (p.level ? '　｜　当时评定阶段：<b>'+p.level+'</b>' : '')
      + (p.tags&&p.tags.length ? '　｜　标签：<b>'+p.tags.join(' · ')+'</b>' : '')
      + (sm.q3 ? '<br>Q3 承诺目标：'+sm.q3 : '')
      + '</div></div>';
+
+  h += '<div id="srCards" class="sr-cards"></div>';
 
   var okN = ev.filter(function(x){return x.ok;}).length;
   h += '<div class="gw-core" style="background:#f0faf3;border-left-color:#12833f;color:#1a5c33">档案里只放<b>做过并且验证过的事</b> —— 目前已闭环 <b>'+okN+'</b> 条、复盘 <b>'+(ev.length-okN)+'</b> 条。年底这份东西比任何总结 PPT 都硬。</div>';
@@ -8437,7 +8491,7 @@ function applyTab(tab){
   try{ if(tab==='hq'&&typeof renderHQ==='function')renderHQ(); }catch(e){}
   try{ if(tab==='exp'&&typeof renderBench==='function')renderBench(); }catch(e){}
   try{ if(tab==='rhythm'&&typeof renderRhythm==='function')renderRhythm(); }catch(e){}
-  try{ if(tab==='forumadmin'&&typeof frLoadAdmin==='function'){ frLoadAdmin(); pfLoadPending(); } }catch(e){}
+  try{ if(tab==='forumadmin'&&typeof frLoadAdmin==='function'){ frLoadAdmin(); pfLoadPending(); if(typeof srLoadPending==='function') srLoadPending(); } }catch(e){}
 }
 function toggleSidebar(){
   var sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay'),hm=document.getElementById('sbHamburger');
@@ -9719,23 +9773,28 @@ function frRulesValidate(points,medals){
   }
   return '';
 }
-var PF_CAPS={owner:20,exp:200,bio:30};
-function pfSanitize(owner,exp,avatar,bio){
+var PF_CAPS={owner:20,exp:200,bio:30,post:40};
+function pfSanitize(owner,exp,avatar,bio,post){
   var f={};
   function put(k,v){
     var cap=PF_CAPS[k]||2000;
     var s=(v==null?'':String(v)).trim().slice(0,cap);
     if(s) f[k]=s;
   }
-  put('owner',owner); put('exp',exp); put('bio',bio);
+  put('owner',owner); put('exp',exp); put('bio',bio); put('post',post);
   var av=(avatar==null?'':String(avatar)).trim();
   if(av&&av.length<=2000) f.avatar=av;   /* 超过 2000 字符的 dataURL 不送，避免后端截断出脏数据 */
   return f;
 }
 function pfPendingText(pending){
   if(!pending||!pending.submittedAt) return '';
-  var d=new Date(pending.submittedAt);
   var pad=function(n){ return (n<10?'0':'')+n; };
+  /* 驳回态：后端驳回时回写 status:'rejected'+note（依赖点：profiles 审核流需后端回传，未回传时退回待审文案） */
+  if(pending.status==='rejected'){
+    var rd=new Date(pending.rejectedAt||pending.submittedAt);
+    return (rd.getMonth()+1)+'月'+rd.getDate()+'日驳回'+(pending.note?'，理由：'+pending.note:'')+'。可修改后重新提交，重新提交即覆盖原档案';
+  }
+  var d=new Date(pending.submittedAt);
   var t=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
   return '已提交审核，待管理员批准（提交于 '+t+'，可修改后重新提交覆盖）';
 }
@@ -10276,6 +10335,7 @@ function pfOpen(){
     '<div style="display:flex;justify-content:space-between;align-items:center"><b>完善我的档案</b><span style="cursor:pointer;font-size:22px;line-height:1" onclick="pfClose()">×</span></div>'+
     '<div id="pfPending" class="fbe-pf-pending"></div>'+
     '<div class="lg-field"><label>负责人姓名（20 字内）</label><input id="pfOwner" class="um-input" maxlength="20" value="'+esc(prof.owner||'')+'" placeholder="如：张三"></div>'+
+    '<div class="lg-field"><label>本职岗位（40 字内）</label><input id="pfPost" class="um-input" maxlength="40" value="'+esc(prof.post||'')+'" placeholder="如：站长 / 质量主管"></div>'+
     '<div class="lg-field"><label>任职经历（200 字内）</label><textarea id="pfExp" class="um-input" rows="3" maxlength="200" placeholder="岗位、年限、主要职责…">'+esc(prof.exp||'')+'</textarea></div>'+
     '<div class="lg-field"><label>头像（即时生效，走论坛头像通道）</label><label class="mini-btn" style="cursor:pointer">更换头像<input type="file" accept="image/*" style="display:none" onchange="fbUpAvatar(this)"></label></div>'+
     '<div class="lg-field"><label>一句话简介（30 字内）</label><input id="pfBio" class="um-input" maxlength="30" value="'+esc(prof.bio||'')+'" placeholder="一句话介绍自己"></div>'+
@@ -10294,9 +10354,9 @@ function pfRefreshPending(){
 }
 function pfMsg(t){ var e=document.getElementById('pfMsg'); if(e) e.textContent=t||''; }
 function pfSubmit(){
-  var oEl=document.getElementById('pfOwner'), eEl=document.getElementById('pfExp'), bEl=document.getElementById('pfBio');
-  if(!oEl||!eEl||!bEl) return;
-  var fields=pfSanitize(oEl.value,eEl.value,null,bEl.value);
+  var oEl=document.getElementById('pfOwner'), eEl=document.getElementById('pfExp'), bEl=document.getElementById('pfBio'), pEl=document.getElementById('pfPost');
+  if(!oEl||!eEl||!bEl||!pEl) return;
+  var fields=pfSanitize(oEl.value,eEl.value,null,bEl.value,pEl.value);
   if(!Object.keys(fields).length){ pfMsg('请至少填写一项内容（头像走「更换头像」即时生效）'); return; }
   var btn=document.querySelector('#pfMask button[onclick="pfSubmit()"]');
   if(btn){ btn.disabled=true; }
@@ -10352,6 +10412,266 @@ function pfApprove(stationEnc,decision){
     else toast((j&&j.msg)||(j&&j.error)||'操作失败');
   });
 }
+/* ---------- 年度自报：年度目标 / 目标完成 / 年度亮点（station 本人）+ 管理端审核与总览 ----------
+   契约（与后端并行开发，以后端实际落地为准，差异在交付报告中标注）：
+   GET  /v1/selfreport → {ok, report:{year,goals:{annual,winter,summer},completions,highlights,goalLockedAt,attestedAt}, pendings:{goals|completions|highlights:{status,submittedAt,rejectedAt?,note?}}}
+   POST /v1/selfreport {section:'goals'|'completions'|'highlights', payload}
+   GET  /v1/selfreport/pending → {ok, pending:[{station,section,payload,submittedAt,by}]}   （管理端待审）
+   POST /v1/selfreport/approve {station,section,decision:'approve'|'reject',note?}          （管理端审批）
+   GET  /v1/selfreport/overview → {ok, rows:[{station,goals:{annual,winter,summer},completions:{filled,total},highlights:{parent,student,social},lastSubmittedAt,report}]} （管理端总览，行内带 report 供展开） */
+function pfHintDismiss(){
+  try{ localStorage.setItem('yf_pf_hint_dismissed','1'); }catch(e){}
+  var el=document.querySelector('.gw-origin-hint');
+  if(el&&el.parentNode) el.parentNode.removeChild(el);
+}
+var SR=null, SR_PEND={}, SR_DRAFT=null;
+var SR_GOAL_MAX={annual:5,winter:3,summer:3};
+var SR_DIM_MAX={parent:3,student:3,social:3};
+var SR_DIM_NAME={parent:'家长维度',student:'学生维度',social:'社会维度'};
+var SR_CPL_STAT=['达成','部分达成','未达成','中途调整'];
+function srDate(t){ var d=new Date(t||0); return (d.getMonth()+1)+'月'+d.getDate()+'日'; }
+function srMaybeLoad(st){
+  /* 成长档案页渲染后挂载：station 本人渲三卡片；admin 渲全站总览 */
+  if(typeof yfRole!=='function') return;
+  if(yfRole()==='admin'){ srLoadOverview(); }
+  else if(yfRole()==='station'){ srLoad(); }
+}
+function srLoad(){
+  if(typeof yfApi!=='function') return;
+  var box=document.getElementById('srCards'); if(!box) return;
+  box.innerHTML='<div class="fbe-dm-loading">加载年度自报中…</div>';
+  yfApi('/v1/selfreport','GET',null).then(function(j){
+    var b2=document.getElementById('srCards'); if(!b2) return;
+    if(!j||!j.ok){ b2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'年度自报加载失败')+'</div>'; return; }
+    SR=j.report||{}; SR_PEND=j.pendings||{}; SR_DRAFT=JSON.parse(JSON.stringify(SR));
+    srRender();
+  });
+}
+function srRender(){
+  var box=document.getElementById('srCards'); if(!box) return;
+  box.innerHTML=srCardGoals()+srCardCompletions()+srCardHighlights();
+}
+function srPendingChip(sec){
+  var p=SR_PEND&&SR_PEND[sec]; if(!p) return '';
+  if(p.status==='rejected') return '<div class="sr-pending sr-rej">'+srDate(p.rejectedAt||p.submittedAt)+'驳回'+(p.note?'，理由：'+esc(p.note):'')+'。修改后重新提交即可覆盖</div>';
+  return '<div class="sr-pending">已提交审核，待管理员批准（提交于 '+srDate(p.submittedAt)+'）</div>';
+}
+function srDraftGoals(){
+  if(!SR_DRAFT) SR_DRAFT={};
+  if(!SR_DRAFT.goals) SR_DRAFT.goals={annual:[],winter:[],summer:[]};
+  return SR_DRAFT.goals;
+}
+function srGoalRows(src){
+  /* 目标展平（不分层，带 goalId），完成情况按 goalId 1:1 对照挂靠 */
+  var g=src||(SR_DRAFT&&SR_DRAFT.goals)||{}, rows=[];
+  ['annual','winter','summer'].forEach(function(k){
+    (g[k]||[]).forEach(function(it,idx){ rows.push({goalId:k+'-'+idx,season:k,text:it.text||'',measure:it.measure||''}); });
+  });
+  return rows;
+}
+function srCardGoals(){
+  var g=(SR_DRAFT&&SR_DRAFT.goals)||{annual:[],winter:[],summer:[]};
+  var locked=!!(SR&&SR.goalLockedAt);
+  var h='<div class="sr-card"><div class="sr-head"><b>年度目标（2026）</b>'+(locked?'<span class="sr-lock">基线锁定于 '+srDate(SR.goalLockedAt)+'，锁定后修改将标记为修订（仅一次）</span>':'')+'</div>';
+  if(!(g.annual||[]).length&&!(g.winter||[]).length&&!(g.summer||[]).length){
+    h+='<div class="sr-empty">年初定目标（分寒假/暑假两季+全年），年底对着数据交完成，年度评估就看这三样。负责人对年度目标负责。</div>';
+  }
+  [['annual','全年目标（≤5 条）'],['winter','寒假季目标（≤3 条）'],['summer','暑假季目标（≤3 条）']].forEach(function(cfg){
+    var k=cfg[0], arr=g[k]||[];
+    h+='<div class="sr-group"><div class="sr-group-t">'+cfg[1]+'</div>';
+    arr.forEach(function(it,idx){
+      h+='<div class="sr-item"><textarea class="sr-txt" rows="1" maxlength="120" placeholder="目标描述（≤120 字）" oninput="srGoalText(\''+k+'\','+idx+',this);srAuto(this)">'+esc(it.text||'')+'</textarea>'+
+        '<input class="sr-measure" maxlength="60" placeholder="量化口径（≤60 字）" value="'+esc(it.measure||'')+'" oninput="srGoalMeasure(\''+k+'\','+idx+',this)">'+
+        '<button class="mini-btn sr-del" onclick="srGoalDel(\''+k+'\','+idx+')">删除</button></div>';
+    });
+    h+='<button class="mini-btn" onclick="srGoalAdd(\''+k+'\')">添加一条</button></div>';
+  });
+  h+=srPendingChip('goals');
+  h+='<div class="sr-submit"><button class="btn" onclick="srSubmit(\'goals\')">提交审核</button></div></div>';
+  return h;
+}
+function srCardCompletions(){
+  var rows=srGoalRows();
+  var c=(SR_DRAFT&&SR_DRAFT.completions)||{};
+  var h='<div class="sr-card"><div class="sr-head"><b>目标完成情况</b><span class="sr-lock">与年度目标 1:1 对照，逐条给结果</span></div>';
+  if(!rows.length){ return h+'<div class="sr-empty">先在「年度目标」里立目标，这里才能 1:1 对照着交完成情况。</div></div>'; }
+  var miss=0;
+  h+='<div class="sr-cpl-list">';
+  rows.forEach(function(r){
+    var it=c[r.goalId]||{};
+    if(!it.status) miss++;
+    h+='<div class="sr-cpl"><div class="sr-cpl-g">'+(r.season==='annual'?'全年':(r.season==='winter'?'寒假':'暑假'))+'｜'+esc(r.text||'（未填写目标描述）')+'</div>'+
+      '<div class="sr-cpl-row"><select class="sr-sel" aria-label="完成状态" onchange="srCplStatus(\''+r.goalId+'\',this)"><option value="">— 选择状态 —</option>'+
+      SR_CPL_STAT.map(function(s){ return '<option value="'+s+'"'+(it.status===s?' selected':'')+'>'+s+'</option>'; }).join('')+'</select></div>'+
+      '<textarea class="sr-txt" rows="2" maxlength="500" placeholder="完成结果（≤500 字，用数据说话）" oninput="srCplResult(\''+r.goalId+'\',this);srAuto(this)">'+esc(it.result||'')+'</textarea></div>';
+  });
+  h+='</div>';
+  if(miss) h+='<div class="sr-hint">还有 '+miss+' 条目标未填写完成情况，年底评估按 1:1 对照收。</div>';
+  h+=srPendingChip('completions');
+  h+='<div class="sr-submit"><button class="btn" onclick="srSubmit(\'completions\')">提交审核</button></div></div>';
+  return h;
+}
+function srCardHighlights(){
+  var hg=(SR_DRAFT&&SR_DRAFT.highlights)||{};
+  var h='<div class="sr-card"><div class="sr-head"><b>年度亮点</b><span class="sr-lock">纯文字随手记；家长/学生/社会各维度最多 3 条，图片通道后续开放</span></div>';
+  var any=false;
+  ['parent','student','social'].forEach(function(k){ if((hg[k]||[]).length) any=true; });
+  if(!any) h+='<div class="sr-empty">好故事别攒到年底：家长的一句反馈、学生的一个变化，随手记一条。</div>';
+  ['parent','student','social'].forEach(function(k){
+    var arr=hg[k]||[];
+    h+='<details class="sr-dim"'+(arr.length?' open':'')+'><summary>'+SR_DIM_NAME[k]+'（'+arr.length+'/'+SR_DIM_MAX[k]+'）</summary>';
+    arr.forEach(function(it,idx){
+      h+='<div class="sr-item sr-hl"><input class="sr-title" maxlength="30" placeholder="标题（≤30 字）" value="'+esc(it.title||'')+'" oninput="srHlTitle(\''+k+'\','+idx+',this)">'+
+        '<textarea class="sr-txt" rows="3" maxlength="800" placeholder="正文（≤800 字）" oninput="srHlBody(\''+k+'\','+idx+',this);srAuto(this)">'+esc(it.body||'')+'</textarea>'+
+        '<button class="mini-btn sr-del" onclick="srHlDel(\''+k+'\','+idx+')">删除</button></div>';
+    });
+    h+='<button class="mini-btn" onclick="srHlAdd(\''+k+'\')">记录一条</button></details>';
+  });
+  h+=srPendingChip('highlights');
+  h+='<div class="sr-submit"><button class="btn" onclick="srSubmit(\'highlights\')">提交审核</button></div></div>';
+  return h;
+}
+function srDraftHl(){
+  if(!SR_DRAFT) SR_DRAFT={};
+  if(!SR_DRAFT.highlights) SR_DRAFT.highlights={parent:[],student:[],social:[]};
+  return SR_DRAFT.highlights;
+}
+function srGoalAdd(k){ var g=srDraftGoals(); if(g[k].length>=SR_GOAL_MAX[k]){ toast('该分组最多 '+SR_GOAL_MAX[k]+' 条'); return; } g[k].push({text:'',measure:''}); srRender(); }
+function srGoalDel(k,idx){ srDraftGoals()[k].splice(idx,1); srRender(); }
+function srGoalText(k,idx,el){ srDraftGoals()[k][idx].text=el.value; }
+function srGoalMeasure(k,idx,el){ srDraftGoals()[k][idx].measure=el.value; }
+function srHlAdd(k){ var hg=srDraftHl(); if(hg[k].length>=SR_DIM_MAX[k]){ toast(SR_DIM_NAME[k]+'最多 '+SR_DIM_MAX[k]+' 条'); return; } hg[k].push({title:'',body:''}); srRender(); }
+function srHlDel(k,idx){ srDraftHl()[k].splice(idx,1); srRender(); }
+function srHlTitle(k,idx,el){ srDraftHl()[k][idx].title=el.value; }
+function srHlBody(k,idx,el){ srDraftHl()[k][idx].body=el.value; }
+function srCplStatus(id,el){
+  if(!SR_DRAFT) SR_DRAFT={};
+  if(!SR_DRAFT.completions) SR_DRAFT.completions={};
+  var it=SR_DRAFT.completions[id]||{};
+  it.status=el.value; SR_DRAFT.completions[id]=it;
+  srRender(); /* 未填提示条需即时更新；textarea 值由草稿回填，不丢内容 */
+}
+function srCplResult(id,el){
+  if(!SR_DRAFT) SR_DRAFT={};
+  if(!SR_DRAFT.completions) SR_DRAFT.completions={};
+  var it=SR_DRAFT.completions[id]||{};
+  it.result=el.value; SR_DRAFT.completions[id]=it;
+}
+function srCompletionPayload(goalsSrc,cplSrc){
+  var c=cplSrc||(SR_DRAFT&&SR_DRAFT.completions)||{}, out=[];
+  srGoalRows(goalsSrc).forEach(function(r){
+    var it=c[r.goalId];
+    if(it&&(it.status||it.result)) out.push({goalId:r.goalId,status:it.status||'',result:(it.result||'').slice(0,500)});
+  });
+  return out;
+}
+function srCapGoals(arr,max){ return (arr||[]).slice(0,max).map(function(it){ return {text:((it&&it.text)||'').slice(0,120),measure:((it&&it.measure)||'').slice(0,60)}; }); }
+function srCapHl(arr,max){ return (arr||[]).slice(0,max).map(function(it){ return {title:((it&&it.title)||'').slice(0,30),body:((it&&it.body)||'').slice(0,800)}; }); }
+function srAuto(el){ if(!el) return; el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
+function srSubmit(sec){
+  if(!SR_DRAFT) return;
+  var payload=null;
+  if(sec==='goals'){
+    var g=SR_DRAFT.goals||{};
+    if(!((g.annual||[]).length+(g.winter||[]).length+(g.summer||[]).length)){ toast('请先添加至少一条目标'); return; }
+    payload={annual:srCapGoals(g.annual,5),winter:srCapGoals(g.winter,3),summer:srCapGoals(g.summer,3)};
+    if(SR&&SR.goalLockedAt&&!confirm('年度目标基线已锁定，本次提交将标记为修订（仅一次）。确认提交？')) return;
+  }else if(sec==='completions'){
+    payload={items:srCompletionPayload()};
+    if(!payload.items.length){ toast('还没有可提交的完成情况'); return; }
+  }else if(sec==='highlights'){
+    var hg=SR_DRAFT.highlights||{};
+    payload={parent:srCapHl(hg.parent,3),student:srCapHl(hg.student,3),social:srCapHl(hg.social,3)};
+    if(!(payload.parent.length+payload.student.length+payload.social.length)){ toast('先随手记一条亮点'); return; }
+  }else{ return; }
+  yfApi('/v1/selfreport','POST',{section:sec,payload:payload}).then(function(j){
+    if(j&&j.ok){ toast('已提交审核，待管理员批准'); srLoad(); }
+    else toast((j&&j.msg)||(j&&j.error)||'提交失败');
+  });
+}
+/* ---------- 管理端：自报待审页签 + 全站总览 ---------- */
+function faAuditTab(which){
+  var pf=document.getElementById('pfPendingList'), sr=document.getElementById('srPendingList');
+  if(!pf||!sr) return;
+  var showPf=(which!=='sr');
+  pf.style.display=showPf?'block':'none';
+  sr.style.display=showPf?'none':'block';
+  var tp=document.getElementById('faTabPf'), tsr=document.getElementById('faTabSr');
+  if(tp) tp.className='fa-tab'+(showPf?' on':'');
+  if(tsr) tsr.className='fa-tab'+(showPf?'':' on');
+  if(!showPf&&typeof srLoadPending==='function') srLoadPending();
+}
+function srLoadPending(){
+  if(typeof yfIsAdmin!=='function'||!yfIsAdmin()) return;
+  var box=document.getElementById('srPendingList'); if(!box) return;
+  box.innerHTML='<div class="fbe-dm-loading">加载自报待审中…</div>';
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/selfreport/pending','GET',null).then(function(j){
+    var b2=document.getElementById('srPendingList'); if(!b2) return;
+    if(!j||!j.ok){ b2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'加载失败（依赖后端 /v1/selfreport/pending）')+'</div>'; return; }
+    var rows=j.pending||j.rows||[];
+    if(!rows.length){ b2.innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:6px 0">暂无待审自报</div>'; return; }
+    var SEC={goals:'年度目标',completions:'目标完成',highlights:'年度亮点'};
+    b2.innerHTML=rows.map(function(r){
+      var stEnc=fbeJ(r.station||''), sec=r.section||'';
+      return '<div class="fbe-pf-row"><div class="fbe-pf-info"><b>'+esc(r.station||'')+'</b><span>'+esc(SEC[sec]||sec||'未知段落')+' · '+esc(srBrief(sec,r.payload))+'</span><span>'+(r.by?esc(r.by)+' · ':'')+'提交于 '+srDate(r.submittedAt)+'</span></div>'+
+        '<div class="fbe-pf-acts"><input id="srNote_'+stEnc+'_'+sec+'" class="um-input" placeholder="驳回理由（可选）" style="font-size:12px;padding:4px 8px;max-width:130px">'+
+        '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'approve\')">批准</button>'+
+        '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'reject\')">驳回</button></div></div>';
+    }).join('');
+  });
+}
+function srApprove(stationEnc,section,decision){
+  var station='';
+  try{ station=decodeURIComponent(stationEnc); }catch(e){ station=String(stationEnc||''); }
+  var noteEl=document.getElementById('srNote_'+stationEnc+'_'+section);
+  var note=noteEl?(noteEl.value||'').trim():'';
+  yfApi('/v1/selfreport/approve','POST',{station:station,section:section,decision:decision,note:note}).then(function(j){
+    if(j&&j.ok){ toast(decision==='approve'?'已批准，自报生效':'已驳回'); srLoadPending(); }
+    else toast((j&&j.msg)||(j&&j.error)||'操作失败');
+  });
+}
+function srBrief(section,payload){
+  try{
+    if(section==='goals'){ var p=payload||{}; return '全年 '+((p.annual||[]).length)+' 条 / 寒假 '+((p.winter||[]).length)+' 条 / 暑假 '+((p.summer||[]).length)+' 条'; }
+    if(section==='completions'){ var a=(payload&&payload.items)||[], n=0; a.forEach(function(x){ if(x&&x.status) n++; }); return a.length+' 条完成情况（'+n+' 条已标状态）'; }
+    if(section==='highlights'){ var q=payload||{}; return '家长 '+((q.parent||[]).length)+' / 学生 '+((q.student||[]).length)+' / 社会 '+((q.social||[]).length); }
+  }catch(e){}
+  return '';
+}
+function srLoadOverview(){
+  if(typeof yfApi!=='function') return;
+  var box=document.getElementById('srCards'); if(!box) return;
+  box.innerHTML='<div class="fbe-dm-loading">加载年度自报总览中…</div>';
+  yfApi('/v1/selfreport/overview','GET',null).then(function(j){
+    var b2=document.getElementById('srCards'); if(!b2) return;
+    if(!j||!j.ok){ b2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'总览加载失败（依赖后端 /v1/selfreport/overview）')+'</div>'; return; }
+    var rows=j.rows||[];
+    if(!rows.length){ b2.innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:6px 0">暂无站点提交年度自报</div>'; return; }
+    b2.innerHTML='<div class="sr-card"><div class="sr-head"><b>年度自报总览（'+rows.length+' 站）</b><span class="sr-lock">点行展开该站目标/完成/亮点全文；灰色为未提交</span></div>'+rows.map(function(r,i){ return srOvRow(r,i); }).join('')+'</div>';
+  });
+}
+function srOvRow(r,i){
+  var g=r.goals||{}, c=r.completions||{}, hl=r.highlights||{};
+  var has=!!(r.lastSubmittedAt||r.report);
+  var sum='目标 '+(g.annual||0)+'/'+(g.winter||0)+'/'+(g.summer||0)+'（年/寒/暑）　完成 '+((c.filled!=null)?c.filled:'—')+'/'+((c.total!=null)?c.total:'—')+'　亮点（家/学/社）'+(hl.parent||0)+'/'+(hl.student||0)+'/'+(hl.social||0);
+  var h='<div class="sr-ov-row'+(has?'':' sr-ov-none')+'" onclick="srOvToggle('+i+')"><b>'+esc(r.station||'')+'</b><span>'+sum+'</span><span class="sr-ov-meta">'+(r.lastSubmittedAt?('最近提交 '+srDate(r.lastSubmittedAt)):'未提交')+' ▾</span></div>';
+  if(r.report){
+    var rep=r.report, d='';
+    var gl=rep.goals||{};
+    [['annual','全年'],['winter','寒假'],['summer','暑假']].forEach(function(cfg){
+      (gl[cfg[0]]||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>'+cfg[1]+'</i>'+esc(it.text||'')+(it.measure?'｜口径：'+esc(it.measure):'')+'</div>'; });
+    });
+    (rep.completions||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>完成·'+esc(it.status||'未标状态')+'</i>'+esc(it.result||'')+'</div>'; });
+    var hl2=rep.highlights||{};
+    [['parent','家长'],['student','学生'],['social','社会']].forEach(function(cfg){
+      (hl2[cfg[0]]||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>'+cfg[1]+'</i>'+esc(it.title||'')+(it.body?'｜'+esc(it.body):'')+'</div>'; });
+    });
+    h+='<div class="sr-ov-detail" id="srOvDet_'+i+'" style="display:none">'+(d||'<div class="sr-ov-det"><i>该站</i>暂无自报内容</div>')+'</div>';
+  }
+  return h;
+}
+function srOvToggle(i){ var el=document.getElementById('srOvDet_'+i); if(el) el.style.display=(el.style.display==='none'?'block':'none'); }
 /* ---------- 测试导出 ---------- */
 if(typeof window!=='undefined'){
   window.__FBE_TEST__={
@@ -10360,6 +10680,9 @@ if(typeof window!=='undefined'){
     fbDmValidate:fbDmValidate,dmErrMsg:dmErrMsg,
     frRulesValidate:frRulesValidate,pfSanitize:pfSanitize,
     pfPendingText:pfPendingText,pfPendingHTML:pfPendingHTML,
+    fbHotSlice:(typeof fbHotSlice==='function')?fbHotSlice:null,
+    srGoalRows:srGoalRows,srBrief:srBrief,srCompletionPayload:srCompletionPayload,
+    srGoalCaps:function(){ return SR_GOAL_MAX; },
     FB_ROLES_REF:function(){ return FB_ROLES; }
   };
 }
