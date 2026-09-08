@@ -8191,6 +8191,11 @@ function yfEnter(user, tok){
   yfFilterNav(); yfShowRole(); yfShowAcctBtn();
   try{ if(typeof dgBoot==='function')dgBoot(); }catch(e){}
   if(typeof YF_CLOUD!=='undefined' && YF_CLOUD.pullForum && typeof FB!=='undefined'){ YF_CLOUD.pullForum(); if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll(); }
+  /* 私信联系人名单：登录前页面载入时的那次加载必然拿不到名单（未登录 401），登录成功后重置并重载 */
+  try{
+    if(typeof FB_DM_CONTACTS!=='undefined'){ FB_DM_CONTACTS=null; FB_DM_CONTACTS_FULL=false; FB_DM_CONTACTS_LOADING=false; _fbDmCbs=[]; }
+    if(typeof fbDmContacts==='function') fbDmContacts(function(){ try{ fbDmFillSel(); }catch(e){} });
+  }catch(e){}
   var h=document.getElementById('wbHello');
   if(h) h.textContent = yfIsStation() ? ('你好，'+yfMyStation()+'浆站负责人') : '你好，史毅（管理端）';
   var admin=document.getElementById('wbAdmin');
@@ -9593,7 +9598,9 @@ var FB_RULES=null;
 var PF_MINE=null;
 var FB_DM_STATE={open:false,view:'list',tid:null,peer:null};
 var FB_DM_CONTACTS=null;      /* 可选联系人 [{name,tag}]；admin 为全量账号，站级为论坛作者+版主 */
-var FB_DM_CONTACTS_FULL=false;/* 名单是否权威全量（admin /accounts 成功才置 true，用于拦截不存在的账号） */
+var FB_DM_CONTACTS_FULL=false;/* 名单是否权威全量（forum/contacts 成功才置 true，用于拦截不存在的账号） */
+var FB_DM_CONTACTS_LOADING=false;
+var _fbDmCbs=[];
 var _frMedalsEdit=[];
 var _frAccts=[];
 
@@ -9694,6 +9701,8 @@ function fbeDmMiniSafe(u){
   try{
     if(typeof yfToken!=='function'||!yfToken()) return '';
     if(u===yfUsername()) return '';
+    /* 名单已就绪且该作者解析不出真实账号时，不给一个点了发不出去的入口 */
+    if(FB_DM_CONTACTS&&FB_DM_CONTACTS_FULL&&!fbDmResolveName(u)) return '';
     return '<span class="fbe-dm-mini" onclick="event.stopPropagation();fbDmTo(\''+fbeJ(u)+'\')">私信</span>';
   }catch(e){ return ''; }
 }
@@ -9703,6 +9712,8 @@ function fbeDmBigSafe(u){
     if(typeof yfToken!=='function'||!yfToken()) return '';
     if(!u||u==='匿名') return '';
     if(u===yfUsername()) return '';
+    /* 名单已就绪且该作者解析不出真实账号时，不给一个点了发不出去的入口 */
+    if(FB_DM_CONTACTS&&FB_DM_CONTACTS_FULL&&!fbDmResolveName(u)) return '';
     return '<button class="fb-as-msg" onclick="fbDmTo(\''+fbeJ(u)+'\')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg> 私信 TA</button>';
   }catch(e){ return ''; }
 }
@@ -9753,6 +9764,10 @@ function fbeBoot(){
     setTimeout(function(){ try{ fbDmContacts(function(){}); }catch(e){} },300);
   }
 }
+/* 关键修复：fbInit 在脚本块#5 执行时本块(#11)的 fbeBoot 尚未定义（typeof 守卫跳过），
+   导致论坛扩容引导从未启动——联系人预载、私信未读小红点轮询全部失效。
+   在定义处补一次真实调用，跨块时序问题就地闭环。 */
+if(typeof fbeBoot==='function'){ try{ fbeBoot(); }catch(e){} }
 /* ---------- 私信 ---------- */
 function fbDmPoll(){
   if(typeof yfToken!=='function'||!yfToken()){ fbDmBadge(0); return; }
@@ -9772,6 +9787,12 @@ function fbDmBadge(n){
    来源：①论坛帖子作者与回复作者（全员可见，站级主来源）；②版主/超级版主（/v1/forum/roles 公开读）；
    ③admin 额外调 /accounts 拿全量账号（含从未发帖的站点账号）。同一次登录内缓存于 FB_DM_CONTACTS。 */
 function fbDmContacts(cb){
+  /* 幂等入口：已有**非空**名单直接回调；空名单视为"未拿到"，允许重试（启动时那次常因
+     登录态/冷启动失败，若把空结果缓存住，私信联系人会永远为空）；加载中排队防并发 */
+  if(FB_DM_CONTACTS&&FB_DM_CONTACTS.length){ if(typeof cb==='function') cb(FB_DM_CONTACTS); return; }
+  if(typeof cb==='function') _fbDmCbs.push(cb);
+  if(FB_DM_CONTACTS_LOADING) return;
+  FB_DM_CONTACTS_LOADING=true;
   var me=(typeof yfUsername==='function')?yfUsername():'';
   var base=[];
   try{
@@ -9790,14 +9811,17 @@ function fbDmContacts(cb){
   var _tm=setTimeout(function(){ if(FB_DM_CONTACTS===null) fin(false); },10000);
   function fin(full){
     try{ clearTimeout(_tm); }catch(e){}
+    FB_DM_CONTACTS_LOADING=false;
     var seen={},out=[];
     base.forEach(function(it){
       var n=(it&&it.name)||'';
       if(!n||n===me||n==='匿名'||seen[n]) return;
       seen[n]=1; out.push({name:n,tag:it.tag||''});
     });
-    FB_DM_CONTACTS=out;
+    FB_DM_CONTACTS=(out.length||full)?out:null;   /* 空且不权威=没拿到，保持 null 允许下次重试 */
     FB_DM_CONTACTS_FULL=!!full;
+    var cbs=_fbDmCbs; _fbDmCbs=[];
+    cbs.forEach(function(c){ try{ c(out); }catch(e){} });
     if(typeof cb==='function') cb(out);
   }
   if(typeof yfApi!=='function'){ fin(false); return; }
@@ -9807,6 +9831,12 @@ function fbDmContacts(cb){
     if(cs&&cs.length){
       cs.forEach(function(a){ base.push({name:a.username,tag:a.role==='admin'?'管理员':(a.station||'浆站')}); });
       try{ _frAccts=cs.map(function(a){ return a.username; }); }catch(e){}
+      /* 权威名单在手：过滤掉对不上任何账号的论坛作者条目（如「账号·显示名」形式的作者名），
+         否则下拉里出现两个"同一个人"，且精确匹配会抢先命中发不出去的显示名 */
+      try{
+        var _set={}; cs.forEach(function(a){ _set[a.username]=1; });
+        base=base.filter(function(it){ return it&&_set[it.name]; });
+      }catch(e){}
       fin(true); return;
     }
     /* 降级：admin 回退旧 /accounts；站级用论坛作者名单（发放前的老后端兼容） */
@@ -9845,8 +9875,7 @@ function fbDmFillSel(){
 }
 function fbDmOpen(){
   if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
-  var m=document.getElementById('dmMask');
-  if(!m){ m=document.createElement('div'); m.id='dmMask'; m.className='um-mask'; document.body.appendChild(m); }
+  var m=fbDmEnsureMask();
   m.style.display='flex';
   FB_DM_STATE={open:true,view:'list',tid:null,peer:null};
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
@@ -9899,8 +9928,37 @@ function fbDmOpenThread(tidEnc){
   var peer=(tid.split('|').filter(function(x){ return x!==me; })[0])||'';
   fbDmThread(tid,peer);
 }
+/* 弹窗容器惰性创建：此前只有点右上角「私信」才会建 dmMask，从帖子详情直接点
+   「私信 TA」时容器不存在，fbDmThread 里 if(!m) return 静默返回——按钮看起来"不通"。 */
+function fbDmEnsureMask(){
+  var m=document.getElementById('dmMask');
+  if(!m){ m=document.createElement('div'); m.id='dmMask'; m.className='um-mask'; document.body.appendChild(m); }
+  return m;
+}
+/* 帖子作者可能是「账号·显示名」形式（如 叶集·窦志鹏，账号实为 叶集），解析回真实账号名。
+   优先用权威账号表（_frAccts，来自 /v1/forum/contacts）——切勿先做联系人名单的精确匹配，
+   因为名单里可能同时存在「显示名」条目，精确匹配会抢先命中一个发不出去的名字。 */
+function fbDmResolveName(raw){
+  var n=String(raw==null?'':raw).trim();
+  if(!n) return '';
+  var accts=(typeof _frAccts!=='undefined'&&_frAccts&&_frAccts.length)?_frAccts:null;
+  var i,head;
+  if(accts){
+    if(accts.indexOf(n)>=0) return n;
+    head=n.split('·')[0];
+    if(n.indexOf('·')>0&&head&&accts.indexOf(head)>=0) return head;
+    return '';
+  }
+  var list=FB_DM_CONTACTS||[];
+  for(i=0;i<list.length;i++){ if(list[i].name===n) return n; }
+  head=n.split('·')[0];
+  if(n.indexOf('·')>0&&head){
+    for(i=0;i<list.length;i++){ if(list[i].name===head) return head; }
+  }
+  return '';
+}
 function fbDmThread(tid,peer){
-  var m=document.getElementById('dmMask'); if(!m) return;
+  var m=fbDmEnsureMask();
   FB_DM_STATE={open:true,view:'thread',tid:tid,peer:peer};
   var _tg=fbDmContactTag(peer);
   m.innerHTML='<div class="um-modal fbe-dm-modal">'+
@@ -9948,17 +10006,26 @@ function fbDmSend(){
     }
   });
 }
-function fbDmTo(enc){
+function fbDmTo(enc,_retry){
   var name='';
   try{ name=decodeURIComponent(String(enc||'')); }catch(e){ name=String(enc||''); }
   if(typeof yfToken!=='function'||!yfToken()){ toast('请先登录后再使用私信'); return; }
   if(!name){ toast('未找到对方账号'); return; }
   if(name===yfUsername()){ toast('不能给自己发私信'); return; }
-  /* 名单权威（admin 全量账号）时前置拦截，避免打开一条根本发不出去的会话 */
-  if(FB_DM_CONTACTS_FULL&&FB_DM_CONTACTS&&FB_DM_CONTACTS.length){
+  /* 名单未就绪（或上次加载于登录前、结果为空）时先加载再发起——带一次性重试标记防循环 */
+  if((FB_DM_CONTACTS===null||!FB_DM_CONTACTS.length)&&!_retry){
+    toast('正在获取联系人…');
+    fbDmContacts(function(){ fbDmTo(enc,true); });
+    return;
+  }
+  /* 作者名可能是「账号·显示名」（如 叶集·窦志鹏 → 叶集），先解析回真实账号再发起 */
+  var res=fbDmResolveName(name);
+  if(res) name=res;
+  /* 名单权威时前置拦截，避免打开一条根本发不出去的会话 */
+  if(FB_DM_CONTACTS_FULL&&FB_DM_CONTACTS.length){
     var hit=false;
     FB_DM_CONTACTS.forEach(function(c){ if(c.name===name) hit=true; });
-    if(!hit){ toast('无此账号「'+name+'」，请从列表选择联系人'); return; }
+    if(!hit){ toast('「'+name+'」没有对应的登录账号，暂时无法私信'); return; }
   }
   fbDmThread(fbeThreadId(yfUsername(),name),name);
 }
