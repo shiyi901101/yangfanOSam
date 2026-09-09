@@ -1561,6 +1561,26 @@ window.__yfLoadLib=(function(){
   .sr-ov-det i{font-style:normal;color:var(--muted);margin-right:6px}
   .sr-pend-body{padding:2px 12px 10px 16px;border-bottom:1px solid var(--line);background:var(--ice,rgba(20,85,156,.04))}
   .sr-pend-badge{color:#c0392b;font-size:12px}
+  .sr-mrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .sr-dir{flex-shrink:0;font-weight:800;color:var(--navy,#1e4468)}
+  .sr-target{width:118px}
+  .sr-ev{min-height:40px}
+  .sr-act{font-size:12.5px;color:var(--ok,#12833f);padding:2px 0}
+  .sr-act-none{color:var(--muted)}
+  .sr-ct{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:4px 0;background:var(--ice,rgba(20,85,156,.04))}
+  .sr-ct-h{display:flex;gap:8px;font-size:11.5px;color:var(--muted);padding-bottom:3px;letter-spacing:.02em}
+  .sr-ct-r{display:flex;gap:8px;font-size:12.5px;line-height:1.6;padding:3px 0;border-top:1px dashed var(--line)}
+  .sr-ct-h span,.sr-ct-r span{flex:1.2}.sr-ct-h span:nth-child(2),.sr-ct-r span:nth-child(2){flex:1}.sr-ct-h span:nth-child(3),.sr-ct-r span:nth-child(3){flex:1.4}
+  .sr-ct-bad{color:#c0392b;font-weight:700;font-size:12px}
+  .sr-legacy{font-size:12px;color:var(--muted);padding:2px 0}
+  .sr-promise{margin-top:12px}
+  .sr-promise summary{cursor:pointer;font-weight:800;color:var(--navy)}
+  .sr-promise-i{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px dashed var(--line);font-size:12.5px}
+  .sr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .sr-dot-ok{background:var(--ok,#12833f)}
+  .sr-dot-bad{background:#c0392b}
+  .sr-dot-none{background:var(--muted)}
+  .sr-promise-v{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
   @media(max-width:414px){.sr-item .sr-txt,.sr-item .sr-measure,.sr-hl .sr-title{flex:1 1 100%}.sr-ov-row .sr-ov-meta{margin-left:0;flex-basis:100%}}
   .dg-main{padding:12px 16px;border-top:1px solid var(--line)}
   .dg-main-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:var(--fs-h3);font-weight:800;color:var(--navy)}
@@ -7445,7 +7465,7 @@ function gwPaint(){
   var el = document.getElementById('gwBody');
   if(!el) return;
   var st = gwSt();
-  if(GW_TAB==='diag')      el.innerHTML = gwDiag(st);
+  if(GW_TAB==='diag')      { el.innerHTML = gwDiag(st); try{ if(typeof srPromiseMaybe==='function') srPromiseMaybe(); }catch(e){} }
   else if(GW_TAB==='rx')   el.innerHTML = gwRx(st);
   else if(GW_TAB==='file'){ el.innerHTML = gwFile(st); try{ if(typeof srMaybeLoad==='function') srMaybeLoad(st); }catch(e){} }
   else if(GW_TAB==='demo') el.innerHTML = gwDemo(st);
@@ -10431,6 +10451,62 @@ var SR_GOAL_MAX={annual:5,winter:3,summer:3};
 var SR_DIM_MAX={parent:3,student:3,social:3};
 var SR_DIM_NAME={parent:'家长维度',student:'学生维度',social:'社会维度'};
 var SR_CPL_STAT=['达成','部分达成','未达成','中途调整'];
+var SR_CPL_CODE=['achieved','partial','missed','adjusted'];
+/* 指标注册表（与后端 SR_METRICS 逐键逐字对齐，双端对齐唯一依据）：caliber/dir 由注册表锁定，前端不提供方向选择 */
+var SR_METRICS={
+  'reg[2]':{label:'入营人数',unit:'人',caliber:'seasonFinal',dir:'gte'},
+  'dev[0]':{label:'学生新卡',unit:'张',caliber:'seasonFinal',dir:'gte'},
+  'dev[1]':{label:'学生采量',unit:'份',caliber:'seasonFinal',dir:'gte'},
+  'dev[2]':{label:'无偿献浆人数',unit:'人',caliber:'seasonFinal',dir:'gte'},
+  'dev[3]':{label:'科普人次',unit:'人次',caliber:'seasonFinal',dir:'gte'},
+  'dev[4]':{label:'科普转化新卡',unit:'张',caliber:'seasonFinal',dir:'gte'},
+  'par[0]':{label:'家长参与人数',unit:'人',caliber:'seasonFinal',dir:'gte'},
+  'cap.outreach':{label:'学生科普人均',unit:'人次/人',caliber:'ratio',dir:'gte'},
+  'cap.conv':{label:'科普转化率',unit:'%',caliber:'ratio',dir:'gte'},
+  'cap.family':{label:'家长参与度',unit:'%',caliber:'ratio',dir:'gte'},
+  'ext[0]':{label:'安全/质量事件',unit:'起',caliber:'seasonFinal',dir:'lte'}
+};
+var SR_CAT_NAME={brand:'品牌',dev:'发展',effect:'效能'};
+function srGoalNew(){ return {id:'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),text:'',cat:'',track:'metric',metric:'',target:'',note:'',evidence:''}; }
+/* 目标条目归一：新格式（measure 对象）/ 旧格式（measure 字符串）都摊平成表单字段，原对象就地补齐（提交时按轨重建） */
+function srGoalNorm(it){
+  it=it||{};
+  var m=it.measure;
+  if(it.track!=='metric'&&it.track!=='evidence') it.track=(m&&typeof m==='object')?'metric':((typeof m==='string'&&m)?'evidence':'metric');
+  if(m&&typeof m==='object'){
+    if(!it.metric) it.metric=m.metric||'';
+    if(it.target==null||it.target===''){ var mt=SR_METRICS[m.metric]||null, t=Number(m.target); if(isFinite(t)) it.target=(mt&&mt.caliber==='ratio')?String(Math.round(t*1000)/10):String(t); }
+    if(!it.note) it.note=m.note||'';
+  }else if(typeof m==='string'&&m&&!it.evidence){ it.evidence=m; }
+  if(it.target==null) it.target='';
+  return it;
+}
+/* 比例类 UI 输 0-100 → 存储 0-1 小数（70 → 0.7，与后端 400 口径一致） */
+function srTargetStore(v,mt){
+  var n=Number(v); if(!isFinite(n)||n<0) return 0;
+  return (mt&&mt.caliber==='ratio')?Math.round(n*100)/10000:n;
+}
+/* 目标口径文案（承诺展示）：measure 对象=指标+锁定方向+目标值；旧格式字符串=原文；证据轨=evidence */
+function srGoalMeasureText(it){
+  if(!it) return '';
+  var m=it.measure;
+  if(m&&typeof m==='object'){
+    var mt=SR_METRICS[m.metric]||{label:m.metric,unit:''};
+    var ts=(m.caliber==='ratio')?((Math.round(m.target*1000)/10)+'%'):(m.target+' '+mt.unit);
+    var s='｜承诺：'+mt.label+' '+(m.dir==='lte'?'≤':'≥')+ts;
+    if(m.note) s+='（'+esc(m.note)+'）';
+    return s;
+  }
+  if(typeof m==='string'&&m) return '｜口径：'+esc(m);
+  if(it.evidence) return '｜证据：'+esc(it.evidence);
+  return '';
+}
+function srActualOf(gid){
+  var g=(SR_DRAFT&&SR_DRAFT.goals)||{}, tiers=['annual','winter','summer'];
+  for(var i=0;i<tiers.length;i++){ var arr=g[tiers[i]]||[]; for(var j=0;j<arr.length;j++){ if((arr[j]&&arr[j].id)===gid) return arr[j].actual||null; } }
+  return null;
+}
+function srSuggestCode(a){ return (a&&a.suggest==='achieved')?'achieved':((a&&a.suggest==='missed')?'missed':''); }
 function srDate(t){ var d=new Date(t||0); return (d.getMonth()+1)+'月'+d.getDate()+'日'; }
 function srMaybeLoad(st){
   /* 成长档案页渲染后挂载：station 本人渲三卡片；admin 渲全站总览 */
@@ -10445,7 +10521,9 @@ function srLoad(){
   yfApi('/v1/selfreport','GET',null).then(function(j){
     var b2=document.getElementById('srCards'); if(!b2) return;
     if(!j||!j.ok){ b2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'年度自报加载失败')+'</div>'; return; }
-    SR=j.report||{}; SR_PEND=j.pendings||{}; SR_DRAFT=JSON.parse(JSON.stringify(SR));
+    /* GET /v1/selfreport 为扁平出参（goals/completions/highlights/pending），非 {report}/{pendings} 包裹——对齐后端 v1resp 实际形状 */
+    SR={goals:j.goals||null,completions:j.completions||null,highlights:j.highlights||null,goalLockedAt:j.goalLockedAt||0,attestedAt:j.attestedAt||0,year:j.year}; SR_PEND=j.pending||{}; SR_DRAFT=JSON.parse(JSON.stringify(SR));
+    srPrefillSuggest();
     srRender();
   });
 }
@@ -10464,10 +10542,10 @@ function srDraftGoals(){
   return SR_DRAFT.goals;
 }
 function srGoalRows(src){
-  /* 目标展平（不分层，带 goalId），完成情况按 goalId 1:1 对照挂靠 */
+  /* 目标展平（不分层，带 goalId=目标稳定 id），完成情况按 id 1:1 对照挂靠；旧数据无 id 时退回 season-idx */
   var g=src||(SR_DRAFT&&SR_DRAFT.goals)||{}, rows=[];
   ['annual','winter','summer'].forEach(function(k){
-    (g[k]||[]).forEach(function(it,idx){ rows.push({goalId:k+'-'+idx,season:k,text:it.text||'',measure:it.measure||''}); });
+    (g[k]||[]).forEach(function(it,idx){ it=srGoalNorm(it); rows.push({goalId:it.id||(k+'-'+idx),season:k,text:it.text||'',measure:it.measure||'',item:it}); });
   });
   return rows;
 }
@@ -10478,13 +10556,30 @@ function srCardGoals(){
   if(!(g.annual||[]).length&&!(g.winter||[]).length&&!(g.summer||[]).length){
     h+='<div class="sr-empty">年初定目标（分寒假/暑假两季+全年），年底对着数据交完成，年度评估就看这三样。负责人对年度目标负责。</div>';
   }
+  h+='<div class="sr-hint">每条目标先选类型（品牌/发展/效能，全年三类各至少 1 条）与轨道：指标轨对数据（年底系统自动实测对照），证据轨讲事实（≤200 字举证）。</div>';
   [['annual','全年目标（≤5 条）'],['winter','寒假季目标（≤3 条）'],['summer','暑假季目标（≤3 条）']].forEach(function(cfg){
     var k=cfg[0], arr=g[k]||[];
     h+='<div class="sr-group"><div class="sr-group-t">'+cfg[1]+'</div>';
-    arr.forEach(function(it,idx){
+    arr.forEach(function(it0,idx){
+      var it=srGoalNorm(it0);
       h+='<div class="sr-item"><textarea class="sr-txt" rows="1" maxlength="120" placeholder="目标描述（≤120 字）" oninput="srGoalText(\''+k+'\','+idx+',this);srAuto(this)">'+esc(it.text||'')+'</textarea>'+
-        '<input class="sr-measure" maxlength="60" placeholder="量化口径（≤60 字）" value="'+esc(it.measure||'')+'" oninput="srGoalMeasure(\''+k+'\','+idx+',this)">'+
-        '<button class="mini-btn sr-del" onclick="srGoalDel(\''+k+'\','+idx+')">删除</button></div>';
+        '<div class="sr-mrow"><select class="sr-sel" aria-label="目标类型" onchange="srGoalField(\''+k+'\','+idx+',\'cat\',this)">'+
+        '<option value="">类型…</option>'+Object.keys(SR_CAT_NAME).map(function(ck){ return '<option value="'+ck+'"'+(it.cat===ck?' selected':'')+'>'+SR_CAT_NAME[ck]+'</option>'; }).join('')+'</select>'+
+        '<select class="sr-sel" aria-label="轨道" onchange="srGoalField(\''+k+'\','+idx+',\'track\',this)">'+
+        '<option value="metric"'+(it.track==='metric'?' selected':'')+'>指标轨·对数据</option>'+
+        '<option value="evidence"'+(it.track==='evidence'?' selected':'')+'>证据轨·讲事实</option></select></div>';
+      if(it.track==='metric'){
+        var mt=SR_METRICS[it.metric]||null;
+        h+='<div class="sr-mrow"><select class="sr-sel" aria-label="对照指标" onchange="srGoalField(\''+k+'\','+idx+',\'metric\',this)">'+
+          '<option value="">选指标…</option>'+Object.keys(SR_METRICS).map(function(mk){ var d2=SR_METRICS[mk]; return '<option value="'+mk+'"'+(it.metric===mk?' selected':'')+'>'+d2.label+'（'+d2.unit+'）</option>'; }).join('')+'</select>'+
+          (mt?'<span class="sr-dir">'+(mt.dir==='lte'?'≤':'≥')+'</span>':'')+
+          '<input class="sr-target" type="number" min="0" step="any" placeholder="'+(mt&&mt.caliber==='ratio'?'目标值（填 70 即 70%）':'目标值')+'" value="'+esc(it.target||'')+'" oninput="srGoalField(\''+k+'\','+idx+',\'target\',this)">'+
+          (mt&&mt.dir==='lte'?'<span class="sr-lock">越少越好</span>':'')+'</div>'+
+          '<input class="sr-measure" maxlength="60" placeholder="口径备注（≤60 字，可留空）" value="'+esc(it.note||'')+'" oninput="srGoalField(\''+k+'\','+idx+',\'note\',this)">';
+      }else{
+        h+='<textarea class="sr-txt sr-ev" rows="2" maxlength="200" placeholder="事实描述（≤200 字，必填：做了什么、结果如何）" oninput="srGoalField(\''+k+'\','+idx+',\'evidence\',this);srAuto(this)">'+esc(it.evidence||'')+'</textarea>';
+      }
+      h+='<button class="mini-btn sr-del" onclick="srGoalDel(\''+k+'\','+idx+')">删除</button></div>';
     });
     h+='<button class="mini-btn" onclick="srGoalAdd(\''+k+'\')">添加一条</button></div>';
   });
@@ -10502,9 +10597,12 @@ function srCardCompletions(){
   rows.forEach(function(r){
     var it=c[r.goalId]||{};
     if(!it.status) miss++;
+    var a=r.item&&r.item.actual?r.item.actual:null;
     h+='<div class="sr-cpl"><div class="sr-cpl-g">'+(r.season==='annual'?'全年':(r.season==='winter'?'寒假':'暑假'))+'｜'+esc(r.text||'（未填写目标描述）')+'</div>'+
+      (a&&a.metric&&a.display?'<div class="sr-act">系统实测：'+esc(a.display)+'</div>':'')+
+      (a&&a.metric&&a.met==null?'<div class="sr-act sr-act-none">该目标当期暂无实测数据</div>':'')+
       '<div class="sr-cpl-row"><select class="sr-sel" aria-label="完成状态" onchange="srCplStatus(\''+r.goalId+'\',this)"><option value="">— 选择状态 —</option>'+
-      SR_CPL_STAT.map(function(s){ return '<option value="'+s+'"'+(it.status===s?' selected':'')+'>'+s+'</option>'; }).join('')+'</select></div>'+
+      SR_CPL_CODE.map(function(cd,ci){ return '<option value="'+cd+'"'+(it.status===cd?' selected':'')+'>'+SR_CPL_STAT[ci]+'</option>'; }).join('')+'</select></div>'+
       '<textarea class="sr-txt" rows="2" maxlength="500" placeholder="完成结果（≤500 字，用数据说话）" oninput="srCplResult(\''+r.goalId+'\',this);srAuto(this)">'+esc(it.result||'')+'</textarea></div>';
   });
   h+='</div>';
@@ -10538,15 +10636,22 @@ function srDraftHl(){
   if(!SR_DRAFT.highlights) SR_DRAFT.highlights={parent:[],student:[],social:[]};
   return SR_DRAFT.highlights;
 }
-function srGoalAdd(k){ var g=srDraftGoals(); if(g[k].length>=SR_GOAL_MAX[k]){ toast('该分组最多 '+SR_GOAL_MAX[k]+' 条'); return; } g[k].push({text:'',measure:''}); srRender(); }
+function srGoalAdd(k){ var g=srDraftGoals(); if(g[k].length>=SR_GOAL_MAX[k]){ toast('该分组最多 '+SR_GOAL_MAX[k]+' 条'); return; } g[k].push(srGoalNew()); srRender(); }
 function srGoalDel(k,idx){ srDraftGoals()[k].splice(idx,1); srRender(); }
 function srGoalText(k,idx,el){ srDraftGoals()[k][idx].text=el.value; }
-function srGoalMeasure(k,idx,el){ srDraftGoals()[k][idx].measure=el.value; }
+/* 轨道/指标切换需重渲（方向符号/占位随注册表变化）；target/note/evidence 纯记录不打断输入 */
+function srGoalField(k,idx,field,el){
+  var it=srDraftGoals()[k][idx]; if(!it) return;
+  it[field]=el.value;
+  if(field==='track'||field==='metric') srRender();
+}
 function srHlAdd(k){ var hg=srDraftHl(); if(hg[k].length>=SR_DIM_MAX[k]){ toast(SR_DIM_NAME[k]+'最多 '+SR_DIM_MAX[k]+' 条'); return; } hg[k].push({title:'',body:''}); srRender(); }
 function srHlDel(k,idx){ srDraftHl()[k].splice(idx,1); srRender(); }
 function srHlTitle(k,idx,el){ srDraftHl()[k][idx].title=el.value; }
 function srHlBody(k,idx,el){ srDraftHl()[k][idx].body=el.value; }
 function srCplStatus(id,el){
+  var a=srActualOf(id), sc=srSuggestCode(a);
+  if(a&&sc&&el.value&&el.value!==sc&&!confirm('系统实测为 '+(a.display||'—')+'，与您选择不一致，请确认')){ srRender(); return; }
   if(!SR_DRAFT) SR_DRAFT={};
   if(!SR_DRAFT.completions) SR_DRAFT.completions={};
   var it=SR_DRAFT.completions[id]||{};
@@ -10560,27 +10665,66 @@ function srCplResult(id,el){
   it.result=el.value; SR_DRAFT.completions[id]=it;
 }
 function srCompletionPayload(goalsSrc,cplSrc){
-  var c=cplSrc||(SR_DRAFT&&SR_DRAFT.completions)||{}, out=[];
+  /* 后端 completions 收键控对象 {goalId:{status,result}}，status 为英文码（achieved/partial/missed/adjusted） */
+  var c=cplSrc||(SR_DRAFT&&SR_DRAFT.completions)||{}, out={};
   srGoalRows(goalsSrc).forEach(function(r){
     var it=c[r.goalId];
-    if(it&&(it.status||it.result)) out.push({goalId:r.goalId,status:it.status||'',result:(it.result||'').slice(0,500)});
+    if(it&&it.status) out[r.goalId]={status:it.status,result:((it.result||'')+'').slice(0,500)};
   });
   return out;
 }
-function srCapGoals(arr,max){ return (arr||[]).slice(0,max).map(function(it){ return {text:((it&&it.text)||'').slice(0,120),measure:((it&&it.measure)||'').slice(0,60)}; }); }
+function srCapGoals(arr,max){
+  /* 提交重建：指标轨→结构化 measure（caliber/dir 取注册表锁定值，比例类 target 存 0-1）；证据轨→evidence；不得双带（与后端 srCleanGoal 对齐） */
+  return (arr||[]).slice(0,max).map(function(it){
+    it=srGoalNorm(it||{});
+    var o={text:(it.text||'').slice(0,120),cat:it.cat||'',track:it.track||'metric'};
+    if(it.id) o.id=it.id;
+    if(it.createdAt) o.createdAt=it.createdAt;
+    if(o.track==='metric'){
+      var mt=SR_METRICS[it.metric]||{caliber:'seasonFinal',dir:'gte'};
+      o.measure={metric:it.metric,caliber:mt.caliber,dir:mt.dir,target:srTargetStore(it.target,mt),note:(it.note||'').slice(0,60)};
+    }else{
+      o.track='evidence';
+      o.evidence=(it.evidence||'').slice(0,200);
+    }
+    return o;
+  });
+}
 function srCapHl(arr,max){ return (arr||[]).slice(0,max).map(function(it){ return {title:((it&&it.title)||'').slice(0,30),body:((it&&it.body)||'').slice(0,800)}; }); }
 function srAuto(el){ if(!el) return; el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 function srSubmit(sec){
   if(!SR_DRAFT) return;
   var payload=null;
   if(sec==='goals'){
-    var g=SR_DRAFT.goals||{};
+    var g=SR_DRAFT.goals||{}, tiers=[['annual','全年'],['winter','寒假'],['summer','暑假']];
     if(!((g.annual||[]).length+(g.winter||[]).length+(g.summer||[]).length)){ toast('请先添加至少一条目标'); return; }
+    for(var ti=0;ti<tiers.length;ti++){
+      var arr=g[tiers[ti][0]]||[];
+      for(var ii=0;ii<arr.length;ii++){
+        var f=srGoalNorm(arr[ii]||{});
+        if(!((f.text||'')+'').replace(/\s+/g,'')){ toast(tiers[ti][1]+'目标第'+(ii+1)+'条请填写目标描述'); return; }
+        if(!f.cat){ toast(tiers[ti][1]+'目标第'+(ii+1)+'条请选择类型（品牌/发展/效能）'); return; }
+        if(f.track==='metric'){
+          var mt=SR_METRICS[f.metric];
+          if(!mt){ toast(tiers[ti][1]+'目标第'+(ii+1)+'条请选择对照指标'); return; }
+          var tv=Number(f.target);
+          if(f.target===''||!isFinite(tv)||tv<0){ toast(tiers[ti][1]+'目标第'+(ii+1)+'条请填写目标值'); return; }
+          if(mt.caliber==='ratio'&&tv>100){ toast(tiers[ti][1]+'目标第'+(ii+1)+'条：比例类目标值填 0-100（如 70 即 70%）'); return; }
+        }else if(!((f.evidence||'')+'').replace(/\s+/g,'')){ toast(tiers[ti][1]+'目标第'+(ii+1)+'条：证据轨须填写事实描述（≤200 字）'); return; }
+      }
+    }
+    var missCats=Object.keys(SR_CAT_NAME).filter(function(ck){ return !(g.annual||[]).some(function(x){ return x&&x.cat===ck; }); });
+    if(missCats.length){ toast('年度目标须三类齐备（品牌/发展/效能），缺少：'+missCats.map(function(c2){ return SR_CAT_NAME[c2]; }).join('、')); return; }
     payload={annual:srCapGoals(g.annual,5),winter:srCapGoals(g.winter,3),summer:srCapGoals(g.summer,3)};
     if(SR&&SR.goalLockedAt&&!confirm('年度目标基线已锁定，本次提交将标记为修订（仅一次）。确认提交？')) return;
   }else if(sec==='completions'){
-    payload={items:srCompletionPayload()};
-    if(!payload.items.length){ toast('还没有可提交的完成情况'); return; }
+    var keyed=srCompletionPayload(), gids=Object.keys(keyed), gtext={};
+    srGoalRows().forEach(function(r){ gtext[r.goalId]=r.text||''; });
+    for(var ki=0;ki<gids.length;ki++){
+      if(!((keyed[gids[ki]].result||'')+'').replace(/\s+/g,'')){ toast('「'+(gtext[gids[ki]]||'目标 '+gids[ki])+'」已选状态但未填完成结果，请逐条填写'); return; }
+    }
+    if(!gids.length){ toast('还没有可提交的完成情况'); return; }
+    payload=keyed;
   }else if(sec==='highlights'){
     var hg=SR_DRAFT.highlights||{};
     payload={parent:srCapHl(hg.parent,3),student:srCapHl(hg.student,3),social:srCapHl(hg.social,3)};
@@ -10620,7 +10764,10 @@ function srLoadPending(){
         '<div class="fbe-pf-acts"><input id="srNote_'+stEnc+'_'+sec+'" class="um-input" placeholder="驳回理由（可选）" style="font-size:12px;padding:4px 8px;max-width:130px">'+
         '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'approve\')">批准</button>'+
         '<button class="mini-btn" onclick="srApprove(\''+stEnc+'\',\''+sec+'\',\'reject\')">驳回</button></div></div>'+
-        '<div class="sr-pend-body">'+srPendDetail(sec,r.payload,r.goalTexts)+'</div>';
+        '<div class="sr-pend-body">'+srPendDetail(sec,r.payload,r.goalTexts)+
+        (r.contrast?srContrastRows(r.contrast,r.payload):'')+
+        (r.legacy?'<div class="sr-legacy">旧格式目标，建议驳回让站长按新格式重填</div>':'')+
+        '</div>';
     }).join('');
   });
 }
@@ -10649,7 +10796,7 @@ function srPendDetail(section,p,gtexts){
   if(section==='goals'){
     [['annual','全年'],['winter','寒假'],['summer','暑假']].forEach(function(cfg){
       (pl[cfg[0]]||[]).forEach(function(it,idx){
-        d+='<div class="sr-ov-det"><i>'+cfg[1]+' '+(idx+1)+'</i>'+esc(it.text||'')+(it.measure?'｜口径：'+esc(it.measure):'')+'</div>';
+        d+='<div class="sr-ov-det"><i>'+cfg[1]+' '+(idx+1)+(it.cat?'·'+esc(SR_CAT_NAME[it.cat]||it.cat):'')+'</i>'+esc(it.text||'')+srGoalMeasureText(it)+'</div>';
       });
     });
   }else if(section==='completions'){
@@ -10688,9 +10835,15 @@ function srOvRow(r,i){
     var rep=r.report, d='';
     var gl=rep.goals||{};
     [['annual','全年'],['winter','寒假'],['summer','暑假']].forEach(function(cfg){
-      (gl[cfg[0]]||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>'+cfg[1]+'</i>'+esc(it.text||'')+(it.measure?'｜口径：'+esc(it.measure):'')+'</div>'; });
+      (gl[cfg[0]]||[]).forEach(function(it,idx){
+        var a=(it&&it.id&&r.actuals)?(r.actuals[it.id]||null):null;
+        var extra=srGoalMeasureText(it);
+        if(a&&a.display) extra+='｜实测：'+esc(a.display);
+        if(a&&a.window&&a.window.missingMonths&&a.window.missingMonths.length) extra+='｜缺数据月：'+a.window.missingMonths.map(function(mm){ var s2=String(mm).slice(5); return (parseInt(s2,10)||s2)+'月'; }).join('、');
+        d+='<div class="sr-ov-det"><i>'+cfg[1]+'</i>'+esc(it.text||'')+extra+'</div>';
+      });
     });
-    (rep.completions||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>完成·'+esc(it.status||'未标状态')+'</i>'+esc(it.result||'')+'</div>'; });
+    (rep.completions||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>完成·'+esc(SR_ST_CN[it.status]||it.status||'未标状态')+'</i>'+esc(it.text?(it.text+'：'):'')+esc(it.result||'')+'</div>'; });
     var hl2=rep.highlights||{};
     [['parent','家长'],['student','学生'],['social','社会']].forEach(function(cfg){
       (hl2[cfg[0]]||[]).forEach(function(it){ d+='<div class="sr-ov-det"><i>'+cfg[1]+'</i>'+esc(it.title||'')+(it.body?'｜'+esc(it.body):'')+'</div>'; });
@@ -10700,6 +10853,75 @@ function srOvRow(r,i){
   return h;
 }
 function srOvToggle(i){ var el=document.getElementById('srOvDet_'+i); if(el) el.style.display=(el.style.display==='none'?'block':'none'); }
+/* ---------- 年度自报 × 浆站数据关联（2026-09-09 用户拍板）：display 由服务端算好直渲染，前端绝不自算 ---------- */
+function srPrefillSuggest(){
+  /* 系统实测 suggest 预填：仅当本人未选过状态时回填（achieved/missed 英文码，与后端 SR_COMPLETION_STATUS 对齐） */
+  if(!SR_DRAFT) return;
+  var c=SR_DRAFT.completions||(SR_DRAFT.completions={});
+  srGoalRows(SR_DRAFT.goals).forEach(function(r){
+    var sc=srSuggestCode(r.item&&r.item.actual);
+    if(sc&&!(c[r.goalId]&&c[r.goalId].status)){
+      if(!c[r.goalId]) c[r.goalId]={};
+      c[r.goalId].status=sc;
+    }
+  });
+}
+/* 待审行三列对照：contrast 形态兼容数组/键控对象/单对象；met 与自评交叉矛盾 → 红标 */
+function srContrastEntries(contrast){
+  if(!contrast) return [];
+  if(Object.prototype.toString.call(contrast)==='[object Array]') return contrast;
+  if(typeof contrast==='object'){
+    var out=[];
+    Object.keys(contrast).forEach(function(k){
+      var v=contrast[k];
+      if(v&&typeof v==='object'&&(v.goalText!=null||v.selfStatus!=null||v.actual!=null)){ if(!v.goalId) v.goalId=k; out.push(v); }
+    });
+    if(out.length) return out;
+    if(contrast.goalText!=null||contrast.selfStatus!=null) return [contrast];
+  }
+  return [];
+}
+function srContrastRows(contrast,payload){
+  var es=srContrastEntries(contrast); if(!es.length) return '';
+  var h='<div class="sr-ct"><div class="sr-ct-h"><span>目标值</span><span>系统实测</span><span>本人自评+理由</span></div>';
+  es.forEach(function(e){
+    var a=e.actual||null;
+    var it=(e.goalId&&payload)?payload[e.goalId]:null;
+    var bad=a&&a.met!=null&&((a.met===true&&e.selfStatus==='missed')||(a.met===false&&e.selfStatus==='achieved'));
+    h+='<div class="sr-ct-r"><span>'+esc(e.goalText||'—')+'</span>'+
+      '<span>'+(a?(a.met==null?'暂无实测':esc(a.display||'—')):'—')+'</span>'+
+      '<span>'+esc(SR_ST_CN[e.selfStatus]||e.selfStatus||'—')+
+      (it&&it.result?'：'+esc(it.result):'')+
+      (bad?'　<b class="sr-ct-bad">自评与实测不一致</b>':'')+'</span></div>';
+  });
+  return h+'</div>';
+}
+/* 站长端「我的承诺兑现」（诊断卡下方）：仅 station；met 绿/红/灰三点，display 服务端算好直渲染；严禁注入诊断卡 R1-R14 渲染逻辑 */
+function srPromiseMaybe(){
+  if(typeof yfIsStation!=='function'||!yfIsStation()) return;
+  if(document.getElementById('srPromise')) return;
+  var el=document.getElementById('gwBody'); if(!el) return;
+  el.insertAdjacentHTML('beforeend','<div id="srPromise" class="sr-promise"></div>');
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/selfreport','GET',null).then(function(j){
+    var box=document.getElementById('srPromise'); if(!box) return;
+    if(!j||!j.ok){ box.innerHTML='<details class="sr-promise-d" open><summary>我的承诺兑现</summary><div class="sr-empty">承诺兑现加载失败，稍后再试</div></details>'; return; }
+    var items=[];
+    ['annual','winter','summer'].forEach(function(sk){
+      ((j.goals||{})[sk]||[]).forEach(function(it){
+        if(it&&it.track==='metric'&&it.measure&&typeof it.measure==='object') items.push({it:srGoalNorm(it),a:it.actual||null});
+      });
+    });
+    var h='<details class="sr-promise-d" open><summary>我的承诺兑现（'+items.length+' 条指标承诺）<span class="sr-lock">绿=达成 · 红=未达 · 灰=暂无实测，随月度上报自动更新</span></summary>';
+    if(!items.length) h+='<div class="sr-empty">暂无指标轨目标——在「成长档案·年度自报」立下可量化的承诺，这里会自动对着数据亮灯。</div>';
+    items.forEach(function(x){
+      var dot=(x.a&&x.a.met===true)?'ok':((x.a&&x.a.met===false)?'bad':'none');
+      h+='<div class="sr-promise-i"><span class="sr-dot sr-dot-'+dot+'"></span><span>'+esc(x.it.text||'')+'</span><span class="sr-promise-v">'+srGoalMeasureText(x.it)+(x.a&&x.a.display?'｜实测：'+esc(x.a.display):'')+'</span></div>';
+    });
+    h+='</details>';
+    box.innerHTML=h;
+  });
+}
 /* ---------- 测试导出 ---------- */
 if(typeof window!=='undefined'){
   window.__FBE_TEST__={
@@ -10711,6 +10933,9 @@ if(typeof window!=='undefined'){
     fbHotSlice:(typeof fbHotSlice==='function')?fbHotSlice:null,
     srGoalRows:srGoalRows,srBrief:srBrief,srCompletionPayload:srCompletionPayload,
     srPendDetail:srPendDetail,srStCn:function(){ return SR_ST_CN; },
+    srMetrics:function(){ return SR_METRICS; },srCatName:function(){ return SR_CAT_NAME; },
+    srGoalNew:srGoalNew,srGoalNorm:srGoalNorm,srPrefillSuggest:srPrefillSuggest,
+    srContrastEntries:srContrastEntries,srContrastRows:srContrastRows,srGoalMeasureText:srGoalMeasureText,
     srGoalCaps:function(){ return SR_GOAL_MAX; },
     FB_ROLES_REF:function(){ return FB_ROLES; }
   };
