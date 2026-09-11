@@ -65,9 +65,18 @@ window.__yfLoadLib=(function(){
     --shadow-md:0 6px 18px rgba(13,44,77,.07);
     --shadow-lg:0 14px 36px rgba(13,44,77,.10);
     --radius:16px;
-    --font:'InterVar',"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei","Source Han Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    --font-num:'InterVar',"SF Pro Display","Segoe UI",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",Roboto,sans-serif;
-    --fs-display:30px; --fs-h2:18px; --fs-h3:15px; --fs-body:14px; --fs-sm:13px; --fs-xs:12px; --fs-2xs:11px;
+    --font:'InterVar',-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Source Han Sans SC","Microsoft YaHei","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-display:'PlayfairVar','InterVar',-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei","Segoe UI",sans-serif;
+    --font-num:'InterVar',-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Roboto,system-ui,"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",sans-serif;
+    --font-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,'Cascadia Code','Cascadia Mono',Consolas,'Liberation Mono',monospace;
+    /* 字阶（11 文本档）：--fs-3xs 仅限导出物内部与图表刻度，Web 文本禁用 */
+    --fs-hero:40px; --fs-display:30px; --fs-h1:24px; --fs-h2:18px; --fs-h3:15px; --fs-body:14px; --fs-sm:13px; --fs-xs:12px; --fs-2xs:11px; --fs-3xs:10px;
+    /* 数字字阶（独立于文本字阶；使用 --font-num 的选择器必须同时声明 tabular-nums） */
+    --fs-num-xl:30px; --fs-num-lg:26px; --fs-num-md:20px; --fs-num-sm:15px;
+    /* 字重：中文元素禁用 510/590 等中间值（Windows 雅黑仅 400/700 实体，中间值会被吸附或走合成加粗） */
+    --fw-read:400; --fw-label:500; --fw-sub:600; --fw-title:700; --fw-num:800;
+    --lh-tight:1.15; --lh-title:1.3; --lh-body:1.7; --lh-cjk-sm:1.6; --lh-num:1.05;
+    --ls-display:-.025em; --ls-title:-.015em; --ls-latin:-.01em; --ls-cjk:0; --ls-mini:.02em; --ls-caps:.08em; --ls-kicker:.26em;
   }
   /* ===== 登录门禁（高端左右分栏） ===== */
   #loginGate{position:fixed;inset:0;z-index:999999;background:linear-gradient(135deg,#0a1f3d 0%,#0d2c4d 40%,#123a5e 100%);display:flex;align-items:center;justify-content:center}
