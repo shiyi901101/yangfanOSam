@@ -256,6 +256,23 @@ window.__yfLoadLib=(function(){
   .gw-yoy .r .v{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
   .gw-yoy .r .d{margin-left:auto;font-variant-numeric:tabular-nums}
   .gw-yoy .s{font-size:11.5px;color:var(--muted);margin-top:6px}
+  /* 三问式首屏：定位卡/短板卡/动作卡——0 装饰图标、0 阴影、0 左条，层级全靠字号字重（方案 §4） */
+  .gw3-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:16px 18px;margin:12px 0;animation:gw3in .2s ease-out both}
+  @keyframes gw3in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.gw3-card{animation:none}}
+  .gw3-stage{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-0.01em}
+  .gw3-pos{font-size:15px;line-height:1.6;color:var(--ink);margin-top:4px}
+  .gw3-base{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7}
+  .gw3-org{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.7}
+  .gw3-capn{font-size:18px;font-weight:800;color:var(--ink)}
+  .gw3-why{font-size:14px;color:var(--ink);margin-top:6px;line-height:1.7}
+  .gw3-gap{font-size:13px;color:var(--ink);margin-top:8px;line-height:1.7}
+  .gw3-good{color:var(--ok-ink)}
+  .gw3-act{font-size:14px;color:var(--ink);line-height:1.7;margin-top:6px}
+  .gw3-tgt{font-size:12px;color:var(--blue-700);margin-top:2px}
+  .gw3-more{display:block;width:100%;min-height:44px;background:none;border:none;color:var(--blue-700);font-size:14px;text-align:right;cursor:pointer;padding:6px 2px;font-family:inherit}
+  .gw3-guide{border:1px solid var(--line);border-radius:12px;background:#fff;padding:16px 18px;margin:12px 0;font-size:14px;color:var(--ink);line-height:1.7}
+  .gw3-guide button{margin-top:10px}
   .up-file{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer}
   .up-file input{display:none}
   .up-msg{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.8;min-height:0}
@@ -1799,21 +1816,14 @@ window.__yfLoadLib=(function(){
 <section id="rhythm">
     <div class="gw-top">
       <div>
-        <h2>我的成长引擎</h2>
-        <p class="gw-sub">不打勾、不排名好看。用你站最新上报月份的真实漏斗数据反推你的能力短板，配上真做到了的那个站的真实做法，给你这周能落地的动作和一条验收线。做完回填结果，成了就攒成证据，没成就问清卡在哪。</p>
+        <h2>我的成长</h2>
+        <p class="gw-sub">打开先读三句话：我在哪、差什么、接下来往哪走。更多数据收在「查看详细数据」里，需要时再展开。</p>
       </div>
       <div class="gw-pick">
         <label>我是</label>
         <select id="gwStation"></select>
         <span class="gw-who" id="gwWho"></span>
       </div>
-    </div>
-    <div class="gw-tabs" id="gwTabs">
-      <button class="active" data-gw="diag">能力体检</button>
-      <button data-gw="rx">我的处方</button>
-      <button data-gw="file">成长档案</button>
-      <button data-gw="pair">互补配对</button>
-      <button data-gw="demo">看真实示范</button>
     </div>
     <div id="gwBody"></div>
   </section>
@@ -4278,8 +4288,25 @@ function dCur(s,key,idx){ // 当前视图取值（all=整季合计，单月=该�
   if(DASH_CUR==='all')return dAll(s,key,idx);
   const d=dMonthRec(DASH_CUR);return d&&d[s]&&d[s][key]?(d[s][key][idx]||0):0;
 }
-function dCurTot(key,idx){return DASH_CUR==='all'?dAllTot(key,idx):dTot(DASH_CUR,key,idx);}
-function dCurTotN(key,idx){ // null 感知合计：全站该字段全缺 → null（显示「—」）；有数即求和
+/* —— 集团合计口径（lead 二轮裁定）：历史季按该季权威记录的站点全集求和，含磐安/文成/青田等站外历史站，如实记录；
+   整季=HIST.season（2025W 集团入营合计=431），单月=HIST.months[m]；站卡仍限当前 20 站；2026 视图恒为 STATIONS —— */
+function histScopeRec(){
+  if(DASH_SEASON==='2026S')return null;
+  if(DASH_CUR==='all')return (typeof HIST!=='undefined'&&HIST[DASH_SEASON]&&HIST[DASH_SEASON].season)?HIST[DASH_SEASON].season:null;
+  return dMonthRec(DASH_CUR);
+}
+function dCurTot(key,idx){
+  const hr=histScopeRec();
+  if(hr){let v=0;Object.keys(hr).forEach(s=>{const r=hr[s];v+=((r&&r[key])?(r[key][idx]||0):0);});return v;}
+  return DASH_CUR==='all'?dAllTot(key,idx):dTot(DASH_CUR,key,idx);
+}
+function dCurTotN(key,idx){ // null 感知合计：全站该字段全缺 → null（显示「—」）；有数即求和；历史季按该季记录站点全集
+  const hr=histScopeRec();
+  if(hr){
+    let sum=null;
+    Object.keys(hr).forEach(s=>{const r=hr[s];const v=(r&&r[key])?r[key][idx]:null;if(v!==null&&v!==undefined)sum=(sum===null?0:sum)+v;});
+    return sum;
+  }
   const mos=DASH_CUR==='all'?seasonOrder():[DASH_CUR];
   let sum=null;
   mos.forEach(m=>{STATIONS.forEach(s=>{const v=dRecVal(dRec(m,s),key,idx);if(v!==null)sum=(sum===null?0:sum)+v;});});
@@ -4469,12 +4496,12 @@ function yoyCellHtml(cur,base){
   const dtxt=(d===null)?'<span class="yoy-na">—</span>':'<span class="'+(d>=0?'yoy-up':'yoy-down')+'">'+yoyTxt(d)+'</span>';
   return '<td>'+(cur===null?'—':dashFmt(cur))+' '+dtxt+'</td>';
 }
-function yoyBaseTotal(bk,key,idx){ // 集团合计的去年基线（HIST 只读求和，缺失站跳过）
+function yoyBaseTotal(bk,key,idx){ // 集团合计的去年基线（HIST 只读求和，该季有数据的站点全部计入，含站外历史站）
   if(typeof HIST==='undefined'||!HIST[bk])return null;
   const arr=DASH_CUR==='all'?HIST[bk].season:HIST[bk].months[DASH_CUR];
   if(!arr)return null;
   let v=null;
-  STATIONS.forEach(s=>{const r=arr[s];if(r&&r[key]&&r[key][idx]!=null)v=(v===null?0:v)+r[key][idx];});
+  Object.keys(arr).forEach(s=>{const r=arr[s];if(r&&r[key]&&r[key][idx]!=null)v=(v===null?0:v)+r[key][idx];});
   return v;
 }
 function renderDashYoy(){
@@ -7830,9 +7857,6 @@ function renderRhythm(){
   var locked = yfIsStation();
   var my = yfMyStation();
   if(locked && (!my || list.indexOf(my) < 0)){ locked = false; my = ''; }   /* 兜底：本人才无效则退回管理员视图 */
-  /* 互补配对所有角色可见（站级匿名化在 gwPair 内部处理） */
-  var tb0 = document.getElementById('gwTabs');
-  if(tb0){ var pb = tb0.querySelector('button[data-gw="pair"]'); if(pb) pb.style.display = ''; }
   var target = locked ? [my] : list;
   sel.innerHTML = '';
   var saved = locked ? my : ((GW.load().st) || list[0]);
@@ -7848,20 +7872,20 @@ function renderRhythm(){
     var d = GW.load(); d.st = sel.value; GW.save(d);
     renderRhythm();
   };
-  var tabBox = document.getElementById('gwTabs');
-  tabBox.querySelectorAll('button').forEach(function(b){
-    b.onclick = function(){
-      tabBox.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
-      b.classList.add('active'); GW_TAB = b.dataset.gw; gwPaint();
-    };
-  });
   var st = gwSt();
   if(locked && st !== my){ st = my; }
   var p = (typeof PROF!=='undefined'&&PROF[st])?PROF[st]:{};
-  var r = GW.raw(st);
-  var seasonTag=(typeof DASH_SEASON!=='undefined'&&DASH_SEASON&&DASH_SEASON!=='2026S'&&typeof seasonLabel==='function')?('｜'+seasonLabel()+'基线'):'';
-  document.getElementById('gwWho').textContent =
-    (p.owner||'负责人') + '｜' + (p.post||'—') + '｜' + GW.tier(r.r2) + '（'+r.mLabel+'入营 ' + r.r2 + ' 人）'+seasonTag;
+  /* gwWho 摘要随三问卡口径：季累计入营（YF3Q.seasonVals），不再展示月口径档位 */
+  var whoLine = (p.owner||'负责人') + '｜' + (p.post||'—') + '｜';
+  try{
+    var sv = (typeof YF3Q!=='undefined') ? YF3Q.seasonVals(st) : null;
+    if(sv && sv.enroll!=null && sv.enroll>0){
+      whoLine += ((typeof seasonLabel==='function')?seasonLabel():'本季') + '累计入营 ' + Math.round(sv.enroll) + ' 人';
+    }else{
+      whoLine += '本季暂无上报数据';
+    }
+  }catch(e){ whoLine = whoLine.slice(0, -1); }
+  document.getElementById('gwWho').textContent = whoLine;
   gwPaint();
 }
 
@@ -7869,11 +7893,232 @@ function gwPaint(){
   var el = document.getElementById('gwBody');
   if(!el) return;
   var st = gwSt();
+  /* 三问式改版后成长页无页签：diag=首屏三卡+详情层；file/demo 仅由档案导出与示范入口程序化触达 */
   if(GW_TAB==='diag')      { el.innerHTML = gwDiag(st); try{ if(typeof srPromiseMaybe==='function') srPromiseMaybe(); }catch(e){} }
-  else if(GW_TAB==='rx')   el.innerHTML = gwRx(st);
   else if(GW_TAB==='file'){ el.innerHTML = gwFile(st); try{ if(typeof srMaybeLoad==='function') srMaybeLoad(st); }catch(e){} }
   else if(GW_TAB==='demo') el.innerHTML = gwDemo(st);
-  else                     el.innerHTML = gwPair(st);
+  else                     el.innerHTML = gwDiag(st);
+}
+
+/* ============ 三问式首屏：我在哪 / 差什么 / 干什么（成长版块简化方案 v1.0） ============
+   数据层裁决（lead 审定）：全前端直算，不新增后端端点——2026 季值=DASH_DB 三月逐月合计（dAll），
+   2025 季值=HIST.season（只读），四能力分母统一=enroll（与月度口径同构，聚合到季）。
+   家长参与为今年新增统计项：季口径=家长参与人数÷入营人数，无同比，只与全站中位比。 */
+var YF3Q=(function(){
+  var CAP_KEYS=['cardper','convper','sciop','parent'];
+  var CAP_N={cardper:'转化设计',convper:'深度经营',sciop:'科普渗透',parent:'家校经营'};
+  /* 站级季值六字段：缺站/缺字段=null（绝不以 0 冒充） */
+  function seasonVals(s){
+    if(typeof DASH_SEASON==='undefined'||!DASH_SEASON)return null;
+    var out={enroll:null,card:null,vol:null,sci:null,conv:null,parent:null};
+    if(DASH_SEASON==='2026S'){
+      if(typeof seasonHasStation==='function'&&!seasonHasStation(s))return null;
+      if(typeof dAll!=='function')return null;
+      out.enroll=dAll(s,'reg',2);out.card=dAll(s,'dev',0);out.vol=dAll(s,'dev',1);
+      out.sci=dAll(s,'dev',3);out.conv=dAll(s,'dev',4);out.parent=dAll(s,'par',0);
+      return out.enroll>0||out.parent>0||out.card>0?out:null;
+    }
+    var r=(typeof histSeasonRec==='function')?histSeasonRec(DASH_SEASON,s):null;
+    if(!r)return null;
+    function g(k,i){return (r[k]&&r[k][i]!=null)?r[k][i]:null;}
+    out.enroll=g('reg',2);out.card=g('dev',0);out.vol=g('dev',1);
+    out.sci=g('dev',3);out.conv=g('dev',4);out.parent=g('par',0);
+    return out.enroll!=null?out:null;
+  }
+  function lastSeasonVals(s){
+    var bk=(typeof histBaseSeason==='function')?histBaseSeason():null;
+    if(!bk||(typeof histSeasonRec!=='function'))return null;
+    var r=histSeasonRec(bk,s);if(!r)return null;
+    function g(k,i){return (r[k]&&r[k][i]!=null)?r[k][i]:null;}
+    return {enroll:g('reg',2),card:g('dev',0),vol:g('dev',1),sci:g('dev',3),conv:g('dev',4),parent:null};
+  }
+  /* 四能力季值（分母=enroll；家长参与为 0 → 家校不参与档位计算，短板四选三） */
+  function capsOf(v){
+    if(!v||v.enroll==null||v.enroll<=0)return null;
+    function d(a){return (a==null)?0:a/v.enroll;}
+    return {cardper:d(v.card),convper:d(v.conv),sciop:d(v.sci),parent:d(v.parent)};
+  }
+  function med(arr){
+    var v=arr.slice().sort(function(a,b){return a-b;});
+    if(!v.length)return null;
+    var h=Math.floor(v.length/2);
+    return v.length%2?v[h]:(v[h-1]+v[h])/2;
+  }
+  /* 判定主入口：档位四档 + 短板（比值最小，并列<0.05 取同比降幅更大，家长无同比按绝对差）+ 最强 */
+  function analyze(st){
+    var list=(typeof STATIONS!=='undefined'&&STATIONS)?STATIONS:[];
+    var aggs={};
+    list.forEach(function(s){var v=seasonVals(s);var c=capsOf(v);if(c)aggs[s]=c;});
+    var nStation=Object.keys(aggs).length;
+    var meds={};
+    CAP_KEYS.forEach(function(k){
+      meds[k]=med(Object.keys(aggs).map(function(s){return aggs[s][k];}).filter(function(x){return x!=null;}));
+    });
+    var mine=aggs[st]||null;
+    var lastV=lastSeasonVals(st),lastC=lastV?capsOf(lastV):null;
+    var res={nStation:nStation,meds:meds,mine:mine,caps:[],stage:null,weak:null,strong:null,
+             upCount:0,noMedian:nStation<3,vals:seasonVals(st),lastVals:lastV,enrollLast:lastV?lastV.enroll:null};
+    if(!mine)return res;
+    /* 各能力比值 + 同比（家长参与无去年基线，yoy 恒 null） */
+    CAP_KEYS.forEach(function(k){
+      var md=meds[k],mv=mine[k];
+      var skip=(k==='parent'&&(mv==null||mv===0));           /* 降级 3：家长参与 0，四选三 */
+      var ratio=(md!=null&&md>0&&!skip)?mv/md:null;
+      var yoy=null,last=null;
+      if(k!=='parent'&&lastC&&lastC[k]!=null&&md!=null&&md>0){
+        last=lastC[k];
+        if(last>0)yoy=(mv-last)/last;
+      }
+      if(yoy!=null&&yoy>0)res.upCount++;
+      res.caps.push({k:k,n:CAP_N[k],mine:mv,med:md,ratio:ratio,yoy:yoy,last:last,skip:skip});
+    });
+    var rated=res.caps.filter(function(c){return c.ratio!=null;});
+    if(!rated.length)return res;
+    var m=med(rated.map(function(c){return c.ratio;}));
+    res.m=m;
+    res.stage=m>=1.2?'领跑期':(m>=1?'稳定期':(m>=0.7?'追赶期':'起步期'));
+    var sorted=rated.slice().sort(function(a,b){return a.ratio-b.ratio;});
+    var weak=sorted[0],second=sorted[1];
+    if(second&&second.ratio-weak.ratio<0.05){                /* 短板并列：同比降幅更大者，家长无同比按绝对差 */
+      function dropOf(c){
+        if(c.yoy!=null)return -c.yoy;
+        return (c.med!=null&&c.med>0)?(c.med-c.mine)/c.med:-1e9;
+      }
+      if(dropOf(second)>dropOf(weak))weak=second;
+    }
+    res.weak=weak;
+    res.strong=rated.slice().sort(function(a,b){return b.ratio-a.ratio;})[0];
+    return res;
+  }
+  return {seasonVals:seasonVals,lastSeasonVals:lastSeasonVals,capsOf:capsOf,analyze:analyze,
+          CAP_KEYS:CAP_KEYS,CAP_N:CAP_N};
+})();
+
+/* —— 动作文案（逐字，方案 §3；验收线=向中位推进半档，保留两位小数） —— */
+var GW3_ACTS={
+  cardper:['每个入营学生 72 小时内完成一次电话回访，未发卡的一人一个跟进人。',
+           '把入营到发卡之间学生流失的卡点列个清单，本月先解决排名第一的那个。'],
+  convper:['每场科普留 3 分钟当场登记意向，登记名单 7 天内逐人跟进。'],
+  sciop:['排一张科普排期表贴在墙上，保证每 2 个在营学生这个季度至少被覆盖 1 场。',
+         '把科普固定绑在体检日候检时段，不再临时想起来才办。'],
+  parent:['每场活动设家长专场时段，提前 3 天给家长逐个打电话通知。']
+};
+/* 短板人话解释（逐字，方案 §3） */
+var GW3_WHY={
+  cardper:'来营的学生不少，但变成持卡人的比例偏低——学生进了营，后面跟得不紧。',
+  convper:'科普做了，但科普里当场登记、后续转化的新卡不多——活动办了，转化那一环还没接上。',
+  sciop:'平均下来，每个在营学生摊到的科普场次偏少——很多学生这个季度还没被科普覆盖到。',
+  parent:'来参加活动的家长偏少——家长不了解、不放心，学生的坚持就少了一半支撑。'
+};
+/* 验收指标名（逐字，方案 §3） */
+var GW3_TGT_N={cardper:'新卡',convper:'科普转化新卡',sciop:'科普数',parent:'家长参与'};
+function gw3f2(v){return (Math.round(v*100)/100).toFixed(2);}
+function gw3Target(mine,med){
+  return gw3f2(mine+(med-mine)/2);   /* target = 本站值 + (全站中位 − 本站值) ÷ 2 */
+}
+function gw3TgtLine(c){
+  /* 验收句逐字（方案 §3）；短板卡仅在 ratio<1 且 med>0 时渲染，退化分支不可达则不留自造文案 */
+  return '下季'+GW3_TGT_N[c.k]+' ÷ 入营做到 '+gw3Target(c.mine,c.med)+'。';
+}
+/* 定位句（逐字四套，{最强能力名}/{短板能力名}/{站数}为变量位） */
+function gw3PosText(a){
+  var sn=a.nStation||((typeof STATIONS!=='undefined'&&STATIONS)?STATIONS.length:20);
+  var strong=a.strong?a.strong.n:'—',weak=a.weak?a.weak.n:'—';
+  if(a.stage==='领跑期')return '你是 '+sn+' 家站里的排头兵，'+strong+'是全站标杆，这个季度继续把方法沉淀下来。';
+  if(a.stage==='稳定期')return '你处在全站中游偏上，'+strong+'做得扎实，'+weak+'再进一步就能进第一梯队。';
+  if(a.stage==='追赶期')return '你和全站中位的差距集中在'+weak+'，这一块追上来，整体档位就能上台阶。';
+  return '这个季度先不求全面，把'+weak+'这一件事做扎实，就是最大的进步。';
+}
+/* 详情层折叠开关（存量诊断内容原样降级进详情层，零改动） */
+function gwDetailToggle(btn){
+  var d=document.getElementById('gwDetail');if(!d)return;
+  var open=d.hasAttribute('hidden');
+  if(open)d.removeAttribute('hidden');else d.setAttribute('hidden','');
+  btn.textContent=open?'收起详细数据 ‹':'查看详细数据 ›';
+}
+function gwDetailToggleHtml(){
+  return '<button class="gw3-more" onclick="gwDetailToggle(this)" aria-expanded="false">查看详细数据 ›</button>';
+}
+/* 首屏三卡渲染（方案 §3 文案逐字替换变量；三种数据不足降级态齐备，不留空白） */
+function gwThreeQHtml(st){
+  var a=YF3Q.analyze(st);
+  var isCur=(typeof DASH_SEASON==='undefined')||DASH_SEASON==='2026S';
+  /* 降级 1：本季未上报——三卡位置显示引导 + 去上报（不以 0 冒充） */
+  if(!a.vals){
+    return '<div class="gw3-guide">这个季度还没有你的数据，先完成上报，这里会告诉你现阶段和短板。'
+      +(isCur?'<div><button class="btn" onclick="openReportForm()">去上报</button></div>':'')
+      +'</div>';
+  }
+  var v=a.vals,enroll=Math.round(v.enroll);
+  /* 赛季名照方案 §3 模板形态：「2026 暑假季」（历史季沿用 seasonLabel） */
+  var seasonTerm=(function(){
+    if(typeof DASH_SEASON!=='undefined'&&DASH_SEASON&&DASH_SEASON!=='2026S'&&typeof seasonLabel==='function')return seasonLabel();
+    var y=(new Date()).getFullYear();
+    var t=(typeof curSeasonTerm==='function')?curSeasonTerm():'暑假';
+    return y+' '+t+'季';
+  })();
+  var h='';
+  /* ① 定位卡 */
+  h+='<div class="gw3-card">';
+  var noMed=a.noMedian;
+  if(noMed){
+    /* 降级 2：全站中位不可得（<3 家）——档位判断退化为仅同比 */
+    h+='<div class="gw3-pos">这个季度你有 '+a.upCount+' 项比去年同期好，先稳住势头，全站对比等数据齐了再给你看。</div>';
+  }else{
+    h+='<div class="gw3-stage">'+a.stage+'</div>';
+    h+='<div class="gw3-pos">'+gw3PosText(a)+'</div>';
+  }
+  /* 依据句：有去年同期 → 逐字模板；无 → 退化句 */
+  if(a.enrollLast!=null){
+    h+='<div class="gw3-base">数据依据：'+seasonTerm+'入营 '+enroll+' 人（去年同期 '+Math.round(a.enrollLast)+' 人），新卡 '+Math.round(v.card||0)+' 张，四项能力有 '+a.upCount+' 项好于去年同期。</div>';
+  }else{
+    h+='<div class="gw3-base">数据依据：'+seasonTerm+'入营 '+enroll+' 人，新卡 '+Math.round(v.card||0)+' 张。</div>';
+  }
+  /* 家长参与单列补充（仅在家长参与是短板或最强项时追加，逐字） */
+  var parHot=a.weak&&a.weak.k==='parent';
+  if(a.strong)parHot=parHot||a.strong.k==='parent';
+  if(parHot)h+='<div class="gw3-base">家长参与 '+Math.round(v.parent||0)+' 人，为今年新增统计项。</div>';
+  /* 集团评价一句话（方案 §6 D：半年度画像一句话摘要；PROF 画像取第一句，取不到退 SEMI，再取不到整行不显示） */
+  var hqLine=(function(){
+    function oneLine(t){
+      if(t==null)return null;t=String(t).trim();if(!t)return null;
+      var i=t.search(/[。；;]/);var s1=i>0?t.slice(0,i):t;
+      return s1.length>42?(s1.slice(0,40)+'……'):s1;
+    }
+    var p=(typeof PROF!=='undefined'&&PROF[st])?PROF[st]:null;
+    var s=(typeof SEMI!=='undefined'&&SEMI[st])?SEMI[st]:null;
+    return oneLine(p&&p.note)||oneLine(s&&s.yf)||null;
+  })();
+  if(hqLine)h+='<div class="gw3-org">集团评价：'+hqLine+'</div>';
+  h+='</div>';
+  /* ② 短板卡（只点一块，不做排名不放雷达图；最小比值 ≥1 即无真实短板，本卡不渲染） */
+  if(a.weak&&!noMed&&a.weak.ratio!=null&&a.weak.ratio<1){
+    var wk=a.weak;
+    h+='<div class="gw3-card">';
+    h+='<div class="gw3-capn">'+wk.n+'</div>';
+    h+='<div class="gw3-why">'+GW3_WHY[wk.k]+'</div>';
+    if(wk.med>0){
+      var gap=Math.round((wk.med-wk.mine)/wk.med*100);
+      h+='<div class="gw3-gap">全站中位是 '+gw3f2(wk.med)+'，你是 '+gw3f2(wk.mine)+'，差距 '+gap+'%。</div>';
+    }
+    if(wk.yoy!=null&&wk.yoy>0){
+      h+='<div class="gw3-gap gw3-good">好消息是这项你在涨（去年同期 '+gw3f2(wk.last)+'，今年 '+gw3f2(wk.mine)+'），照这个势头补得回来。</div>';
+    }
+    h+='</div>';
+    /* ③ 动作卡（条数按短板缺口：比值 <0.5 → 3 条、0.5-0.85 → 2 条、>0.85 → 1 条；文案库不足则封顶） */
+    var wk2=wk,acts=GW3_ACTS[wk2.k]||[];
+    var want=wk2.ratio<0.5?3:(wk2.ratio<=0.85?2:1);
+    var take=acts.slice(0,Math.min(want,acts.length));
+    if(take.length){
+      h+='<div class="gw3-card">';
+      h+='<div class="gw3-capn" style="font-size:16px">接下来往哪走</div>';
+      take.forEach(function(t,i){
+        h+='<div class="gw3-act">'+(i+1)+'. '+t+'</div><div class="gw3-tgt">'+gw3TgtLine(wk2)+'</div>';
+      });
+      h+='</div>';
+    }
+  }
+  return h;
 }
 
 /* ============ ① 能力体检 ============ */
@@ -7884,15 +8129,14 @@ function gwDiag(st){
   var worst = w[0], best = w[w.length-1];
   var tr = GW.tier(r.r2), TB = bk.TB[tr] || {};
   var h = '';
-  var isEmpty = (GW.of(st).my.ev.length===0);
-  if(isEmpty){
-    h += '<div class="gw-demo-hint" onclick="gwShowDemo()">你这站还没走过任何一轮闭环 —— <b>先看一个真实站（左旗）是怎么用这个台子长出本事的 ›</b></div>';
-  }
   /* 历史季视图：未开展站早退，不以 0 冒充数据 */
   var isHistView=(typeof DASH_SEASON!=='undefined'&&DASH_SEASON&&DASH_SEASON!=='2026S');
   if(isHistView&&typeof seasonHasStation==='function'&&!seasonHasStation(st)){
     return '<div class="gw-demo-hint">'+st+'在 '+((typeof seasonLabel==='function')?seasonLabel():'该历史季')+' 未开展，无当季数据——不以 0 冒充，也不作能力诊断。</div>';
   }
+
+  /* 三问式首屏（我在哪/差什么/干什么）；存量诊断内容整体降级进详情层（gwDetailToggle 折叠） */
+  var q3 = gwThreeQHtml(st);
 
   /* --- 诊断书：先讲最扎的那个事实（月份随数据，不写死） --- */
   var fact = '';
@@ -7959,8 +8203,7 @@ function gwDiag(st){
   }
   h += '</div>';
 
-  /* --- 四象限散点：一眼看到自己和谁在一起 --- */
-  h += gwQuadSvg(st);
+  /* --- 四象限散点已随站间对标入口移除（方案 §6 E：不占成长页） --- */
 
   /* --- 四项能力条 --- */
   h += '<div class="gw-caps">';
@@ -7993,114 +8236,11 @@ function gwDiag(st){
     h += '</div>';
   });
   h += '</div>';
-  h += '<div class="gw-core" style="background:#eef5fc;border-left-color:#2b7cd3;color:#22405c">诊断只是起点。切到<b>「我的处方」</b>，看这周具体做什么、验收线画在哪。</div>';
-  return h;
+  return q3 + gwDetailToggleHtml() + '<div id="gwDetail" hidden>' + h + '</div>';
 }
 
-/* ---------- 四象限散点图（内联 SVG，零依赖） ---------- */
-function gwQuadSvg(st){
-  var bk = GW.bench(), list = GW.stationList();
-  var W = 640, H = 320, PL = 58, PR = 18, PT = 18, PB = 42;
-  var iw = W-PL-PR, ih = H-PT-PB;
-  var pts = list.map(function(s){
-    var q = GW.quadrant(s);
-    return {s:s, x:q.f, y:q.o};
-  });
-  var xs = pts.map(function(p){return p.x;}), ys = pts.map(function(p){return p.y;});
-  var xmax = Math.max.apply(null, xs)*1.08 || 100, ymax = Math.max.apply(null, ys)*1.12 || 5;
-  var me = GW.quadrant(st);
-  function X(v){ return PL + v/xmax*iw; }
-  function Y(v){ return PT + ih - v/ymax*ih; }
-  var mx = X(me.fm), my = Y(me.om);
-  var g = '';
-  g += '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;max-width:'+W+'px">';
-  // 象限底色
-  g += '<rect x="'+PL+'" y="'+PT+'" width="'+iw+'" height="'+ih+'" fill="#fbfdff" stroke="#e3ebf3"/>';
-  g += '<rect x="'+mx+'" y="'+PT+'" width="'+(PL+iw-mx)+'" height="'+(my-PT)+'" fill="#f0faf3"/>';
-  g += '<rect x="'+PL+'" y="'+my+'" width="'+(mx-PL)+'" height="'+(PT+ih-my)+'" fill="#fdf4f4"/>';
-  // 中位线
-  g += '<line x1="'+mx+'" y1="'+PT+'" x2="'+mx+'" y2="'+(PT+ih)+'" stroke="#b9cbdd" stroke-dasharray="4 4"/>';
-  g += '<line x1="'+PL+'" y1="'+my+'" x2="'+(PL+iw)+'" y2="'+my+'" stroke="#b9cbdd" stroke-dasharray="4 4"/>';
-  // 象限标签
-  g += '<text x="'+(PL+iw-8)+'" y="'+(PT+15)+'" text-anchor="end" font-size="11" fill="#12833f" font-weight="700">双优区</text>';
-  g += '<text x="'+(PL+8)+'" y="'+(PT+15)+'" font-size="11" fill="#e0a020" font-weight="700">精筛区（窄而值）</text>';
-  g += '<text x="'+(PL+iw-8)+'" y="'+(PT+ih-8)+'" text-anchor="end" font-size="11" fill="#2b7cd3" font-weight="700">宽进区（进得来没转起来）</text>';
-  g += '<text x="'+(PL+8)+'" y="'+(PT+ih-8)+'" font-size="11" fill="#c8161d" font-weight="700">待建区</text>';
-  // 点
-  pts.forEach(function(p){
-    var isMe = p.s===st;
-    g += '<circle cx="'+X(p.x).toFixed(1)+'" cy="'+Y(p.y).toFixed(1)+'" r="'+(isMe?7:4)+'" fill="'+(isMe?'#c8161d':'#7ba9d6')+'" opacity="'+(isMe?1:.55)+'"'+(isMe?' stroke="#fff" stroke-width="2"':'')+'/>';
-    if(isMe || p.y>=GW.bench().B.cardper.med*1.8 || p.x>=me.fm*1.45){
-      g += '<text x="'+(X(p.x)+ (isMe?10:6)).toFixed(1)+'" y="'+(Y(p.y)+3.5).toFixed(1)+'" font-size="'+(isMe?12:10)+'" fill="'+(isMe?'#c8161d':'#5a7a99')+'" font-weight="'+(isMe?800:600)+'">'+p.s+(isMe?'（你）':'')+'</text>';
-    }
-  });
-  // 轴
-  g += '<text x="'+(PL+iw/2)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11.5" fill="#5a7a99">漏斗质量分（到场率 × 入营率）→</text>';
-  g += '<text x="14" y="'+(PT+ih/2)+'" font-size="11.5" fill="#5a7a99" transform="rotate(-90 14 '+(PT+ih/2)+')" text-anchor="middle">单人新卡产出（张/人）→</text>';
-  g += '</svg>';
-  var T = GW.TYPES[me.key];
-  return '<div class="gw-quad"><h3>你在 '+bk.n+' 个站里的位置</h3><p class="qh">横轴＝把人招进来并留住的能力（到场×入营，参考项），纵轴＝每个学员的产出。虚线是 '+bk.n+' 站中位。你落在 <b style="color:'+T.color+'">'+T.n+'</b> 区。</p>'+g+'</div>';
-}
+/* ============ 四象限散点图已移除（成长版块简化方案 §6 E：站间对标不占成长页） ============ */
 
-/* ============ ② 我的处方 ============ */
-function gwRx(st){
-  var bk = GW.bench(), m = bk.all[st], r = m._raw;
-  var w = GW.weakness(st), S = GW.of(st), h = '';
-  var picks = w.slice(0,2);   // 只给两张，避免全线夹生
-  h += '<div class="gw-core" style="background:#eef5fc;border-left-color:#2b7cd3;color:#22405c">一次只给<b>两张</b>处方 —— 短板有 '+GW.CAPS.length+' 项，但同时补 '+GW.CAPS.length+' 项等于一项都补不上。做完一张回填结果，系统再给下一张。</div>';
-
-  picks.forEach(function(x, idx){
-    var c = x.cap, rx = GW.RX[x.k];
-    var mine = S.my.rx[x.k] || {};
-    var target = mine.target || gwTarget(x);
-    h += '<div class="gw-rx">';
-    h += '<div class="gw-rx-h">';
-    h += '<div class="tg'+(idx?' g2':'')+'">'+(idx?'次优先':'最优先')+' · '+c.n+'</div>';
-    h += '<h3>'+rx.title+'</h3>';
-    h += '<div class="gap">你 <b>'+gwFmt(x.v,c.u)+(c.u==='%'?'':c.u)+'</b>｜'+bk.n+' 站中位 '+gwFmt(x.med,c.u)+(c.u==='%'?'':c.u)
-       + '｜做得最好 <i>'+x.top+' '+gwFmt(x.topv,c.u)+(c.u==='%'?'':c.u)+'</i>（'+GW.ownerOf(x.top)+'）　排名 <b>'+x.rank+'/'+bk.n+'</b></div>';
-    h += '<div class="gap" style="margin-top:7px;color:#5a7a99;font-size:12.5px">'+rx.why+'</div>';
-    h += '</div>';
-    h += '<div class="gw-rx-b">';
-    // 标杆真实做法
-    h += '<div class="gw-bm"><div class="t">这一项做得最好的是谁，他到底怎么做的</div>';
-    h += '<div class="who">'+x.top+'浆站 · '+GW.ownerOf(x.top)+'　'+c.n+' '+gwFmt(x.topv,c.u)+(c.u==='%'?'':c.u)+'</div>';
-    h += '<div class="how">'+GW.benchHow(x.top)+'</div></div>';
-    // 动作
-    h += '<ul class="gw-acts">';
-    rx.acts.forEach(function(a){ h += '<li>'+a+'</li>'; });
-    h += '</ul>';
-    // 验收线
-    h += '<div class="gw-accept"><b>验收线：</b>下一批把「'+c.n+'」从 <b>'+gwFmt(x.v,c.u)+(c.u==='%'?'':c.u)+'</b> 做到 <b>'+gwFmt(target,c.u)+(c.u==='%'?'':c.u)+'</b>（'+c.fx+'）。到不了这条线就算没成，如实回填，系统会问你卡在哪。</div>';
-    // 操作区
-    h += '<div class="gw-rx-f">';
-    if(mine.status==='doing'){
-      h += '<span style="font-size:13px;color:#a06a00;font-weight:600">执行中 · 开始于 '+gwDate(mine.start)+'</span>';
-    }else{
-      h += '<button onclick="gwStart(\''+x.k+'\','+target.toFixed(2)+')">开始执行这张处方</button>';
-    }
-    h += '<button class="ghost" onclick="gwGo(\''+rx.tool.tab+'\')">用 '+rx.tool.n+'</button>';
-    h += '<button class="ghost" onclick="gwGo(\'learn\')">补 '+rx.learn+'</button>';
-    h += '<span class="lk" onclick="gwAskBench(\''+x.top+'\',\''+x.k+'\')">直接问'+x.top+'站要打法</span>';
-    h += '</div>';
-    // 回填区
-    if(mine.status==='doing'){
-      h += '<div class="gw-doing"><div class="t">这一批做完了？把真实数字填进来，不用美化</div>';
-      h += '<div class="gw-fill"><span>实际做到</span><input id="gwIn_'+x.k+'" type="number" step="0.01" placeholder="'+gwFmt(x.v,c.u).replace('%','')+'"><span>'+(c.u==='%'?'%':c.u)+'</span>';
-      h += '<button onclick="gwFill(\''+x.k+'\')">提交并对照验收线</button></div>';
-      if(mine.pendBlock){
-        h += '<div class="gw-block"><div class="q">没到线不是问题，说不清原因才是。这一次主要卡在哪？</div><div class="opts">';
-        [['method','方法不对：动作做了但没效果'],['res','资源不够：人手/物料/预算跟不上'],['cog','认知没通：团队里有人不认这件事'],['out','外部受限：政策、家长、学校卡住了']].forEach(function(o){
-          h += '<button onclick="gwBlock(\''+x.k+'\',\''+o[0]+'\')">'+o[1]+'</button>';
-        });
-        h += '</div></div>';
-      }
-      h += '</div>';
-    }
-    h += '</div></div>';
-  });
-  return h;
-}
 /* 验收目标：朝中位/头部推进一档，不给不可能的数 */
 function gwTarget(x){
   var v = x.v, med = x.med, top = x.topv;
@@ -8112,54 +8252,6 @@ function gwDate(ts){
   if(!ts) return '';
   var d = new Date(ts);
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
-}
-function gwStart(k, target){
-  var st = gwSt(), S = GW.of(st);
-  S.my.rx[k] = {status:'doing', start:Date.now(), target:target};
-  GW.save(S.all); gwPaint();
-}
-function gwFill(k){
-  var st = gwSt(), S = GW.of(st);
-  var inp = document.getElementById('gwIn_'+k);
-  var v = parseFloat(inp && inp.value);
-  if(isNaN(v)){ toast('先填一个真实数字，哪怕不好看'); if(inp) inp.focus(); return; }
-  var mine = S.my.rx[k] || {};
-  var caps = GW.CAPS.filter(function(c){ return c.k===k; })[0];
-  var base = GW.bench().all[st][k];
-  var ok = v >= (mine.target||0);
-  if(ok){
-    S.my.ev.push({t:Date.now(), k:k, from:base, to:v, target:mine.target, ok:true,
-                  method:GW.RX[k].title, acts:GW.RX[k].acts.length});
-    S.my.rx[k] = {status:'done', start:mine.start, end:Date.now(), target:mine.target, actual:v};
-    GW.save(S.all);
-    gwPaint();
-    gwNotice('达成 · 已写入你的成长档案',
-             '从 <b>'+gwFmt(base,caps.u)+'</b> 做到 <b>'+gwFmt(v,caps.u)+'</b>，验收线 '+gwFmt(mine.target,caps.u)
-             +'。这条是能带走的证据 —— 去「成长档案」可以看到完整的一条龙记录。', 'ok', 6500);
-  }else{
-    S.my.rx[k] = {status:'doing', start:mine.start, target:mine.target, actual:v, pendBlock:true};
-    GW.save(S.all); gwPaint();
-  }
-}
-function gwBlock(k, b){
-  var st = gwSt(), S = GW.of(st), mine = S.my.rx[k]||{};
-  var caps = GW.CAPS.filter(function(c){ return c.k===k; })[0];
-  var base = GW.bench().all[st][k];
-  var MAP = {method:'方法不对', res:'资源不够', cog:'认知没通', out:'外部受限'};
-  var NEXT = {
-    method:'动作做了没效果 —— 大概率是执行细节走形了。下一步不要换打法，先去看一次现场：谁在做、怎么说的、学生什么反应。找出走形的那一句话。',
-    res:'资源不够 —— 把缺口写成一句具体的话（缺几个人、几天、多少钱），带着数字上报，比说"人手紧"有用得多。',
-    cog:'认知没通 —— 这是最值得花时间的一种卡点。别再开会讲道理，带那个不认的人去做得最好的站看半天。',
-    out:'外部受限 —— 记录清楚受限的具体环节和对方原话，这是你向上求支持最硬的材料，也是明年方案的依据。'
-  };
-  S.my.ev.push({t:Date.now(), k:k, from:base, to:mine.actual, target:mine.target, ok:false,
-                block:MAP[b], next:NEXT[b]});
-  S.my.rx[k] = {status:'redo', start:mine.start, target:mine.target, actual:mine.actual, block:MAP[b]};
-  GW.save(S.all);
-  GW_TAB = 'file';
-  document.querySelectorAll('#gwTabs button').forEach(function(x){ x.classList.toggle('active', x.dataset.gw==='file'); });
-  gwPaint();
-  gwNotice('已记入成长档案 · 卡点：'+MAP[b], NEXT[b], 'warn', 10000);
 }
 function gwGo(tab){
   /* 侧边栏是 <aside>.sb-item，页面无 <nav> 元素；
@@ -8182,16 +8274,6 @@ function gwNotice(title, body, kind, ms){
   n._tm=setTimeout(gwNoteHide, ms||6000);
 }
 function gwNoteHide(){ var n=document.getElementById('gwNote'); if(n) n.classList.remove('show'); }
-function gwAskBench(top, k){
-  var caps = GW.CAPS.filter(function(c){ return c.k===k; })[0];
-  var st = gwSt();
-  var msg = '我是'+st+'站负责人。我站「'+caps.n+'」（'+caps.fx+'）是 '
-          + gwFmt(GW.bench().all[st][k], caps.u) + '，'+top+'站做到 '
-          + gwFmt(GW.bench().B[k].topv, caps.u) + '。请结合'+top+'站的真实做法，给我三个这周就能落地的具体动作，不要讲原则。';
-  gwGo('bot');
-  var inp = document.getElementById('botFree');
-  if(inp){ inp.value = msg; if(window.sendFree) sendFree(); }
-}
 
 /* ============ ③ 成长档案 ============ */
 function gwFile(st){
@@ -8217,7 +8299,7 @@ function gwFile(st){
   h += '<div class="gw-radar-box"><div class="t">能力画像 · '+GW.CAPS.length+' 项能力 vs '+GW.bench().n+' 站中位（越往外越强）</div>'+gwRadar(st)+'<div class="gw-radar-legend"><span class="me">■ 我的站</span><span class="md">□ '+GW.bench().n+' 站中位基准</span></div></div>';
 
   if(!ev.length){
-    h += '<div class="gw-empty"><b>档案还是空的</b>去「我的处方」领一张，执行完回填真实结果。<br>达成会写成一条能带走的能力证据；没达成会记下卡点和下一步 —— 两种都算成长，只有不回填不算。<br><button class="ghost" style="margin-top:10px" onclick="gwShowDemo()">先看一个真实站怎么走完一轮 ›</button></div>';
+    h += '<div class="gw-empty"><b>档案还是空的</b>把首屏「接下来往哪走」里的动作做起来，做成的一条条都会沉淀在这里 —— 那是年底能带走的能力证据。<br><button class="ghost" style="margin-top:10px" onclick="gwShowDemo()">先看一个真实站怎么走完一轮 ›</button></div>';
     return h;
   }
   h += '<div class="gw-tl">';
@@ -8227,7 +8309,7 @@ function gwFile(st){
     h += '<div class="d">'+gwDate(x.t)+'　'+st+'浆站</div>';
     if(x.ok){
       h += '<div class="h">'+c.n+'：'+gwFmt(x.from,c.u)+' → <i>'+gwFmt(x.to,c.u)+'</i>　达成验收线 '+gwFmt(x.target,c.u)+'</div>';
-      h += '<div class="m"><b>用的方法：</b>'+x.method+'（'+x.acts+' 个动作全做）<br><b>可复用性：</b>这条方法已具备向其他站输出的条件 —— 去「互补配对」看谁最需要它。</div>';
+      h += '<div class="m"><b>用的方法：</b>'+x.method+'（'+x.acts+' 个动作全做）<br><b>可复用性：</b>这条方法已具备向其他站输出的条件。</div>';
     }else{
       h += '<div class="h">'+c.n+'：'+gwFmt(x.from,c.u)+' → <i class="dn">'+gwFmt(x.to,c.u)+'</i>　未达验收线 '+gwFmt(x.target,c.u)+'</div>';
       h += '<div class="m"><b>卡点归因：</b>'+x.block+'<br><b>下一步：</b>'+x.next+'</div>';
@@ -8325,7 +8407,7 @@ function gwExportPDF(){
       L.push('<div class="cap"><span>'+c.n+'</span><span>'+gwFmt(bk.all[st][c.k],c.u)+c.u+'　第 '+bk.B[c.k].rank(st)+' / '+bk.n+'　中位 '+gwFmt(bk.B[c.k].med,c.u)+c.u+'</span></div>');
     });
     L.push('<h2>能力闭环记录（'+ev.length+' 条）</h2>');
-    if(!ev.length) L.push('<p class="sub">暂无回填记录，去「我的处方」领一张做完回填。</p>');
+    if(!ev.length) L.push('<p class="sub">暂无回填记录，先把首屏动作卡里的动作做起来。</p>');
     ev.forEach(function(x){
       var c = GW.CAPS.filter(function(y){ return y.k===x.k; })[0] || {n:x.k,u:''};
       L.push('<div class="ev'+(x.ok?'':' miss')+'"><b>'+gwDate(x.t)+'</b>　'+c.n+'：'+gwFmt(x.from,c.u)+' → '+gwFmt(x.to,c.u)+'（验收 '+gwFmt(x.target,c.u)+'）'+(x.ok?' 达成':' 未达成')+'<br>'+(x.ok?('方法：'+x.method):('卡点：'+x.block+'；下一步：'+x.next))+'</div>');
@@ -8386,99 +8468,13 @@ function gwDemo(){
   h += '<div class="st">证据 · 年底能带走的东西</div>';
   h += '<div class="gw-tlx"><div class="d">'+gwDate(Date.now())+'　'+st+'浆站</div>';
   h += '<div class="h">家校经营：'+gwFmt(pw.v,'%')+' → <i>'+gwFmt(target,'%')+'</i>　达成验收线 '+gwFmt(target,'%')+'</div>';
-  h += '<div class="m"><b>用的方法：</b>把家长从阻力变成合力（开营请家长进站看采浆室 / 结营办家长见证会 / 成长报告寄到家）<br><b>可复用性：</b>这条方法已具备向其他家校经营垫底的站输出的条件 —— 去「互补配对」就能看到谁最需要它。</div>';
+  h += '<div class="m"><b>用的方法：</b>把家长从阻力变成合力（开营请家长进站看采浆室 / 结营办家长见证会 / 成长报告寄到家）<br><b>可复用性：</b>这条方法已具备向其他家校经营垫底的站输出的条件。</div>';
   h += '</div>';
   h += '<div class="gw-core" style="background:#f0faf3;border-left-color:#12833f;color:#1a5c33;margin-top:14px">这就是一个负责人的一轮闭环。一年走 3-4 轮，手里就攒了 3-4 条能带走的能力证据 —— 比任何"我很努力"的总结都硬。</div>';
   h += '</div></div>';
 
   h += '<div class="gw-demo-foot"><button class="ghost" onclick="GW_TAB=\'diag\';var b=document.querySelector(\'#gwTabs button[data-gw=diag]\');if(b){document.querySelectorAll(\'#gwTabs button\').forEach(function(x){x.classList.remove(\'active\');});b.classList.add(\'active\');}gwPaint();">回到我自己的诊断</button><span class="lk" onclick="gwGo(\'learn\')">不明白的地方，去学习系统补一补</span></div>';
   return h;
-}
-
-/* ============ ④ 互补配对 ============ */
-function gwPair(st){
-  var bk = GW.bench(), w = GW.weakness(st), h = '';
-  var myWeak = w.slice(0,3);
-  var strongTop = Math.ceil(bk.n*0.3);
-  var myStrong = w.slice(-3).reverse().filter(function(x){ return x.rank<=strongTop; });
-  /* 站级匿名模式：不暴露其他站名 */
-  var anon = yfIsStation();
-  function anonLabel(realSt, rankNum){
-    if(!anon) return realSt + '浆站 · ' + GW.ownerOf(realSt);
-    if(rankNum <= 3) return '标杆站（全站第 ' + rankNum + '）';
-    if(rankNum <= 10) return '优秀站（全站第 ' + rankNum + '）';
-    if(rankNum <= bk.n - 5) return '中游站';
-    return '待提升站';
-  }
-  h += '<div class="gw-core" style="background:#eef5fc;border-left-color:#2b7cd3;color:#22405c">成长最快的方式不是自己憋 —— 是<b>把最弱的一项拿去问最强的那个人</b>，再<b>把最强的一项讲给最需要的人</b>。讲一遍，比做十遍记得牢。'
-     + (anon ? '<br><em style="font-size:12px;color:#7a8a9a">（站级视图：已隐藏具体站点名称，仅展示能力差距与学习方向。如需跨站对接请联系事业部。）</em>' : '') + '</div>';
-  h += '<div class="gw-pair">';
-  // 该问谁
-  h += '<div class="gw-pc ask"><h3>你该去问谁</h3><p class="sb">'+(anon ? '按你最短的三项，系统匹配到该项表现最好的站（名称已脱敏）。' : '按你最短的三项，配到这一项真做出来的站。都是真实数据排出来的，不是随机推荐。')+'</p>';
-  myWeak.forEach(function(x){
-    var c = x.cap;
-    var topRank = bk.B[x.k].rank(x.top);
-    h += '<div class="gw-pi"><div class="cap">'+c.n+'（你第 '+x.rank+'/'+bk.n+'）</div>';
-    h += '<div class="tgt">→ 问 '+anonLabel(x.top, topRank)+'</div>';
-    h += '<div class="gap">对方做到 '+gwFmt(x.topv,c.u)+(c.u==='%'?'':c.u)+'，你 '+gwFmt(x.v,c.u)+(c.u==='%'?'':c.u)+'，差 '+gwFmt(Math.abs(x.topv-x.v),c.u)+(c.u==='%'?'':c.u)+'。</div>';
-    if(anon){
-      h += '<button onclick="gwAskAnon(\''+x.k+'\','+x.topv+','+x.v+',\''+c.u+'\','+x.rank+')">生成学习方向参考</button>';
-    } else {
-      h += '<button onclick="gwAskBench(\''+x.top+'\',\''+x.k+'\')">生成求教话术并去问</button>';
-    }
-  });
-  h += '</div>';
-  // 能帮谁
-  h += '<div class="gw-pc give"><h3>你能帮谁</h3><p class="sb">你排前列的项，正是别人的短板。输出一次，你自己那点隐性经验才真正变成方法。</p>';
-  if(!myStrong.length){
-    h += '<div class="gw-pi"><div class="gap">当前 '+GW.CAPS.length+' 项都还没进前 '+Math.ceil(bk.n*0.3)+'。先把处方做成一条，这里就会出现你能带的站 —— 那一刻比任何评优都实在。</div></div>';
-  }else{
-    myStrong.forEach(function(x){
-      var c = x.cap, order = bk.B[x.k].order;
-      var target = order[order.length-1];
-      if(target===st) target = order[order.length-2];
-      var tv = bk.all[target][x.k];
-      var tRank = bk.B[x.k].rank(target);
-      h += '<div class="gw-pi"><div class="cap">'+c.n+'（你第 '+x.rank+'/'+bk.n+'）</div>';
-      h += '<div class="tgt">→ 可以带 '+anonLabel(target, tRank)+'</div>';
-      h += '<div class="gap">对方只有 '+gwFmt(tv,c.u)+(c.u==='%'?'':c.u)+'，你 '+gwFmt(x.v,c.u)+(c.u==='%'?'':c.u)+'。把你怎么做的写成三条动作发给他。</div>';
-      if(anon){
-        h += '<button onclick="gwTeachAnon(\''+x.k+'\','+x.v+','+tv+',\''+c.u+'\')">生成方法提炼稿</button>';
-      } else {
-        h += '<button onclick="gwTeach(\''+target+'\',\''+x.k+'\')">生成可输出的方法稿</button>';
-      }
-    });
-  }
-  h += '</div></div>';
-  return h;
-}
-
-/* 站级匿名：生成学习方向参考（不含站名） */
-function gwAskAnon(k, topV, myV, u, myRank){
-  var caps = GW.CAPS.filter(function(c){ return c.k===k; })[0];
-  var msg = '我站在「'+caps.n+'」（'+caps.fx+'）上目前是 '+gwFmt(myV,u)+u+'，了解到有标杆站能做到 '+gwFmt(topV,u)+u+'（差距 '+gwFmt(Math.abs(topV-myV),u)+u+'）。请帮我整理一份「'+caps.n+'提升方向」：三条可落地的动作、每条写清做什么、什么时候做、做到什么算完成。语言要实在，别写原则和口号。';
-  gwGo('bot');
-  var inp = document.getElementById('botFree');
-  if(inp){ inp.value = msg; if(window.sendFree) sendFree(); }
-}
-
-/* 站级匿名：生成方法提炼稿（不含目标站名） */
-function gwTeachAnon(k, myV, tv, u){
-  var st = gwSt(), caps = GW.CAPS.filter(function(c){ return c.k===k; })[0];
-  var msg = '我站在「'+caps.n+'」上做到了 '+gwFmt(myV,u)+u+'，了解到有些同行在这方面只有 '+gwFmt(tv,u)+u+'。请帮我把我这项的做法整理成一份通用方法稿：三条动作、每条写清谁做、什么时候做、做到什么算完成。语言要实在，别写原则和口号。';
-  gwGo('bot');
-  var inp = document.getElementById('botFree');
-  if(inp){ inp.value = msg; if(window.sendFree) sendFree(); }
-}
-function gwTeach(target, k){
-  var st = gwSt(), caps = GW.CAPS.filter(function(c){ return c.k===k; })[0];
-  var bk = GW.bench();
-  var msg = '我是'+st+'站负责人，我站「'+caps.n+'」（'+caps.fx+'）做到 '+gwFmt(bk.all[st][k],caps.u)
-          + '，'+target+'站只有 '+gwFmt(bk.all[target][k],caps.u)
-          + '。请帮我把我这一项的做法整理成一份能直接发给'+target+'站的方法稿：三条动作、每条写清谁做、什么时候做、做到什么算完成。语言要实在，别写原则和口号。';
-  gwGo('bot');
-  var inp = document.getElementById('botFree');
-  if(inp){ inp.value = msg; if(window.sendFree) sendFree(); }
 }
 
 /* ============ 经验闭环 + 站间对标（#174） ============ */
@@ -8536,13 +8532,12 @@ function expBenchRender(){
 
 /* ============ 新手 7 步引导（#172） ============ */
 var OB_STEPS = [
-  {k:'claim', t:'认领我的站点',     d:'在「我的成长」顶部选你是哪个浆站的负责人，系统才会按你站真实数据给你诊断。', tab:'rhythm'},
-  {k:'diag',  t:'看一眼能力体检',   d:'打开「我的成长 → 能力体检」，看 5 项能力里最弱的是哪一项、和中位差多少。', tab:'rhythm', gw:'diag'},
-  {k:'rx',    t:'领一张处方',       d:'切到「我的处方」，系统按你最短的板给你这周能落地的动作和一条验收线。', tab:'rhythm', gw:'rx'},
-  {k:'act',   t:'做第一个落地动作', d:'照处方里写的三条动作做一件最小的事（比如给 3 个家长发一条微信）。', tab:'rhythm', gw:'rx'},
-  {k:'fill',  t:'回填真实结果',     d:'做完回来在处方里填真实数字，达成了就自动写进你的成长档案。', tab:'rhythm', gw:'rx'},
-  {k:'pair',  t:'找个标杆结对',     d:'切到「互补配对」，看谁这项最强、生成一句求教话术去问。', tab:'rhythm', gw:'pair'},
-  {k:'file',  t:'沉淀一条经验',     d:'到「成长档案」导出这份能力证据，年底比任何总结都硬。', tab:'rhythm', gw:'file'}
+  {k:'claim', t:'认领我的站点',     d:'在「我的成长」顶部选你是哪个浆站的负责人，系统才会按你站真实数据给你定位。', tab:'rhythm'},
+  {k:'diag',  t:'读完三句话',       d:'打开「我的成长」，三张卡读完：你在什么阶段、最大短板是什么、接下来往哪走。', tab:'rhythm'},
+  {k:'act',   t:'做第一个落地动作', d:'照「接下来往哪走」里的第一条动作做一件最小的事（比如给 3 个家长发一条微信）。', tab:'rhythm'},
+  {k:'fill',  t:'对照验收线',       d:'每条动作下面都有一行验收数字，下季做到它，这一环就算补上了。', tab:'rhythm'},
+  {k:'detail',t:'展开详细数据',     d:'点「查看详细数据」，四能力水平条、季度同比明细、三源评价原文和成长档案都在里面。', tab:'rhythm'},
+  {k:'file',  t:'沉淀一条经验',     d:'在详细数据底部导出成长档案，年底比任何总结都硬。', tab:'rhythm', gw:'file'}
 ];
 function obSeen(){ try{ return JSON.parse(localStorage.getItem('yf_onboard')||'{}'); }catch(e){ return {}; } }
 function obOpen(){
