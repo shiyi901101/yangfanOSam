@@ -7081,18 +7081,18 @@ var GW = (function(){
        主动调控（刻意缩小规模做精做细），不反映负责人做法；两项降级到
        「势头参考」区仅作漏斗展示，不进能力排名、不产预警。
      · 深度经营修正：采浆份数不必然是学生发展的（可能来自社会浆员），
-       改为「科普转化新卡数 ÷ 入营人数」，只统计学生带来的转化。
-     · 新增「科普渗透」：学生邀约科普数 ÷ 入营人数。
+       改为「科普转化新卡数 ÷ 季累计入营人数」，只统计学生带来的转化。
+     · 新增「科普渗透」：学生邀约科普数 ÷ 季累计入营人数（camp[0]）。
      环比不在其中 —— 它反映开营早晚，不反映能力，单列为「势头」参考。 */
   var CAPS = [
     {k:'cardper',n:'转化设计', q:'一个学员平均带来几张新卡',
-     u:'张/人', fx:'新卡数 ÷ 入营人数',         cap:5.5, ratio:false},
+     u:'张/人', fx:'新卡数 ÷ 季累计入营人数',         cap:5.5, ratio:false},
     {k:'convper',n:'深度经营', q:'一个学员平均带来多少科普转化',
-     u:'人/人', fx:'科普转化新卡数 ÷ 入营人数', cap:2.5, ratio:false},
+     u:'人/人', fx:'科普转化新卡数 ÷ 季累计入营人数', cap:2.5, ratio:false},
     {k:'sciop',  n:'科普渗透', q:'学员把科普带出了多少倍的人群',
-     u:'人/人', fx:'科普数 ÷ 入营人数',         cap:8,   ratio:false},
+     u:'人/人', fx:'科普数 ÷ 季累计入营人数',         cap:8,   ratio:false},
     {k:'parent', n:'家校经营', q:'家长愿不愿意走进来',
-     u:'%',    fx:'家长参与人数 ÷ 入营人数',   cap:200, ratio:false}
+     u:'%',    fx:'家长参与人数 ÷ 季累计入营人数',   cap:200, ratio:false}
   ];
 
   /* ---------- 取一个站的原始数据（最新月 + 前一月，月份动态） ---------- */
@@ -7106,17 +7106,18 @@ var GW = (function(){
     var preg=b.reg||[0,0,0];
     return {r0:reg[0]||0, r1:reg[1]||0, r2:reg[2]||0,
             card:dev[0]||0, vol:dev[1]||0, free:dev[2]||0, sci:dev[3]||0, conv:dev[4]||0,
-            pn:par[0]||0, pp:par[1]||0, boy:camp[1]||0, girl:camp[2]||0,
+    pn:par[0]||0, pp:par[1]||0, camp0:camp[0]||0, boy:camp[1]||0, girl:camp[2]||0,
             p0:preg[0]||0, p1:preg[1]||0, p2:preg[2]||0,
             mKey:ck, pKey:pk, mLabel:monthLabel(ck), pLabel:pk?monthLabel(pk):''};
   }
   /* ---------- 能力值：四项进排名；到场/入营/环比只作参考输出 ---------- */
   function metrics(st){
     var m = raw(st);
+    /* 分母统一用 camp0（camp[0]=季累计入营）——与 PM 验证口径同源（达标线/分布/相关性均基于 camp[0]） */
     return {
-      cardper: m.r2 ? m.card/m.r2  : 0,
-      convper: m.r2 ? m.conv/m.r2  : 0,
-      sciop  : m.r2 ? m.sci/m.r2   : 0,
+      cardper: m.camp0 ? m.card/m.camp0  : 0,
+      convper: m.camp0 ? m.conv/m.camp0  : 0,
+      sciop  : m.camp0 ? m.sci/m.camp0   : 0,
       parent : m.pp*100,
       /* 以下不进 CAPS、不参与能力排名，仅作参考展示与漏斗基准 */
       arrive : m.r0 ? m.r1/m.r0*100 : 0,
@@ -7140,8 +7141,9 @@ var GW = (function(){
   /* ---------- 全站基准：中位 / 头部站 / 排名，双基准（全站 + 同规模档） ----------
      缓存键含月份与站点清单：云端/缓存换月、站点增减后自动重算基准 */
   var _bench = null, _benchKey = '';
+  /* 中位：全站含零值（与 PM 验证口径一致——零转化/零科普是真实现状，剔零会虚高基准） */
   function med(arr){
-    var v = arr.filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
+    var v = arr.slice().sort(function(a,b){return a-b;});
     if(!v.length) return 0;
     var h = Math.floor(v.length/2);
     return v.length%2 ? v[h] : (v[h-1]+v[h])/2;
@@ -7417,8 +7419,8 @@ function hqReportHTML(){
     benchH+='<div class="bench"><div class="bn">'+o.s+'<span class="tier">'+o.tier+' · 健康度 '+grade(o.n)[0]+'</span></div>'
       +'<div class="bd">'+how+'</div></div>';
   });
-  var tot={r0:0,r1:0,r2:0,card:0,vol:0,pn:0,sci:0,conv:0};
-  list.forEach(function(s){ var r=GW.metrics(s)._raw; tot.r0+=r.r0;tot.r1+=r.r1;tot.r2+=r.r2;tot.card+=r.card;tot.vol+=r.vol;tot.pn+=r.pn;tot.sci+=r.sci;tot.conv+=r.conv; });
+  var tot={r0:0,r1:0,r2:0,camp0:0,card:0,vol:0,pn:0,sci:0,conv:0};
+  list.forEach(function(s){ var r=GW.metrics(s)._raw; tot.r0+=r.r0;tot.r1+=r.r1;tot.r2+=r.r2;tot.camp0+=r.camp0;tot.card+=r.card;tot.vol+=r.vol;tot.pn+=r.pn;tot.sci+=r.sci;tot.conv+=r.conv; });
   var H='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>扬帆计划 · 集团汇报材料 '+dstr+'</title><style>'
    +'*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1080px;margin:0 auto;padding:28px 24px 60px;color:#1f3a5f;background:#fff;line-height:1.65}'
    +'.hd{border-bottom:3px solid #0d2c4d;padding-bottom:14px;margin-bottom:6px}'
@@ -7457,7 +7459,7 @@ function hqReportHTML(){
    +'<button onclick="window.print()">打印 / 另存 PDF</button><button class="gh" onclick="window.close()">关闭</button></div>'
    +'<div class="hd"><div class="tt">扬帆计划 · 集团汇报材料</div>'
    +'<div class="sb2">数据周期：'+(new Date().getFullYear())+' 年 '+GW.spanLabel()+'　｜　覆盖 '+list.length+' 家浆站　｜　生成日期：'+dstr+'　｜　口径来源：扬帆OS 中台总览驾驶舱</div></div>'
-   +'<div class="cali"><b>口径说明：</b>四项能力全部由各站真实漏斗反推（转化设计=新卡/入营；深度经营=科普转化新卡/入营；科普渗透=科普数/入营；家校经营=家长参与/入营）。<b>不以到场率、入营率评价好坏</b>——面试与入营规模由中台按容量与批次主动调控（刻意做精做细），属集团可控环节，两项仅作漏斗参考展示，不进能力排名。健康度 = 四项能力中达到全体中位数 90% 的项数（A≥3、B=2、C=1、D≤0）。</div>'
+   +'<div class="cali"><b>口径说明：</b>四项能力全部由各站真实漏斗反推（转化设计=新卡/季累计入营；深度经营=科普转化新卡/季累计入营；科普渗透=科普数/季累计入营；家校经营=家长参与度，上报值）。<b>不以到场率、入营率评价好坏</b>——面试与入营规模由中台按容量与批次主动调控（刻意做精做细），属集团可控环节，两项仅作漏斗参考展示，不进能力排名。健康度 = 四项能力中达到全体中位数 90% 的项数（A≥3、B=2、C=1、D≤0）。</div>'
    +'<h2>一、总体指标</h2><div class="nk">'
    +'<div class="nkc"><div class="n">'+tot.r2.toLocaleString()+'</div><div class="l">'+GW.monthLabel(GW.curKey())+'入营总规模</div><div class="s">'+list.length+'站合计</div></div>'
    +'<div class="nkc"><div class="n">'+north.healthy+'<span style="font-size:15px;color:#8a9aab">/'+list.length+'</span></div><div class="l">能力健康站</div><div class="s">≥3/'+GW.CAPS.length+' 项达中位数，占 '+north.healthyPct+'%</div></div>'
@@ -7467,8 +7469,8 @@ function hqReportHTML(){
    +'<div class="nk">'
    +'<div class="nkc"><div class="n">'+(tot.r0?Math.round(tot.r1/tot.r0*100):0)+'%</div><div class="l">整体到场率</div><div class="s">面试 '+tot.r1.toLocaleString()+' / 报名 '+tot.r0.toLocaleString()+'</div></div>'
    +'<div class="nkc"><div class="n">'+(tot.r1?Math.round(tot.r2/tot.r1*100):0)+'%</div><div class="l">整体入营率</div><div class="s">入营 '+tot.r2.toLocaleString()+' / 面试 '+tot.r1.toLocaleString()+'</div></div>'
-   +'<div class="nkc"><div class="n">'+(tot.r2?(tot.card/tot.r2).toFixed(2):0)+'</div><div class="l">人均新卡（张/人）</div><div class="s">新卡合计 '+tot.card.toLocaleString()+' 张</div></div>'
-   +'<div class="nkc"><div class="n">'+(tot.r2?(tot.vol/tot.r2).toFixed(1):0)+'</div><div class="l">人均采浆（份/人）</div><div class="s">采浆合计 '+tot.vol.toLocaleString()+' 份</div></div>'
+   +'<div class="nkc"><div class="n">'+(tot.camp0?(tot.card/tot.camp0).toFixed(2):0)+'</div><div class="l">人均新卡（张/人）</div><div class="s">新卡合计 '+tot.card.toLocaleString()+' 张 · 分母季累计入营</div></div>'
+   +'<div class="nkc"><div class="n">'+(tot.camp0?(tot.vol/tot.camp0).toFixed(1):0)+'</div><div class="l">人均采浆（份/人）</div><div class="s">采浆合计 '+tot.vol.toLocaleString()+' 份 · 分母季累计入营</div></div>'
    +'</div>'
    +'<h2>二、'+list.length+' 站能力健康度明细</h2>'
    +'<table><thead><tr><th>#</th><th>浆站</th><th>负责人</th><th>'+GW.monthLabel(GW.curKey())+'入营</th>'+capTh+'<th>健康度</th><th>预警数</th><th>最弱项</th></tr></thead><tbody>'+bodyRows+'</tbody></table>'
@@ -7678,15 +7680,15 @@ function gwDiag(st){
   /* --- 诊断书：先讲最扎的那个事实（月份随数据，不写死） --- */
   var fact = '';
   if(worst.k==='cardper'){
-    fact = r.mLabel+'你站在营 <b>'+r.r2+'</b> 人，带来新卡 <b>'+r.card+'</b> 张 —— 平均一个学员 <b>'+gwFmt(m.cardper,'张/人')+'</b> 张，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位是 '+gwFmt(worst.med,'张/人')+' 张。';
+    fact = r.mLabel+'你站季累计入营 <b>'+r.camp0+'</b> 人，带来新卡 <b>'+r.card+'</b> 张 —— 平均一个学员 <b>'+gwFmt(m.cardper,'张/人')+'</b> 张，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位是 '+gwFmt(worst.med,'张/人')+' 张。';
   }else if(worst.k==='convper'){
-    fact = r.mLabel+'你站在营 <b>'+r.r2+'</b> 人，科普转化新卡 <b>'+r.conv+'</b> 人次 —— 平均一个学员 <b>'+gwFmt(m.convper,'人/人')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'人/人')+'。';
+    fact = r.mLabel+'你站季累计入营 <b>'+r.camp0+'</b> 人，科普转化新卡 <b>'+r.conv+'</b> 人次 —— 平均一个学员 <b>'+gwFmt(m.convper,'人/人')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'人/人')+'。';
   }else if(worst.k==='sciop'){
-    fact = r.mLabel+'你站在营 <b>'+r.r2+'</b> 人，学生科普 <b>'+r.sci+'</b> 人次 —— 渗透 <b>'+gwFmt(m.sciop,'人/人')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'人/人')+'。';
+    fact = r.mLabel+'你站季累计入营 <b>'+r.camp0+'</b> 人，学生科普 <b>'+r.sci+'</b> 人次 —— 渗透 <b>'+gwFmt(m.sciop,'人/人')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'人/人')+'。';
   }else if(worst.k==='parent'){
-    fact = r.mLabel+'你站入营 <b>'+r.r2+'</b> 人，家长参与 <b>'+r.pn+'</b> 人 —— 参与率 <b>'+gwFmt(m.parent,'%')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'%')+'。';
+    fact = r.mLabel+'你站季累计入营 <b>'+r.camp0+'</b> 人，家长参与 <b>'+r.pn+'</b> 人 —— 参与率 <b>'+gwFmt(m.parent,'%')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'%')+'。';
   }else{
-    fact = r.mLabel+'你站入营 <b>'+r.r2+'</b> 人，'+worst.cap.n+'（'+worst.cap.fx+'）为 <b>'+gwFmt(worst.v,worst.cap.u)+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>。';
+    fact = r.mLabel+'你站季累计入营 <b>'+r.camp0+'</b> 人，'+worst.cap.n+'（'+worst.cap.fx+'）为 <b>'+gwFmt(worst.v,worst.cap.u)+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>。';
   }
   /* --- 但是：把最强项摆出来，避免只看短板打击人 --- */
   var bmul = best.med ? (best.v/best.med) : 0;
