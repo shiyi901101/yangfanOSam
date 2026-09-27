@@ -261,10 +261,11 @@ window.__yfLoadLib=(function(){
   @keyframes gw3in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){.gw3-card{animation:none}}
   .gw3-stage{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-0.01em}
-  .gw3-pos{font-size:15px;line-height:1.6;color:var(--ink);margin-top:4px}
+  .gw3-pos{font-size:16px;line-height:1.6;color:var(--ink);margin-top:4px}
   .gw3-base{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7}
   .gw3-org{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.7}
   .gw3-capn{font-size:18px;font-weight:800;color:var(--ink)}
+  .gw3-actt{font-size:16px;font-weight:800;color:var(--ink)}
   .gw3-why{font-size:14px;color:var(--ink);margin-top:6px;line-height:1.7}
   .gw3-gap{font-size:13px;color:var(--ink);margin-top:8px;line-height:1.7}
   .gw3-good{color:var(--ok-ink)}
@@ -8035,6 +8036,7 @@ function gwDetailToggle(btn){
   var open=d.hasAttribute('hidden');
   if(open)d.removeAttribute('hidden');else d.setAttribute('hidden','');
   btn.textContent=open?'收起详细数据 ‹':'查看详细数据 ›';
+  btn.setAttribute('aria-expanded',open?'true':'false');
 }
 function gwDetailToggleHtml(){
   return '<button class="gw3-more" onclick="gwDetailToggle(this)" aria-expanded="false">查看详细数据 ›</button>';
@@ -8046,7 +8048,7 @@ function gwThreeQHtml(st){
   /* 降级 1：本季未上报——三卡位置显示引导 + 去上报（不以 0 冒充） */
   if(!a.vals){
     return '<div class="gw3-guide">这个季度还没有你的数据，先完成上报，这里会告诉你现阶段和短板。'
-      +(isCur?'<div><button class="btn" onclick="openReportForm()">去上报</button></div>':'')
+      +(isCur?'<div><button class="btn" style="min-height:44px" onclick="openReportForm()">去上报</button></div>':'')
       +'</div>';
   }
   var v=a.vals,enroll=Math.round(v.enroll);
@@ -8078,7 +8080,8 @@ function gwThreeQHtml(st){
   var parHot=a.weak&&a.weak.k==='parent';
   if(a.strong)parHot=parHot||a.strong.k==='parent';
   if(parHot)h+='<div class="gw3-base">家长参与 '+Math.round(v.parent||0)+' 人，为今年新增统计项。</div>';
-  /* 集团评价一句话（方案 §6 D：半年度画像一句话摘要；PROF 画像取第一句，取不到退 SEMI，再取不到整行不显示） */
+  /* 集团评价一句话（方案 §6 D：半年度画像一句话摘要；PROF 画像取第一句，取不到退 SEMI，再取不到整行不显示）
+     权限边界（lead 定案 2026-09-27）：组织侧评价摘要仅管理端可见，站级隐藏——与详情层组织侧评价原文同一隐私边界 */
   var hqLine=(function(){
     function oneLine(t){
       if(t==null)return null;t=String(t).trim();if(!t)return null;
@@ -8089,7 +8092,7 @@ function gwThreeQHtml(st){
     var s=(typeof SEMI!=='undefined'&&SEMI[st])?SEMI[st]:null;
     return oneLine(p&&p.note)||oneLine(s&&s.yf)||null;
   })();
-  if(hqLine)h+='<div class="gw3-org">集团评价：'+hqLine+'</div>';
+  if(hqLine&&!(typeof yfIsStation==='function'&&yfIsStation()))h+='<div class="gw3-org">集团评价：'+hqLine+'</div>';
   h+='</div>';
   /* ② 短板卡（只点一块，不做排名不放雷达图；最小比值 ≥1 即无真实短板，本卡不渲染） */
   if(a.weak&&!noMed&&a.weak.ratio!=null&&a.weak.ratio<1){
@@ -8111,7 +8114,7 @@ function gwThreeQHtml(st){
     var take=acts.slice(0,Math.min(want,acts.length));
     if(take.length){
       h+='<div class="gw3-card">';
-      h+='<div class="gw3-capn" style="font-size:16px">接下来往哪走</div>';
+      h+='<div class="gw3-actt">接下来往哪走</div>';
       take.forEach(function(t,i){
         h+='<div class="gw3-act">'+(i+1)+'. '+t+'</div><div class="gw3-tgt">'+gw3TgtLine(wk2)+'</div>';
       });
