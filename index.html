@@ -2042,6 +2042,8 @@ window.__yfLoadLib=(function(){
       <button class="up-enter" id="dashUpBtn" onclick="openUpModal()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg> 更新数据</button>
     </div>
   </div>
+  <!-- 数据版本条（P0 数据丢失根治 2026-09-09）：来源/最新月份/最近上传常显，同步状态肉眼可验证；内容由 dashVerRender() 填充 -->
+  <div id="dashVerBar" style="display:none;margin:10px 0 0;padding:9px 14px;border-radius:10px;font-size:13px;line-height:1.6;border:1px solid var(--line)"></div>
   <!-- 本站诊断卡（batch2 Phase 2 · 仅 station 角色显示，yfFilterNav 控制；数据来自 /v1 云端，规则表 R1-R14 见 §2.3） -->
   <div class="dg-card" id="dgCard" style="display:none">
     <div class="dg-head" id="dgHead" style="display:none"></div>
@@ -2450,7 +2452,7 @@ window.__yfLoadLib=(function(){
 <div class="um-mask" id="upMask" style="display:none">
   <div class="um-modal">
     <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg> 更新看板数据</h3><button class="um-x" onclick="closeUpModal()">✕</button></div>
-    <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → 下载新数据文件 → 替换部署目录的 <b>dash_data.js</b> 重新发布。解析在本机完成；保存后同步到集团云端，供各站与看板共用。</p>
+    <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → <b>确认写入</b>。确认后数据自动同步到集团云端并回读校验，各设备打开看板即为最新，<b>无需再替换任何部署文件</b>；「下载新 dash_data.js」仅作留档备份。云端万一暂不可达，数据也会先存本机（重开浏览器不丢），网络恢复后点看板「刷新」即可补同步。</p>
     <div class="up-row">
       <button class="up-btn" id="dlTpl"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载模版</button>
       <label class="up-file"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg> 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls"></label>
@@ -4199,6 +4201,9 @@ function dashRank(s,get,desc){
 let DASH_DB={};       // {'6':{站:{reg,dev,camp,par}},...} 上传哪个月就进哪个月
 let DASH_ORDER=[];    // 已存在月份（升序）
 let DASH_CUR='all';   // 当前视图：'all'=累计 或 具体月份
+/* 数据版本元信息（P0 数据丢失根治 2026-09-09）：云端 col=dash_data 为唯一权威源。
+   source：cloud=已从云端拉到最新 / cache=本机缓存回放（云端暂不可达）/ local=本机已生效云端待确认 / static=静态打包旧数据（离线） */
+let DASH_META={source:'static',updatedAt:null,ts:null};
 function dTot(m,key,idx){let s=0;const d=DASH_DB[m];if(!d)return 0;STATIONS.forEach(t=>{s+=(d[t][key][idx]||0);});return s;}
 function dAll(s,key,idx){let v=0;DASH_ORDER.forEach(m=>{const d=DASH_DB[m];if(d&&d[s])v+=d[s][key][idx]||0;});return v;}
 function dAllTot(key,idx){let v=0;STATIONS.forEach(s=>{v+=dAll(s,key,idx);});return v;}
@@ -4717,62 +4722,146 @@ function initDash(){
   dashKpi();dashGrid();
   applyDashView();renderDashCharts();
   renderChinaMap(); /* 渲染全国浆站分布地图 */
-  /* 尝试从云端拉取最新看板数据（覆盖静态文件） */
+  dashVerRender();
+  /* P0 数据丢失根治（2026-09-09）：静态 dash_data.js 只是首屏兜底骨架。
+     先回放本账号的云端数据本地缓存（若有，比静态新），再异步拉云端权威数据全量替换；
+     云端/缓存都拿不到才停留静态，且版本条显著提示「离线旧数据」。 */
+  dashCacheApply();
   pullCloudDash();
 }
 
-/* 从云存储拉取最新看板数据：stale-while-revalidate——本地先渲染，静默拉云端覆盖；
-   数据无变化则跳过重渲染（不闪烁）；bust=true 时带时间戳绕过中间层缓存 */
+/* —— 本机缓存（按登录账号隔离）：云端不可达时的次级数据源，保证重开浏览器不丢已上传数据 —— */
+var DASH_CACHE_KEY='yf_dash_cloud_v1';
+function dashCacheSave(data){
+  try{ localStorage.setItem(DASH_CACHE_KEY,JSON.stringify({user:yfUsername(),ts:Date.now(),data:data})); }
+  catch(e){ console.warn('[扬帆OS] 看板本机缓存写入失败（可能空间不足）',e); }
+}
+function dashCacheLoad(){
+  try{
+    var c=JSON.parse(localStorage.getItem(DASH_CACHE_KEY)||'null');
+    if(!c||!c.data||typeof c.data!=='object'||Array.isArray(c.data))return null;
+    if(c.user!==(yfUsername()||''))return null;   /* 只回放本账号的缓存 */
+    return c;
+  }catch(e){ return null; }
+}
+function dashCacheApply(){
+  var c=dashCacheLoad();
+  if(c&&Object.keys(c.data).length){ dashApplyCloud(c.data,'cache',c.updatedAt||c.ts); return true; }
+  return false;
+}
+
+/* 云端/缓存数据落库（P0 根治）：全量替换 DASH_DB（云端为唯一权威源，含月份删除）+ 重渲染 + 刷版本条 */
+function dashApplyCloud(cloudData,source,updatedAt){
+  var before='',after='';
+  try{before=JSON.stringify(DASH_DB);}catch(e){}
+  try{after=JSON.stringify(cloudData);}catch(e){}
+  DASH_DB=cloudData;
+  DASH_ORDER=Object.keys(DASH_DB);
+  DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
+  DASH_CUR=dLatest()||'all';
+  DASH_META={source:source,updatedAt:updatedAt||null,ts:Date.now()};
+  if(source==='cloud')dashCacheSave(cloudData);   /* 云端数据顺手落缓存，断网也能恢复 */
+  if(before!==after){
+    renderMonthSwitch();
+    dashKpi();dashGrid();
+    applyDashView();renderDashCharts();
+    renderChinaMap();
+    console.log('[扬帆OS] 看板数据已应用（来源：'+source+'）');
+  }
+  dashVerRender();
+}
+/* 云端拉取失败/空数据的统一降级：先回放本机缓存（比静态新）；连缓存都没有才停留静态。
+   两种降级都会把版本条切到醒目警示态——绝不再静默停留在过期数据（P0 根治）。 */
+function dashCloudFallback(){
+  var c=dashCacheLoad();
+  if(c&&Object.keys(c.data).length){ dashApplyCloud(c.data,'cache',c.updatedAt||c.ts); return; }
+  DASH_META={source:'static',updatedAt:null,ts:null};
+  dashVerRender();
+}
+/* 数据版本条（常显）：当前数据版本（最新月份）· 最近上传时间 · 来源，同步状态肉眼可验证 */
+function dashVerRender(){
+  var el=document.getElementById('dashVerBar'); if(!el) return;
+  var lm=dLatest();
+  var src=DASH_META.source||'static';
+  var meta={
+    cloud:{txt:'来源：云端（权威数据）',bg:'#e9f3ec',bd:'#b7d8c2',fg:'#1d5a37'},
+    cache:{txt:'来源：本机缓存（上次云端数据，重开浏览器已恢复）',bg:'#e8f0fa',bd:'#bcd2ee',fg:'#1d4f8f'},
+    local:{txt:'来源：本机已生效，云端同步待确认',bg:'#fdf3e0',bd:'#e5c26a',fg:'#7a5c1e'},
+    static:{txt:'来源：静态打包旧数据（离线）——可能不是最新',bg:'#fdf3e0',bd:'#e5c26a',fg:'#7a5c1e'}
+  }[src]||{txt:'来源：未知',bg:'#eef3f8',bd:'#c9d6e2',fg:'#31465c'};
+  var up=DASH_META.updatedAt?new Date(DASH_META.updatedAt):null;
+  var upTxt='';
+  if(up&&!isNaN(up.getTime())){
+    upTxt=' · 最近上传：'+up.getFullYear()+'-'+String(up.getMonth()+1).padStart(2,'0')+'-'+String(up.getDate()).padStart(2,'0')
+      +' '+String(up.getHours()).padStart(2,'0')+':'+String(up.getMinutes()).padStart(2,'0');
+  }
+  var warn=(src==='static'||src==='local')?'<b>请点右上「刷新」拉取云端最新数据</b>':'';
+  el.style.display='block';
+  el.style.background=meta.bg; el.style.borderColor=meta.bd; el.style.color=meta.fg;
+  el.innerHTML='<b>当前数据版本：'+(lm?(lm+'月'):'无数据')+'</b>'+upTxt+' · '+meta.txt+(warn?' · '+warn:'');
+}
+
+/* 从云存储拉取最新看板数据：col=dash_data 为唯一权威源（P0 根治 2026-09-09）。
+   成功 → 全量替换 DASH_DB + 写本机缓存 + 重渲染；失败 → 降级缓存/静态并在版本条显著提示。
+   bust=true 带时间戳绕过中间层缓存 */
 function pullCloudDash(bust,cb){
   if(typeof yfApi!=='function'){ if(cb)cb(false); return; }
   var url='/data?col=dash_data'+(bust?('&_ts='+Date.now()):'');
   /* 修6：网络类失败自动重试 2 次（1.5s/4s 退避）；业务失败不重试 */
   yfRetry(function(){ return yfApi(url,'GET'); }).then(function(j){
-    if(!j||!j.ok||!j.data){
-      if(j&&j.network){ console.warn('[扬帆OS] 云端看板拉取失败（网络）'); toast('网络连不上，请检查网络后点刷新重试'); }
-      else if(j&&!j.ok){ console.warn('[扬帆OS] 云端看板拉取未成功：'+(j.error||'')+'（云端无数据或接口异常）'); }
+    /* 兼容两种后端形态：新后端 ok:true；旧后端无 ok 字段——仅以 ok===false 判业务失败。
+       （历史根因：旧后端 GET /data 不返回 ok，前端判 !j.ok 永远失败，云端数据从未被应用） */
+    if(!j||j.ok===false||!j.data){
+      if(j&&j.network){ console.warn('[扬帆OS] 云端看板拉取失败（网络）'); }
+      else if(j&&j.ok===false){ console.warn('[扬帆OS] 云端看板拉取未成功：'+(j.error||'')); }
+      dashCloudFallback();
       if(cb)cb(false);
       return;
     }
     try{
       var cloudData=typeof j.data==='string'?JSON.parse(j.data):j.data;
-      if(cloudData&&typeof cloudData==='object'&&Object.keys(cloudData).length){
-        var before='',after='';
-        try{before=JSON.stringify(DASH_DB);}catch(e){}
-        try{after=JSON.stringify(cloudData);}catch(e){}
-        if(before===after){ console.log('[扬帆OS] 云端看板数据无变化，跳过重渲染'); if(cb)cb(false); return; }
-        Object.keys(cloudData).forEach(function(k){ DASH_DB[k]=cloudData[k]; });
-        DASH_ORDER=Object.keys(DASH_DB);
-        DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
-        DASH_CUR=dLatest()||'all';
-        /* 数据有变化才刷新所有看板组件和地图（无变化不闪烁） */
-        renderMonthSwitch();
-        dashKpi();dashGrid();
-        applyDashView();renderDashCharts();
-        renderChinaMap();
-        console.log('[扬帆OS] 云端看板数据已更新，地图已刷新');
+      if(cloudData&&typeof cloudData==='object'&&!Array.isArray(cloudData)&&Object.keys(cloudData).length){
+        dashApplyCloud(cloudData,'cloud',j.updatedAt||null);
         if(cb)cb(true);
-      }else{ if(cb)cb(false); }
-    }catch(e){console.warn('[扬帆OS] 云端看板数据解析失败',e);if(cb)cb(false);}
+      }else{ dashCloudFallback(); if(cb)cb(false); }
+    }catch(e){console.warn('[扬帆OS] 云端看板数据解析失败',e);dashCloudFallback();if(cb)cb(false);}
   }).catch(function(e){
-    /* 不再静默失败：控制台留痕 + 用户可见的降级提示（仍使用本地/静态数据渲染） */
-    console.warn('[扬帆OS] 云端看板拉取失败，使用本地数据',e);
-    toast('网络连不上，请检查网络后点刷新重试');
+    /* 不再静默失败：降级缓存/静态 + 版本条醒目提示 */
+    console.warn('[扬帆OS] 云端看板拉取失败，降级本地数据',e);
+    dashCloudFallback();
     if(cb)cb(false);
   });
 }
 
-/* 将当前看板数据保存到云存储（上传新数据后调用） */
+/* 将当前看板数据保存到云存储（P0 根治：上传成功 = 服务端 200 + 回读校验一致才算同步成功）。
+   返回 Promise<boolean>：true=云端已确认；false=同步失败/未确认（本机缓存兜底不丢） */
 function pushCloudDash(){
-  if(typeof yfApi!=='function') return Promise.resolve();
+  if(typeof yfApi!=='function') return Promise.resolve(false);
   var payload={col:'dash_data',data:DASH_DB};
+  var pushed='';
+  try{pushed=JSON.stringify(DASH_DB);}catch(e){}
   return yfApi('/data','POST',payload).then(function(j){
-    if(j&&j.ok){ console.log('[扬帆OS] 看板数据已同步到云端'); toast('看板数据已同步到云端'); }
-    else{
+    if(!j||!j.ok){
       console.warn('[扬帆OS] 看板数据云端同步失败',j);
-      toast(j&&j.conflict?(j.error||'数据已被他人更新，请刷新后重试'):'看板已本地生效，云端同步失败：'+((j&&j.error)||'未知原因')+'，可稍后重试');
+      toast(j&&j.conflict?'数据已被他人更新，请刷新后重试':('云端同步失败：'+((j&&j.error)||'未知原因')+'，当前数据仅本机生效'));
+      return false;
     }
-  }).catch(function(e){console.warn('[扬帆OS] 看板数据云端同步失败',e);toast('看板已本地生效，云端同步失败，请稍后重试');});
+    /* 写入确认：立刻回读云端比对一致才算数（防「提示成功实际没写上」） */
+    return yfApi('/data?col=dash_data&_ts='+Date.now(),'GET').then(function(g){
+      var back=null;
+      try{ back=(g&&typeof g.data==='string')?JSON.parse(g.data):((g&&g.data)||null); }catch(e){}
+      var okRead=!!(g&&g.ok!==false&&back&&pushed===JSON.stringify(back));
+      if(okRead){
+        console.log('[扬帆OS] 看板数据已同步云端并回读确认');
+        dashApplyCloud(back,'cloud',g.updatedAt||Date.now());
+        toast('云端同步已确认：各端打开看板即为最新数据');
+      }else{
+        console.warn('[扬帆OS] 云端回读校验未一致（可能中间层缓存延迟）',g);
+        toast('云端已接收，但回读校验未一致，请稍后点「刷新」核对');
+      }
+      return okRead;
+    });
+  }).catch(function(e){console.warn('[扬帆OS] 看板数据云端同步失败',e);toast('云端同步失败：网络异常，当前数据仅本机生效');return false;});
 }
 
 /* 看板显式刷新：绕过全部缓存强制重拉云端（诊断卡缓存一并失效，带时间戳防中间缓存） */
@@ -5150,16 +5239,25 @@ function dashConfirmApply(){
   DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
   NEWD={};
   DASH_ORDER.forEach(m=>{NEWD[m]=DASH_DB[m];});
-  upMsg('<b class="ok">✓ 已写入</b>：'+applied.join('、')+'数据已载入，视图已切到 '+applied[applied.length-1]+'。点「下载新 dash_data.js」保存，替换部署目录同名文件并重新发布。');
+  upMsg('<b class="ok">✓ 已写入</b>：'+applied.join('、')+'数据已载入，正在同步云端并回读校验…');
   toast('数据解析成功，已载入看板');
-  /* 用户确认后才同步到云端（让地图和其他端也能读到新数据） */
-  pushCloudDash();
   /* 立即刷新地图 */
   renderChinaMap();
   document.getElementById('dashDl').disabled=false;
   try{ if(typeof dgInvalidate==='function')dgInvalidate(); }catch(e){}
   try{ if(typeof dgBoot==='function')dgBoot(true); }catch(e){}
   dashApply(pd.lastM);
+  /* P0 根治：双写落库——本机缓存立即落地（云端万一失败，重开浏览器也不丢），云端回读确认后版本条转绿 */
+  dashCacheSave(DASH_DB);
+  DASH_META={source:'local',updatedAt:null,ts:Date.now()};
+  dashVerRender();
+  pushCloudDash().then(function(verified){
+    if(verified){
+      upMsg('<b class="ok">✓ 已写入并确认云端同步</b>：'+applied.join('、')+'。所有设备打开看板即为最新数据，无需替换部署文件（「下载新 dash_data.js」仅作留档备份）。');
+    }else{
+      upMsg('<b class="ok">✓ 已写入本机</b>：'+applied.join('、')+'。<b class="err">云端同步未确认</b>——数据已存本机缓存（重开浏览器不丢），但其他设备暂看不到。请检查网络后点看板右上「刷新」，或稍后重新上传。');
+    }
+  });
 }
 function dashCancelApply(){
   window.__pendingDash=null;
@@ -5186,7 +5284,7 @@ function dashDownloadJs(){
   a.href=URL.createObjectURL(blob);
   a.download='dash_data.js';
   document.body.appendChild(a);a.click();a.remove();
-  upMsg('<b class="ok">✓ 已下载 dash_data.js</b>。替换部署目录里的同名文件并重新发布（GitHub Pages 推送即可）。页面预览已是新数据。');
+  upMsg('<b class="ok">✓ 已下载 dash_data.js（留档备份用）</b>。云端同步已自动化，正常情况下无需替换部署文件；仅当需要整版回滚时才把此文件替换部署目录同名文件并重新发布。页面预览已是新数据。');
 }
 document.getElementById('dlTpl').onclick=dashDownloadTpl;
 document.getElementById('dashParse').onclick=dashParseFile;
