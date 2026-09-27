@@ -1783,7 +1783,7 @@ window.__yfLoadLib=(function(){
     <div class="gw-top">
       <div>
         <h2>我的成长引擎</h2>
-        <p class="gw-sub">不打勾、不排名好看。用你站 6-7 月的真实漏斗数据反推你的能力短板，配上真做到了的那个站的真实做法，给你这周能落地的动作和一条验收线。做完回填结果，成了就攒成证据，没成就问清卡在哪。</p>
+        <p class="gw-sub">不打勾、不排名好看。用你站最新上报月份的真实漏斗数据反推你的能力短板，配上真做到了的那个站的真实做法，给你这周能落地的动作和一条验收线。做完回填结果，成了就攒成证据，没成就问清卡在哪。</p>
       </div>
       <div class="gw-pick">
         <label>我是</label>
@@ -2371,7 +2371,7 @@ window.__yfLoadLib=(function(){
     <div class="gw-top">
     <div>
       <h2>中台总览 · 操盘驾驶舱</h2>
-      <p class="gw-sub">20 站的健康度、风险预警与经验治理，一眼掌握全局。数据来自各站 6-7 月真实漏斗；你在「我的成长」里回填的结果，也会实时回流到这里的经验复用看板。</p>
+      <p class="gw-sub">全站的健康度、风险预警与经验治理，一眼掌握全局。数据来自各站最新上报月份的真实漏斗；你在「我的成长」里回填的结果，也会实时回流到这里的经验复用看板。</p>
     </div>
   </div>
   <div class="card" id="hqReportCard" style="border-left:4px solid var(--gold)">
@@ -7035,75 +7035,123 @@ function pinTools(){
 
 /* ============================================================
    成长引擎 GW —— 诊断 / 处方 / 回填 / 归因 / 证据 / 配对
-   数据源：dash_data.js 的 M6 M7 PROF SEMI STATIONS（真实数据）
+   数据源：看板实际月份数据（DASH_DB/DASH_ORDER 动态生成，兜底内嵌 M6/M7）
+   + PROF SEMI STATIONS（真实数据）。上传/同步新月份后自动用最新月做诊断。
    存储：localStorage yf_growth_v1（按站隔离，预留后端接口位）
    ============================================================ */
 var GW = (function(){
   var KEY = 'yf_growth_v1';
 
-  /* ---------- 六项能力：全部由真实漏斗反推，不做自评打分 ---------- */
-  /* 五项能力：只放「能反映本人做法」的项。
-     6→7月环比不在其中 —— 它反映开营早晚（龙游6月才开17人→7月86人=406%），
-     不反映能力，混进来会把真短板盖住。环比单列为「势头」参考。 */
+  /* ---------- 动态月份（P0：不再写死 6/7 月） ----------
+     月份数组从看板实际数据自动生成：取「最新月」做诊断、「前一月」做环比。
+     云端权威源（col=dash_data）或本机缓存 dashApplyCloud 全量替换 DASH_DB 后，
+     新月份自动进入这里，成长引擎零改动跟上；bench() 的缓存键含月份，换月自动重算。 */
+  function dashDB(){ return (typeof DASH_DB!=='undefined'&&DASH_DB)?DASH_DB:null; }
+  function months(){
+    var ms = [];
+    try{
+      var db = dashDB();
+      if(db) Object.keys(db).forEach(function(k){
+        if(/^\d{1,2}$/.test(k) && db[k] && Object.keys(db[k]).length) ms.push(k);
+      });
+    }catch(e){}
+    if(!ms.length){
+      if(typeof M7!=='undefined'&&M7) ms.push('7');
+      if(typeof M6!=='undefined'&&M6) ms.unshift('6');
+    }
+    ms = ms.filter(function(v,i){ return ms.indexOf(v)===i; });
+    ms.sort(function(a,b){ return parseInt(a,10)-parseInt(b,10); });
+    return ms;
+  }
+  function curKey(){ var ms = months(); return ms.length ? ms[ms.length-1] : '7'; }
+  function prevKey(){ var ms = months(); return ms.length>1 ? ms[ms.length-2] : null; }
+  function monthLabel(k){ var n = parseInt(k,10); return isNaN(n) ? String(k) : n+' 月'; }
+  /* 「6-7 月」式月区间（标题/导出物用） */
+  function spanLabel(){
+    var ns = months().map(function(k){ return parseInt(k,10); })
+                     .filter(function(n){ return !isNaN(n); })
+                     .sort(function(a,b){ return a-b; });
+    if(!ns.length) return '';
+    return ns.length===1 ? ns[0]+' 月' : ns[0]+'-'+ns[ns.length-1]+' 月';
+  }
+
+  /* ---------- 四项能力：全部由真实漏斗反推，不做自评打分 ----------
+     口径（用户拍板）：
+     · 剔除「到场把控」「入营守成」——面试与入营规模由集团按容量与批次
+       主动调控（刻意缩小规模做精做细），不反映负责人做法；两项降级到
+       「势头参考」区仅作漏斗展示，不进能力排名、不产预警。
+     · 深度经营修正：采浆份数不必然是学生发展的（可能来自社会浆员），
+       改为「科普转化新卡数 ÷ 入营人数」，只统计学生带来的转化。
+     · 新增「科普渗透」：学生邀约科普数 ÷ 入营人数。
+     环比不在其中 —— 它反映开营早晚，不反映能力，单列为「势头」参考。 */
   var CAPS = [
-    {k:'arrive', n:'到场把控', q:'报名的人，愿不愿意真的来面试',
-     u:'%',    fx:'面试人数 ÷ 报名人数',  cap:110, ratio:true},
-    {k:'enroll', n:'入营守成', q:'面试过的人，有没有真的进营',
-     u:'%',    fx:'入营人数 ÷ 面试人数',  cap:110, ratio:true},
     {k:'cardper',n:'转化设计', q:'一个学员平均带来几张新卡',
-     u:'张/人', fx:'新卡数 ÷ 入营人数',    cap:5.5, ratio:false},
-    {k:'volper', n:'深度经营', q:'一个学员平均带来多少采浆份',
-     u:'份/人', fx:'采浆份数 ÷ 入营人数',  cap:90,  ratio:false},
+     u:'张/人', fx:'新卡数 ÷ 入营人数',         cap:5.5, ratio:false},
+    {k:'convper',n:'深度经营', q:'一个学员平均带来多少科普转化',
+     u:'人/人', fx:'科普转化新卡数 ÷ 入营人数', cap:2.5, ratio:false},
+    {k:'sciop',  n:'科普渗透', q:'学员把科普带出了多少倍的人群',
+     u:'人/人', fx:'科普数 ÷ 入营人数',         cap:8,   ratio:false},
     {k:'parent', n:'家校经营', q:'家长愿不愿意走进来',
-     u:'%',    fx:'家长参与人数 ÷ 入营人数', cap:200, ratio:false}
+     u:'%',    fx:'家长参与人数 ÷ 入营人数',   cap:200, ratio:false}
   ];
 
-  /* ---------- 取一个站的原始数据 ---------- */
+  /* ---------- 取一个站的原始数据（最新月 + 前一月，月份动态） ---------- */
   function raw(st){
-    var a = (typeof M7!=='undefined'&&M7[st])?M7[st]:{};
-    var b = (typeof M6!=='undefined'&&M6[st])?M6[st]:{};
+    var db = dashDB(), ck = curKey(), pk = prevKey();
+    var a = (db && db[ck] && db[ck][st]) ? db[ck][st]
+          : ((typeof M7!=='undefined'&&M7[st]) ? M7[st] : {});
+    var b = (pk && db && db[pk] && db[pk][st]) ? db[pk][st]
+          : ((typeof M6!=='undefined'&&M6[st]) ? M6[st] : {});
     var reg=a.reg||[0,0,0], dev=a.dev||[0,0,0,0,0], par=a.par||[0,0], camp=a.camp||[0,0,0];
     var preg=b.reg||[0,0,0];
     return {r0:reg[0]||0, r1:reg[1]||0, r2:reg[2]||0,
             card:dev[0]||0, vol:dev[1]||0, free:dev[2]||0, sci:dev[3]||0, conv:dev[4]||0,
             pn:par[0]||0, pp:par[1]||0, boy:camp[1]||0, girl:camp[2]||0,
-            p0:preg[0]||0, p1:preg[1]||0, p2:preg[2]||0};
+            p0:preg[0]||0, p1:preg[1]||0, p2:preg[2]||0,
+            mKey:ck, pKey:pk, mLabel:monthLabel(ck), pLabel:pk?monthLabel(pk):''};
   }
-  /* ---------- 六项能力值 ---------- */
+  /* ---------- 能力值：四项进排名；到场/入营/环比只作参考输出 ---------- */
   function metrics(st){
     var m = raw(st);
     return {
+      cardper: m.r2 ? m.card/m.r2  : 0,
+      convper: m.r2 ? m.conv/m.r2  : 0,
+      sciop  : m.r2 ? m.sci/m.r2   : 0,
+      parent : m.pp*100,
+      /* 以下不进 CAPS、不参与能力排名，仅作参考展示与漏斗基准 */
       arrive : m.r0 ? m.r1/m.r0*100 : 0,
       enroll : m.r1 ? m.r2/m.r1*100 : 0,
-      cardper: m.r2 ? m.card/m.r2  : 0,
-      volper : m.r2 ? m.vol/m.r2   : 0,
-      parent : m.pp*100,
       growth : m.p2 ? (m.r2-m.p2)/m.p2*100 : (m.r2?100:0),
       _raw   : m
     };
   }
   function tier(r2){ return r2>=100 ? '大站' : (r2>=40 ? '中站' : '小站'); }
-  /* 势头：6→7 月入营环比。只作参考，不参与能力排名 */
+  /* 势头：前一月→最新月入营环比。只作参考，不参与能力排名 */
   function momentum(st){
     var m = raw(st);
     var pct = m.p2 ? (m.r2-m.p2)/m.p2*100 : (m.r2 ? 100 : 0);
     var lv = pct>=100 ? '爬坡快' : (pct>=30 ? '稳步走' : (pct>0 ? '走得慢' : (pct===0 ? '原地踏步' : '掉了')));
-    return {p6:m.p2, p7:m.r2, pct:pct, lv:lv};
+    return {prev:m.p2, cur:m.r2, pct:pct, lv:lv,
+            pLabel:m.pLabel, mLabel:m.mLabel,
+            arrive:m.r0 ? m.r1/m.r0*100 : 0, enroll:m.r1 ? m.r2/m.r1*100 : 0};
   }
   function stationList(){ return (typeof STATIONS!=='undefined'&&STATIONS.length)?STATIONS:[]; }
 
-  /* ---------- 全站基准：中位 / 头部站 / 排名，双基准（全站 + 同规模档） ---------- */
-  var _bench = null;
+  /* ---------- 全站基准：中位 / 头部站 / 排名，双基准（全站 + 同规模档） ----------
+     缓存键含月份与站点清单：云端/缓存换月、站点增减后自动重算基准 */
+  var _bench = null, _benchKey = '';
+  function med(arr){
+    var v = arr.filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
+    if(!v.length) return 0;
+    var h = Math.floor(v.length/2);
+    return v.length%2 ? v[h] : (v[h-1]+v[h])/2;
+  }
   function bench(){
-    if(_bench) return _bench;
-    var list = stationList(), all = {};
+    var list = stationList();
+    var key = months().join(',') + '|' + list.join(',');
+    if(_bench && _benchKey === key) return _bench;
+    var all = {};
     list.forEach(function(s){ all[s] = metrics(s); });
-    function med(arr){
-      var v = arr.filter(function(x){return x>0;}).sort(function(a,b){return a-b;});
-      if(!v.length) return 0;
-      var h = Math.floor(v.length/2);
-      return v.length%2 ? v[h] : (v[h-1]+v[h])/2;
-    }
     var B = {};
     CAPS.forEach(function(c){
       var vals = list.map(function(s){ return all[s][c.k]; });
@@ -7142,24 +7190,28 @@ var GW = (function(){
       TB[t].list = byTier[t];
     });
     _bench = {all:all, B:B, TB:TB, n:list.length};
+    _benchKey = key;
     return _bench;
   }
 
-  /* ---------- 象限定位：漏斗质量 × 单人产出 ---------- */
+  /* ---------- 象限定位：漏斗质量 × 单人产出 ----------
+     到场/入营已不作能力项，漏斗中位基准改由全站 metrics 直接取中位 */
   function quadrant(st){
     var bk = bench(), m = bk.all[st];
-    var f  = m.arrive * m.enroll / 100;          // 漏斗质量分
+    var f  = m.arrive * m.enroll / 100;          // 漏斗质量分（参考项，不进排名）
     var o  = m.cardper;                          // 单人产出
-    var fm = bk.B.arrive.med * bk.B.enroll.med / 100;
+    var list = stationList();
+    var fm = med(list.map(function(s){ return bk.all[s].arrive; }))
+           * med(list.map(function(s){ return bk.all[s].enroll; })) / 100;
     var om = bk.B.cardper.med;
     var hi_f = f >= fm, hi_o = o >= om;
     var key = hi_f ? (hi_o?'model':'wide') : (hi_o?'sharp':'build');
-    /* 修正：有 3 项以上排在后 25%，才算全链条待补。
-       门槛设 2 会让一半的站被判待建（后 25% 共 30 个席位分给 20 站），区分度失效；
-       只有 2 项垫底、但漏斗仍在中位以上的，本质是「某一环掉了」而非链条没搭起来 */
+    /* 四项能力里 2 项以上排在后 25%，才算全链条待补：
+       后 25% 共 bk.n 个席位分给 bk.n 站，人均 1 席；垫 2 席以上说明不是运气差，
+       是链条没搭起来。只垫 1 席、漏斗仍在中位以上的，本质是「某一环掉了」 */
     var low = 0, cut = Math.ceil(bk.n*0.75);
     CAPS.forEach(function(c){ if(bk.B[c.k].rank(st) >= cut) low++; });
-    if(low >= 3) key = 'build';
+    if(low >= 2) key = 'build';
     return {f:f, o:o, fm:fm, om:om, key:key, low:low, cut:cut};
   }
 
@@ -7172,33 +7224,12 @@ var GW = (function(){
     sharp:{ n:'精筛型', color:'#e0a020',
       core:'你的单人产出高于中位，但漏斗偏窄——<b>你在用严筛换质量，这是主动取舍，不是能力问题。</b>风险有两个：一是规模上不去，全站增量指标会压你；二是这套筛选标准装在你自己脑子里，换人就崩。这个阶段该干的是<b>把筛选标准写下来，再小步放宽基数验证质量守不守得住</b>。' },
     build:{ n:'待建型', color:'#c8161d',
-      core:'你有两项以上排在 20 站后四分之一——这不是某一环掉了，是<b>链条还没搭起来</b>。这个阶段最容易犯的错是六项一起补，结果全线夹生。正确做法只有一条：<b>本期只补最短的那一环</b>，把它拉到中位，再动下一环。一年补两环，比一年碰六环强得多。' }
+      core:'你有两项以上排在全站后四分之一——这不是某一环掉了，是<b>链条还没搭起来</b>。这个阶段最容易犯的错是几项一起补，结果全线夹生。正确做法只有一条：<b>本期只补最短的那一环</b>，把它拉到中位，再动下一环。一年补两环，比一次碰四环强得多。' }
   };
 
   /* ---------- 处方库：短板 → 具体动作（血浆站真实场景，可当天执行） ---------- */
   var RX = {
-    arrive:{
-      title:'把报名的人真正拉到面试现场',
-      why:'报名到面试这一段掉的人，是最不该掉的——他们已经举了手。',
-      acts:[
-        '<b>报名当天就加微信、当天进群。</b>隔一天再加，流失最狠。名单交接不过夜。',
-        '<b>面试前一天下午打电话，不发短信。</b>短信这个群体基本不看，电话里顺带问一句家长知不知道。',
-        '<b>面试时间放周末上午。</b>避开农忙、补课和走亲戚，时间由学生反选而不是我们定。'
-      ],
-      tool:{n:'接龙/名单表工具', tab:'factory'},
-      learn:'沟通管理 + 相关方管理'
-    },
-    enroll:{
-      title:'把面试过的人稳稳送进营',
-      why:'面试完到入营这段掉人，说明面试当天没给足确定感，学生回家一想就动摇了。',
-      acts:[
-        '<b>面试当场给出确定的东西</b>：录取通知书当场打印、当场签一份承诺书。有实物的仪式感，比口头通知强得多。',
-        '<b>当天拉入营群，群里立刻发日程表和现场照片。</b>让他看到别人也在，从"我要不要去"变成"我们哪天去"。',
-        '<b>48 小时内给家长打一个电话。</b>只讲两件事：孩子在营里安全怎么保障、这一期他能带走什么。'
-      ],
-      tool:{n:'录取通知书生成', tab:'factory'},
-      learn:'范围管理 + 干系人期望管理'
-    },
+    /* 到场把控 / 入营守成已不作能力项（集团可控环节），对应处方一并撤下 */
     cardper:{
       title:'让每个在营学员真正带来发展',
       why:'单人产出低，通常不是学员不愿意，是我们第一天讲错了话——讲了公司，没讲他自己。',
@@ -7210,16 +7241,27 @@ var GW = (function(){
       tool:{n:'运营执行表生成', tab:'factory'},
       learn:'价值交付 + 敏捷迭代'
     },
-    volper:{
-      title:'让来过一次的人持续来',
-      why:'单人采量低，说明第一次来完就断了，问题出在第一次的体验和第二次的预约上。',
+    convper:{
+      title:'把科普转化接住——讲完当场给下一步',
+      why:'科普做了却没转化，通常不是学生不积极，是讲完没有当场给出动作：谁登记、谁跟进、几天内回访，链条断在第一环。',
       acts:[
-        '<b>第一次献浆全程陪同，不让人自己摸索。</b>第一次的体感决定有没有第二次，这一小时最值钱。',
-        '<b>第二次预约当场定死日期。</b>不说"下次联系你"，当场翻日历定天，写在纸上给他。',
-        '<b>建学员家庭档案，第 14 天必须回访。</b>不为催，只问上次身体感觉怎么样。'
+        '<b>每场科普当场发登记卡。</b>听完就有地方填名字和电话，当场收上来——散场后再收集，转化要掉一半。',
+        '<b>登记卡 48 小时内必须回访。</b>话术只讲一句：你家孩子上次听完回去说了什么。用孩子的话接家长，比我们讲十遍管用。',
+        '<b>转化数按学生署名统计，每周在营内公布。</b>谁的卡转化了看得见，学生才会把科普当自己的事做。'
       ],
       tool:{n:'运营执行表生成', tab:'factory'},
       learn:'质量管理 + 持续改进'
+    },
+    sciop:{
+      title:'把科普带出营门——覆盖到入营人数的几倍',
+      why:'科普只讲给自己学员听，等于把传播半径锁死在营内。渗透低说明学生没有把科普带出去，覆盖面撑不起转化基本盘。',
+      acts:[
+        '<b>给每名在营学生定科普场次指标。</b>每人每月至少 1 场、每场覆盖 10 人以上，进村进校进家庭，不限营内。',
+        '<b>科普物料给学生配齐。</b>折页、话术、登记卡三件套随身带——让没有经验的学生也能开口讲。',
+        '<b>按学生署名统计科普人次，纳入结营评优。</b>署名了才有荣誉，有荣誉才有人抢着做。'
+      ],
+      tool:{n:'运营执行表生成', tab:'factory'},
+      learn:'沟通管理 + 相关方管理'
     },
     parent:{
       title:'把家长从阻力变成合力',
@@ -7289,24 +7331,25 @@ var GW = (function(){
 
   return {CAPS:CAPS, RX:RX, TYPES:TYPES, metrics:metrics, raw:raw, tier:tier, momentum:momentum,
           bench:bench, quadrant:quadrant, weakness:weakness, benchHow:benchHow,
-          ownerOf:ownerOf, load:load, save:save, of:of, stationList:stationList};
+          ownerOf:ownerOf, load:load, save:save, of:of, stationList:stationList,
+          months:months, curKey:curKey, prevKey:prevKey, monthLabel:monthLabel, spanLabel:spanLabel};
 })();
 
 /* ============ 智能预警规则引擎（#173） ============ */
 var YF_WARN = (function(){
   function warns(st){
+    /* 口径：只挂四项能力（到场把控/入营守成不进排名，不再产预警） */
     var m = GW.metrics(st), bk = GW.bench(), list = [], n = bk.n;
     var cut = Math.ceil(n*0.75);
     if(m.parent < 1) list.push({sev:3,t:'家长从未进站参与',d:'招募一旦触高中生会因家长关过不去，是高风险站'});
-    if(bk.B.arrive.rank(st) >= cut) list.push({sev:2,t:'报名→面试转化垫底',d:'20站后四分之一，报名的人大量流失在面试前'});
-    if(bk.B.enroll.rank(st) >= cut) list.push({sev:2,t:'面试→入营守成垫底',d:'面试过的人没真正进营，确定感没给够'});
     if(bk.B.cardper.rank(st) >= cut) list.push({sev:2,t:'单人转化设计垫底',d:'在营学员没带来应有的发展新卡'});
-    if(bk.B.volper.rank(st) >= cut) list.push({sev:2,t:'深度经营垫底',d:'来过一次的人没持续来，复采低'});
+    if(bk.B.convper.rank(st) >= cut) list.push({sev:2,t:'深度经营垫底',d:'科普做了但没转化成新卡，讲完的跟进动作断了'});
+    if(bk.B.sciop.rank(st) >= cut) list.push({sev:2,t:'科普渗透垫底',d:'科普覆盖没跑出入营人数的基本盘，传播半径锁在营内'});
     var weak = (typeof SEMI!=='undefined' && SEMI[st] && SEMI[st].weak) ? SEMI[st].weak : '';
     if(/-\d/.test(weak)) list.push({sev:3,t:'新浆员发展同比负增长',d:'半年度原文：'+weak});
     var mo = GW.momentum(st);
-    if(mo.pct < 0) list.push({sev:1,t:'6→7月入营势头下滑',d:'环比 '+Math.round(mo.pct)+'%，需复盘节奏'});
-    if(GW.quadrant(st).key === 'build') list.push({sev:2,t:'能力链条未搭起（待建型）',d:'有3项以上排在后四分之一，需单点突破'});
+    if(mo.pct < 0) list.push({sev:1,t:mo.pLabel+'→'+mo.mLabel+'入营势头下滑',d:'环比 '+Math.round(mo.pct)+'%，需复盘节奏'});
+    if(GW.quadrant(st).key === 'build') list.push({sev:2,t:'能力链条未搭起（待建型）',d:'有2项以上排在后四分之一，需单点突破'});
     list.sort(function(a,b){return b.sev-a.sev;});
     return {list:list, red:list.filter(function(x){return x.sev===3;}).length, orange:list.filter(function(x){return x.sev===2;}).length, blue:list.filter(function(x){return x.sev===1;}).length};
   }
@@ -7324,9 +7367,9 @@ var YF_FLOW = (function(){
     return {cover:cover, evTotal:evTotal, rxTotal:rxTotal, rxDone:rxDone, reuse:stations.length?cover/stations.length:0, raw:d};
   }
   function north(){
-    var list = GW.stationList(), bk = GW.bench(), n = list.length, camp7=0, healthy=0, risk=0;
-    list.forEach(function(s){ var m=bk.all[s]; var okc=0; GW.CAPS.forEach(function(c){if(m[c.k]>=bk.B[c.k].med*0.9)okc++;}); if(okc>=3)healthy++; if(YF_WARN.warns(s).list.length>=2)risk++; camp7+=(m._raw.r2||0); });
-    return {camp7:camp7, healthy:healthy, healthyPct:n?Math.round(healthy/n*100):0, risk:risk, riskPct:n?Math.round(risk/n*100):0};
+    var list = GW.stationList(), bk = GW.bench(), n = list.length, campCur=0, healthy=0, risk=0;
+    list.forEach(function(s){ var m=bk.all[s]; var okc=0; GW.CAPS.forEach(function(c){if(m[c.k]>=bk.B[c.k].med*0.9)okc++;}); if(okc>=3)healthy++; if(YF_WARN.warns(s).list.length>=2)risk++; campCur+=(m._raw.r2||0); });
+    return {campCur:campCur, healthy:healthy, healthyPct:n?Math.round(healthy/n*100):0, risk:risk, riskPct:n?Math.round(risk/n*100):0};
   }
   return {reflux:reflux, north:north, loadGrowth:loadGrowth};
 })();
@@ -7337,7 +7380,7 @@ function hqReportHTML(){
   var north=YF_FLOW.north(), ref=YF_FLOW.reflux();
   var d=new Date(), dstr=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
   function okcOf(s){ var m=GW.metrics(s), n=0; GW.CAPS.forEach(function(c){ if(bk.B[c.k]&&m[c.k]>=bk.B[c.k].med*0.9) n++; }); return n; }
-  function grade(n){ return n>=4?['A','#1a7f37','健康']:(n===3?['B','#2b7cd3','良好']:(n===2?['C','#e08c2e','待提升']:['D','#c0392b','薄弱'])); }
+  function grade(n){ return n>=3?['A','#1a7f37','健康']:(n===2?['B','#2b7cd3','良好']:(n===1?['C','#e08c2e','待提升']:['D','#c0392b','薄弱'])); }
   var rows=list.map(function(s){
     var m=GW.metrics(s), r=m._raw;
     return {s:s, n:okcOf(s), m:m, r:r, w:YF_WARN.warns(s), wk:GW.weakness(s),
@@ -7413,11 +7456,11 @@ function hqReportHTML(){
    +'<div class="noprint"><span>汇报材料已生成 · 点「打印/另存PDF」可导出纸质版，也可直接复制内容进汇报文档</span>'
    +'<button onclick="window.print()">打印 / 另存 PDF</button><button class="gh" onclick="window.close()">关闭</button></div>'
    +'<div class="hd"><div class="tt">扬帆计划 · 集团汇报材料</div>'
-   +'<div class="sb2">数据周期：2026 年 6—7 月　｜　覆盖 '+list.length+' 家浆站　｜　生成日期：'+dstr+'　｜　口径来源：扬帆OS 中台总览驾驶舱</div></div>'
-   +'<div class="cali"><b>口径说明：</b>五项能力全部由各站真实漏斗反推（到场把控=面试/报名；入营守成=入营/面试；转化设计=新卡/入营；深度经营=采浆份/入营；家校经营=家长参与/入营）。<b>不以入营率评价好坏</b>——入营规模为中台按容量与批次主动调控，非业绩指标。健康度 = 五项能力中达到全体中位数 90% 的项数（A≥4、B=3、C=2、D≤1）。</div>'
+   +'<div class="sb2">数据周期：'+(new Date().getFullYear())+' 年 '+GW.spanLabel()+'　｜　覆盖 '+list.length+' 家浆站　｜　生成日期：'+dstr+'　｜　口径来源：扬帆OS 中台总览驾驶舱</div></div>'
+   +'<div class="cali"><b>口径说明：</b>四项能力全部由各站真实漏斗反推（转化设计=新卡/入营；深度经营=科普转化新卡/入营；科普渗透=科普数/入营；家校经营=家长参与/入营）。<b>不以到场率、入营率评价好坏</b>——面试与入营规模由中台按容量与批次主动调控（刻意做精做细），属集团可控环节，两项仅作漏斗参考展示，不进能力排名。健康度 = 四项能力中达到全体中位数 90% 的项数（A≥3、B=2、C=1、D≤0）。</div>'
    +'<h2>一、总体指标</h2><div class="nk">'
-   +'<div class="nkc"><div class="n">'+tot.r2.toLocaleString()+'</div><div class="l">7月入营总规模</div><div class="s">'+list.length+'站合计</div></div>'
-   +'<div class="nkc"><div class="n">'+north.healthy+'<span style="font-size:15px;color:#8a9aab">/'+list.length+'</span></div><div class="l">能力健康站</div><div class="s">≥3/5 项达中位数，占 '+north.healthyPct+'%</div></div>'
+   +'<div class="nkc"><div class="n">'+tot.r2.toLocaleString()+'</div><div class="l">'+GW.monthLabel(GW.curKey())+'入营总规模</div><div class="s">'+list.length+'站合计</div></div>'
+   +'<div class="nkc"><div class="n">'+north.healthy+'<span style="font-size:15px;color:#8a9aab">/'+list.length+'</span></div><div class="l">能力健康站</div><div class="s">≥3/'+GW.CAPS.length+' 项达中位数，占 '+north.healthyPct+'%</div></div>'
    +'<div class="nkc"><div class="n">'+north.risk+'</div><div class="l">风险预警站</div><div class="s">红橙预警≥2 条，占 '+north.riskPct+'%</div></div>'
    +'<div class="nkc"><div class="n">'+Math.round(ref.reuse*100)+'%</div><div class="l">经验复用率</div><div class="s">已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条</div></div>'
    +'</div>'
@@ -7428,7 +7471,7 @@ function hqReportHTML(){
    +'<div class="nkc"><div class="n">'+(tot.r2?(tot.vol/tot.r2).toFixed(1):0)+'</div><div class="l">人均采浆（份/人）</div><div class="s">采浆合计 '+tot.vol.toLocaleString()+' 份</div></div>'
    +'</div>'
    +'<h2>二、'+list.length+' 站能力健康度明细</h2>'
-   +'<table><thead><tr><th>#</th><th>浆站</th><th>负责人</th><th>7月入营</th>'+capTh+'<th>健康度</th><th>预警数</th><th>最弱项</th></tr></thead><tbody>'+bodyRows+'</tbody></table>'
+   +'<table><thead><tr><th>#</th><th>浆站</th><th>负责人</th><th>'+GW.monthLabel(GW.curKey())+'入营</th>'+capTh+'<th>健康度</th><th>预警数</th><th>最弱项</th></tr></thead><tbody>'+bodyRows+'</tbody></table>'
    +'<h2>三、风险预警汇总</h2>'
    +'<table><thead><tr><th style="width:70px">等级</th><th style="width:130px">浆站</th><th>预警内容</th></tr></thead><tbody>'+warnH+'</tbody></table>'
    +'<h2>四、可抄作业的标杆站</h2>'+benchH
@@ -7476,8 +7519,8 @@ function renderHQ(){
     var krisk=document.getElementById('hqRisk'); if(krisk)krisk.textContent=String(north.risk);
   }catch(e){}
   var northH='<div class="hq-north">'
-    + hqNk(north.camp7.toLocaleString(),'7月入营总规模','20站合计 · 漏斗终点','')
-    + hqNk(north.healthy+'<span style="font-size:16px;color:var(--muted)">/'+list.length+'</span>','能力健康站','≥3/5项能力达中位',north.healthy>=list.length*0.6?'ok':'')
+    + hqNk(north.campCur.toLocaleString(),GW.monthLabel(GW.curKey())+'入营总规模',list.length+'站合计 · 漏斗终点','')
+    + hqNk(north.healthy+'<span style="font-size:16px;color:var(--muted)">/'+list.length+'</span>','能力健康站','≥3/'+GW.CAPS.length+'项能力达中位',north.healthy>=list.length*0.6?'ok':'')
     + hqNk(north.risk,'风险站','红橙预警≥2条，占比'+north.riskPct+'%',north.risk<=3?'ok':'warn')
     + hqNk(Math.round(ref.reuse*100)+'%','经验复用率','已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条',ref.reuse>=0.5?'ok':'warn')
     + '</div>';
@@ -7496,8 +7539,8 @@ function renderHQ(){
     var hw=''; if(w.red)hw+='<span class="hw" style="background:#c0392b">红'+w.red+'</span>'; if(w.orange)hw+='<span class="hw" style="background:var(--gold-ink)">橙'+w.orange+'</span>'; if(w.blue)hw+='<span class="hw" style="background:var(--blue-800)">蓝'+w.blue+'</span>';
     gridH+='<div class="hq-st" data-s="'+s+'" onclick="hqOpen(this.dataset.s)">'
       +'<div><span class="hn">'+s+'</span><span class="ht">'+tier+'</span></div>'
-      +'<div class="hrow"><span class="hq-badge" style="background:'+badgeColor+'">'+t.n+'</span><span style="font-size:12px;color:var(--muted)">能力 '+okc+'/5</span></div>'
-      +'<div class="hq-prog"><i style="width:'+(okc/5*100)+'%"></i></div>'
+      +'<div class="hrow"><span class="hq-badge" style="background:'+badgeColor+'">'+t.n+'</span><span style="font-size:12px;color:var(--muted)">能力 '+okc+'/'+GW.CAPS.length+'</span></div>'
+      +'<div class="hq-prog"><i style="width:'+(okc/GW.CAPS.length*100)+'%"></i></div>'
       + (wk[0]?'<div class="hweak">最短板：'+wk[0].cap.n+'（'+gwFmt(wk[0].v,wk[0].cap.u)+'）</div>':'')
       + (hw?'<div class="hwarn">'+hw+'</div>':'<div class="hwarn"><span class="hw" style="background:#10a37f">无预警</span></div>')
       +'</div>';
@@ -7515,7 +7558,7 @@ function hqOpen(st){
   var m=GW.metrics(st), q=GW.quadrant(st), w=YF_WARN.warns(st), t=GW.TYPES[q.key], bk=GW.bench();
   var ref=YF_FLOW.loadGrowth(), my=(ref.d&&ref.d[st])||null;
   var h='<h3>'+st+' · '+t.n+'</h3>';
-  h+='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">规模档：'+GW.tier(m._raw.r2)+' ｜ 负责人：'+GW.ownerOf(st)+' ｜ 7月入营 '+Math.round(m._raw.r2)+' 人</div>';
+  h+='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">规模档：'+GW.tier(m._raw.r2)+' ｜ 负责人：'+GW.ownerOf(st)+' ｜ '+GW.monthLabel(GW.curKey())+'入营 '+Math.round(m._raw.r2)+' 人</div>';
   h+='<div style="background:var(--ice-2);border:1px solid var(--line);border-left:4px solid '+t.color+';border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px">'+t.core+'</div>';
   h+='<div class="hq-sec-t" style="margin-top:0">能力诊断（vs 全站中位）</div>';
   GW.CAPS.forEach(function(c){ var v=m[c.k], med=bk.B[c.k].med, pct=med>0?Math.min(100,v/med*100):0; var col=v>=med?'var(--ok-ink)':(v>=med*0.7?'var(--gold-ink)':'#c0392b'); h+='<div class="hq-cap-row"><span class="cn">'+c.n+'</span><div class="hq-cap-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div><span style="width:130px;text-align:right;color:'+col+';font-weight:700">'+gwFmt(v,c.u)+' / 中位'+gwFmt(med,c.u)+'</span></div>'; });
@@ -7544,7 +7587,7 @@ function hqGoStation(st){
 /* ============ 数字格式 ============ */
 function gwFmt(v, u){
   if(u==='%') return (Math.round(v*10)/10) + '%';
-  if(u==='张/人') return (Math.round(v*100)/100) + '';
+  if(u==='张/人' || u==='人/人') return (Math.round(v*100)/100) + '';
   if(u==='份/人') return (Math.round(v*10)/10) + '';
   return Math.round(v*10)/10 + '';
 }
@@ -7604,7 +7647,7 @@ function renderRhythm(){
   var p = (typeof PROF!=='undefined'&&PROF[st])?PROF[st]:{};
   var r = GW.raw(st);
   document.getElementById('gwWho').textContent =
-    (p.owner||'负责人') + '｜' + (p.post||'—') + '｜' + GW.tier(r.r2) + '（7月入营 ' + r.r2 + ' 人）';
+    (p.owner||'负责人') + '｜' + (p.post||'—') + '｜' + GW.tier(r.r2) + '（'+r.mLabel+'入营 ' + r.r2 + ' 人）';
   gwPaint();
 }
 
@@ -7632,30 +7675,27 @@ function gwDiag(st){
     h += '<div class="gw-demo-hint" onclick="gwShowDemo()">你这站还没走过任何一轮闭环 —— <b>先看一个真实站（左旗）是怎么用这个台子长出本事的 ›</b></div>';
   }
 
-  /* --- 诊断书：先讲最扎的那个事实 --- */
-  var lost = worst.k==='arrive' ? (r.r0-r.r1) : (worst.k==='enroll' ? (r.r1-r.r2) : 0);
+  /* --- 诊断书：先讲最扎的那个事实（月份随数据，不写死） --- */
   var fact = '';
-  if(worst.k==='arrive'){
-    fact = '7 月你站报名 <b>'+r.r0+'</b> 人，真正来面试 <b>'+r.r1+'</b> 人 —— <b>'+lost+'</b> 人报了名却没出现，到场率 <b>'+gwFmt(m.arrive,'%')+'</b>，20 站排第 <b>'+worst.rank+'</b>。';
-  }else if(worst.k==='enroll'){
-    fact = '7 月你站面试 <b>'+r.r1+'</b> 人，最终入营 <b>'+r.r2+'</b> 人 —— <b>'+lost+'</b> 人在最后一步走掉，入营率 <b>'+gwFmt(m.enroll,'%')+'</b>，20 站排第 <b>'+worst.rank+'</b>。';
-  }else if(worst.k==='cardper'){
-    fact = '7 月你站在营 <b>'+r.r2+'</b> 人，带来新卡 <b>'+r.card+'</b> 张 —— 平均一个学员 <b>'+gwFmt(m.cardper,'张/人')+'</b> 张，20 站排第 <b>'+worst.rank+'</b>，中位是 '+gwFmt(worst.med,'张/人')+' 张。';
-  }else if(worst.k==='volper'){
-    fact = '7 月你站在营 <b>'+r.r2+'</b> 人，采浆 <b>'+r.vol+'</b> 份 —— 平均一个学员 <b>'+gwFmt(m.volper,'份/人')+'</b> 份，20 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'份/人')+' 份。';
+  if(worst.k==='cardper'){
+    fact = r.mLabel+'你站在营 <b>'+r.r2+'</b> 人，带来新卡 <b>'+r.card+'</b> 张 —— 平均一个学员 <b>'+gwFmt(m.cardper,'张/人')+'</b> 张，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位是 '+gwFmt(worst.med,'张/人')+' 张。';
+  }else if(worst.k==='convper'){
+    fact = r.mLabel+'你站在营 <b>'+r.r2+'</b> 人，科普转化新卡 <b>'+r.conv+'</b> 人次 —— 平均一个学员 <b>'+gwFmt(m.convper,'人/人')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'人/人')+'。';
+  }else if(worst.k==='sciop'){
+    fact = r.mLabel+'你站在营 <b>'+r.r2+'</b> 人，学生科普 <b>'+r.sci+'</b> 人次 —— 渗透 <b>'+gwFmt(m.sciop,'人/人')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'人/人')+'。';
   }else if(worst.k==='parent'){
-    fact = '7 月你站入营 <b>'+r.r2+'</b> 人，家长参与 <b>'+r.pn+'</b> 人 —— 参与率 <b>'+gwFmt(m.parent,'%')+'</b>，20 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'%')+'。';
+    fact = r.mLabel+'你站入营 <b>'+r.r2+'</b> 人，家长参与 <b>'+r.pn+'</b> 人 —— 参与率 <b>'+gwFmt(m.parent,'%')+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>，中位 '+gwFmt(worst.med,'%')+'。';
   }else{
-    fact = '7 月你站入营 <b>'+r.r2+'</b> 人，'+worst.cap.n+'（'+worst.cap.fx+'）为 <b>'+gwFmt(worst.v,worst.cap.u)+'</b>，20 站排第 <b>'+worst.rank+'</b>。';
+    fact = r.mLabel+'你站入营 <b>'+r.r2+'</b> 人，'+worst.cap.n+'（'+worst.cap.fx+'）为 <b>'+gwFmt(worst.v,worst.cap.u)+'</b>，'+bk.n+' 站排第 <b>'+worst.rank+'</b>。';
   }
   /* --- 但是：把最强项摆出来，避免只看短板打击人 --- */
   var bmul = best.med ? (best.v/best.med) : 0;
-  var but = '但同时：你的<b>'+best.cap.n+'</b>（'+best.cap.fx+'）做到 <b>'+gwFmt(best.v,best.cap.u)+best.cap.u.replace('张/人','').replace('份/人','')+'</b>，20 站排第 <b>'+best.rank+'</b>'
+  var but = '但同时：你的<b>'+best.cap.n+'</b>（'+best.cap.fx+'）做到 <b>'+gwFmt(best.v,best.cap.u)+best.cap.u.replace('张/人','').replace('份/人','').replace('人/人','')+'</b>，'+bk.n+' 站排第 <b>'+best.rank+'</b>'
           + (bmul>1.2 ? '，是中位数的 <b>'+(Math.round(bmul*10)/10)+'</b> 倍' : '')
           + '。这是你手上真实握着的东西。';
 
   h += '<div class="gw-verdict">';
-  h += '<div class="vt">体检结论 · 基于 2026 年 6-7 月真实数据</div>';
+  h += '<div class="vt">体检结论 · 基于 '+(new Date().getFullYear())+' 年 '+GW.spanLabel()+'真实数据</div>';
   h += '<div class="gw-type" style="background:rgba(255,255,255,.14)">'+T.n+'负责人</div>';
   h += '<div class="vfact">'+fact+'</div>';
   h += '<div class="vbut">'+but+'</div>';
@@ -7664,12 +7704,13 @@ function gwDiag(st){
   /* --- 核心命题：这个阶段该干什么，不该干什么 --- */
   h += '<div class="gw-core"><b>你这个阶段真正的成长命题：</b><br>'+T.core+'</div>';
 
-  /* 势头单列：不算能力，只作参考 —— 环比高低多半是开营早晚，不是本事大小 */
+  /* 势头单列：环比 + 被剔除的两项漏斗参考（到场把控/入营守成），都不算能力 */
   var mo = GW.momentum(st);
   h += '<div class="gw-mo"><span class="t">势头参考</span>'
-     + '<span>6 月入营 <b>'+mo.p6+'</b> 人 → 7 月 <b>'+mo.p7+'</b> 人'
+     + '<span>'+(mo.pLabel||'—')+'入营 <b>'+mo.prev+'</b> 人 → '+mo.mLabel+'<b>'+mo.cur+'</b> 人'
      + '（'+(mo.pct>=0?'+':'')+gwFmt(mo.pct,'%')+'）<em>'+mo.lv+'</em></span>'
-     + '<span class="n">环比不计入能力排名：开营早晚就能拉出几倍差距，它说明进度，不说明做法。</span></div>';
+     + '<span>到场把控 <b>'+gwFmt(mo.arrive,'%')+'</b>（面试÷报名） · 入营守成 <b>'+gwFmt(mo.enroll,'%')+'</b>（入营÷面试）</span>'
+     + '<span class="n">环比与到场/入营两项均不计入能力排名：开营早晚与规模调控就能拉出几倍差距，它们说明进度，不说明做法。</span></div>';
 
   /* --- 双证据：数据诊断 vs 组织真实评价，互相印证 --- */
   var p = (typeof PROF!=='undefined'&&PROF[st])?PROF[st]:{};
@@ -7689,20 +7730,21 @@ function gwDiag(st){
   /* --- 四象限散点：一眼看到自己和谁在一起 --- */
   h += gwQuadSvg(st);
 
-  /* --- 六项能力条 --- */
+  /* --- 四项能力条 --- */
   h += '<div class="gw-caps">';
   GW.CAPS.forEach(function(c){
     var v = m[c.k], B = bk.B[c.k], rank = B.rank(st);
     var pct = Math.max(2, Math.min(100, v/c.cap*100));
     var mp  = Math.max(0, Math.min(100, B.med/c.cap*100));
     var tp  = Math.max(0, Math.min(100, B.topv/c.cap*100));
-    var cls = rank<=5 ? 'strong' : (rank>=Math.ceil(bk.n*0.7) ? 'weak' : '');
-    var rkc = rank<=5 ? 'good' : (rank>=Math.ceil(bk.n*0.7) ? 'bad' : 'mid');
+    var topN = Math.ceil(bk.n*0.25), botN = Math.ceil(bk.n*0.7);
+    var cls = rank<=topN ? 'strong' : (rank>=botN ? 'weak' : '');
+    var rkc = rank<=topN ? 'good' : (rank>=botN ? 'bad' : 'mid');
     var unit = (c.u==='%') ? '' : c.u;
     h += '<div class="gw-cap '+cls+'">';
     var oddSelf = (c.ratio && v > 100.5);
     h += '<div class="r1"><span class="nm">'+c.n+'<small>'+c.q+'</small></span>';
-    h += '<span><span class="val">'+gwFmt(v,c.u)+'<u>'+unit+'</u></span><span class="rk '+rkc+'">20 站第 '+rank+'</span></span></div>';
+    h += '<span><span class="val">'+gwFmt(v,c.u)+'<u>'+unit+'</u></span><span class="rk '+rkc+'">'+bk.n+' 站第 '+rank+'</span></span></div>';
     h += '<div class="gw-bar '+cls+'"><i style="width:'+pct.toFixed(1)+'%"></i>'
        + '<em data-l="中位 '+gwFmt(B.med,c.u)+'" style="left:'+mp.toFixed(1)+'%"></em>'
        + (tp>mp+6 ? '<em data-l="'+B.top+' '+gwFmt(B.topv,c.u)+'" style="left:'+tp.toFixed(1)+'%"></em>' : '')
@@ -7765,7 +7807,7 @@ function gwQuadSvg(st){
   g += '<text x="14" y="'+(PT+ih/2)+'" font-size="11.5" fill="#5a7a99" transform="rotate(-90 14 '+(PT+ih/2)+')" text-anchor="middle">单人新卡产出（张/人）→</text>';
   g += '</svg>';
   var T = GW.TYPES[me.key];
-  return '<div class="gw-quad"><h3>你在 20 个站里的位置</h3><p class="qh">横轴＝把人招进来并留住的能力，纵轴＝每个学员的产出。虚线是 20 站中位。你落在 <b style="color:'+T.color+'">'+T.n+'</b> 区。</p>'+g+'</div>';
+  return '<div class="gw-quad"><h3>你在 '+bk.n+' 个站里的位置</h3><p class="qh">横轴＝把人招进来并留住的能力（到场×入营，参考项），纵轴＝每个学员的产出。虚线是 '+bk.n+' 站中位。你落在 <b style="color:'+T.color+'">'+T.n+'</b> 区。</p>'+g+'</div>';
 }
 
 /* ============ ② 我的处方 ============ */
@@ -7773,7 +7815,7 @@ function gwRx(st){
   var bk = GW.bench(), m = bk.all[st], r = m._raw;
   var w = GW.weakness(st), S = GW.of(st), h = '';
   var picks = w.slice(0,2);   // 只给两张，避免全线夹生
-  h += '<div class="gw-core" style="background:#eef5fc;border-left-color:#2b7cd3;color:#22405c">一次只给<b>两张</b>处方 —— 短板有六项，但同时补六项等于一项都补不上。做完一张回填结果，系统再给下一张。</div>';
+  h += '<div class="gw-core" style="background:#eef5fc;border-left-color:#2b7cd3;color:#22405c">一次只给<b>两张</b>处方 —— 短板有 '+GW.CAPS.length+' 项，但同时补 '+GW.CAPS.length+' 项等于一项都补不上。做完一张回填结果，系统再给下一张。</div>';
 
   picks.forEach(function(x, idx){
     var c = x.cap, rx = GW.RX[x.k];
@@ -7783,7 +7825,7 @@ function gwRx(st){
     h += '<div class="gw-rx-h">';
     h += '<div class="tg'+(idx?' g2':'')+'">'+(idx?'次优先':'最优先')+' · '+c.n+'</div>';
     h += '<h3>'+rx.title+'</h3>';
-    h += '<div class="gap">你 <b>'+gwFmt(x.v,c.u)+(c.u==='%'?'':c.u)+'</b>｜20 站中位 '+gwFmt(x.med,c.u)+(c.u==='%'?'':c.u)
+    h += '<div class="gap">你 <b>'+gwFmt(x.v,c.u)+(c.u==='%'?'':c.u)+'</b>｜'+bk.n+' 站中位 '+gwFmt(x.med,c.u)+(c.u==='%'?'':c.u)
        + '｜做得最好 <i>'+x.top+' '+gwFmt(x.topv,c.u)+(c.u==='%'?'':c.u)+'</i>（'+GW.ownerOf(x.top)+'）　排名 <b>'+x.rank+'/'+bk.n+'</b></div>';
     h += '<div class="gap" style="margin-top:7px;color:#5a7a99;font-size:12.5px">'+rx.why+'</div>';
     h += '</div>';
@@ -7940,7 +7982,7 @@ function gwFile(st){
   var okN = ev.filter(function(x){return x.ok;}).length;
   h += '<div class="gw-core" style="background:#f0faf3;border-left-color:#12833f;color:#1a5c33">档案里只放<b>做过并且验证过的事</b> —— 目前已闭环 <b>'+okN+'</b> 条、复盘 <b>'+(ev.length-okN)+'</b> 条。年底这份东西比任何总结 PPT 都硬。</div>';
 
-  h += '<div class="gw-radar-box"><div class="t">能力画像 · 5 项能力 vs 20 站中位（越往外越强）</div>'+gwRadar(st)+'<div class="gw-radar-legend"><span class="me">■ 我的站</span><span class="md">□ 20 站中位基准</span></div></div>';
+  h += '<div class="gw-radar-box"><div class="t">能力画像 · '+GW.CAPS.length+' 项能力 vs '+GW.bench().n+' 站中位（越往外越强）</div>'+gwRadar(st)+'<div class="gw-radar-legend"><span class="me">■ 我的站</span><span class="md">□ '+GW.bench().n+' 站中位基准</span></div></div>';
 
   if(!ev.length){
     h += '<div class="gw-empty"><b>档案还是空的</b>去「我的处方」领一张，执行完回填真实结果。<br>达成会写成一条能带走的能力证据；没达成会记下卡点和下一步 —— 两种都算成长，只有不回填不算。<br><button class="ghost" style="margin-top:10px" onclick="gwShowDemo()">先看一个真实站怎么走完一轮 ›</button></div>';
@@ -7981,18 +8023,12 @@ function gwExport(){
     L.push('   '+(x.ok ? ('方法：'+x.method) : ('卡点：'+x.block+'；下一步：'+x.next)));
   });
   L.push('');
-  /* 数据月份从看板实际数据动态生成，不再写死 6-7 月（P1-10） */
-  var gm=(function(){
-    try{
-      var ms=DASH_ORDER.filter(function(k){return /^\d{1,2}$/.test(k);}).map(function(k){return parseInt(k,10);}).sort(function(a,b){return a-b;});
-      if(!ms.length)return '';
-      return (ms.length===1)?(ms[0]+' 月'):(ms[0]+'-'+ms[ms.length-1]+' 月');
-    }catch(e){ return ''; }
-  })();
-  L.push('二、当前六项能力位次'+(gm?('（基于 '+gm+'真实数据）'):'（基于各站上报数据）'));
+  /* 数据月份从看板实际数据动态生成（GW.spanLabel 统一出口，P0 动态月份） */
+  var gm = GW.spanLabel();
+  L.push('二、当前 '+GW.CAPS.length+' 项能力位次'+(gm?('（基于 '+gm+'真实数据）'):'（基于各站上报数据）'));
   var bk = GW.bench();
   GW.CAPS.forEach(function(c){
-    L.push('· '+c.n+'（'+c.fx+'）：'+gwFmt(bk.all[st][c.k],c.u)+c.u+'　20 站第 '+bk.B[c.k].rank(st)+'　中位 '+gwFmt(bk.B[c.k].med,c.u)+c.u);
+    L.push('· '+c.n+'（'+c.fx+'）：'+gwFmt(bk.all[st][c.k],c.u)+c.u+'　'+bk.n+' 站第 '+bk.B[c.k].rank(st)+'　中位 '+gwFmt(bk.B[c.k].med,c.u)+c.u);
   });
   var blob = new Blob([L.join('\n')], {type:'text/plain;charset=utf-8'});
   var a = document.createElement('a');
@@ -8050,7 +8086,7 @@ function gwExportPDF(){
     L.push('@media print{body{margin:0}}<\/style><\/head><body>');
     L.push('<h1>扬帆计划 · 项目负责人成长档案</h1>');
     L.push('<div class="sub">浆站：'+st+'　负责人：'+(p.owner||'—')+'　岗位：'+(p.post||'—')+'　导出：'+gwDate(Date.now())+'</div>');
-    L.push('<h2>能力画像（5 项能力 vs 20 站中位）</h2>');
+    L.push('<h2>能力画像（'+GW.CAPS.length+' 项能力 vs '+bk.n+' 站中位）</h2>');
     L.push(gwRadar(st));
     L.push('<h2>能力位次</h2>');
     GW.CAPS.forEach(function(c){
@@ -8062,7 +8098,7 @@ function gwExportPDF(){
       var c = GW.CAPS.filter(function(y){ return y.k===x.k; })[0] || {n:x.k,u:''};
       L.push('<div class="ev'+(x.ok?'':' miss')+'"><b>'+gwDate(x.t)+'</b>　'+c.n+'：'+gwFmt(x.from,c.u)+' → '+gwFmt(x.to,c.u)+'（验收 '+gwFmt(x.target,c.u)+'）'+(x.ok?' 达成':' 未达成')+'<br>'+(x.ok?('方法：'+x.method):('卡点：'+x.block+'；下一步：'+x.next))+'</div>');
     });
-    L.push('<p class="sub" style="margin-top:26px">本档案由扬帆OS自动生成，数据来自 6-7 月真实漏斗，仅记录做过并验证过的事。</p>');
+    L.push('<p class="sub" style="margin-top:26px">本档案由扬帆OS自动生成，数据来自 '+GW.spanLabel()+'真实漏斗，仅记录做过并验证过的事。</p>');
     L.push('<\/body><\/html>');
     var blob = new Blob([L.join('\n')], {type:'text/html;charset=utf-8'});
     var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -8088,11 +8124,11 @@ function gwDemo(){
   var tr = GW.tier(r.r2);
   var h = '';
   h += '<div class="gw-demo-head"><div class="t">真实示范 · 一个负责人是怎么用这个台子长出本事的</div>';
-  h += '<div class="n">主角：<b>'+st+'浆站</b>（'+GW.ownerOf(st)+'）｜ 这是基于 2026 年 6-7 月真实数据的<b>推演示范</b>，未写入任何人的存档。看完把它换成你自己的站。</div></div>';
+  h += '<div class="n">主角：<b>'+st+'浆站</b>（'+GW.ownerOf(st)+'）｜ 这是基于 '+(new Date().getFullYear())+' 年 '+GW.spanLabel()+'真实数据的<b>推演示范</b>，未写入任何人的存档。看完把它换成你自己的站。</div></div>';
 
   h += '<div class="gw-step"><div class="num">1</div><div class="bx">';
   h += '<div class="st">诊断 · 数据说你最弱的是这一项</div>';
-  h += '<p class="fact">'+st+'站家长参与率 <b>'+gwFmt(m.parent,'%')+'</b>，20 站排第 <b>'+pw.rank+'</b>。同为'+tr+'档的 '+(bk.TB[tr].n)+' 个站，家长参与中位是 '+gwFmt(bk.TB[tr].parent||0,'%')+'。</p>';
+  h += '<p class="fact">'+st+'站家长参与率 <b>'+gwFmt(m.parent,'%')+'</b>，'+bk.n+' 站排第 <b>'+pw.rank+'</b>。同为'+tr+'档的 '+(bk.TB[tr].n)+' 个站，家长参与中位是 '+gwFmt(bk.TB[tr].parent||0,'%')+'。</p>';
   var semiWeak = (typeof SEMI!=='undefined' && SEMI[st] && SEMI[st].weak) ? SEMI[st].weak : '家庭献浆少、对父母沟通不足';
   h += '<p class="check">交叉验证：本平台把「数据诊断」和「组织半年评价」摆在一起 —— 半年度画像里对'+st+'的原文记录是 <i>"'+semiWeak+'"</i>。两条独立来源，同一个结论。这就不是拍脑袋说你不行，是数据摆在这。</p>';
   h += '</div></div>';
@@ -8131,7 +8167,8 @@ function gwDemo(){
 function gwPair(st){
   var bk = GW.bench(), w = GW.weakness(st), h = '';
   var myWeak = w.slice(0,3);
-  var myStrong = w.slice(-3).reverse().filter(function(x){ return x.rank<=6; });
+  var strongTop = Math.ceil(bk.n*0.3);
+  var myStrong = w.slice(-3).reverse().filter(function(x){ return x.rank<=strongTop; });
   /* 站级匿名模式：不暴露其他站名 */
   var anon = yfIsStation();
   function anonLabel(realSt, rankNum){
@@ -8162,7 +8199,7 @@ function gwPair(st){
   // 能帮谁
   h += '<div class="gw-pc give"><h3>你能帮谁</h3><p class="sb">你排前列的项，正是别人的短板。输出一次，你自己那点隐性经验才真正变成方法。</p>';
   if(!myStrong.length){
-    h += '<div class="gw-pi"><div class="gap">当前六项都还没进前六。先把处方做成一条，这里就会出现你能带的站 —— 那一刻比任何评优都实在。</div></div>';
+    h += '<div class="gw-pi"><div class="gap">当前 '+GW.CAPS.length+' 项都还没进前 '+Math.ceil(bk.n*0.3)+'。先把处方做成一条，这里就会出现你能带的站 —— 那一刻比任何评优都实在。</div></div>';
   }else{
     myStrong.forEach(function(x){
       var c = x.cap, order = bk.B[x.k].order;
@@ -9273,10 +9310,9 @@ function lrRoutesHTML(){
     +'<p>诊断卡说哪项弱，就跳对应章节，读完回来做处方。</p>'
     +'<p>适合：在任负责人，数据已在看板。</p>'
     +'<div class="lr-chips">'
-    +'<button type="button" data-id="ka-comm">到场把控 · 沟通管理</button>'
-    +'<button type="button" data-id="pg-exec">入营守成 · 执行过程组</button>'
     +'<button type="button" data-id="ka-scope">转化设计 · 范围管理</button>'
-    +'<button type="button" data-id="ka-cost">深度经营 · 成本管理</button>'
+    +'<button type="button" data-id="ka-qual">深度经营 · 质量管理</button>'
+    +'<button type="button" data-id="ka-comm">科普渗透 · 沟通管理</button>'
     +'<button type="button" data-id="ka-stake">家校经营 · 干系人管理</button>'
     +'</div>'
     +'<p class="lr-note">不知道哪项弱？先到看板看诊断卡，再回来点章节。<a id="lrGoDash" role="button" style="color:var(--blue);cursor:pointer;text-decoration:underline">去看我的诊断卡</a></p>'
