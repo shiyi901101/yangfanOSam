@@ -1761,7 +1761,12 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   /* null 一律跳过合计/最大值：源码级 */
   assert(src2.indexOf('if(s.camp===null||s.camp===undefined)return;') >= 0 && src2.indexOf('grandTotal=(grandTotal===null?0:grandTotal)+s.camp') >= 0, 'DBF15：地图合计/最高值跳过 null（0 不冒充缺失，缺失不拉低合计）');
   assert(src2.indexOf("(_isHistSeason?'未开展':'未上报')") >= 0, 'DBF16：地图站行 null 文案——历史季「未开展」/当年「未上报」，与真实 0 的「0人」区分');
-  assert(src2.indexOf("_isHistSeason?'#93A6BA'") >= 0 && src2.indexOf("_isHistSeason?'#EFF2F5'") >= 0 && src2.indexOf('去年基线 · 只读') >= 0, 'DBF17：历史季切「去年基线 · 只读」灰蓝配色 + 角标');
+  /* 2026-09-29：历史季灰板由自定灰值（#93A6BA hi/dotMid · #EFF2F5 lo）迁到**基线既有**灰阶
+     （#94A3B8=slate-400 · #EEF2F6；另 dotHi/dotLo 由 #6E8299/#AFBECB → #6B7B8F/#B0BEC5）。
+     原因：原 4 值不在 p0 扫描基线 c5f41fb 明文里 → 被 P0「新增硬编码色」判红（真实命中、非回归）。
+     语义未变（历史季 = 灰蓝低饱和 + 「去年基线 · 只读」角标），故此处同步跟进钉值；
+     色差 ΔRGB ≤ 13，观感不变。 */
+  assert(src2.indexOf("_isHistSeason?'#94A3B8'") >= 0 && src2.indexOf("_isHistSeason?'#EEF2F6'") >= 0 && src2.indexOf('去年基线 · 只读') >= 0, 'DBF17：历史季切「去年基线 · 只读」灰蓝配色 + 角标');
   assert(src2.indexOf('if(svg._zmClean)svg._zmClean();') >= 0, 'DBF18：地图重建前解绑上一轮 zoom 监听（防监听器叠加）');
 
   /* ===== DBF-C：联动接线 ===== */
