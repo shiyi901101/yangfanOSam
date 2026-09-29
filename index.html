@@ -213,6 +213,15 @@ window.__yfLoadLib=(function(){
   /* ===== 主内容区 ===== */
   .main-area{flex:1;min-width:0;display:flex;flex-direction:column}
   .wrap{max-width:1220px;margin:0 auto;padding:24px 20px 40px}
+  /* 宽屏铺开（2026-09-29 用户拍板 B 方案）：.wrap 带 margin:0 auto，在 .main-area（flex 列容器）
+     里会让 align-items:stretch 失效，宽度退化为按内容反推（shrink-to-fit）。真机实测：
+     1910x938 视口下 .wrap 仅 903px，而可用宽 1650px —— 白扔 45%。正文列因此只剩 551px，
+     两列对照表每列 8-10 个汉字即换行。修法：显式 width:100% 撑满 + 上限 1220 放宽到 1800
+     （课文侧另有 1440px 封顶，超宽屏不会无限拉伸）。 */
+  .main-area>.wrap{width:100%;max-width:1800px}
+  /* 学习模块顶部占位压缩：省下的高度由 lrFit() 按实时 rect.top 自动补给课程框，不写死高度。 */
+  #learn>.legend{margin:6px 0 8px}
+  #learn>.learn-tabs{margin:8px 0 8px}
   section{display:none}
   section.active{display:block;animation:secIn .45s cubic-bezier(.22,.61,.36,1)}
   @keyframes secIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -10166,7 +10175,21 @@ var LR_CSS=[
    修法：① 标题行允许折行 + 长词断行；② .case 在 ≤360 降单列。
    注意：勿改用「.case>*{min-width:0} + 允许断词」的写法——实测会让 .case-kpi 指标卡被挤爆（320 下新溢 57px）。
    只在 ≤360 生效，375/414 观感不变。实测：320/343/360/375/414 溢出元素均为 0。 */
-'@media(max-width:360px){section h2{flex-wrap:wrap;overflow-wrap:break-word}.case{overflow-wrap:break-word;grid-template-columns:1fr}}'
+'@media(max-width:360px){section h2{flex-wrap:wrap;overflow-wrap:break-word}.case{overflow-wrap:break-word;grid-template-columns:1fr}}',
+/* ===== B5 宽屏阅读版式（2026-09-29 用户拍板「B 宽屏铺开」）：B1 的 860px / 34em / 17px 是按
+   笔记本默认宽度定的；在 1910 宽屏真机实测，正文列仅 551px（利用率 64%），两列对照表每列
+   8-10 个汉字即换行 —— 拥挤感的主因是列宽而非字号（17px 本身是合规阅读字号，25-37 字/行理想区）。
+   修法：901px 及以上放开列宽与字号；900px 及以下仍走 B1-7（700 及以下回退）与 B1-8（701-768 平移），
+   两条既有回退规则在本组之后，窄屏行为完全不变。
+   为何用媒体查询包裹、而非直接改 B1 字面量：① 窄屏必须保持 17px，直接改会被末尾规则压掉；
+   ② B1 那组是基线契约的字面量，B5 作为新增层叠加，边界清晰、可分别回退。
+   封顶：课文 .wrap 1440px，正文列 .main 1060px（约 44em，19px 字号下约 55 汉字/行）。 ===== */
+'@media(min-width:901px){.wrap{max-width:1440px}}',
+'@media(min-width:901px){.main{max-width:1060px}}',
+'@media(min-width:901px){.main > section > p,.main > section > ul,.main > section > ol,.main > .hero > p,.main > section > .lead,.deepbox{max-width:44em}}',
+'@media(min-width:901px){.deepbox{font-size:19px;line-height:1.95;padding:22px 26px}}',
+'@media(min-width:901px){body{font-size:18px}}',
+'@media(min-width:901px){section h2{font-size:26px}}'
 ].join('\n');
 function lrInjectStyle(d){ if(d.getElementById('lrStyle'))return; var st=d.createElement('style'); st.id='lrStyle'; st.textContent=LR_CSS; d.head.appendChild(st); }
 

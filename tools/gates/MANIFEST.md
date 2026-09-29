@@ -102,6 +102,15 @@ bash tools/gates/run_gates_iso.sh [tag]
   - 根因两层：① 课文 `section h2{display:flex}` 是 nowrap 弹性行，注入层把 h2 字号 `19px→22px`（`LR_CSS` 内 `section h2{font-size:22px;…}`）后，长拉丁术语（`Communication` 13 字母 / `Procurement` 11 字母）无断点可折；`.main` / `section` 属**被动溢出**（用「只修 h2」的对照组证明：修好 h2 后二者一并消失）。② 课文 `.case{display:grid;grid-template-columns:1fr 1fr}` 的 `1fr` 轨道 `min-width:auto` 被长串「Kniberg & Ivarsson」撑开。
   - **方案对比（均实测，非推断）**：**A** = h2 折行 + 允许断词 + `.case>*{min-width:0}` → 会让 `.case-kpi` 指标卡被挤爆（320 下**新溢 57px**），**弃用**；**B** = h2 折行 + ≤360 给 `.case` 降单列 → 五档全 **0**，**采用**。
   - **踩坑留痕**：CSS 注释里写了 `⚠️`，被 GATE3 的「注入层零 emoji 字面量」断言逮住（`pass=723 → 720 fail=3`），去掉后复绿 —— **注释也算源码，注入层注释同样不许出现 emoji / 状态符号**。
+- **本笔「学习模块宽屏版式铺开（B 方案）」（2026-09-29）**：主应用 CSS 新增 2 条 + 注入层 `LR_CSS` 新增 **6 条** `@media(min-width:901px)` 组。
+  - **GATE3 断言条数不变（仍 `pass=723 fail=0`）** —— 关键设计：B5 全部用**媒体查询包裹并追加**，**不改 B1 基线段的任何字面量**（`.main{max-width:860px}` / `34em` / `.deepbox 17px` 原样保留）。故 B1 的 23 条断言一条都不用动、也不用改钉值 —— 与上笔 `DBF17`（源级钉值必须同步）情况**不同**，这次靠「新增层叠加」规避了契约破坏。这是「新增层 vs 改钉值」的取舍范例：能叠加就不改钉值。
+  - **问题（真机实测 1910x938，非推断）**：主容器 `.wrap` 带 `margin:0 auto`，在 `.main-area`（`display:flex;flex-direction:column`）里使 `align-items:stretch` 失效 → 宽度退化为按内容反推（fit-content），实测仅 **903px**，而可用宽 **1650px**（**白扔 45%**）。课文正文列因此只剩 **551px**（利用率 64%），两列对照表每列 8-10 个汉字即换行 —— 拥挤感主因是**列宽**而非字号（17px 落在 25-37 字/行理想区）。
+  - **修法三处**：① 主应用 `.main-area>.wrap{width:100%;max-width:1800px}`（特异性 `0,2,0` 覆盖 `.wrap` 的 `0,1,0`；`*{box-sizing:border-box}` 在 L129，`width:100%` 不会被 padding 撑溢出）；② `#learn>.legend` / `#learn>.learn-tabs` 占位压缩（省下的高度由 `lrFit()` 按实时 `rect.top` 自动补给课程框，**不写死高度**）；③ 注入层 B5 六条：`.wrap` 1440 封顶 · `.main` 1060 封顶 · 段落与 `.deepbox` `max-width:44em` · `.deepbox 19px/1.95` · `body 18px` · `section h2 26px`。
+  - **为何用媒体查询包裹而非直接改 B1 字面量**：① 窄屏必须保持 17px，直接改会被数组末尾的窄屏规则压掉；② B1 那组是基线契约。900px 及以下完整走 B1-7 / B1-8，**窄屏行为零变化**。
+  - **真机实测（系统 Edge headless，iframe 宽即课文视口）**：1910x938 → 正文列 **551 → 1060px**、`.deepbox` **17 → 19px**（行高 37.05px）、课文总长 **66132 → 53362px（-19%）**；**9 档视口横向溢出元素均为 0**（1910 / 1440 / 1024 / 901 / 900 / 768 / 414 / 375 / 320）；<901px 完整回落基线（h2 22px / deepbox 17px / 正文列宽度不变）。
+  - **实测特性（易误判，写下来免得后人踩）**：注入层的媒体查询在 **iframe 内文档**求值，用的是 **iframe 内宽**而非外层窗口宽 → B5 实际触发于**外层窗口约 1205px 以上**（1910 / 1440 / 1366 / 1280 生效；1024 走基线）。这与「宽屏专用」的语义一致，**不是缺陷**。
+  - **范围核查（防波及误判）**：`class="wrap"` 全站仅 1 处（所有模块公共外框），故另测 dash / hq 两模块：1910 档均 0 溢出；dash 1440 / 1024 档有 4px / 9px 溢出，**A/B 对比（改动前 `c35ee3b` vs 改动后）逐项相同**（同为 `button#dashRefreshBtn.up-enter` 入场动画的瞬态位移）→ **存量现象、非本次引入**，不在本笔范围。
+  - **本笔五道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=723 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **17 PASS / 0 FAIL / 0 SKIP**；P0 终检 **5 类全 PASS**（SELFTEST 23/23，`RC=0`，新增行 1775）。
 
 ## P0 扫描口径（三处精度修正 + 保真平移白名单 —— **降假阳性 / 补口径缺口，均不降强度**）
 
