@@ -10155,7 +10155,16 @@ var LR_CSS=[
 /* 窄屏 320-414px 回退：栅格降单列、操作板压内边距；输入框 100% 宽不被挤，触摸目标 ≥44px */
 '@media(max-width:640px){.actboard{padding:14px 12px}.actboard .ab-gl{grid-template-columns:1fr}.actboard .ab-goal{grid-template-columns:18px minmax(0,1fr);gap:8px}.kcard{grid-template-columns:1fr}}',
 /* 打印：操作板可打印（不印按钮与状态行，纸面只留可填的板） */
-'@media print{.actboard{border-color:var(--ink)}.actboard .ab-btn,.actboard .ab-st{display:none}}'
+'@media print{.actboard{border-color:var(--ink)}.actboard .ab-btn,.actboard .ab-st{display:none}}',
+/* 极窄屏 ≤360px 溢出回弹（真机实测 320 档 5 处溢出，书无横向滚动条 → 内容被裁且不可滚）。
+   根因：课文 section h2 是 nowrap 弹性行（.no 徽标 + 标题同行），注入层把 h2 字号 19px→22px 后，
+   长拉丁术语（Communication 13 字母 / Procurement 11 字母）无断点可折，整行溢出 267px > 内容盒 233px；
+   父级 section(+18) 与 .main(+17) 是同一根因带塌的被动溢出。
+   .case.good 是另一根因：课文 .case 两列栅格，1fr 轨道 min-width:auto 被长串「Kniberg & Ivarsson」撑开。
+   修法：① 标题行允许折行 + 长词断行；② .case 在 ≤360 降单列。
+   注意：勿改用「.case>*{min-width:0} + 允许断词」的写法——实测会让 .case-kpi 指标卡被挤爆（320 下新溢 57px）。
+   只在 ≤360 生效，375/414 观感不变。实测：320/343/360/375/414 溢出元素均为 0。 */
+'@media(max-width:360px){section h2{flex-wrap:wrap;overflow-wrap:break-word}.case{overflow-wrap:break-word;grid-template-columns:1fr}}'
 ].join('\n');
 function lrInjectStyle(d){ if(d.getElementById('lrStyle'))return; var st=d.createElement('style'); st.id='lrStyle'; st.textContent=LR_CSS; d.head.appendChild(st); }
 
