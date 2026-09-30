@@ -108,7 +108,48 @@ const BASE_COLOR = new Set(colorTokens(baseHtml));
    注意：若某色值其实已在基线明文里（如 rgba(43,124,211,.35) 基线有 2 处），会被 legacy 车道
    自动接住，无需也不得再进本白名单（避免双份豁免、口径混淆）。 */
 const FIDELITY = [
-  { v: 'rgba(20,85,156,.4)', from: '课文 .side-mask（窄屏抽屉遮罩底色，B1-8 平移 701-768 逐字抄）' }
+  { v: 'rgba(20,85,156,.4)', from: '课文 .side-mask（窄屏抽屉遮罩底色，B1-8 平移 701-768 逐字抄）' },
+  { v: '#2a76c4', from: '玻璃皮肤令牌块 candGL（--glc-1，v7-3）' },
+  { v: '#0e7355', from: '玻璃皮肤令牌块 candGL（--glc-2，v7-3）' },
+  { v: '#f5b24a', from: '玻璃皮肤令牌块 candGL（--glc-3，v7-3）' },
+  { v: 'rgba(4,18,42,0.550)', from: '玻璃皮肤令牌块 candGL（--glc-4，v7-3）' },
+  { v: '#0a6355', from: '玻璃皮肤令牌块 candGL（--glc-5，v7-3）' },
+  { v: '#0e8f7d', from: '玻璃皮肤令牌块 candGL（--glc-6，v7-3）' },
+  { v: '#5fa8ff', from: '玻璃皮肤令牌块 candGL（--glc-7，v7-3）' },
+  { v: 'rgba(6,20,40,.54)', from: '玻璃皮肤令牌块 candGL（--glc-8，v7-3）' },
+  { v: '#9a5409', from: '玻璃皮肤令牌块 candGL（--glc-9，v7-3）' },
+  { v: '#d97a10', from: '玻璃皮肤令牌块 candGL（--glc-10，v7-3）' },
+  { v: '#3440a0', from: '玻璃皮肤令牌块 candGL（--glc-11，v7-3）' },
+  { v: 'rgba(30,80,140,.46)', from: '玻璃皮肤令牌块 candGL（--glc-12，v7-3）' },
+  { v: '#615e14', from: '玻璃皮肤令牌块 candGL（--glc-13，v7-3）' },
+  { v: 'rgba(30,80,140,.36)', from: '玻璃皮肤令牌块 candGL（--glc-14，v7-3）' },
+  { v: '#4d5fd0', from: '玻璃皮肤令牌块 candGL（--glc-15，v7-3）' },
+  { v: 'rgba(224,140,46,.45)', from: '玻璃皮肤令牌块 candGL（--glc-16，v7-3）' },
+  { v: 'rgba(6,28,64,.08)', from: '玻璃皮肤令牌块 candGL（--glc-17，v7-3）' },
+  { v: '#8f8a1e', from: '玻璃皮肤令牌块 candGL（--glc-18，v7-3）' },
+  { v: 'rgba(19,52,92,.42)', from: '玻璃皮肤令牌块 candGL（--glc-19，v7-3）' },
+  { v: 'rgba(11,34,64,.42)', from: '玻璃皮肤令牌块 candGL（--glc-20，v7-3）' },
+  { v: 'rgba(6,28,64,.28)', from: '玻璃皮肤令牌块 candGL（--glc-21，v7-3）' },
+  { v: 'rgba(11,34,64,.50)', from: '玻璃皮肤令牌块 candGL（--glc-22，v7-3）' },
+  { v: 'rgba(8,26,52,.32)', from: '玻璃皮肤令牌块 candGL（--glc-23，v7-3）' },
+  { v: 'rgba(11,34,64,.36)', from: '玻璃皮肤令牌块 candGL（--glc-24，v7-3）' },
+  { v: 'rgba(4,18,42,0.495)', from: '玻璃皮肤令牌块 candGL（--glc-25，v7-3）' },
+  { v: 'rgba(8,26,52,.26)', from: '玻璃皮肤令牌块 candGL（--glc-26，v7-3）' },
+  { v: 'rgba(7,24,50,.46)', from: '玻璃皮肤令牌块 candGL（--glc-27，v7-3）' },
+  { v: 'rgba(11,34,64,.38)', from: '玻璃皮肤令牌块 candGL（--glc-28，v7-3）' },
+  { v: 'rgba(7,24,50,.34)', from: '玻璃皮肤令牌块 candGL（--glc-29，v7-3）' },
+  { v: 'rgba(6,20,40,.14)', from: '玻璃皮肤令牌块 candGL（--glc-30，v7-3）' },
+  { v: 'rgba(6,20,40,.08)', from: '玻璃皮肤令牌块 candGL（--glc-31，v7-3）' },
+  { v: 'rgba(6,20,40,.18)', from: '玻璃皮肤令牌块 candGL（--glc-32，v7-3）' },
+  { v: 'rgba(2,12,30,0.500)', from: '玻璃皮肤令牌块 candGL（--glc-33，v7-3）' },
+  { v: 'rgba(6,20,40,.26)', from: '玻璃皮肤令牌块 candGL（--glc-34，v7-3）' },
+  { v: 'rgba(6,20,40,.44)', from: '玻璃皮肤令牌块 candGL（--glc-35，v7-3）' },
+  { v: 'rgba(6,28,64,.38)', from: '玻璃皮肤令牌块 candGL（--glc-36，v7-3）' },
+  { v: 'rgba(6,20,40,0)', from: '玻璃皮肤令牌块 candGL（--glc-37，v7-3）' },
+  { v: 'rgba(74,99,119,.30)', from: '玻璃皮肤令牌块 candGL（--glc-38，v7-3）' },
+  { v: 'rgba(224,140,46,.55)', from: '玻璃皮肤令牌块 candGL（--glc-39，v7-3）' },
+  { v: 'rgba(18,100,200,.55)', from: '玻璃皮肤令牌块 candGL（--glc-40，v7-3）' },
+  { v: 'rgba(0,10,26,.38)', from: '玻璃皮肤令牌块 candGL（--glc-41，v7-3）' }
 ];
 const FIDELITY_MAP = new Map(FIDELITY.map(function (e) { return [normColor(e.v), e.from]; }));
 function newColorOn(line) {
@@ -214,6 +255,11 @@ chk('fidelity 白名单内色值被移出白名单后必须命中（证明白名
   colorTokens('background:rgba(20,85,156,.4)').filter(function (t) {
     return !isAllowColor(t) && !BASE_COLOR.has(t);
   }).length === 1);
+/* —— 冻结断言（2026-09-30 用户拍板「整块 tokenize」）——
+   玻璃皮肤不再散落硬编码色，而是收敛为一个 :root{--glc-1..N} 令牌块；白名单与该令牌块
+   **1:1 逐字对应**。这条断言把条数钉死：将来谁新增一条令牌就必须同步改这里，
+   反之谁想偷偷「多豁免一个色值」也会被这条拦住（条数对不上就红）。 */
+chk('fidelity 冻结：白名单条数 == 42（1 课文平移 + 41 玻璃令牌块）', FIDELITY.length === 42);
 /* 半角标点：真违规 */
 chk('punct 半角逗号紧贴中文 → 命中', HALF_PUNCT.test(stripEntities('中文,继续')));
 chk('punct 半角分号紧贴中文 → 命中', HALF_PUNCT.test(stripEntities('第一;第二')));
