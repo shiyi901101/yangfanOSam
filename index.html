@@ -3416,7 +3416,11 @@ var YF_CLOUD=(function(){
     if(!pend.length)return;
     pend.forEach(function(p){
       fetch(window.YF_API_URL+'/data',{method:'POST',headers:hdr(),body:JSON.stringify({col:'forum_posts',doc:{_id:p.id,post:p,station:(typeof yfMyStation==='function'?yfMyStation():''),_updated:Date.now()}})})
-        .then(function(){
+        .then(function(r){
+          /* 2026-09-30 修复：仅 2xx 才标记「已同步」。原实现无条件 markSynced——遇 401
+             （token 有效期 30 天，必然过期一次）会把帖子永久标记为已同步，此后该帖
+             永不再上传、重新登录也救不回，且用户全程无感知。 */
+          if(!r||!r.ok)return;
           var d=done;if(d.indexOf(p.id)<0)d.push(p.id);markSynced(d);
           clearDirty(p.id);
         }).catch(function(){});
