@@ -4071,6 +4071,13 @@ function inlineFmt(t){
 function mdCopy(btn){
   try{ var pre=btn.parentNode.parentNode.querySelector('code'); var t=pre?pre.textContent:''; if(navigator.clipboard) navigator.clipboard.writeText(t); btn.textContent='已复制'; setTimeout(function(){btn.textContent='复制';},1500);}catch(e){ btn.textContent='复制失败'; }
 }
+/* 打开智子时跳到最新一条：切换 tab 会让 .chat 容器 scrollTop 归零，历史一长就停在开头。
+   直接赋 scrollTop（不用 smooth——跨长内容 smooth 不生效），并在渲染落定后再补两次，覆盖异步恢复。 */
+function botScrollLatest(){
+  var c=document.getElementById('chat'); if(!c)return;
+  var go=function(){ try{ c.scrollTop=c.scrollHeight; }catch(e){} };
+  go(); setTimeout(go,80); setTimeout(go,260);
+}
 function yfScrollChat(el, mode){
   var c=document.getElementById('chat'); if(!c||!el)return;
   var nearBottom=(c.scrollHeight - c.scrollTop - c.clientHeight) < 160;
@@ -4473,6 +4480,7 @@ async function restoreBotHistory(){
       botHistory=j.rows.slice();
       var bar=document.getElementById('botRestore');
       if(bar){ bar.style.display='inline'; bar.textContent='已恢复上次对话，智子记得你之前聊过什么'; }
+      if(typeof botScrollLatest==='function')botScrollLatest();
     }
   }catch(e){}
 }
@@ -9912,6 +9920,8 @@ function applyTab(tab){
   try{ if(tab==='exp'&&typeof renderBench==='function')renderBench(); }catch(e){}
   try{ if(tab==='rhythm'&&typeof renderRhythm==='function')renderRhythm(); }catch(e){}
   try{ if(tab==='forumadmin'&&typeof frLoadAdmin==='function'){ frLoadAdmin(); pfLoadPending(); if(typeof srLoadPending==='function') srLoadPending(); } }catch(e){}
+  /* 智子：切进来直接停在最新一条（否则容器 scrollTop 归零，历史长了要手动翻） */
+  try{ if(tab==='bot'&&typeof botScrollLatest==='function')botScrollLatest(); }catch(e){}
 }
 function toggleSidebar(){
   var sb=document.getElementById('sidebar'),ov=document.getElementById('sbOverlay'),hm=document.getElementById('sbHamburger');
@@ -11653,7 +11663,7 @@ function closeReport(){ var m=document.getElementById('reportModal'); if(m) m.st
 /* ============ 浆站自主月上报（station 专属 · 用户 Excel 模板原字段，4 步 14 字段） ============ */
 /* 字段映射（与用户模板一致）：reg[0]=报名 reg[1]=面试 reg[2]=入营；
    dev[0]=全站学生新卡 dev[1]=全站学生采量 dev[2]=在营学生无偿献浆 dev[3]=在营学生科普数 dev[4]=科普转化新卡；
-   camp[0]=入营总人数(季累计) camp[1]=男 camp[2]=女；par[0]=家长参与人数 par[1]=家长参与度%。
+   camp[0]=入营总人数(当月值·季值=逐月求和) camp[1]=男 camp[2]=女；par[0]=家长参与人数 par[1]=家长参与度%。
    月锁：POST /v1/dash/records 过截止返回 403 → 明确提示「已过上报截止，联系管理员」。
    admin 不用此表单（管理端批量入口保留现状）。 */
 var RP_FIELDS=[
@@ -11668,7 +11678,7 @@ var RP_FIELDS=[
    {i:3,label:'在营学生科普数',hint:'在营学生本月参与科普宣传的人次。'},
    {i:4,label:'科普转化新卡数',hint:'经科普宣传转化来的新卡数，一般不应超过在营学生科普数。'}]},
  {g:'camp',step:3,name:'入营结构',items:[
-   {i:0,label:'入营总人数',hint:'本季累计入营学生总数（不是本月新增）。'},
+   {i:0,label:'入营总人数',hint:'本月入营学生总人数（= 男 + 女，取自「入营总人数表」）。月报只填当月数，季值由系统把各月相加，不要填累计。'},
    {i:1,label:'男',hint:'入营学生中男性人数。'},
    {i:2,label:'女',hint:'入营学生中女性人数。'},
    {i:3,label:'当前在营学生数（选填）',hint:'下季度起作为人均科普的精准分母，本期仅存档不参与计算。',opt:true},
