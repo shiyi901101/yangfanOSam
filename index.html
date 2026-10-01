@@ -2112,6 +2112,7 @@ window.__yfLoadLib=(function(){
     <input id="toolSearch" placeholder="搜工具：PPT / 证书 / 短信 / 接龙 / 报表…" oninput="toolFilter()">
     <span class="muted" style="font-size:12px">标「常用」的已钉到最前</span>
   </div>
+  <div id="toolEmpty" class="note" style="display:none;margin:0 0 12px">没有匹配「<span id="toolEmptyQ"></span>」的工具，换个关键词试试（如 PPT / 证书 / 短信 / 接龙 / 海报 / 成长报告）。</div>
   <div class="grid g2">
     <div class="gen">
       <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> 学生成长报告生成器 <span class="tag">图文→报告</span></h3>
@@ -2219,11 +2220,11 @@ window.__yfLoadLib=(function(){
     <div class="gen">
       <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/></svg> 待接入的效率工具（方向）</h3>
       <p class="muted">按你「根本解决工作痛点」的要求排的后续项，当前为入口占位，已规划真实产出逻辑：</p>
-      <div class="pill">周报自动汇总（导入漏斗数据→出周报）</div>
-      <div class="pill">舆情口径一键卡（输入场景→出回应话术）</div>
-      <div class="pill">物料排版（通知书/海报自动套VI）</div>
-      <div class="pill">问卷/测评自动出分</div>
-      <div class="pill">在线表→看板（积分表自动出排名榜）</div>
+      <div class="pill">周报自动汇总（导入漏斗数据 → 出周报）</div>
+      <div class="pill">舆情口径一键卡（输入场景 → 出回应话术）</div>
+      <div class="pill">问卷 / 测评自动出分</div>
+      <div class="pill">在线表 → 看板（积分表自动出排名榜）</div>
+      <p class="muted" style="margin-top:9px">「物料排版 · 通知书 / 海报自动套 VI」<b>已落地</b>——见上方「通知书 / 结业证书」与「招募海报生成器」，故从此清单移除。</p>
     </div>
   </div>
 </section>
@@ -7808,12 +7809,21 @@ function btnBusy(btn,on,txt){
   else{btn.disabled=false;if(btn._txt!==undefined)btn.innerHTML=btn._txt;}
 }
 function toolFilter(){
-  var q=(document.getElementById('toolSearch')?document.getElementById('toolSearch').value:'').trim().toLowerCase();
+  var el=document.getElementById('toolSearch');
+  var q=(el?el.value:'').trim().toLowerCase();
+  var shown=0;
   document.querySelectorAll('#factory .gen').forEach(function(c){
     var h=c.querySelector('h3'),p=c.querySelector('p');
-    var txt=(h?h.textContent:'')+' '+(p?p.textContent:'');
-    c.style.display=(!q||txt.toLowerCase().indexOf(q)>=0)?'':'none';
+    var txt=((h?h.textContent:'')+' '+(p?p.textContent:'')).toLowerCase();
+    var hit=(!q||txt.indexOf(q)>=0);
+    c.style.display=hit?'':'none';
+    if(hit)shown++;
   });
+  var em=document.getElementById('toolEmpty');
+  if(em){
+    em.style.display=(q&&!shown)?'block':'none';
+    var eq=document.getElementById('toolEmptyQ'); if(eq) eq.textContent=(el?el.value.trim():'');
+  }
 }
 function pinTools(){
   document.querySelectorAll('#factory .gen').forEach(function(c){
