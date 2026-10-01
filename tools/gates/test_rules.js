@@ -1907,8 +1907,10 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   const w3 = HI3.YF3Q.analyze('本站').weak;
   assert((H3.match(/class="gw3-capbtn"/g) || []).length === 1 &&
     H3.indexOf('这块怎么补 ›</button>') >= 0 &&
-    H3.indexOf('class="gw3-capbtn" onclick="gw3GoBook(\'' + w3.k + '\')"') >= 0,
-    'I3R1：短板卡恰 1 个次按钮，逐字「这块怎么补 ›」，落 gw3GoBook(短板能力键=' + w3.k + ')（方案 §2.2/§2.3）');
+    H3.indexOf('class="gw3-capbtn" data-cw="' + w3.k + '"') >= 0 &&
+    H3.indexOf('onclick="gw3HowToggle(this)"') >= 0,
+    'I3R1：短板卡恰 1 个次按钮，逐字「这块怎么补 ›」，就地在位展开真实做法（data-cw=短板能力键=' + w3.k + '；'
+    + '2026-10-01 用户改判「跳 PMP 理论章没有可参考性」，取代原 gw3GoBook 跳书方案 §2.2/§2.3）');
   assert((H3.match(/class="gw3-actbtn"/g) || []).length === 1 &&
     H3.indexOf('把这条立成季末验收 ›</button>') >= 0 &&
     H3.indexOf('class="gw3-actbtn" onclick="gw3GoPromise(\'' + w3.k + '\')"') >= 0,
@@ -1930,7 +1932,10 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   const HM = mkI3(MKI3, ['本站', '甲'], {}).gwThreeQHtml('本站');
   assert([HL, HU, HM].every(function (x) { return x.indexOf('gw3-capbtn') < 0 && x.indexOf('gw3-actbtn') < 0; }),
     'I3R6：降级态（领跑期无真短板 / 本季未上报 / 有数站<3 家中位不可得）两个 CTA 均不渲染，不造假动作位');
-  const cssI3 = htmlMain.slice(htmlMain.indexOf('.gw3-capbtn{'), htmlMain.indexOf('.gw3-capbtn{') + 1100);
+  /* 切片右边界改用「三卡动作层之后的无关规则」.gw3-guide{：原实现写死 1100 字符，
+     该块内新增任意一条 .gw3-* 规则都会把 .gw3-actbtn 挤出窗口 → 断言脆红。
+     语义上本块 = 从 .gw3-capbtn{ 到 .gw3-guide{ 之间，改后不再随新增规则误红。 */
+  const cssI3 = htmlMain.slice(htmlMain.indexOf('.gw3-capbtn{'), htmlMain.indexOf('.gw3-guide{'));
   assert(/\.gw3-capbtn\{[^}]*width:100%[^}]*min-height:44px/.test(cssI3), 'I3R8：.gw3-capbtn 整行铺满 + 44px 触摸区（方案 §6-4 / WCAG 2.5.5）');
   assert(/\.gw3-actbtn\{[^}]*width:100%[^}]*min-height:44px/.test(cssI3), 'I3R9：.gw3-actbtn 整行铺满 + 44px 触摸区（方案 §6-4 / WCAG 2.5.5）');
   assert(cssI3.indexOf('prefers-reduced-motion') >= 0, 'I3R10：两个 CTA 的过渡纳入 prefers-reduced-motion 兜底');
@@ -1940,8 +1945,23 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   const actI3 = src6i.slice(a1i, a2i);
   assert(/GW3_BOOK=\{cardper:'ka-scope',convper:'ka-qual',sciop:'ka-comm',parent:'ka-stake'\}/.test(actI3),
     'I3R12：四能力→四章节映射逐字（与 lrRoutesHTML 路线 B 同表，方案 §2.3）');
-  assert(/function gw3GoBook\(capKey\)\{[\s\S]*?applyTab\('learn'\)[\s\S]*?lrJump\(id\)[\s\S]*?setTimeout\(jump,400\)/.test(actI3),
-    'I3R13：gw3GoBook 链完整——applyTab(\'learn\') → lrJump(id) → 400ms 兜底重试（方案 §2.3 降级）');
+  assert(/function gw3GoBook\(capKey\)\{[\s\S]*?applyTab\('learn'\)[\s\S]*?window\.lrJump\(id\)[\s\S]*?setTimeout\(tick,250\)/.test(actI3),
+    'I3R13：gw3GoBook 链完整——applyTab(\'learn\') → window.lrJump(id) → 250ms 幂等轮询（2026-10-01：'
+    + 'lrJump 已导出到 window；单次 400ms 兜底改多轮，因实测跨 4 万 px 的 smooth 定位不生效）'
+    + '（方案 §2.3 降级）');
+  /* 2026-10-01 用户改判：短板卡「怎么补」不再跳图书化课程（PMP 理论章），改为就地在位展开真实做法。
+     新契约三条：① GW3_REAL 四能力齐备；② 内容取自 SEED_CASES/SEED_TEMPLATES（本页数据、离线可用）；
+     ③ 面板懒渲染 —— 既省首屏开销，又消除「gwThreeQHtml 在脚本块 2、gw3HowHtml 在脚本块 5」的跨块
+     加载期调用（实测会抛 ReferenceError 并让整个「我的成长」初始化失败）。 */
+  const gw3RealOk = ['cardper', 'convper', 'sciop', 'parent'].every(function (k) {
+    return new RegExp(k + '\\s*:\\s*\\{cases:\\[[^\\]]*\\],tpls:\\[[^\\]]*\\]\\}').test(actI3);
+  });
+  assert(gw3RealOk &&
+    /function gw3HowHtml\(k,st\)\{[\s\S]*?GW3_REAL\[k\][\s\S]*?gw3CaseById\([\s\S]*?gw3TplById\(/.test(actI3) &&
+    /function gw3HowToggle\(btn\)\{[\s\S]*?classList\.toggle\('on'\)/.test(actI3) &&
+    /box\.innerHTML=gw3HowHtml\(/.test(actI3),
+    'I3R17：短板卡「怎么补」就地在位展开真实做法——GW3_REAL 四能力映射齐备、素材取自 '
+    + 'SEED_CASES/SEED_TEMPLATES、面板懒渲染（2026-10-01 用户改判，取代跳 PMP 理论章）');
   assert(/GW3_PROMISE=\{\s*cardper:\{metric:'dev\[0\]',abs:true\}/.test(actI3) && actI3.indexOf("cap.cardper") < 0,
     'I3R14：转化设计退化为绝对值 dev[0]，且不得出现未注册键 cap.cardper（裁决 1 契约红线）');
   assert(/function gw3GoPromise\(capKey\)\{[\s\S]*?yfIsStation\(\)[\s\S]*?'年度自报仅浆站账号使用'[\s\S]*?GW_TAB='file';\s*gwPaint\(\);[\s\S]*?tries>30/.test(actI3),

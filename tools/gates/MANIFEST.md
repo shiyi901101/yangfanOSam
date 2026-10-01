@@ -41,7 +41,7 @@ bash tools/gates/run_gates_iso.sh [tag]
 |---|---|---|
 | GATE1 extract | **6 块** | `index.html` 内联 `<script>` 恰 6 个 |
 | GATE2 node --check | **6 / 6 OK** | `js_01..js_06` 语法全过 |
-| GATE3 test_rules | **pass=723 fail=0** | 见下「基线沿革」 |
+| GATE3 test_rules | **pass=724 fail=0** | 见下「基线沿革」（2026-10-01：新契约 `I3R17` +1） |
 | GATE4 e2e | **26 PASS / 0 FAIL / 0 SKIP**（≈50–55s） | 双角色 26 场景（S11/A7/S14 现覆盖 **7** 个管理专属控件） |
 | GATE5 ppt_smoke | **17 PASS / 0 FAIL / 0 SKIP**（≈18s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **679364 字节 / 9 页**；原生表格 2 张（总表 10 列 × 21 行）+ 原生柱/折线图各 1；口径三句逐字且唯一；缺月折不画线；负责人端直调 0 字节 |
 
@@ -111,6 +111,18 @@ bash tools/gates/run_gates_iso.sh [tag]
   - **实测特性（易误判，写下来免得后人踩）**：注入层的媒体查询在 **iframe 内文档**求值，用的是 **iframe 内宽**而非外层窗口宽 → B5 实际触发于**外层窗口约 1205px 以上**（1910 / 1440 / 1366 / 1280 生效；1024 走基线）。这与「宽屏专用」的语义一致，**不是缺陷**。
   - **范围核查（防波及误判）**：`class="wrap"` 全站仅 1 处（所有模块公共外框），故另测 dash / hq 两模块：1910 档均 0 溢出；dash 1440 / 1024 档有 4px / 9px 溢出，**A/B 对比（改动前 `c35ee3b` vs 改动后）逐项相同**（同为 `button#dashRefreshBtn.up-enter` 入场动画的瞬态位移）→ **存量现象、非本次引入**，不在本笔范围。
   - **本笔五道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=723 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **17 PASS / 0 FAIL / 0 SKIP**；P0 终检 **5 类全 PASS**（SELFTEST 23/23，`RC=0`，新增行 1775）。
+
+- **本笔「三合一止血 + 版式」（2026-10-01，用户拍板：个人成长绑定 + 对标结论 A+C + 地图版式同轮做完）**：GATE3 断言 **723 → 724（+1）**。
+  - **三条改判（用户 2026-10-01 显式拍板，非自选）**，对应断言同步到**新契约**、强度不降：
+    1. `I3R1` 短板卡次按钮落点由 `gw3GoBook('能力键')`（跳图书化课程的 PMP 理论章）改为 `gw3HowToggle(this)` + `data-cw="能力键"`（就地在位展开真实做法）。原方案 §2.2/§2.3 就本按钮作废 —— 用户判定「把个人成长和图书绑定…没啥用」；且四能力硬映射到 PMP 知识领域**类比不成立**（家长参与 12.7% 是执行问题，读「权力/利益矩阵」不解决）。
+    2. `I3R13` `gw3GoBook` 链尾由 `setTimeout(jump,400)`（单次兜底）改为 `window.lrJump(id)` + `setTimeout(tick,250)`（最多 12 轮幂等轮询）。理由（实测）：`lrJump` 原为 LR IIFE 私有，主应用侧 `if(typeof lrJump==='function')` 守卫**恒为 false** ⇒ 静默空转（点「这块怎么补」后 10s，`scrollY` 恒 0、目标章仍在 **40277px** 处）；且跨 4 万 px 的 `{behavior:'smooth'}` 实测不生效，改为瞬时 `scrollIntoView()` + `scrollTo(offsetTop)` 兜底。**注意 `gw3GoBook` 未删除** —— 承诺块 CTA「去学习补一补 ›」仍在调用。
+    3. `cssI3` 切片右边界由「`.gw3-capbtn{` 起 **1100 字符**」改为「**到 `.gw3-guide{` 止**」。理由：原写死长度属**脆断言** —— 该块内新增任意一条 `.gw3-*` 规则都会把 `.gw3-actbtn` 挤出窗口，令 `I3R9/I3R10` **假红**（本笔新增 11 条 `.gw3-how*` 即触发）。改后语义更准（整块 = 三卡动作层 CSS），且不再随新增规则误红。
+  - **新增 `I3R17` 1 条**（净 +1）：钉住新契约三条 —— ① `GW3_REAL` 四能力（cardper/convper/sciop/parent）映射齐备；② `gw3HowHtml` 素材取自 `gw3CaseById`/`gw3TplById`（即 `SEED_CASES`/`SEED_TEMPLATES`，本页数据、离线可用）；③ `gw3HowToggle` 面板**懒渲染**（`box.innerHTML=gw3HowHtml(...)`）。
+  - **懒渲染不是优化，是修 bug（GATE5 抓到的真缺陷）**：`gwThreeQHtml` 在**脚本块 2**（L2768–9974），`gw3HowHtml` 在**脚本块 5**（L11649–13486）。脚本块之间**不共享函数声明提升**；`gwThreeQHtml` 在页面加载期即被调用（`renderRhythm→gwPaint→gwDiag`），跨块调用时 `gw3HowHtml` 尚未求值 → `ReferenceError: gw3HowHtml is not defined`，**整个「我的成长」模块初始化失败**。改为点击时填充后，调用点必然晚于全部脚本块求值。
+    - 同型坑：该块被 GATE3 `mkI3` **切片后在隔离作用域 eval**，故**不得调用切片外函数**。本笔首版误用 `esc()` 即被逮住（`ReferenceError: esc is not defined`，`test_rules exit=1`）。**写这一段的规矩：只用块内已定义的东西 + 受控字面量拼接。**
+  - **P0 踩坑复现（第 2 次）**：新写的 JS 注释里带了 `🔴`，被 GATE3「注入层零 emoji 字面量」逮住（`FAIL B2 整个 LR 注入层…`，`rc=1`）—— 与 2026-09-29 那次（`LR_CSS` 注释写 `⚠️`，`723 → 720 fail=3`）**同型复发**。**结论：注释也算源码，`index.html` 全文（含注释）不得出现 emoji 或 emoji 区间字符。**
+  - **本笔五道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=724 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **17 PASS / 0 FAIL / 0 SKIP**；P0 终检 `RC=0`（SELFTEST **24/24**，5 类命中 0；新增行 2554）。
+  - **运行期 node 版本纪律复现**：手工跑 `p0_scan.js` 时误用 `22.12.0` → **SEGFAULT（exit 139）**；换基线 `22.22.2-2` 后 `RC=0`。MANIFEST 早已写明「22.12.0 会 SEGFAULT，不得降级」—— **单跑任何门禁脚本都必须用 22.22.2-2**（`run_gates_iso.sh` 内部已固定，故整跑不受影响）。
 
 ## P0 扫描口径（三处精度修正 + 保真平移白名单 —— **降假阳性 / 补口径缺口，均不降强度**）
 

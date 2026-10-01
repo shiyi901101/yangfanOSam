@@ -149,7 +149,42 @@ const FIDELITY = [
   { v: 'rgba(74,99,119,.30)', from: '玻璃皮肤令牌块 candGL（--glc-38，v7-3）' },
   { v: 'rgba(224,140,46,.55)', from: '玻璃皮肤令牌块 candGL（--glc-39，v7-3）' },
   { v: 'rgba(18,100,200,.55)', from: '玻璃皮肤令牌块 candGL（--glc-40，v7-3）' },
-  { v: 'rgba(0,10,26,.38)', from: '玻璃皮肤令牌块 candGL（--glc-41，v7-3）' }
+  { v: 'rgba(0,10,26,.38)', from: '玻璃皮肤令牌块 candGL（--glc-41，v7-3）' },
+  { v: 'rgba(43,124,211,.34)', from: '登录页覆盖块 #loginGate 令牌 --lg-1（A2 落地，2026-09-30）' },
+  { v: '#071626', from: '登录页覆盖块 #loginGate 令牌 --lg-2（A2 落地，2026-09-30）' },
+  { v: 'rgba(126,194,242,.085)', from: '登录页覆盖块 #loginGate 令牌 --lg-3（A2 落地，2026-09-30）' },
+  { v: 'rgba(126,194,242,0)', from: '登录页覆盖块 #loginGate 令牌 --lg-4（A2 落地，2026-09-30）' },
+  { v: 'rgba(43,124,211,.58)', from: '登录页覆盖块 #loginGate 令牌 --lg-5（A2 落地，2026-09-30）' },
+  { v: 'rgba(43,124,211,0)', from: '登录页覆盖块 #loginGate 令牌 --lg-6（A2 落地，2026-09-30）' },
+  { v: 'rgba(78,163,232,.38)', from: '登录页覆盖块 #loginGate 令牌 --lg-7（A2 落地，2026-09-30）' },
+  { v: 'rgba(78,163,232,0)', from: '登录页覆盖块 #loginGate 令牌 --lg-8（A2 落地，2026-09-30）' },
+  { v: 'rgba(224,140,46,.26)', from: '登录页覆盖块 #loginGate 令牌 --lg-9（A2 落地，2026-09-30）' },
+  { v: 'rgba(224,140,46,0)', from: '登录页覆盖块 #loginGate 令牌 --lg-10（A2 落地，2026-09-30）' },
+  { v: 'rgba(120,175,235,.24)', from: '登录页覆盖块 #loginGate 令牌 --lg-11（A2 落地，2026-09-30）' },
+  { v: 'rgba(120,175,235,0)', from: '登录页覆盖块 #loginGate 令牌 --lg-12（A2 落地，2026-09-30）' },
+  { v: '#16456f', from: '登录页覆盖块 #loginGate 令牌 --lg-13（A2 落地，2026-09-30）' },
+  { v: 'rgba(9,28,52,.44)', from: '登录页覆盖块 #loginGate 令牌 --lg-14（A2 落地，2026-09-30）' },
+  { v: 'rgba(3,12,24,.6)', from: '登录页覆盖块 #loginGate 令牌 --lg-15（A2 落地，2026-09-30）' },
+  { v: 'rgba(2,9,20,.56)', from: '登录页覆盖块 #loginGate 令牌 --lg-16（A2 落地，2026-09-30）' },
+  { v: 'rgba(2,9,20,.38)', from: '登录页覆盖块 #loginGate 令牌 --lg-17（A2 落地，2026-09-30）' },
+  { v: 'rgba(126,194,242,.075)', from: '登录页覆盖块 #loginGate 令牌 --lg-18（A2 落地，2026-09-30）' },
+  { v: 'rgba(78,163,232,.40)', from: '登录页覆盖块 #loginGate 令牌 --lg-19（A2 落地，2026-09-30）' },
+  { v: 'rgba(12,38,70,.50)', from: '登录页覆盖块 #loginGate 令牌 --lg-20（A2 落地，2026-09-30）' },
+  { v: 'rgba(6,20,38,.56)', from: '登录页覆盖块 #loginGate 令牌 --lg-21（A2 落地，2026-09-30）' },
+  { v: 'rgba(224,140,46,.72)', from: '登录页覆盖块 #loginGate 令牌 --lg-22（A2 落地，2026-09-30）' },
+  { v: 'rgba(240,166,61,.9)', from: '登录页覆盖块 #loginGate 令牌 --lg-23（A2 落地，2026-09-30）' },
+  { v: '#f3b45c', from: '登录页覆盖块 #loginGate 令牌 --lg-24（A2 落地，2026-09-30）' },
+  { v: '#c6ddf5', from: '登录页覆盖块 #loginGate 令牌 --lg-25（A2 落地，2026-09-30）' },
+  { v: '#a8c6e2', from: '登录页覆盖块 #loginGate 令牌 --lg-26（A2 落地，2026-09-30）' },
+  { v: 'rgba(250,253,255,.975)', from: '登录页覆盖块 #loginGate 令牌 --lg-27（A2 落地，2026-09-30）' },
+  { v: '#8ba6c2', from: '登录页覆盖块 #loginGate 令牌 --lg-28（A2 落地，2026-09-30）' },
+  { v: '#7b93b3', from: '登录页覆盖块 #loginGate 令牌 --lg-29（A2 落地，2026-09-30）' },
+  { v: '#6d87a8', from: '登录页覆盖块 #loginGate 令牌 --lg-30（A2 落地，2026-09-30）' },
+  { v: '#3c5b86', from: '登录页覆盖块 #loginGate 令牌 --lg-31（A2 落地，2026-09-30）' },
+  { v: 'rgba(43,124,211,.5)', from: '登录页覆盖块 #loginGate 令牌 --lg-32（A2 落地，2026-09-30）' },
+  { v: '#40608a', from: '登录页覆盖块 #loginGate 令牌 --lg-33（A2 落地，2026-09-30）' },
+  { v: '#57728e', from: '登录页覆盖块 #loginGate 令牌 --lg-34（A2 落地，2026-09-30）' },
+  { v: '#4e6b89', from: '登录页覆盖块 #loginGate 令牌 --lg-35（A2 落地，2026-09-30）' }
 ];
 const FIDELITY_MAP = new Map(FIDELITY.map(function (e) { return [normColor(e.v), e.from]; }));
 function newColorOn(line) {
@@ -259,7 +294,8 @@ chk('fidelity 白名单内色值被移出白名单后必须命中（证明白名
    玻璃皮肤不再散落硬编码色，而是收敛为一个 :root{--glc-1..N} 令牌块；白名单与该令牌块
    **1:1 逐字对应**。这条断言把条数钉死：将来谁新增一条令牌就必须同步改这里，
    反之谁想偷偷「多豁免一个色值」也会被这条拦住（条数对不上就红）。 */
-chk('fidelity 冻结：白名单条数 == 42（1 课文平移 + 41 玻璃令牌块）', FIDELITY.length === 42);
+chk('fidelity 冻结：白名单条数 == 77（1 课文平移 + 41 玻璃令牌块 + 35 登录页令牌块 --lg-1..35）',
+  FIDELITY.length === 77);
 /* 半角标点：真违规 */
 chk('punct 半角逗号紧贴中文 → 命中', HALF_PUNCT.test(stripEntities('中文,继续')));
 chk('punct 半角分号紧贴中文 → 命中', HALF_PUNCT.test(stripEntities('第一;第二')));
