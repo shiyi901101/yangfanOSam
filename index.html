@@ -2344,18 +2344,7 @@ window.__yfLoadLib=(function(){
   <div id="dashWeak" style="display:none"></div>
   <div id="dashDetail" style="display:none"></div>
   <div class="dash-note">注：参与度=参与人数/入营人数（个别站&gt;100%系家长及亲属重复到场）；入营人数以招募汇总表为准，性别结构取自入营总人数表（口径差异以原始表为准）。</div>
-  <!-- ============ 浆站自主月上报（station 专属，4 步 14 字段，字段名与用户 Excel 模板逐字一致） ============ -->
-  <div class="um-mask" id="rpMask" style="display:none">
-    <div class="um-modal" style="max-width:560px">
-      <div class="um-head"><h3>月上报</h3><button class="um-x" onclick="rpMaskHide()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <div style="padding:14px 16px">
-        <div class="rp-steps" id="rpSteps"></div>
-        <div id="rpBody"></div>
-        <div id="rpMsg" style="margin-top:8px"></div>
-        <div class="rp-foot" id="rpFoot"></div>
-      </div>
-    </div>
-  </div>
+
 </section>
 
 <!-- ============ 交流论坛（升级为：经验广场 + 讨论区） ============ -->
@@ -2422,18 +2411,7 @@ window.__yfLoadLib=(function(){
         </div>
       </div>
     </div>
-    <!-- 发帖模态框 -->
-    <div class="um-mask" id="fbMask" style="display:none">
-      <div class="um-modal" style="max-width:660px">
-        <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> 发新帖</h3><button class="um-x" onclick="fbMaskHide()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-        <div class="fform-row"><span>板块</span><select id="fbBid"></select></div>
-        <div class="fform-row"><span>标题</span><input id="fbTitle" maxlength="60" placeholder="一句话说清，如：暑期招募差一半，大家怎么破？"></div>
-        <div class="fform-row"><span>内容</span><textarea id="fbBody" rows="5" maxlength="2000" placeholder="把事情说清楚：发生了什么、试过什么、卡在哪。越具体，别人越能支招。"></textarea></div>
-        <div class="fform-row"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
-        <div class="fform-row"><span>署名</span><input id="fbAuthor" maxlength="20" placeholder="如：丰镇站·李闯"></div>
-        <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="fbPost()">发布</button></div>
-      </div>
-    </div>
+
   </div>
 </section>
 
@@ -2522,95 +2500,19 @@ window.__yfLoadLib=(function(){
     <div class="stu-note-grid" id="stuNoteGrid"></div>
   </div>
 
-  <!-- 手动录入 弹窗 -->
-  <div class="um-mask" id="stuAddMask" style="display:none">
-    <div class="um-modal" style="max-width:560px">
-      <div class="um-head"><h3>＋ 手动录入学员</h3><button class="um-x" onclick="stuAddClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <div class="fform-row"><span>姓名</span><input id="stuAName" placeholder="姓名"></div>
-      <div class="fform-row"><span>身份证后4位</span><input id="stuAId" maxlength="4" placeholder="4位数字"></div>
-      <div class="fform-row"><span>浆站</span><select id="stuASta"><option>怀远浆站</option><option>凤台浆站</option><option>灵璧浆站</option><option>五河浆站</option><option>商都浆站</option><option>丰镇浆站</option><option>其他站</option></select></div>
-      <div class="fform-row"><span>状态</span><select id="stuAStatus"><option value="已报名">已报名</option><option value="面试通过">面试通过</option><option value="已入营">已入营</option></select></div>
-      <div class="fform-row"><span>积分</span><input id="stuAPoints" type="number" min="0" placeholder="如 128"></div>
-      <div class="fform-row"><span>已签到场次</span><input id="stuASigns" type="number" min="0" placeholder="如 2"></div>
-      <div class="fform-row"><span>家长手机号</span><input id="stuAPhone" inputmode="numeric" placeholder="家长手机号，用于每周通知"></div>
-      <div class="fform-row"><span>学校/班级</span><input id="stuASchool" placeholder="所在学校或班级，如 XX 中学高三(2)班"></div>
-      <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="stuAdd()">保存</button></div>
-    </div>
-  </div>
 
-  <!-- 学员详情 弹窗 -->
-  <div class="um-mask" id="stuDetailMask" style="display:none">
-    <div class="um-modal" style="max-width:640px">
-      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 学员详情</h3><button class="um-x" onclick="stuDetailClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <div id="stuDetailBody"></div>
-    </div>
-  </div>
 
-  <!-- 公告编辑 弹窗（仅管理员） -->
-  <div class="um-mask" id="annEditMask" style="display:none">
-    <div class="um-modal" style="max-width:620px">
-      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg> 编辑公告</h3><button class="um-x" onclick="annEditClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <p class="muted" style="font-size:12px;margin:2px 0 10px">增删改公告内容，实时生效。留空过期时间则永不过期。</p>
-      <div id="annEditList" style="max-height:40vh;overflow-y:auto;margin-bottom:10px"></div>
-      <div style="border-top:1px dashed var(--line);padding-top:10px">
-        <div class="fform-row"><span>公告内容</span><input id="annNewText" placeholder="支持HTML，如 &lt;b&gt;标题&lt;/b&gt; 正文" style="flex:1"></div>
-        <div class="fform-row"><span>过期时间</span><input id="annNewUntil" type="date" style="flex:1">
-        </div>
-        <div style="text-align:right;margin-top:8px"><button class="up-btn" onclick="annAdd()">＋ 添加公告</button></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 积分规则 弹窗 -->
-  <div class="um-mask" id="stuRuleMask" style="display:none">
-    <div class="um-modal" style="max-width:680px">
-      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> 积分规则</h3><button class="um-x" onclick="stuRuleClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <p class="muted" style="font-size:12.5px;margin:2px 0 10px">参考凤台2025模板，每项分值均可由项目负责人修改。保存后学员详情的积分明细按规则实时推导；加「活动分」时按类型预填默认分。</p>
-      <div class="stu-rule-table-wrap">
-        <table class="stu-rule-table" id="ruleTable">
-          <thead><tr><th>序号</th><th>评分细则</th><th>积分</th><th>备注</th><th></th></tr></thead>
-          <tbody id="ruleBody"></tbody>
-        </table>
-      </div>
-      <div style="text-align:right;margin-top:12px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
-        <button class="mini-btn" onclick="stuRuleAdd()">＋ 添加一项</button>
-        <button class="mini-btn" onclick="stuRuleReset()">恢复默认</button>
-        <button class="up-btn" onclick="stuRuleSave()">保存规则</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- 加活动分 弹窗 -->
-  <div class="um-mask" id="stuScoreMask" style="display:none">
-    <div class="um-modal" style="max-width:520px">
-      <div class="um-head"><h3>＋ 加活动分</h3><button class="um-x" onclick="stuScoreClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <input type="hidden" id="stuScoreIdx">
-      <div class="fform-row"><span>活动类型</span><select id="stuScoreType" onchange="stuScoreTypeChg()"></select></div>
-      <div class="fform-row"><span>分值</span><input id="stuScoreP" type="number" min="1"></div>
-      <div class="fform-row"><span>备注</span><input id="stuScoreMemo" placeholder="如：公益集市摆摊半天"></div>
-      <div class="stu-rule-note">分值默认按积分规则里该类型的默认分，可改。加分后写入流水并在总积分累加。</div>
-      <div style="text-align:right;margin-top:10px"><button class="up-btn" onclick="stuAddScore()">确认加分</button></div>
-    </div>
-  </div>
 
-  <!-- 证书预览 弹窗 -->
-  <div class="um-mask" id="stuCertMask" style="display:none">
-    <div class="um-modal" style="max-width:620px">
-      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg> 结业证书</h3><button class="um-x" onclick="stuCertClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-      <div id="stuCertBody"></div>
-    </div>
-  </div>
 
-  <!-- 签到大屏（全屏投影） -->
-  <div class="stu-screen-mask" id="stuScreen" style="display:none">
-    <div class="stu-screen-head">
-      <div><div class="stu-screen-title">扬帆计划 · 今日签到</div><div class="stu-screen-sub" id="scrDate"></div></div>
-      <div class="stu-screen-num"><b id="scrCount">0</b><span>人已到场</span></div>
-      <button class="stu-screen-exit" onclick="stuBigScreen()">退出大屏<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-    </div>
-    <div class="stu-screen-body" id="scrBody"></div>
-    <div class="stu-screen-foot">同路生物 · 扬帆计划 · 数据实时更新（按 Esc 也可退出大屏）</div>
-  </div>
+
+
+
+
+
+
+
 </section>
 
   <!-- ============ 中台总览驾驶舱（#176+#177+#173）：20站健康度/预警/北极星/经验治理 ============ -->
@@ -2646,9 +2548,7 @@ window.__yfLoadLib=(function(){
     </div>
   </div>
   <div id="hqBody"></div>
-  <div class="hq-modal-mask" id="hqModal" onclick="if(event.target===this)hqClose()">
-    <div class="hq-modal" id="hqModalBody"></div>
-  </div>
+
 </section>
 
 <!-- ============ 经验闭环 + 站间对标（#174） ============ -->
@@ -2680,53 +2580,177 @@ window.__yfLoadLib=(function(){
   </div>
 </section>
 
-<!-- 新手 7 步引导 -->
-<div class="ob-mask" id="obMask">
-  <div class="ob-card">
-    <div class="ob-head">
-      <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> 欢迎来到扬帆OS · 新负责人 7 步上手</h3>
-      <p>扬帆计划每年 6-8 月落地，你接手一个浆站的项目负责。这 7 步走完，就知道「该看什么、去哪做、做完怎么留痕」。每完成一步点一下，进度自动记下来；以后想重看，随时能再开。</p>
-    </div>
-    <div class="ob-bar"><i id="obBar"></i></div>
-    <div class="ob-body" id="obBody"></div>
-    <div class="ob-foot">
-      <span class="lk" onclick="obOpen()">重看引导</span>
-      <span class="lk" onclick="obSkip()">跳过，我自己逛 ›</span>
-    </div>
-  </div>
-</div>
 
-<!-- 更新数据 模态框 -->
-<div class="um-mask" id="upMask" style="display:none">
-  <div class="um-modal">
-    <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg> 更新看板数据</h3><button class="um-x" onclick="closeUpModal()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
-    <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → <b>确认写入</b>。确认后数据自动同步到集团云端并回读校验，各设备打开看板即为最新，<b>无需再替换任何部署文件</b>；「下载新 dash_data.js」仅作留档备份。云端万一暂不可达，数据也会先存本机（重开浏览器不丢），网络恢复后点看板「刷新」即可补同步。</p>
-    <div class="up-row">
-      <button class="up-btn" id="dlTpl"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载模版</button>
-      <label class="up-file"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg> 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls"></label>
-      <button class="up-btn" id="dashParse">解析并预览</button>
-      <button class="up-btn" id="dashDl" disabled><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载新 dash_data.js</button>
-    </div>
-    <div class="up-msg" id="dashUpMsg"></div>
-    <div class="um-note">模版格式与「6月扬帆计划数据汇总.xlsx」一致：<b>sheet 名字就是月份</b>（如「8月」，改一下模版 sheet 名即可）；列头保持 报名人数/面试人数/入营人数 等不动；站名可带空格，自动识别。上传哪个月，看板月份切换就多哪个月，并自动切到该月展示；也可以单月传，不强制要求两个月一起。</div>
-  </div>
-</div>
 
-<!-- 管理视图密码验证 -->
-<div class="um-mask" id="pwMask" style="display:none">
-  <div class="um-modal" style="width:min(380px,92vw);text-align:center;padding:28px 24px">
-    <div class="um-head" style="justify-content:center;margin-bottom:12px"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 管理视图验证</h3></div>
-    <p style="margin:0 0 16px;font-size:13px;color:var(--muted)">将展示各站负责人姓名、岗位、成熟度与画像等内部信息。<br>仅限内部使用。</p>
-    <input type="password" id="pwInput" placeholder="请输入密码" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;text-align:center;letter-spacing:4px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')pwConfirm()">
-    <div id="pwErr" style="color:#c0392b;font-size:12px;margin-top:8px;min-height:18px"></div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="up-btn" style="flex:1;background:var(--line);color:var(--ink)" onclick="pwCancel()">取消</button>
-      <button class="up-btn" style="flex:1" onclick="pwConfirm()">确认</button>
-    </div>
-  </div>
-</div>
+
+
+
 
 </div>
+
+<!-- ============ 全屏遮罩与模态框 · 统一挂载区 ============
+     以下都是 position:fixed;inset:0 的全屏层，必须挂在 .main-area > .wrap 之外。
+     原先嵌在 .wrap 内部，撞上两个坑：
+       一、玻璃皮肤给 .wrap 注入了 backdrop-filter，而它会为内部的 fixed 子元素创建
+           containing block —— 遮罩于是只盖住内容容器，弹窗偏心并溢出遮罩之外；
+       二、其中多数还嵌在 section 里，section 不 active 时整段 display:none，
+           表现为「只有在某一个页签下才弹得出来」。
+     统一挂到 .wrap 之外、且在全部脚本之前，两处问题一并消除。 -->
+
+    <!-- ============ 浆站自主月上报（station 专属，4 步 14 字段，字段名与用户 Excel 模板逐字一致） ============ -->
+    <div class="um-mask" id="rpMask" style="display:none">
+      <div class="um-modal" style="max-width:560px">
+        <div class="um-head"><h3>月上报</h3><button class="um-x" onclick="rpMaskHide()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <div style="padding:14px 16px">
+          <div class="rp-steps" id="rpSteps"></div>
+          <div id="rpBody"></div>
+          <div id="rpMsg" style="margin-top:8px"></div>
+          <div class="rp-foot" id="rpFoot"></div>
+        </div>
+      </div>
+    </div>
+      <!-- 发帖模态框 -->
+      <div class="um-mask" id="fbMask" style="display:none">
+        <div class="um-modal" style="max-width:660px">
+          <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> 发新帖</h3><button class="um-x" onclick="fbMaskHide()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+          <div class="fform-row"><span>板块</span><select id="fbBid"></select></div>
+          <div class="fform-row"><span>标题</span><input id="fbTitle" maxlength="60" placeholder="一句话说清，如：暑期招募差一半，大家怎么破？"></div>
+          <div class="fform-row"><span>内容</span><textarea id="fbBody" rows="5" maxlength="2000" placeholder="把事情说清楚：发生了什么、试过什么、卡在哪。越具体，别人越能支招。"></textarea></div>
+          <div class="fform-row"><span>图片</span><div style="flex:1"><label class="fb-img-btn" style="display:inline-flex"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 添加图片（可多张）<input type="file" accept="image/*" multiple id="fbPostImgInput" style="display:none" onchange="fbAddPostImg(this)"></label><div class="fb-rform-imgs" id="fbPostImgs" style="margin-top:6px"></div></div></div>
+          <div class="fform-row"><span>署名</span><input id="fbAuthor" maxlength="20" placeholder="如：丰镇站·李闯"></div>
+          <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="fbPost()">发布</button></div>
+        </div>
+      </div>
+    <!-- 手动录入 弹窗 -->
+    <div class="um-mask" id="stuAddMask" style="display:none">
+      <div class="um-modal" style="max-width:560px">
+        <div class="um-head"><h3>＋ 手动录入学员</h3><button class="um-x" onclick="stuAddClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <div class="fform-row"><span>姓名</span><input id="stuAName" placeholder="姓名"></div>
+        <div class="fform-row"><span>身份证后4位</span><input id="stuAId" maxlength="4" placeholder="4位数字"></div>
+        <div class="fform-row"><span>浆站</span><select id="stuASta"><option>怀远浆站</option><option>凤台浆站</option><option>灵璧浆站</option><option>五河浆站</option><option>商都浆站</option><option>丰镇浆站</option><option>其他站</option></select></div>
+        <div class="fform-row"><span>状态</span><select id="stuAStatus"><option value="已报名">已报名</option><option value="面试通过">面试通过</option><option value="已入营">已入营</option></select></div>
+        <div class="fform-row"><span>积分</span><input id="stuAPoints" type="number" min="0" placeholder="如 128"></div>
+        <div class="fform-row"><span>已签到场次</span><input id="stuASigns" type="number" min="0" placeholder="如 2"></div>
+        <div class="fform-row"><span>家长手机号</span><input id="stuAPhone" inputmode="numeric" placeholder="家长手机号，用于每周通知"></div>
+        <div class="fform-row"><span>学校/班级</span><input id="stuASchool" placeholder="所在学校或班级，如 XX 中学高三(2)班"></div>
+        <div style="text-align:right;margin-top:12px"><button class="up-btn" onclick="stuAdd()">保存</button></div>
+      </div>
+    </div>
+    <!-- 学员详情 弹窗 -->
+    <div class="um-mask" id="stuDetailMask" style="display:none">
+      <div class="um-modal" style="max-width:640px">
+        <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 学员详情</h3><button class="um-x" onclick="stuDetailClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <div id="stuDetailBody"></div>
+      </div>
+    </div>
+    <!-- 公告编辑 弹窗（仅管理员） -->
+    <div class="um-mask" id="annEditMask" style="display:none">
+      <div class="um-modal" style="width:min(880px,94vw);max-width:880px">
+        <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg> 编辑公告</h3><button class="um-x" onclick="annEditClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <p class="muted" style="font-size:12px;margin:2px 0 10px">增删改公告内容，实时生效。留空过期时间则永不过期。</p>
+        <div id="annEditList" style="max-height:40vh;overflow-y:auto;margin-bottom:10px"></div>
+        <div style="border-top:1px dashed var(--line);padding-top:10px">
+          <div class="fform-row"><span>公告内容</span><textarea id="annNewText" rows="3" placeholder="支持HTML，如 &lt;b&gt;标题&lt;/b&gt; 正文" style="flex:1"></textarea></div>
+          <div class="fform-row"><span>过期时间</span><input id="annNewUntil" type="date" style="flex:1">
+          </div>
+          <div style="text-align:right;margin-top:8px"><button class="up-btn" onclick="annAdd()">＋ 添加公告</button></div>
+        </div>
+      </div>
+    </div>
+    <!-- 积分规则 弹窗 -->
+    <div class="um-mask" id="stuRuleMask" style="display:none">
+      <div class="um-modal" style="max-width:680px">
+        <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> 积分规则</h3><button class="um-x" onclick="stuRuleClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <p class="muted" style="font-size:12.5px;margin:2px 0 10px">参考凤台2025模板，每项分值均可由项目负责人修改。保存后学员详情的积分明细按规则实时推导；加「活动分」时按类型预填默认分。</p>
+        <div class="stu-rule-table-wrap">
+          <table class="stu-rule-table" id="ruleTable">
+            <thead><tr><th>序号</th><th>评分细则</th><th>积分</th><th>备注</th><th></th></tr></thead>
+            <tbody id="ruleBody"></tbody>
+          </table>
+        </div>
+        <div style="text-align:right;margin-top:12px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+          <button class="mini-btn" onclick="stuRuleAdd()">＋ 添加一项</button>
+          <button class="mini-btn" onclick="stuRuleReset()">恢复默认</button>
+          <button class="up-btn" onclick="stuRuleSave()">保存规则</button>
+        </div>
+      </div>
+    </div>
+    <!-- 加活动分 弹窗 -->
+    <div class="um-mask" id="stuScoreMask" style="display:none">
+      <div class="um-modal" style="max-width:520px">
+        <div class="um-head"><h3>＋ 加活动分</h3><button class="um-x" onclick="stuScoreClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <input type="hidden" id="stuScoreIdx">
+        <div class="fform-row"><span>活动类型</span><select id="stuScoreType" onchange="stuScoreTypeChg()"></select></div>
+        <div class="fform-row"><span>分值</span><input id="stuScoreP" type="number" min="1"></div>
+        <div class="fform-row"><span>备注</span><input id="stuScoreMemo" placeholder="如：公益集市摆摊半天"></div>
+        <div class="stu-rule-note">分值默认按积分规则里该类型的默认分，可改。加分后写入流水并在总积分累加。</div>
+        <div style="text-align:right;margin-top:10px"><button class="up-btn" onclick="stuAddScore()">确认加分</button></div>
+      </div>
+    </div>
+    <!-- 证书预览 弹窗 -->
+    <div class="um-mask" id="stuCertMask" style="display:none">
+      <div class="um-modal" style="max-width:620px">
+        <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg> 结业证书</h3><button class="um-x" onclick="stuCertClose()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+        <div id="stuCertBody"></div>
+      </div>
+    </div>
+    <!-- 签到大屏（全屏投影） -->
+    <div class="stu-screen-mask" id="stuScreen" style="display:none">
+      <div class="stu-screen-head">
+        <div><div class="stu-screen-title">扬帆计划 · 今日签到</div><div class="stu-screen-sub" id="scrDate"></div></div>
+        <div class="stu-screen-num"><b id="scrCount">0</b><span>人已到场</span></div>
+        <button class="stu-screen-exit" onclick="stuBigScreen()">退出大屏<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      </div>
+      <div class="stu-screen-body" id="scrBody"></div>
+      <div class="stu-screen-foot">同路生物 · 扬帆计划 · 数据实时更新（按 Esc 也可退出大屏）</div>
+    </div>
+    <div class="hq-modal-mask" id="hqModal" onclick="if(event.target===this)hqClose()">
+      <div class="hq-modal" id="hqModalBody"></div>
+    </div>
+  <!-- 新手 7 步引导 -->
+  <div class="ob-mask" id="obMask">
+    <div class="ob-card">
+      <div class="ob-head">
+        <h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> 欢迎来到扬帆OS · 新负责人 7 步上手</h3>
+        <p>扬帆计划每年 6-8 月落地，你接手一个浆站的项目负责。这 7 步走完，就知道「该看什么、去哪做、做完怎么留痕」。每完成一步点一下，进度自动记下来；以后想重看，随时能再开。</p>
+      </div>
+      <div class="ob-bar"><i id="obBar"></i></div>
+      <div class="ob-body" id="obBody"></div>
+      <div class="ob-foot">
+        <span class="lk" onclick="obOpen()">重看引导</span>
+        <span class="lk" onclick="obSkip()">跳过，我自己逛 ›</span>
+      </div>
+    </div>
+  </div>
+  <!-- 更新数据 模态框 -->
+  <div class="um-mask" id="upMask" style="display:none">
+    <div class="um-modal">
+      <div class="um-head"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg> 更新看板数据</h3><button class="um-x" onclick="closeUpModal()" aria-label="关闭"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+      <p class="muted" style="margin:6px 0 10px">自己汇总、自己传。流程：下载模版 → 填新数字 → 上传 → 预览 → <b>确认写入</b>。确认后数据自动同步到集团云端并回读校验，各设备打开看板即为最新，<b>无需再替换任何部署文件</b>；「下载新 dash_data.js」仅作留档备份。云端万一暂不可达，数据也会先存本机（重开浏览器不丢），网络恢复后点看板「刷新」即可补同步。</p>
+      <div class="up-row">
+        <button class="up-btn" id="dlTpl"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载模版</button>
+        <label class="up-file"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg> 选择 Excel<input type="file" id="dashFile" accept=".xlsx,.xls"></label>
+        <button class="up-btn" id="dashParse">解析并预览</button>
+        <button class="up-btn" id="dashDl" disabled><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> 下载新 dash_data.js</button>
+      </div>
+      <div class="up-msg" id="dashUpMsg"></div>
+      <div class="um-note">模版格式与「6月扬帆计划数据汇总.xlsx」一致：<b>sheet 名字就是月份</b>（如「8月」，改一下模版 sheet 名即可）；列头保持 报名人数/面试人数/入营人数 等不动；站名可带空格，自动识别。上传哪个月，看板月份切换就多哪个月，并自动切到该月展示；也可以单月传，不强制要求两个月一起。</div>
+    </div>
+  </div>
+  <!-- 管理视图密码验证 -->
+  <div class="um-mask" id="pwMask" style="display:none">
+    <div class="um-modal" style="width:min(380px,92vw);text-align:center;padding:28px 24px">
+      <div class="um-head" style="justify-content:center;margin-bottom:12px"><h3><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 管理视图验证</h3></div>
+      <p style="margin:0 0 16px;font-size:13px;color:var(--muted)">将展示各站负责人姓名、岗位、成熟度与画像等内部信息。<br>仅限内部使用。</p>
+      <input type="password" id="pwInput" placeholder="请输入密码" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:15px;text-align:center;letter-spacing:4px;outline:none;font-family:inherit" onkeydown="if(event.key==='Enter')pwConfirm()">
+      <div id="pwErr" style="color:#c0392b;font-size:12px;margin-top:8px;min-height:18px"></div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="up-btn" style="flex:1;background:var(--line);color:var(--ink)" onclick="pwCancel()">取消</button>
+        <button class="up-btn" style="flex:1" onclick="pwConfirm()">确认</button>
+      </div>
+    </div>
+  </div>
+
 <footer>扬帆计划运营中枢 · 同路生物</footer>
 
 <script>
