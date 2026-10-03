@@ -15,8 +15,8 @@
 #   · 环境变量：YF_NODE（node 可执行，默认下方 22.22.2）、YF_TEST_PORT（GATE4 隔离端口，默认 9101）、
 #     YF_PPT_PORT（GATE5 隔离端口，默认 9103——与 GATE4 分开，两条车道不抢端口）。
 #   · 基线（MANIFEST.md 写死）：extract 6 块 / node --check 6/6 /
-#     test_rules 723 pass 0 fail / e2e 26 PASS 0 FAIL 0 SKIP / ppt_smoke 17 PASS 0 FAIL 0 SKIP /
-#     sw_selfcheck 18 PASS 0 FAIL。
+#     test_rules 724 pass 0 fail / e2e 26 PASS 0 FAIL 0 SKIP / ppt_smoke 18 PASS 0 FAIL 0 SKIP /
+#     sw_selfcheck 23 PASS 0 FAIL（含 B6–B10 导航分支「缓存优先」防回归）。
 #   · 退出码：0=全绿；非 0=有门禁红（供调用方/CI 判定，不靠人看日志）。
 #   · 失败口径：任一前置失败（jsdom 缺失 / shadow 造不出 / 后端起不来 / 隔离校验不过）
 #     都必须非零退出并打印原因（GATE5 前置失败固定 exit 3），绝不把「跳过」当「绿」。
@@ -71,7 +71,7 @@ RC=0
   YF_PPT_PORT="$PPT_PORT" "$NODE" ./ppt_smoke.js; PRC=$?
   echo "ppt_smoke exit=$PRC"
   [ "$PRC" -ne 0 ] && RC=1
-  echo "=== [GATE-SW] sw_selfcheck.js（PWA 离线可用性 + CACHE 版本纪律） ==="
+  echo "=== [GATE-SW] sw_selfcheck.js（PWA 离线可用性 + 导航分支缓存优先防回归） ==="
   SW_OUT="$("$NODE" ./sw_selfcheck.js 2>&1)"; SWRC=$?
   echo "$SW_OUT"
   echo "sw_selfcheck exit=$SWRC"

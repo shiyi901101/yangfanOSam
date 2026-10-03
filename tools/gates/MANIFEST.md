@@ -43,7 +43,8 @@ bash tools/gates/run_gates_iso.sh [tag]
 | GATE2 node --check | **6 / 6 OK** | `js_01..js_06` 语法全过 |
 | GATE3 test_rules | **pass=724 fail=0** | 见下「基线沿革」（2026-10-01：新契约 `I3R17` +1） |
 | GATE4 e2e | **26 PASS / 0 FAIL / 0 SKIP**（≈50–55s） | 双角色 26 场景（S11/A7/S14 现覆盖 **7** 个管理专属控件） |
-| GATE5 ppt_smoke | **17 PASS / 0 FAIL / 0 SKIP**（≈18s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **679364 字节 / 9 页**；原生表格 2 张（总表 10 列 × 21 行）+ 原生柱/折线图各 1；口径三句逐字且唯一；缺月折不画线；负责人端直调 0 字节 |
+| GATE5 ppt_smoke | **18 PASS / 0 FAIL / 0 SKIP**（≈18s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **679340 字节 / 9 页**；原生表格 2 张（总表 10 列 × 21 行）+ 原生柱/折线图各 1；口径三句逐字且唯一；缺月折不画线；负责人端直调 0 字节 |
+| GATE-SW sw_selfcheck | **23 PASS / 0 FAIL**（≈0s） | **`sw.js` 是 `p0_scan` 的盲区**（不属 index.html 内联块），单列门禁。A 文件语法 / B 离线可用性 + **B6–B10 导航分支「缓存优先」防回归** / C 版本纪律。见下「GATE-SW 说明」 |
 
 入口末行固定输出 `RESULT: PASS (RC=0)`。
 
@@ -124,6 +125,23 @@ bash tools/gates/run_gates_iso.sh [tag]
   - **本笔五道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=724 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **17 PASS / 0 FAIL / 0 SKIP**；P0 终检 `RC=0`（SELFTEST **24/24**，5 类命中 0；新增行 2554）。
   - **运行期 node 版本纪律复现**：手工跑 `p0_scan.js` 时误用 `22.12.0` → **SEGFAULT（exit 139）**；换基线 `22.22.2-2` 后 `RC=0`。MANIFEST 早已写明「22.12.0 会 SEGFAULT，不得降级」—— **单跑任何门禁脚本都必须用 22.22.2-2**（`run_gates_iso.sh` 内部已固定，故整跑不受影响）。
 
+- **本笔「Service Worker 加固 + GATE-SW 新增」（2026-10-03，用户唯一要求「稳定、不会出错」）**：
+  - **动机（用户场景）**：平台要铺给 **20 站**用，站端多为跨国弱网。要给出「GitHub / CloudBase 还能不能撑」的结论，并要求稳定不出错。
+  - **发现并修复的真缺陷（静默型）**：`sw.js` 初版用「网络优先」，**导航请求从未被写进 SW 缓存**（`caches.keys()` 里只有 CORE 的 4 个图标 + manifest，**从来没有任何版本的 index.html**）。断网之所以能用，全靠 Chromium 的 HTTP 磁盘缓存；而 GitHub Pages 只给 `Cache-Control: max-age=600` ⇒ **超过 10 分钟断网即打不开**，且**无任何报错**。
+    - **改法**：v4 导航分支改为「**缓存优先 + 后台静默更新**」——有缓存立刻返回（保证断网可用 + 秒开），同时后台 fetch 最新版回写（下次打开即新版，版本仍自动前进）；无缓存走网络并**显式 await 回写**；首次 + 断网返回可读 503 页。离线窗口从 10 分钟 → **无限期**。
+    - **取舍（明确写下来）**：用户**这次**打开可能看到上一版，差异通常只在下次打开时体现。这是「稳定优先」的主动选择——**要「永远打得开」，不要「永远最新」**。
+  - **线上 CDP 验收 10/10 全绿**（`output/_scratch/_sw_accept_v4.js`，真实 Edge headless + 线上 https）：
+    - 二次导航（SW 缓存命中）**517ms · transferSize=0**
+    - `workerStart=2` ⇒ **导航确实经 SW 接管**（这条是最硬的证据）
+    - SW 缓存含**完整 index.html 4302860 字节**（`cache.match` 五写法探测此前全 MISS 是**测试脚本缺陷**：dump 前只等 3–4s，4.3MB 落盘需 ~6s；且只等 `active=activated` 没等 `controller=yes`）
+    - 断网（**先 `Network.clearBrowserCache` 清 HTTP 磁盘缓存**以排除兜底）**559ms** 打开、内容非空、非 503 兜底页
+    - 断网 + 带查询串（`?cb=`）**509ms** 打开 ⇒ `ignoreSearch` 生效
+  - **GATE-SW 同步新增 5 条防回归断言（18 → 23 条）**：B6 导航分支先 `cache.match` / B7 命中即 `return cached`（退回网络优先即红）/ B8 无缓存显式 await 回写 / B9 首次断网有 503 兜底页 / B10 https 协议判断（**兼作测试纪律**：本地 http 下 SW 永不注册，实测 `no-reg`）。
+    - **`NET_TIMEOUT` 断言改条件式**：v4 后该常量已无调用方（`netFirst` 改为收 `ms` 参数），原断言会逼人保留死代码 ⇒ 改为「存在时校验格式」+ 新增「`netFirst` 若存在必须是纯函数」。
+    - **变异测试**：去掉 `if (cached) return cached` → `FAIL B7`；删 https 判断 → `FAIL B10`（各跑完即还原并复核 blob SHA）。
+  - **本笔六道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=724 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **18 PASS / 0 FAIL / 0 SKIP**；**GATE-SW 23 PASS / 0 FAIL**；P0 终检 `RC=0`（SELFTEST **24/24**，5 类命中 0）。
+  - **部署**：`sw.js` v4 blob `471df06321` 已推 GitHub Pages（`main` + `master` 双 ref，commit `d29346d7`）+ CloudBase（ETag 与本地 md5 逐字一致）。`index.html` **本笔零改动**（blob `8b11c743`）。
+
 ## P0 扫描口径（三处精度修正 + 保真平移白名单 —— **降假阳性 / 补口径缺口，均不降强度**）
 
 三处都是「判定维度」修正，不是把红线调松；每处都配了 SELFTEST 反证（真违规必须命中、被修的假阳性必须不命中），SELFTEST 不通过 → 退出码非 0。当前 **SELFTEST 23/23**（原 14 条 → +9 条，覆盖颜色函数、白名单两条硬约束、以及「白名单移出后必须命中」）。
@@ -180,6 +198,42 @@ bash tools/gates/run_gates_iso.sh [tag]
 
 ### 已知命中（当前状态：**无**）
 
+
+## GATE-SW 说明（`sw_selfcheck.js`，2026-10-03 新增）
+
+**为什么需要一个专门扫 `sw.js` 的门禁**：`p0_scan.js` 只扫 `index.html`，而 `sw.js` 是**独立文件**、不属那 6 个内联块，故 **P0 终检完全看不到它**。偏偏 SW 承载「二次打开秒开 + 断网可用」，且它的失效方式是**静默的**——用户只会觉得"有点慢"或"偶尔打不开"，不会有任何报错。
+
+### 断言分组（23 条）
+
+| 组 | 条数 | 内容 |
+|---|---|---|
+| A 文件与语法 | 2 | `sw.js` / `manifest.json` 存在；manifest 可 JSON 解析 |
+| B 离线可用性 | 13 | 内联注册 / manifest 引用 / CORE 非空且文件真实存在 / CORE 不含 index.html / icons 真实存在且 ≥2 / start_url / scope / skipWaiting / clients.claim / **B6–B9 导航分支缓存优先四连** / **B10 https 协议判断** |
+| C 版本纪律 | 3 | `CACHE` 存在且为字符串字面量、含 `v<数字>`；`netFirst` 若存在必须是纯函数 |
+
+### 🔴 B6–B10 是本门禁的核心价值（防静默退化）
+
+2026-10-03 实测踩到的真实缺陷：早期实现用「网络优先」策略，结果**导航请求从未被写进 SW 缓存**（缓存里只有 CORE 的 4 个图标）。断网之所以能用，全靠 Chromium 的 HTTP 磁盘缓存——而 GitHub Pages 只给 `Cache-Control: max-age=600`。**超过 10 分钟断网即打不开**，且这个退化**没有任何报错**。
+
+- **B6**：导航分支必须先 `cache.match`。
+- **B7**：命中缓存时**直接 `return cached`**（不是"拿缓存放旁边、等网络回来再决定"）——退回网络优先即红。
+- **B8**：无缓存时须显式 `await` 网络结果并回写，保证首次访问一定落盘。
+- **B9**：首次访问 + 断网须返回**可读的 503 兜底页**，不能白屏。
+- **B10**：`index.html` 中的 SW 注册必须带 `location.protocol!=='https:'` 判断。**兼作测试纪律**——本地 http 下 SW 永不注册（实测 `no-reg`），任何"本地 http 复现 SW 行为"的尝试都是白费功夫，必须线上 https 或本地起 https。
+
+### 变异测试（证明断言有牙齿）
+
+| 注入的缺陷 | 预期 | 实测 |
+|---|---|---|
+| 去掉 `if (cached) { … return cached }`（退回网络优先） | B7 红 | ✅ `FAIL B7` |
+| 删掉 `location.protocol!=='https:'` 判断 | B10 红 | ✅ `FAIL B10` |
+| `CACHE` 退化为 `'yf-os'`（无版本号） | C 组红 | ✅ `FAIL CACHE 值含 v<数字>` |
+| CORE 加回 `./index.html` | B3 红 | ✅ `FAIL CORE 不含 index.html` |
+| CORE 写不存在的文件 | B2 红 | ✅ `FAIL CORE 清单里每个文件真实存在` |
+
+### ⚠️ 本门禁只做静态断言
+
+运行时的「缓存到底有没有落盘」不在门禁范围（需联网 + 真浏览器）。该部分由 **`output/_scratch/_sw_accept_v4.js`** 覆盖——线上 CDP 验收 10 项：首开可用 / SW 激活并接管 / **缓存含完整 index.html（>4MB）** / `workerStart>0` 证明导航过 SW / 断网（清 HTTP 缓存后）可开 / 走真缓存非兜底页 / 带查询串可开 / 恢复联网可用。**每次改 `sw.js` 后必须跑一次**（实测基线：二次导航 **517ms** · `transferSize: 0`；断网 **559ms**）。
 
 ## 红线（长期约束）
 
