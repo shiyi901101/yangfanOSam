@@ -8805,7 +8805,7 @@ function genHQPPT(){
           valAxisMin:0,catGridLine:{style:'none'},valGridLine:{color:C.line,size:0.5},showLegend:false,
           chartArea:{fill:{color:'FFFFFF'}},plotArea:{fill:{color:'FFFFFF'}}
         });
-        s8.addText('口径：每点 = 该月全部在运营浆站的入营人数合计（camp[2] 逐站求和）。'
+        s8.addText('口径：每点 = 该月全部在运营浆站的入营人数合计（reg[2] 逐站求和）。'
           +(trendMiss.length?('缺月 '+trendMiss.join('、')+' 无任何站点上报，不参与画线，也不以 0 顶替。'):'')
           +(trendFallback?' 本月度取数走平台内置基线（云端尚未同步），同步后自动切回权威数据。':''),
           {x:0.4,y:4.96,w:9.2,h:0.28,fontSize:8,color:C.muted,fontFace:FF});
