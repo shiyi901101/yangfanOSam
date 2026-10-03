@@ -1376,6 +1376,15 @@ window.__yfLoadLib=(function(){
   /* 学员工作台：台账 / 点名 / 材料 / 证书 / 话术 */
   .stu-empty{text-align:center;color:var(--muted);font-size:13px;padding:34px 16px;background:var(--ice-2);border:1px dashed var(--line);border-radius:12px}
   .stu-ledger-tool{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  /* 学员台账云同步状态条（2026-10-03）：灰=未登录/离线 · 蓝闪=同步中 · 绿=已同步 · 橙=待同步
+     色值全部走 Design Token（P0 硬编码色红线），圆点光晕以 currentColor 派生，避免自造色值 */
+  .stu-cloud-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--blue-300);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue-300) 22%,transparent);transition:background .2s,box-shadow .2s}
+  .stu-cloud-dot.sync{background:var(--pri);box-shadow:0 0 0 3px color-mix(in srgb,var(--pri) 20%,transparent);animation:stuPulse 1s ease-in-out infinite}
+  .stu-cloud-dot.ok{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 20%,transparent)}
+  .stu-cloud-dot.pend{background:var(--warn);box-shadow:0 0 0 3px color-mix(in srgb,var(--warn) 20%,transparent)}
+  .stu-cloud-dot.off{background:var(--muted);box-shadow:0 0 0 3px color-mix(in srgb,var(--muted) 20%,transparent)}
+  @keyframes stuPulse{0%,100%{opacity:1}50%{opacity:.42}}
+  @media (prefers-reduced-motion:reduce){.stu-cloud-dot.sync{animation:none}}
   .stu-ledger-tool input,.stu-ledger-tool select{padding:8px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink);outline:none}
   .stu-ledger-tool input:focus,.stu-ledger-tool select:focus{border-color:var(--blue-300);box-shadow:0 0 0 3px rgba(43,124,211,.10)}
   .stu-ledger-tool input{flex:1;min-width:170px;max-width:260px}
@@ -2461,6 +2470,11 @@ window.__yfLoadLib=(function(){
       <button class="mini-btn" onclick="stuSeed()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2v7.5L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9.5V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg> 示例数据</button>
       <button class="mini-btn" style="color:#c0392b" onclick="stuClear()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 清空</button>
       <button class="mini-btn" style="margin-left:auto" onclick="stuRuleOpen()"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> 积分规则</button>
+    </div>
+    <div class="stu-ledger-tool" id="stuCloudBar" style="margin-top:8px">
+      <span id="stuCloudDot" class="stu-cloud-dot" title="云同步状态"></span>
+      <span id="stuCloudTxt" style="font-size:12px;color:var(--muted)">云同步：未登录</span>
+      <button class="mini-btn" style="margin-left:auto" id="stuCloudBtn" onclick="stuCloudSync(true)"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg> 立即同步</button>
     </div>
     <div id="stuListWrap" style="margin-top:12px"></div>
   </div>
@@ -7130,7 +7144,27 @@ function stuLoad(){
   try{var raw=localStorage.getItem(STU_KEY);if(raw)return JSON.parse(raw);}catch(e){}
   return [];
 }
-function stuSave(list){try{localStorage.setItem(STU_KEY,JSON.stringify(list));}catch(e){}}
+/* 写入：本地即刻落盘（离线可用，永不因网络失败丢数据）→ 异步推云（best-effort）。
+   改前：纯 localStorage，换电脑/清缓存即丢；改后（2026-10-03 用户拍板加云同步）：
+   本地仍是唯一权威副本，云端为跨设备备份 + 同站多设备合并。推送失败只标「待同步」，不阻塞任何操作。 */
+var STU_CLOUD_REV_KEY='yf_stu_rev_v1';
+var STU_CLOUD_DIRTY_KEY='yf_stu_dirty_v1';
+function stuCloudRevGet(){try{return Number(localStorage.getItem(STU_CLOUD_REV_KEY))||0;}catch(e){return 0;}}
+function stuCloudRevSet(v){try{localStorage.setItem(STU_CLOUD_REV_KEY,String(Number(v)||0));}catch(e){}}
+function stuDirty(){try{return localStorage.getItem(STU_CLOUD_DIRTY_KEY)==='1';}catch(e){return false;}}
+function stuSetDirty(on){try{if(on)localStorage.setItem(STU_CLOUD_DIRTY_KEY,'1');else localStorage.removeItem(STU_CLOUD_DIRTY_KEY);}catch(e){}}
+/* 云同步状态灯：off=未登录/离线 · sync=同步中 · ok=已同步 · pend=待同步 */
+function stuCloudDot(state,txt){
+  var d=document.getElementById('stuCloudDot'),t=document.getElementById('stuCloudTxt');
+  if(d){d.className='stu-cloud-dot'+(state?(' '+state):'');}
+  if(t){t.textContent='云同步：'+(txt||'');}
+}
+function stuSave(list){
+  try{localStorage.setItem(STU_KEY,JSON.stringify(list));}catch(e){}
+  stuSetDirty(true);
+  stuCloudDot('pend','待同步');
+  if(typeof stuCloudSync==='function')stuCloudSync(false);
+}
 function stuTodayLoad(){
   try{var raw=localStorage.getItem(STU_TODAY_KEY);if(raw)return JSON.parse(raw);}catch(e){}
   return {date:'',acts:[]};   // {date:'2026-08-19', acts:[{name,act}]}
@@ -7139,6 +7173,87 @@ function stuTodaySave(t){try{localStorage.setItem(STU_TODAY_KEY,JSON.stringify(t
 function stuFind(name,id4){
   var list=stuLoad();
   return list.filter(function(s){return s.name===name.trim()&&s.id4===String(id4).trim();});
+}
+/* ============ 学员台账云同步（2026-10-03） ============
+   设计取舍（为什么不做「云为准」）：
+   ① 台账含家长手机号等敏感信息，用户口径「自己站能看到就行」⇒ 云桶按站隔离（/v1/students 已强制归本站）；
+   ② 浆站现场经常断网（乡镇/园区），云端为准 ⇒ 断网就等于不能用。故**本地为准 + 异步推云**；
+   ③ 跨设备：同一站换电脑时，pull 合并（按 姓名|身份证后4位 主键）把云端既有条目带回来，不丢历史。
+   冲突处理：merge 语义在服务端做（同键以本次推送为准），rev 乐观锁防并发整份覆盖。 */
+function stuCloudEnabled(){ return !!(window.YF_API_URL&&window.YF_API_URL.trim())&&typeof yfApi==='function'&&!!yfToken(); }
+function stuCloudSync(manual){
+  if(!stuCloudEnabled()){
+    var why=yfToken()?'当前为离线/未配置云':'未登录';
+    stuCloudDot('off',why);
+    if(manual)toast('未登录或未连接云端，台账仅保存在本机');
+    return Promise.resolve(false);
+  }
+  var st=yfMyStation();
+  if(!st){ stuCloudDot('off','账号未绑定浆站'); if(manual)toast('当前账号未绑定浆站，无法同步台账'); return Promise.resolve(false); }
+  var list=stuLoad();
+  stuCloudDot('sync','同步中…');
+  var btn=document.getElementById('stuCloudBtn'); if(btn&&manual)btn.disabled=true;
+  var payload={students:list};
+  if(stuCloudRevGet())payload.baseRev=stuCloudRevGet();
+  return yfRetry(function(){ return yfApi('/v1/students','POST',payload); }).then(function(j){
+    if(btn&&manual)btn.disabled=false;
+    if(j&&j.ok){
+      stuCloudRevSet(j.rev||0); stuSetDirty(false);
+      stuCloudDot('ok','已同步 '+(j.count!=null?j.count:list.length)+' 人');
+      if(manual)toast('台账已同步云端（本站 '+ (j.count!=null?j.count:list.length) +' 人）');
+      return true;
+    }
+    if(j&&j.conflict){
+      /* 409：云端被别的设备改过。先把云端拉回来合并，再推一次（避免整份覆盖对方新增）。 */
+      stuCloudDot('pend','版本冲突，正在合并…');
+      return stuCloudPull(true).then(function(){
+        var merged=stuLoad(); var p2={students:merged}; if(stuCloudRevGet())p2.baseRev=stuCloudRevGet();
+        return yfApi('/v1/students','POST',p2).then(function(j2){
+          if(j2&&j2.ok){ stuCloudRevSet(j2.rev||0); stuSetDirty(false); stuCloudDot('ok','已同步 '+merged.length+' 人'); if(manual)toast('已合并并同步 '+merged.length+' 人'); return true; }
+          stuCloudDot('pend','待同步'); if(manual)toast('同步失败：'+((j2&&j2.error)||'未知原因')); return false;
+        });
+      });
+    }
+    if(j&&j.forbidden){ stuCloudDot('off','无本站同步权限'); if(manual)toast(j.error||'无权同步本站台账'); return false; }
+    /* 其余失败（网络 / 校验 / 未知）：云端**未收到**本次数据 ⇒ 必须标 dirty，
+       否则「同步失败后灯灭了、用户以为已备份」，下次也不会自动重推。 */
+    stuSetDirty(true);
+    stuCloudDot(j&&j.network?'off':'pend', j&&j.network?'离线（待联网同步）':'待同步');
+    if(manual)toast('同步失败：'+((j&&j.error)||'网络异常')+'，台账已存本机');
+    return false;
+  }).catch(function(e){
+    if(btn&&manual)btn.disabled=false;
+    stuSetDirty(true);
+    stuCloudDot('off','离线（待联网同步）');
+    if(manual)toast('同步失败：网络异常，台账已存本机');
+    return false;
+  });
+}
+/* 拉云端台账 → 与本地按 (姓名|身份证后4位) 主键合并 → 写回本地。
+   mergeLocal=true 时保留本地优先（同键本地已有则不动），用于「冲突合并」场景。 */
+function stuCloudPull(mergeLocal){
+  if(!stuCloudEnabled())return Promise.resolve(false);
+  var st=yfMyStation(); if(!st)return Promise.resolve(false);
+  return yfApi('/v1/students','GET').then(function(j){
+    if(!j||j.ok===false||!Array.isArray(j.students)){
+      if(j&&j.network)stuCloudDot('off','离线');
+      return false;
+    }
+    stuCloudRevSet(j.rev||0);
+    var remote=j.students||[];
+    if(!remote.length){ stuCloudDot(stuDirty()?'pend':'ok', stuDirty()?'待同步':'已同步（云端暂无数据）'); return true; }
+    var local=stuLoad();
+    var key=function(s){return (s.name||'')+'|'+(s.id4||'');};
+    var seen={},out=[];
+    /* 本地优先：先放本地全部，再补云端独有（跨设备带回来的历史条目） */
+    local.forEach(function(s){var k=key(s);if(!seen[k]){seen[k]=1;out.push(s);}});
+    var added=0;
+    remote.forEach(function(s){var k=key(s);if(!seen[k]){seen[k]=1;out.push(s);added++;}});
+    if(added>0){ try{localStorage.setItem(STU_KEY,JSON.stringify(out));}catch(e){} }
+    stuCloudDot(stuDirty()?'pend':'ok', stuDirty()?('待同步（已并入云端 '+added+' 人）'):('已同步 '+(j.students||[]).length+' 人'));
+    if(added>0&&typeof stuListRender==='function')stuListRender();
+    return true;
+  }).catch(function(){ stuCloudDot('off','离线'); return false; });
 }
 /* 积分规则（可配置，存 localStorage）——凤台式15项详细模板 */
 var SCORE_RULES=(function(){
@@ -7435,12 +7550,33 @@ function stuImport(input){
 }
 function stuSeed(){
   if(stuLoad().length){if(!confirm('已有学员数据，载入示例会覆盖当前数据，确定继续？'))return;}
-  stuSave(JSON.parse(JSON.stringify(SEED_STUDENTS)));
-  stuListRender();stuFillChk();toast('已载入 3 名示例学员（演示用）');
+  /* 示例数据**只落本机、绝不推云** —— 否则演示用的「王小明/李梦琪」会混进真实台账，
+     且跨设备拉取后无法区分。故此处直接写 localStorage，绕过 stuSave 的自动上云。 */
+  try{localStorage.setItem(STU_KEY,JSON.stringify(SEED_STUDENTS));}catch(e){}
+  stuListRender();stuFillChk();
+  if(typeof stuCloudDot==='function')stuCloudDot('pend','本机示例（未推云）');
+  toast('已载入 3 名示例学员（演示用，仅存本机）');
 }
 function stuClear(){
-  if(!confirm('确认清空全部学员数据？此操作不可恢复。'))return;
-  stuSave([]);stuListRender();stuFillChk();stuTodayRender();toast('已清空');
+  if(!confirm('确认清空全部学员数据？此操作不可恢复。\n\n注意：已登录时云端台账会一并清空（本站）。'))return;
+  try{localStorage.setItem(STU_KEY,'[]');}catch(e){}
+  stuListRender();stuFillChk();stuTodayRender();
+  /* 清空必须走 replace:true —— 若走默认 merge，服务端会把「空数组」与云端既有条目合并，
+     等于云端一条都没删；下次 stuCloudPull 又会把旧数据带回来（「删了复活」）。
+     未登录/离线时：本地已清，但云端仍在，故明确告知，不假装成功。 */
+  if(typeof stuCloudEnabled==='function'&&stuCloudEnabled()&&yfMyStation()){
+    stuCloudDot('sync','正在清空云端…');
+    var p={students:[],replace:true};
+    if(stuCloudRevGet())p.baseRev=stuCloudRevGet();
+    yfRetry(function(){return yfApi('/v1/students','POST',p);}).then(function(j){
+      if(j&&j.ok){stuCloudRevSet(j.rev||0);stuSetDirty(false);stuCloudDot('ok','已同步（云端已清空）');toast('已清空（含云端）');}
+      else if(j&&j.conflict){stuCloudDot('pend','云端版本冲突，请再点一次清空');toast('云端版本冲突，请重试清空');}
+      else{stuSetDirty(true);stuCloudDot('pend','待同步');toast('本地已清空，云端待同步（' + ((j&&j.error)||'网络异常') + '）');}
+    }).catch(function(){stuSetDirty(true);stuCloudDot('off','离线（云端未清）');toast('本地已清空，云端未清（离线）');});
+  }else{
+    stuSetDirty(true);stuCloudDot('off','未登录（云端未清）');
+    toast('已清空本机台账'+(yfToken()?'':'；未登录，云端数据未动'));
+  }
 }
 /* ===== 签到点名 ===== */
 var stuSignSel={};
@@ -7792,7 +7928,19 @@ function stuScrRender(){
 function stuRenderCount(){
   var el=document.getElementById('stuCount');if(el)el.textContent=stuLoad().length;
 }
-function stuInit(){stuListRender();stuFillChk();stuTodayRender();}
+function stuInit(){
+  stuListRender();stuFillChk();stuTodayRender();
+  /* 云同步引导（2026-10-03）：登录后自动拉本站台账并与本地合并。
+     不阻塞渲染——先把本地画出来（离线也能用），云端数据到了再刷新列表。 */
+  try{
+    if(typeof stuCloudEnabled==='function'&&stuCloudEnabled()){
+      stuCloudDot('sync','正在拉取云端台账…');
+      if(typeof stuCloudPull==='function')stuCloudPull(false).then(function(ok){ if(ok)stuListRender(); });
+    }else if(typeof stuCloudDot==='function'){
+      stuCloudDot('off',(typeof yfToken==='function'&&yfToken())?'离线/未配置云':'未登录');
+    }
+  }catch(e){}
+}
 
 function fbInit(){fbLoad();fbChips();fbHotRender();fbList();fbRank();expInit();slInit();annInit();stuInit();forumTab('discuss');if(typeof YF_CLOUD!=='undefined'){YF_CLOUD.pullForum();if(YF_CLOUD.startForumPoll)YF_CLOUD.startForumPoll();}try{if(typeof sbUpdateUser==='function')sbUpdateUser();}catch(e){}if(typeof fbeBoot==="function")try{fbeBoot();}catch(e){}}
 

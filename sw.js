@@ -5,7 +5,7 @@
  * 只接管同源 GET；云函数 API 与 COS 图片均为跨源，一律直连不插手。
  * 版本升级：改 CACHE 常量（yf-os-v2 …），activate 会自动清掉旧缓存。
  */
-const CACHE = 'yf-os-v1';
+const CACHE = 'yf-os-v2';
 const NET_TIMEOUT = 4000;
 const CORE = [
   './index.html',
