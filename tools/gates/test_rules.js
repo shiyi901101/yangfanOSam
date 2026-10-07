@@ -2197,3 +2197,85 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
     'PG8：genHQPPT 零 emoji（P0-1）');
 }
 
+/* ================================ 文案红线（WX 系列）：把 2026-10-07 内容体检的裁定「写死」，防回流 ================================
+ * 裁定来源：output/上线冲刺诊断_20261007/平台文案体检_错别字与逻辑问题_20261007.md
+ * 规则：① 禁词命中必须为 0；② 正确文案必须存在（正控，防「全删了也算过」）；③ 主文件正文与课文零繁体字。
+ * 任何一次改动把旧文案带回来 → 本组断言立即红（exit 非 0 → 整条门禁链红）。 */
+{
+  const cntW = (h, w) => h.split(w).length - 1;
+  const hMain = fs.readFileSync(P.INDEX_HTML, 'utf8');
+  /* 主文件正文：剥掉全部 base64 承载块（课本/看板/报告/第三方库）与 data URI */
+  const mainTxt = hMain
+    .replace(/<script[^>]*type="text\/plain"[^>]*>[\s\S]*?<\/script>/g, ' ')
+    .replace(/data:[a-z\/+.-]+;base64,[A-Za-z0-9+\/=]+/g, ' ')
+    .replace(/[A-Za-z0-9+\/]{180,}={0,2}/g, ' ');
+  /* 课文：解出 learnSrc base64 */
+  const _lx = 'id="learnSrc">';
+  const _lb = hMain.indexOf(_lx) + _lx.length;
+  const learnTxt = Buffer.from(hMain.slice(_lb, hMain.indexOf('</script>', _lb)), 'base64').toString('utf8');
+  assert(learnTxt.length > 1000 && learnTxt.indexOf('DOCTYPE html') >= 0, 'WX0：课文 learnSrc 可解出（后续文案断言的前提）');
+
+  /* WX1 —— 主文件内置种子：错字/生造词必须为 0（2026-10-07 已改） */
+  ['工艺义卖', '摆卖', '集中地址', '收益互通', '（待补充）'].forEach(w =>
+    assert(cntW(mainTxt, w) === 0, 'WX1：★主文件内置种子不得出现「' + w + '」（实际 ' + cntW(mainTxt, w) + ' 处）'));
+
+  /* WX2 —— 正控：五河义卖案例的三种呈现（案例卡/模板/话术）一律「公益义卖」 */
+  assert(cntW(mainTxt, '公益义卖') >= 3,
+    'WX2：五河义卖案例统一用「公益义卖」（实际 ' + cntW(mainTxt, '公益义卖') + ' 处，期望 ≥3）');
+
+  /* WX3 —— 课文：知识性/一致性/繁体 禁词必须为 0 */
+  ['图紙', '第七版', '146 亿', '超支 220 亿', '（1994）', '4000 工人'].forEach(w =>
+    assert(cntW(learnTxt, w) === 0, 'WX3：★课文不得出现「' + w + '」（实际 ' + cntW(learnTxt, w) + ' 处）'));
+
+  /* WX4 —— 课文正控：改后的正确口径必须在位 */
+  assert(cntW(learnTxt, '第六版') >= 4,
+    'WX4：★课文 PMP 体系一律标「第六版」（5+10 是第六版骨架；实际 ' + cntW(learnTxt, '第六版') + ' 处，期望 ≥4）');
+  assert(cntW(learnTxt, '图纸') >= 1, 'WX4：火神山「图纸」为简体（实际 ' + cntW(learnTxt, '图纸') + ' 处）');
+  assert(cntW(learnTxt, '4200 工人') >= 4,
+    'WX4：火神山工人数统一为 4200（实际 ' + cntW(learnTxt, '4200 工人') + ' 处，期望 ≥4）');
+  assert(cntW(learnTxt, '总成本约 220 亿') >= 1,
+    'WX4：★波士顿 220 亿口径为「总成本」（不是超支额；实际 ' + cntW(learnTxt, '总成本约 220 亿') + ' 处）');
+  assert(cntW(learnTxt, '第一大原因') === 1,
+    'WX4：★「项目失败的第一大原因」全文恰 1 处（范围/沟通不得并列称第一；实际 ' + cntW(learnTxt, '第一大原因') + ' 处）');
+
+  /* WX5 —— 陈旧副本 data/seed_experience.js：要么已归档，要么与主文件同口径 */
+  const SEED_PATH = P.FRONT_ROOT + '/data/seed_experience.js';
+  if (fs.existsSync(SEED_PATH)) {
+    const seedTxt = fs.readFileSync(SEED_PATH, 'utf8');
+    ['工艺义卖', '收益互通', '集中地址', '（待补充）'].forEach(w =>
+      assert(cntW(seedTxt, w) === 0, 'WX5：★陈旧副本 data/seed_experience.js 不得出现「' + w + '」（实际 ' + cntW(seedTxt, w) + ' 处）'));
+  } else {
+    assert(true, 'WX5：data/seed_experience.js 已归档，跳过（不静默当绿——归档本身即通过）');
+  }
+
+  /* WX6 —— 零繁体字（只收「繁体形与简体形不同」的字，避免同形字误报） */
+  const WX_TRAD = /[們個這說時開關為與將來對實現場點麼樣覺讓話變進過還沒員報資質專業務費價錢買賣單簡複雜體腦標準確認識證據庫頁冊戶總計設備條約組織構統監檢評審簽書歷經學級種類廠廣東灣臺銀銅鐵鉛鋅華萬億圓牆藥號門問間際陳孫劉張楊趙黃蔣韓馬馮許呂衛範葉鍾顧龍湯喬賀賴龔圖紙產隻雙歲長風飛鳥魚醫護養陽陰陸隊階隨險驗觀見規劃導執應當辦續斷權職稱課講試運動習題練籌發佈籤檔數據網絡視頻軟擊碼師團結簡]/g;
+  const tMain = [...new Set(mainTxt.match(WX_TRAD) || [])];
+  const tLearn = [...new Set(learnTxt.match(WX_TRAD) || [])];
+  assert(tMain.length === 0, 'WX6：★主文件正文零繁体字（实际 ' + JSON.stringify(tMain) + '）');
+  assert(tLearn.length === 0, 'WX6：★课文零繁体字（实际 ' + JSON.stringify(tLearn) + '）');
+
+  /* WX7 —— 归档旧学习件 _archive/扬帆OS_学习系统v5.html
+     它是同一份课文的「独立可打开」版本、仍随站点公开（/ _archive/ ...），
+     内容必须与 learnSrc 同口径；3 处 CSS/布局差异（880px/700px 断点、.side 抽屉 vs sticky）为归档版有意保留，不在此断言。 */
+  const ARCH_PATH = P.FRONT_ROOT + '/_archive/扬帆OS_学习系统v5.html';
+  if (fs.existsSync(ARCH_PATH)) {
+    const archTxt = fs.readFileSync(ARCH_PATH, 'utf8');
+    ['图紙', '第七版', '146 亿', '超支 220 亿', '（1994）', '4000 工人'].forEach(w =>
+      assert(cntW(archTxt, w) === 0, 'WX7：★归档旧学习件不得出现「' + w + '」（实际 ' + cntW(archTxt, w) + ' 处）'));
+    assert(cntW(archTxt, '第六版') >= 4,
+      'WX7：归档件 PMP 体系一律标「第六版」（实际 ' + cntW(archTxt, '第六版') + ' 处，期望 ≥4）');
+    assert(cntW(archTxt, '图纸') >= 2, 'WX7：归档件「图纸」为简体（实际 ' + cntW(archTxt, '图纸') + ' 处，期望 ≥2）');
+    assert(cntW(archTxt, '4200 工人') >= 4,
+      'WX7：归档件火神山工人数统一 4200（实际 ' + cntW(archTxt, '4200 工人') + ' 处，期望 ≥4）');
+    assert(cntW(archTxt, '总成本约 220 亿') >= 1,
+      'WX7：★归档件波士顿 220 亿口径为「总成本」（实际 ' + cntW(archTxt, '总成本约 220 亿') + ' 处）');
+    assert(cntW(archTxt, '第一大原因') === 1,
+      'WX7：★归档件「第一大原因」恰 1 处（实际 ' + cntW(archTxt, '第一大原因') + ' 处）');
+    const tArch = [...new Set(archTxt.match(WX_TRAD) || [])];
+    assert(tArch.length === 0, 'WX7：★归档旧学习件零繁体字（实际 ' + JSON.stringify(tArch) + '）');
+  } else {
+    assert(true, 'WX7：_archive/扬帆OS_学习系统v5.html 不存在（已删除），跳过');
+  }
+}
+
