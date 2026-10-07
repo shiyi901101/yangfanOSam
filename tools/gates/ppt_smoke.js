@@ -422,6 +422,11 @@ async function scGapMonth() {
     assert('G5-B2', '★缺月页显式写明「缺月 8 月 …不以 0 顶替」',
       s8Text.indexOf('缺月 8 月') >= 0 && s8Text.indexOf('不以 0 顶替') >= 0,
       '第 8 页文本片段=' + JSON.stringify(s8Text.slice(0, 160)));
+    /* 口径文案字段名断言（2026-10-03 修正）：趋势页取数在 index.html L8592 用 c.reg[2]（入营人数），
+       文案原误写 camp[2]（女生数）。此处锁死正确字样，并断言错误字样不得出现 —— 改回 camp[2] 即红。 */
+    assert('G5-B3', '★趋势页口径文案字段名 = reg[2]（入营人数），不得写 camp[2]',
+      s8Text.indexOf('reg[2] 逐站求和') >= 0 && s8Text.indexOf('camp[2]') < 0,
+      '含 reg[2] 逐站求和=' + (s8Text.indexOf('reg[2] 逐站求和') >= 0) + ' · 误含 camp[2]=' + (s8Text.indexOf('camp[2]') >= 0));
   } finally { env.dom.window.close(); }
 }
 

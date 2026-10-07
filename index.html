@@ -852,6 +852,15 @@ window.__yfLoadLib=(function(){
   .exp-search{margin-left:auto}
   .exp-search input{border:1px solid var(--line);border-radius:18px;padding:6px 14px;font-size:12.5px;width:220px;font-family:inherit;outline:none;background:#fff;color:#17324d}
   .exp-search input:focus{border-color:#4ea3e8}
+  /* 经验广场·云端录入（A 方案 2026-10-07）：管理端录入 → 云端 exp_cases，全站可见 */
+  .exp-src{display:inline-block;margin-left:6px;font-size:10.5px;color:#14559c;background:#dceaf9;border-radius:8px;padding:1px 6px;vertical-align:1px}
+  .expf-row{display:flex;gap:10px;margin-bottom:9px;flex-wrap:wrap}
+  .expf-row label{display:block;font-size:12px;color:#31465c;flex:1 1 130px;min-width:120px;line-height:1.6}
+  .expf-row label.wide{flex:1 1 100%}
+  .expf-row input,.expf-row textarea,.expf-row select{border:1px solid var(--line);border-radius:7px;padding:6px 9px;font-size:12.5px;font-family:inherit;box-sizing:border-box;width:100%;background:#fff;color:#17324d;margin-top:3px}
+  .expf-row textarea{min-height:58px;resize:vertical}
+  .expf-hint{font-size:11.5px;color:var(--muted);margin:-4px 0 8px;line-height:1.6}
+  .exp-del{background:none;border:none;border-bottom:1px dashed #b9d6f2;font-family:inherit;font-size:12px;color:#8a6116;cursor:pointer;margin-left:auto;margin-right:8px;padding:2px 0;white-space:nowrap}
   .exp-content{min-height:300px}
   /* 案例卡片 */
   .case-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
@@ -1791,6 +1800,19 @@ window.__yfLoadLib=(function(){
   .fbe-ct-chip{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:4px 12px;border:1px solid var(--blue-200,#b9d6f2);border-radius:16px;background:var(--ice-2,#eef4fb);color:#14559c;font-size:13px;cursor:pointer;white-space:nowrap}
   .fbe-ct-chip:hover{background:#dceaf9;border-color:#14559c}
   @media(max-width:414px){.fa-sec{padding:12px 10px}.fa-sec-t{font-size:15px}.fbe-dm-newrow{flex-wrap:wrap}.fbe-dm-newrow select{flex:1 1 100%}}
+  /* 论坛消息提醒 FBN：新帖（管理端）/ 回复我的帖子（人人）未读条 */
+  .fbn-bar{display:none;margin:0 0 12px;background:#fff8e8;border:1px solid #f3cfa6;border-left:3px solid #f3cfa6;border-radius:10px;padding:10px 12px}
+  .fbn-bar-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .fbn-bar-hd b{color:#8a6116;font-size:13.5px}
+  .fbn-bar-all{font-size:12px;color:#14559c;cursor:pointer;white-space:nowrap;border-bottom:1px dashed #b9d6f2}
+  .fbn-list{margin:8px 0 0;padding:0;list-style:none}
+  .fbn-item{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid #f3cfa6;cursor:pointer;font-size:12.5px;line-height:1.6;color:#31465c}
+  .fbn-item:hover{color:#14559c}
+  .fbn-kind{flex-shrink:0;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:8px;background:#f3cfa6;color:#8a6116;margin-top:1px}
+  .fbn-kind.reply{background:#dceaf9;color:#14559c}
+  .fbn-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+  .fbn-more{padding-top:6px;border-top:1px solid #f3cfa6;margin-top:2px;font-size:12px;color:#8a6116}
+  @media(max-width:414px){.fbn-t{white-space:normal}}
   /* 年度自报三卡片 + 档案入口核对提示 + 审核页签 */
   .gw-origin-hint{background:#fff8e8;border:1px solid #f3cfa6;color:#8a6116;border-radius:8px;padding:6px 10px;font-size:12.5px;margin:0 0 8px;line-height:1.7}
   .gw-origin-hint .lk{cursor:pointer;color:#14559c;font-weight:600}
@@ -2387,6 +2409,11 @@ window.__yfLoadLib=(function(){
       <button class="estab" data-et="templates" onclick="expTab('templates')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8m8 4H8"/></svg> 方案模板 <span class="exp-cnt" id="cntTpls">0</span></button>
       <div class="exp-search"><input id="expQ" placeholder="搜索标题/标签/作者…" oninput="expRender()"></div>
     </div>
+    <!-- 管理端：录入经验（A 方案 2026-10-07）——录入后存云端 exp_cases，全站可见并可跨设备同步 -->
+    <div id="expAdminBar" style="display:none;margin:-4px 0 12px">
+      <button class="up-btn" onclick="expFormOpen()">＋ 录入经验</button>
+      <span class="muted" style="font-size:12px;margin-left:8px">录入后全站可见、跨设备同步；站点头像账号不可录入。</span>
+    </div>
     <div id="expContent" class="exp-content"></div>
   </div>
 
@@ -2396,6 +2423,8 @@ window.__yfLoadLib=(function(){
       <div class="fb-main">
         <!-- 版块导航区（天涯式版块索引，移植自完成版） -->
         <div id="fbBoardIndex" class="fb-board-index"></div>
+        <!-- 论坛消息提醒条 FBN：新帖（管理端）/ 回复我的帖子（人人） -->
+        <div id="fbnBar" class="fbn-bar" role="status" aria-live="polite"></div>
         <!-- 热门帖子网格 -->
         <div class="fb-hot" id="fbHot">
           <div class="fb-hot-head"><span class="fb-hot-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;fill:currentColor;stroke:none;vertical-align:-3px"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><b>热门话题</b><span class="fb-hot-sub">精选高赞帖子，点击查看详情</span><button class="fb-hot-toggle" id="fbHotToggleBtn" onclick="fbHotToggle()">更多热门 ›</button></div>
@@ -3763,6 +3792,7 @@ var YF_CLOUD=(function(){
           newIds.forEach(function(id){if(d.indexOf(id)<0){d.push(id);ch=true;}});
           if(ch)markSynced(d);
           fbSave();
+          if(typeof fbnScan==='function')try{fbnScan();}catch(e){}
           if(typeof fbList==='function')fbList();
           if(typeof fbChips==='function')fbChips();
           if(fbView&&typeof fbDetail==='function')fbDetail();
@@ -4394,7 +4424,7 @@ function submitKb(){
   var scope=document.getElementById('kbScope').value;
   if(!title && !content){ kbMsg('标题和内容至少填一个'); return; }
   yfApi('/kb','POST',{title:title,content:content,type:type,scope:scope}).then(function(j){
-    if(j&&j.ok){ kbMsg('已提交，全站智子都能学到这条'); document.getElementById('kbTitle').value=''; document.getElementById('kbContent').value=''; loadKbList(); }
+    if(j&&j.ok){ kbMsg('已提交，全站智子都能学到这条'); document.getElementById('kbTitle').value=''; document.getElementById('kbContent').value=''; loadKbList(); try{ kcCloudLoad(); }catch(e){} }
     else kbMsg((j&&j.error)||'提交失败');
   });
 }
@@ -4479,6 +4509,7 @@ async function synthesizeChat(){
     if(btn){ btn.disabled=false; btn.textContent='沉淀本次对话'; }
     if(j&&j.ok){
       var e=j.entry;
+      try{ kcCloudLoad(); }catch(err){}   /* 新沉淀立即可用于本地兜底，无需等下次开智子 */
       gwNotice('已沉淀为脱敏知识卡，共享给全站',
                '<b>【'+e.type+'】'+e.title+'</b><br>'+String(e.content||'').replace(/\n/g,'<br>')
                +'<br><span style="font-size:12.5px;color:#7a8a9a">已自动去掉站点名／人名／具体数字，只留通用经验。其他站的智子也能学到，你的原始对话仍仅你可见。</span>', 'ok', 9000);
@@ -4487,6 +4518,7 @@ async function synthesizeChat(){
 }
 /* 打开智子时恢复上次对话（跨会话记忆：关了再开它还记得） */
 async function restoreBotHistory(){
+  try{ kcCloudLoad(); }catch(e){}   /* 顺带刷新云端知识库本地镜像（兜底路径要用） */
   try{
     var j=await yfApi('/chat/history','GET',null);
     if(j&&j.ok&&j.rows&&j.rows.length){
@@ -4551,6 +4583,42 @@ const COMPOUND=[
   {need:['备案'],t:'备案机制是什么'},
   {need:['节奏'],t:'浆站运营节奏怎么排'}
 ];
+/* ============ 云端共享知识库的前端缓存（2026-10-07） ============
+   服务端 handleChat 已把 bot_kb 注入大模型 prompt（4 类沉淀之一）；
+   但**未接大模型 / 模型两次失败 / 断网**时走的是本地兜底 askKB，而它原先只读硬编码 KB。
+   这里把云端 bot_kb 拉下来做本地镜像，让「教智子 / 文件解析 / 对话沉淀」的知识在兜底路径同样可用。
+   只读缓存、失败静默（保持离线可用）；开智子、复述历史时刷新。 */
+var KC_CLOUD=[];
+/* 云端条目的关键词派生：本地 KB 的 kw 是人工精编短词（如 ['家长','献浆','质疑']），
+   云端是自动派生——只按标点切标题会切成整段（'家长群运营'），提问里几乎不会原样出现整段，
+   等于打不中。故对中文长片段再补 3 字滑窗（'家长群'/'群运营'），让「家长群没人说话怎么办」
+   这类自然提问能命中「家长群运营：把小组长拉进群」。 */
+function kcKwFromTitle(t){
+  var parts=String(t||'').split(/[：:（(）、,，。；;｜|\/\s]+/).filter(function(x){ return x&&x.length>=2; });
+  var out=[];
+  parts.forEach(function(p){
+    out.push(p);
+    var han=p.replace(/[^\u4e00-\u9fa5]/g,'');
+    if(han.length>=4){ for(var i=0;i+3<=han.length;i++){ out.push(han.slice(i,i+3)); } }
+  });
+  var seen={},res=[];
+  out.forEach(function(w){ if(w&&w.length>=2&&!seen[w]){ seen[w]=1; res.push(w); } });
+  return res.slice(0,40);
+}
+function kcCloudLoad(cb){
+  if(typeof yfApi!=='function'){ if(typeof cb==='function')cb(); return; }
+  yfApi('/kb','GET',null).then(function(j){
+    if(j&&j.ok&&Array.isArray(j.rows)){
+      KC_CLOUD=j.rows.filter(function(k){ return k&&(k.title||k.content); }).map(function(k){
+        var t=(k.title||'（无标题）').toString();
+        var kw=kcKwFromTitle(t);
+        if(!kw.length)kw=[t.slice(0,8)];
+        return { cat:'共享', t:t, a:(k.content||'').toString(), kw:kw, cloud:1, by:k.by||'', type:k.type||'知识' };
+      });
+    }
+    if(typeof cb==='function')cb();
+  }).catch(function(){ if(typeof cb==='function')cb(); });
+}
 function normQ(q){let s=q.toLowerCase();for(const g in SYN){SYN[g].forEach(w=>{s=s.split(w).join(g);});}return s;}
 function scoreKB(q,item){
   const raw=q.toLowerCase();const ql=normQ(q);
@@ -4574,7 +4642,12 @@ function askKB(q,hist){
   const full=(q.trim().length<=6&&last)?last+' '+q:q;
   const ql=normQ(full);
   const rawQ=q.toLowerCase();
-  const detail=(it)=>'【'+it.cat+'·'+it.t+'】\n'+it.a+'\n\n（基于扬帆真实运营数据、工具包、年度策略与经典案例整理；更细请查对应工具包或事业部年度策略）';
+  const detail=(it)=>{
+    const note = (it&&it.cloud)
+      ? '\n\n（来自共享知识库 · '+(it.by||'全站')+' '+(it.type||'知识')+'；由各站沉淀，供全站复用）'
+      : '\n\n（基于扬帆真实运营数据、工具包、年度策略与经典案例整理；更细请查对应工具包或事业部年度策略）';
+    return '【'+it.cat+'·'+it.t+'】\n'+it.a+note;
+  };
 
   // ② 站名识别——问"做法/经验/数据情况"都返回该站详情；短句追问（如「那五河呢」）也直接返回该站
   const STATION_NAMES=['怀远','五河','凤台','商都','灵璧','泾县','舒城','南陵','怀集','翁旗','左旗','龙游','叶集','定安','广德','庐江','宿松','乐昌','丰镇','扎旗','扎赉特旗'];
@@ -4612,6 +4685,10 @@ function askKB(q,hist){
 
   // ③ 常规关键词打分（策略/站点加权已并入 scoreKB）
   let best=null,bs=0;KB.forEach(it=>{const s=scoreKB(full,it);if(s>bs){bs=s;best=it;}});
+  /* 云端共享知识库同场竞技（2026-10-07）：未接大模型 / 模型两次失败 / 断网时，
+     「教智子」手填、文件解析、对话沉淀出来的知识必须也能被答出来 —— 否则"越用越聪明"在兜底路径上失效。
+     与本地条目共用同一套打分与阈值分支，命中即按来源标注。 */
+  if(KC_CLOUD.length){ KC_CLOUD.forEach(it=>{const s=scoreKB(full,it);if(s>bs){bs=s;best=it;}}); }
 
   // ④ 案例类处理
   const isCaseAsk=rawQ.includes('案例')||rawQ.includes('失败')||rawQ.includes('教训')||rawQ.includes('标杆')||rawQ.includes('成功例子')||rawQ.includes('举个例子');
@@ -6829,7 +6906,7 @@ function forumTab(which){
   document.getElementById('forumExp').style.display=(which==='exp')?'':'none';
   document.getElementById('forumDiscuss').style.display=(which==='discuss')?'':'none';
   if(which==='exp')expRender();
-  if(which==='discuss'){fbRank();fbList();}
+  if(which==='discuss'){fbRank();fbList();if(typeof fbnRender==='function')try{fbnRender();}catch(e){}}
 }
 function expTab(which){
   EXP_TAB=which;
@@ -6840,18 +6917,27 @@ function expRender(){
   const q=(document.getElementById('expQ')?document.getElementById('expQ').value:'').trim().toLowerCase();
   const el=document.getElementById('expContent');
   if(!el)return;
+  /* 录入入口仅管理端可见（A 方案：仅管理端录入） */
+  const ab=document.getElementById('expAdminBar');
+  if(ab)ab.style.display=(typeof yfIsAdmin==='function'&&yfIsAdmin())?'':'none';
   if(EXP_TAB==='cases')el.innerHTML=expRenderCases(q);
   else if(EXP_TAB==='templates')el.innerHTML=expRenderTemplates(q);
   else if(EXP_TAB==='photos')el.innerHTML=expRenderPhotos(q);
 }
+/* 云端录入的条目（exp_cases）与内置种子合并：**云端在前**（最新录入优先展示），种子在后作兜底。
+   云端不可达时 EXP_CLOUD 为空数组，页面自动退化为纯种子——不影响离线可用。 */
+function expCaseList(){ return EXP_CLOUD.filter(function(k){ return k&&k.kind!=='template'; }).concat(SEED_CASES); }
+function expTplList(){ return EXP_CLOUD.filter(function(k){ return k&&k.kind==='template'; }).concat(SEED_TEMPLATES); }
+function expIsCloud(o){ return !!(o&&o.cloudFlag); }
+function expSrcTag(o){ return expIsCloud(o)?'<span class="exp-src">云端</span>':''; }
 function expRenderCases(q){
-  const cases=SEED_CASES.filter(c=>!q||(c.title+c.summary+c.station+c.author+(c.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
+  const cases=expCaseList().filter(c=>!q||((c.title||'')+(c.summary||'')+(c.station||'')+(c.author||'')+(c.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
   if(!cases.length)return '<div class="exp-empty"><div class="ee-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div><div class="ee-txt">暂无匹配的案例</div></div>';
   return '<div class="case-grid">'+cases.map(c=>{
     const tags=(c.tags||[]).slice(0,4).map(t=>'<span class="cc-tag">'+esc(t)+'</span>').join('');
     const pc=c.photos&&c.photos.length?c.photos.length+' 张照片':'暂无照片';
     return '<div class="case-card" onclick="caseShow(\''+c.id+'\')">'
-      +'<div class="cc-head"><span class="cc-cat">'+esc(c.category)+'</span><span class="cc-station">'+esc(c.station)+'</span><span class="cc-author">'+esc(c.author)+'</span></div>'
+      +'<div class="cc-head"><span class="cc-cat">'+esc(c.category)+'</span><span class="cc-station">'+esc(c.station)+'</span><span class="cc-author">'+esc(c.author)+'</span>'+expSrcTag(c)+'</div>'
       +'<div class="cc-title">'+esc(c.title)+'</div>'
       +'<div class="cc-sum">'+esc(c.summary)+'</div>'
       +'<div class="cc-tags">'+tags+'</div>'
@@ -6860,21 +6946,21 @@ function expRenderCases(q){
   }).join('')+'</div>';
 }
 function expRenderTemplates(q){
-  const tpls=SEED_TEMPLATES.filter(t=>!q||(t.name+t.desc+t.station+t.author+(t.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
+  const tpls=expTplList().filter(t=>!q||((t.name||'')+(t.desc||'')+(t.station||'')+(t.author||'')+(t.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
   if(!tpls.length)return '<div class="exp-empty"><div class="ee-icon"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;stroke-width:1.5;vertical-align:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8m8 4H8"/></svg></div><div class="ee-txt">暂无匹配的方案模板</div></div>';
   return '<div class="tpl-grid">'+tpls.map(t=>{
     return '<div class="tpl-card" onclick="tplShow(\''+t.id+'\')">'
       +'<span class="tc-cat">'+esc(t.category)+'</span>'
       +'<div class="tc-title">'+esc(t.name)+'</div>'
       +'<div class="tc-desc">'+esc(t.desc)+'</div>'
-      +'<div class="tc-meta"><span><b>'+esc(t.station)+'</b> · '+esc(t.author)+'</span><span>'+t.sections.length+' 个章节 →</span></div>'
+      +'<div class="tc-meta"><span><b>'+esc(t.station)+'</b> · '+esc(t.author)+expSrcTag(t)+'</span><span>'+t.sections.length+' 个章节 →</span></div>'
       +'</div>';
   }).join('')+'</div>';
 }
 function expRenderPhotos(q){
   // 收集所有照片
   let all=[];
-  SEED_CASES.forEach(c=>{
+  expCaseList().forEach(c=>{
     (c.photos||[]).forEach((p,i)=>{
       all.push({cap:p.cap,st:p.station||p.st,caseTitle:c.title,cid:c.id,idx:i});
     });
@@ -6889,19 +6975,22 @@ function expRenderPhotos(q){
   }).join('')+'</div>';
 }
 function caseShow(id){
-  const c=SEED_CASES.find(x=>x.id===id);if(!c)return;
-  const resHtml=c.results?'<div class="res-grid">'+Object.entries(c.results).map(([k,v])=>'<div class="res-item"><div class="rn">'+esc(v)+'</div><div class="rm">'+esc(k)+'</div></div>').join('')+'</div>':'';
+  const c=expCaseList().find(x=>x.id===id);if(!c)return;
+  const hasRes=c.results&&Object.keys(c.results).length;
+  const resHtml=hasRes?'<div class="res-grid">'+Object.entries(c.results).map(([k,v])=>'<div class="res-item"><div class="rn">'+esc(v)+'</div><div class="rm">'+esc(k)+'</div></div>').join('')+'</div>':'<div style="color:#5e7da0;font-size:12.5px">暂无数据</div>';
   const photosHtml=(c.photos&&c.photos.length)?'<div class="cm-photos">'+c.photos.map(p=>'<div class="cm-photo"><div class="pn"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> '+esc(p.st||'')+'</div><div class="pc">'+esc(p.cap)+'</div></div>').join('')+'</div>':'<div style="color:#5e7da0;font-size:12.5px">暂无照片</div>';
   const noteHtml=c.note?'<div class="cm-section"><h4>补充说明</h4><div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:10px 12px;color:#7a4a1a;font-size:12.5px;line-height:1.7">'+esc(c.note)+'</div></div>':'';
-  const h='<div class="um-head"><h3>'+esc(c.title)+'</h3><button class="um-x" onclick="caseHide()" aria-label="关闭">'+yfIco('x')+'</button></div>'
-    +'<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center"><span class="cc-cat">'+esc(c.category)+'</span><span style="color:#5e7da0;font-size:12.5px">'+esc(c.station)+' · '+esc(c.author)+'</span></div>'
-    +'<div class="cm-section"><h4>案例摘要</h4><div style="font-size:13.5px;color:#44647a;line-height:1.7">'+esc(c.summary)+'</div></div>'
-    +'<div class="cm-section"><h4>面临的挑战</h4><div class="cm-challenge">'+esc(c.challenge)+'</div></div>'
-    +'<div class="cm-section"><h4>解决方案</h4><div class="cm-solution"><ol style="margin:0;padding-left:20px">'+c.solution.map(s=>'<li style="margin-bottom:4px">'+esc(s)+'</li>').join('')+'</ol></div></div>'
-    +'<div class="cm-section"><h4>取得成果</h4><div class="cm-results">'+resHtml+'</div></div>'
-    +'<div class="cm-section"><h4>关键金句</h4><div class="cm-quote"><span class="qtxt">'+esc(c.quote)+'</span></div></div>'
-    +'<div class="cm-section"><h4>可复用性</h4><div style="background:#f4f9ff;border-left:3px solid #4ea3e8;padding:10px 14px;border-radius:6px;font-size:13px;color:#17324d;line-height:1.7">'+esc(c.transferable)+'</div></div>'
-    +'<div class="cm-section"><h4>现场照片 ('+(c.photos?c.photos.length:0)+' 张)</h4>'+photosHtml+'</div>'
+  const sec=(t,b)=>b?'<div class="cm-section"><h4>'+t+'</h4>'+b+'</div>':'';
+  const delBtn=expIsCloud(c)?'<button class="exp-del" onclick="expDelete(\''+c.id+'\',\'案例\')" aria-label="删除">删除</button>':'';
+  const h='<div class="um-head"><h3>'+esc(c.title)+'</h3>'+delBtn+'<button class="um-x" onclick="caseHide()" aria-label="关闭">'+yfIco('x')+'</button></div>'
+    +'<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center"><span class="cc-cat">'+esc(c.category)+'</span><span style="color:#5e7da0;font-size:12.5px">'+esc(c.station||'')+' · '+esc(c.author||'')+'</span>'+expSrcTag(c)+'</div>'
+    +sec('案例摘要','<div style="font-size:13.5px;color:#44647a;line-height:1.7">'+esc(c.summary||'')+'</div>')
+    +sec('面临的挑战',c.challenge?'<div class="cm-challenge">'+esc(c.challenge)+'</div>':'')
+    +sec('解决方案',(c.solution&&c.solution.length)?'<div class="cm-solution"><ol style="margin:0;padding-left:20px">'+c.solution.map(s=>'<li style="margin-bottom:4px">'+esc(s)+'</li>').join('')+'</ol></div>':'')
+    +sec('取得成果',hasRes?'<div class="cm-results">'+resHtml+'</div>':'')
+    +sec('关键金句',c.quote?'<div class="cm-quote"><span class="qtxt">'+esc(c.quote)+'</span></div>':'')
+    +sec('可复用性',c.transferable?'<div style="background:#f4f9ff;border-left:3px solid #4ea3e8;padding:10px 14px;border-radius:6px;font-size:13px;color:#17324d;line-height:1.7">'+esc(c.transferable)+'</div>':'')
+    +sec('现场照片（'+(c.photos?c.photos.length:0)+' 张）',photosHtml)
     +noteHtml;
   let m=document.getElementById('caseMask');
   if(!m){m=document.createElement('div');m.id='caseMask';m.className='um-mask';m.innerHTML='<div class="um-modal case-modal">'+h+'</div>';document.body.appendChild(m);}
@@ -6913,11 +7002,12 @@ function loadCasePhotos(cid){
   // 占位：真实部署时照片文件应放在 photos/ 目录；当前未携带图床
 }
 function tplShow(id){
-  const t=SEED_TEMPLATES.find(x=>x.id===id);if(!t)return;
-  const h='<div class="um-head"><h3>'+esc(t.name)+'</h3><button class="um-x" onclick="tplHide()" aria-label="关闭">'+yfIco('x')+'</button></div>'
-    +'<div style="margin-bottom:14px;color:#5e7da0;font-size:12.5px">'+esc(t.station)+' · '+esc(t.author)+' · '+esc(t.category)+'</div>'
-    +'<div style="background:#eef5fc;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#17324d;line-height:1.7">'+esc(t.desc)+'</div>'
-    +t.sections.map(s=>'<div class="tm-section"><h5>'+esc(s.title)+'</h5><div class="tm-body '+(s.editable?'tm-editable':'')+'">'+esc(s.body)+'</div></div>').join('')
+  const t=expTplList().find(x=>x.id===id);if(!t)return;
+  const tplDel=expIsCloud(t)?'<button class="exp-del" onclick="expDelete(\''+t.id+'\',\'模板\')" aria-label="删除">删除</button>':'';
+  const h='<div class="um-head"><h3>'+esc(t.name)+'</h3>'+tplDel+'<button class="um-x" onclick="tplHide()" aria-label="关闭">'+yfIco('x')+'</button></div>'
+    +'<div style="margin-bottom:14px;color:#5e7da0;font-size:12.5px">'+esc(t.station||'')+' · '+esc(t.author||'')+' · '+esc(t.category)+expSrcTag(t)+'</div>'
+    +'<div style="background:#eef5fc;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#17324d;line-height:1.7">'+esc(t.desc||'')+'</div>'
+    +(t.sections||[]).map(s=>'<div class="tm-section"><h5>'+esc(s.title)+'</h5><div class="tm-body '+(s.editable?'tm-editable':'')+'">'+esc(s.body)+'</div></div>').join('')
     +'<div style="text-align:right;margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="tplCopy(\''+t.id+'\')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> 复制全文</button><button class="up-btn" onclick="tplHide()">知道了</button></div>';
   let m=document.getElementById('tplMask');
   if(!m){m=document.createElement('div');m.id='tplMask';m.className='um-mask';m.innerHTML='<div class="um-modal tpl-modal">'+h+'</div>';document.body.appendChild(m);}
@@ -6925,17 +7015,125 @@ function tplShow(id){
 }
 function tplHide(){const m=document.getElementById('tplMask');if(m)m.style.display='none';}
 function tplCopy(id){
-  const t=SEED_TEMPLATES.find(x=>x.id===id);if(!t)return;
-  const txt=t.name+'\n\n'+t.desc+'\n\n'+t.sections.map(s=>s.title+'\n'+s.body).join('\n\n');
+  const t=expTplList().find(x=>x.id===id);if(!t)return;
+  const txt=t.name+'\n\n'+(t.desc||'')+'\n\n'+(t.sections||[]).map(s=>s.title+'\n'+s.body).join('\n\n');
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>toast('已复制全文到剪贴板'));}
   else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('已复制全文到剪贴板');}
 }
 function expInit(){
   // 顶部计数
   const c1=document.getElementById('cntCases'),c2=document.getElementById('cntTpls');
-  if(c1)c1.textContent=SEED_CASES.length;
-  if(c2)c2.textContent=SEED_TEMPLATES.length;
+  if(c1)c1.textContent=expCaseList().length;
+  if(c2)c2.textContent=expTplList().length;
   expRender();
+  expCloudLoad();
+}
+
+/* ============ 经验广场 · 云端录入（A 方案，2026-10-07） ============
+   背景：原 SEED_CASES / SEED_TEMPLATES 硬编码在 index.html ⇒ 加一条经验必须改码 + 重新部署。
+   现改为「管理端录入 → 云端集合 exp_cases → 全站可见 + 跨设备同步」，内置种子保留作兜底。
+   写路径：POST /data {col:'exp_cases', data:<整份数组>} —— 走 body.data 整份覆写分支，
+   该分支服务端**强制 admin**，与「仅管理端录入」口径天然一致（站点账号写不进去）。
+   读路径：GET /data?col=exp_cases。云端不可达时 EXP_CLOUD 保持空数组，页面退化为纯种子，离线可用。 */
+var EXP_CLOUD=[];
+function expRefreshCounts(){
+  const c1=document.getElementById('cntCases'),c2=document.getElementById('cntTpls');
+  if(c1)c1.textContent=expCaseList().length;
+  if(c2)c2.textContent=expTplList().length;
+}
+function expCloudLoad(cb){
+  if(typeof yfApi!=='function'){ if(typeof cb==='function')cb(); return; }
+  yfApi('/data?col=exp_cases','GET',null).then(function(j){
+    if(j&&j.ok){
+      var rows=j.rows||j.data||[];
+      if(Array.isArray(rows)){
+        EXP_CLOUD=rows.filter(function(k){ return k&&k.id; }).map(function(k){ k.cloudFlag=1; return k; });
+        expRefreshCounts(); expRender();
+      }
+    }
+    if(typeof cb==='function')cb();
+  }).catch(function(){ if(typeof cb==='function')cb(); });
+}
+function expCloudSave(cb){
+  yfApi('/data','POST',{ col:'exp_cases', data:EXP_CLOUD }).then(function(j){
+    if(j&&j.ok){ expRefreshCounts(); expRender(); if(typeof cb==='function')cb(true); }
+    else { toast('保存失败：'+((j&&j.msg)||(j&&j.error)||'云端未接受')); if(typeof cb==='function')cb(false); }
+  }).catch(function(){ toast('保存失败：网络不可达，请稍后重试'); if(typeof cb==='function')cb(false); });
+}
+function expFv(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; }
+function expFormType(v){
+  var isTpl=(v==='template');
+  var t=document.getElementById('expFTplOnly'); if(t)t.style.display=isTpl?'':'none';
+  var c=document.getElementById('expFCaseOnly'); if(c)c.style.display=isTpl?'none':'';
+}
+function expFormOpen(){
+  if(!(typeof yfIsAdmin==='function'&&yfIsAdmin())){ toast('仅管理端可录入经验'); return; }
+  var h='<div class="um-head"><h3>录入经验</h3><button class="um-x" onclick="expFormClose()" aria-label="关闭">'+yfIco('x')+'</button></div>'
+    +'<div class="expf-hint">录入后存入云端 <b>exp_cases</b>，全站可见、跨设备同步；内置种子案例仍会一起展示。带（必填）的必须填。</div>'
+    +'<div class="expf-row"><label>类型<select id="expF_kind" onchange="expFormType(this.value)"><option value="case">案例（问题→做法→成效）</option><option value="template">方案模板（分章节）</option></select></label>'
+    +'<label>分类<span style="color:#d6463c">（必填）</span><input id="expF_cat" placeholder="如 招募面试 / 活动策划"></label></div>'
+    +'<div class="expf-row"><label class="wide">标题<span style="color:#d6463c">（必填）</span><input id="expF_title" placeholder="一句话说清做法"></label></div>'
+    +'<div class="expf-row"><label>浆站<input id="expF_station" placeholder="如 怀远"></label>'
+    +'<label>作者<input id="expF_author" placeholder="如 戴涛"></label>'
+    +'<label>标签<input id="expF_tags" placeholder="逗号分隔，如 学生自治，家长群"></label></div>'
+    +'<div id="expFCaseOnly">'
+    +'<div class="expf-row"><label class="wide">摘要<span style="color:#d6463c">（必填）</span><textarea id="expF_summary" placeholder="两三句说清这个做法是什么"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">面临的挑战<textarea id="expF_challenge" placeholder="当时卡在哪"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">解决方案<textarea id="expF_solution" placeholder="一行一条"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">取得成果<textarea id="expF_results" placeholder="一行一条，写成 名称｜数值，如 累计邀约｜221人"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">关键金句<textarea id="expF_quote" placeholder="一句原话"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">可复用性<textarea id="expF_transfer" placeholder="什么样的站点可以直接照搬"></textarea></label></div>'
+    +'</div>'
+    +'<div id="expFTplOnly" style="display:none">'
+    +'<div class="expf-row"><label class="wide">说明<span style="color:#d6463c">（必填）</span><textarea id="expF_desc" placeholder="这套模板解决什么问题"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">章节<textarea id="expF_sections" placeholder="一行一章，写成 标题｜正文，如 一、参会人员｜业务+质量+学生志愿者"></textarea></label></div>'
+    +'</div>'
+    +'<div style="text-align:right;margin-top:12px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="expFormClose()">取消</button><button class="up-btn" id="expFSaveBtn" onclick="expFormSubmit()">保存到云端</button></div>';
+  var m=document.getElementById('expFMask');
+  if(!m){ m=document.createElement('div'); m.id='expFMask'; m.className='um-mask'; m.innerHTML='<div class="um-modal" style="width:min(620px,94vw);max-height:88dvh;overflow:auto">'+h+'</div>'; document.body.appendChild(m); }
+  else { m.querySelector('.um-modal').innerHTML=h; m.style.display=''; }
+  expFormType('case');
+}
+function expFormClose(){ var m=document.getElementById('expFMask'); if(m)m.style.display='none'; }
+function expLines(id){ return expFv(id).split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){return s;}); }
+function expFormSubmit(){
+  var kind=expFv('expF_kind')||'case';
+  var title=expFv('expF_title'), cat=expFv('expF_cat');
+  var needs=(kind==='template')?[{v:expFv('expF_desc'),n:'说明'}]:[{v:expFv('expF_summary'),n:'摘要'}];
+  if(!title){ toast('请填写标题'); return; }
+  if(!cat){ toast('请填写分类'); return; }
+  for(var i=0;i<needs.length;i++){ if(!needs[i].v){ toast('请填写'+needs[i].n); return; } }
+  var station=expFv('expF_station'), author=expFv('expF_author');
+  var tags=expFv('expF_tags').split(/[,，]/).map(function(s){return s.trim();}).filter(function(s){return s;});
+  var btn=document.getElementById('expFSaveBtn'); if(btn){ btn.disabled=true; btn.textContent='保存中…'; }
+  var ts=Date.now();
+  if(kind==='template'){
+    var sections=expLines('expF_sections').map(function(line){
+      var p=line.split(/[｜|]/); var t=(p[0]||'').trim(); var b=(p.slice(1).join('｜')||'').trim();
+      return { title:t||line, body:b, editable:false };
+    }).filter(function(s){ return s.title; });
+    EXP_CLOUD.unshift({ id:'t-'+ts, kind:'template', cloudFlag:1, name:title, station:station, author:author, category:cat, tags:tags, desc:expFv('expF_desc'), sections:sections });
+  } else {
+    var results={}; expLines('expF_results').forEach(function(line){
+      var p=line.split(/[｜|]/); var k=(p[0]||'').trim(); var v=(p.slice(1).join('｜')||'').trim();
+      if(k)results[k]=v||'—';
+    });
+    EXP_CLOUD.unshift({ id:'c-'+ts, kind:'case', cloudFlag:1, title:title, station:station, author:author, category:cat, tags:tags, summary:expFv('expF_summary'), challenge:expFv('expF_challenge'), solution:expLines('expF_solution'), results:results, quote:expFv('expF_quote'), transferable:expFv('expF_transfer'), photos:[] });
+  }
+  expCloudSave(function(ok){
+    if(btn){ btn.disabled=false; btn.textContent='保存到云端'; }
+    if(ok){ expFormClose(); toast('已保存，全站可见'); if(typeof expTab==='function')expTab(kind==='template'?'templates':'cases'); }
+  });
+}
+function expDelete(id,label){
+  if(!(typeof yfIsAdmin==='function'&&yfIsAdmin())){ toast('仅管理端可删除'); return; }
+  if(!confirm('删除这条云端'+label+'？内置种子不受影响。'))return;
+  var before=EXP_CLOUD.length;
+  EXP_CLOUD=EXP_CLOUD.filter(function(k){ return k.id!==id; });
+  if(EXP_CLOUD.length===before)return;
+  expCloudSave(function(ok){
+    if(ok){ if(typeof caseHide==='function')caseHide(); if(typeof tplHide==='function')tplHide(); toast('已删除'); }
+  });
 }
 
 /* ============ 话术库（解惑模块） ============ */
@@ -12283,6 +12481,8 @@ function fbeBoot(){
   fbeLoadRoles(); fbeLoadRules();
   fbeLoadMine(function(){ try{ if(fbProfileView===yfUsername()&&typeof fbProfileRender==='function')fbProfileRender(); }catch(e){} });
   fbDmPoll();
+  if(typeof fbnScan==='function'){ try{ fbnScan(); }catch(e){} }
+  if(typeof kcCloudLoad==='function'){ try{ kcCloudLoad(); }catch(e){} }
   /* 预载联系人名单（角色接口返回后再取，保证版主/超版也能进名单） */
   if(typeof fbDmContacts==='function'){
     setTimeout(function(){ try{ fbDmContacts(function(){}); }catch(e){} },300);
@@ -12304,8 +12504,11 @@ function fbDmPoll(){
   });
 }
 function fbDmBadge(n){
+  /* 私信未读与论坛提醒未读合并显示在侧栏「交流论坛」红点（FBN 2026-10-07） */
+  _fbnDmUnread=Number(n)||0;
+  if(typeof fbnBadgeRefresh==='function'){ fbnBadgeRefresh(); return; }
   var d=document.getElementById('fbDmDot');
-  if(d) d.style.display=n>0?'inline-block':'none';
+  if(d) d.style.display=_fbnDmUnread>0?'inline-block':'none';
 }
 /* ---- 联系人名单：让「发给谁」可选，不再靠手打精确账号名 ----
    来源：①论坛帖子作者与回复作者（全员可见，站级主来源）；②版主/超级版主（/v1/forum/roles 公开读）；
@@ -13678,6 +13881,94 @@ if(typeof window!=='undefined'){
     },
     FB_ROLES_REF:function(){ return FB_ROLES; }
   };
+}
+/* ============ 论坛消息提醒 FBN（2026-10-07）：新帖（管理端）/ 回复我的帖子（人人） ============
+   设计：纯前端差量检测，状态只落本机 localStorage，不新增云端端点、不改云端契约。
+   · 首次启用建立基线（把当前已有帖子记为已见），避免历史帖一次性轰炸。
+   · 新帖提醒仅管理端产生（站里发帖 → 管理端有提示）；「他人回复我的帖子」对所有角色产生。
+   · 未读数与私信未读合并显示在侧栏「交流论坛」入口红点（#fbDmDot）。 */
+var FBN_KEY='yf_fbn_v1';
+var _fbnDmUnread=0;
+function fbnLoad(){ try{ var o=JSON.parse(localStorage.getItem(FBN_KEY)||'{}'); return (o&&typeof o==='object'&&!Array.isArray(o))?o:{}; }catch(e){ return {}; } }
+function fbnSave(st){ try{ localStorage.setItem(FBN_KEY,JSON.stringify(st)); }catch(e){} }
+function fbnOthers(p,me){ var n=0; ((p&&p.replies)||[]).forEach(function(r){ if(r&&r.author&&r.author!==me)n++; }); return n; }
+function fbnLastOther(p,me){ var last=''; ((p&&p.replies)||[]).forEach(function(r){ if(r&&r.author&&r.author!==me)last=r.author; }); return last; }
+function fbnPush(st,item){
+  st.list=st.list||[];
+  var dup=st.list.some(function(x){ return x.k===item.k&&x.pid===item.pid&&x.by===item.by; });
+  if(dup)return;
+  st.list.push(item);
+  if(st.list.length>50)st.list=st.list.slice(st.list.length-50);
+}
+function fbnUnreadOf(st){ st.list=st.list||[]; return st.list.filter(function(x){ return !x.read; }).length; }
+function fbnScan(){
+  if(typeof FB==='undefined'||!FB||!Array.isArray(FB.posts))return;
+  var me=(typeof yfUsername==='function')?yfUsername():'';
+  var isAdmin=(typeof yfIsAdmin==='function')?yfIsAdmin():false;
+  var st=fbnLoad();
+  st.seenPosts=st.seenPosts||{}; st.seenReplies=st.seenReplies||{}; st.list=st.list||[];
+  if(!st.boot){
+    FB.posts.forEach(function(p){ if(!p||!p.id)return; st.seenPosts[p.id]=1; if(p.author===me)st.seenReplies[p.id]=fbnOthers(p,me); });
+    st.boot=1; fbnSave(st); fbnBadgeRefresh(); fbnRender(); return;
+  }
+  FB.posts.forEach(function(p){
+    if(!p||!p.id||Number(p.del||0)>0)return;
+    if(!st.seenPosts[p.id]){
+      st.seenPosts[p.id]=1;
+      if(isAdmin&&p.author&&p.author!==me){
+        fbnPush(st,{ k:'post', pid:p.id, title:p.title||'（无标题）', by:p.author, ts:Number(p.time)||Date.now(), read:0 });
+      }
+    }
+    if(p.author===me){
+      var c=fbnOthers(p,me), prev=st.seenReplies[p.id];
+      if(prev===undefined){ st.seenReplies[p.id]=c; }
+      else if(c>prev){
+        st.seenReplies[p.id]=c;
+        fbnPush(st,{ k:'reply', pid:p.id, title:p.title||'（无标题）', by:fbnLastOther(p,me)||'有人', ts:Date.now(), read:0 });
+      }
+    }
+  });
+  fbnSave(st); fbnBadgeRefresh(); fbnRender();
+}
+function fbnBadgeRefresh(){
+  var n=(_fbnDmUnread||0)+fbnUnreadOf(fbnLoad());
+  var d=document.getElementById('fbDmDot');
+  if(d)d.style.display=n>0?'inline-block':'none';
+}
+function fbnEsc(s){ return (typeof esc==='function')?esc(String(s==null?'':s)):String(s==null?'':s); }
+function fbnRender(){
+  var el=document.getElementById('fbnBar'); if(!el)return;
+  var st=fbnLoad();
+  var un=(st.list||[]).filter(function(x){ return !x.read; });
+  if(!un.length){ el.style.display='none'; el.innerHTML=''; return; }
+  var rows=un.slice(-3).reverse().map(function(x){
+    var tag=(x.k==='reply')?'<span class="fbn-kind reply">回复</span>':'<span class="fbn-kind">新帖</span>';
+    var pid=String(x.pid).replace(/[^\w-]/g,'');
+    var txt=(x.k==='reply')
+      ? ('「'+fbnEsc(x.by)+'」回复了你的帖子《'+fbnEsc(x.title)+'》')
+      : ('「'+fbnEsc(x.by)+'」发布了新帖《'+fbnEsc(x.title)+'》');
+    return '<li class="fbn-item" onclick="fbnOpen(\''+pid+'\')">'+tag+'<span class="fbn-t">'+txt+'</span></li>';
+  }).join('');
+  var more=un.length>3?('<div class="fbn-more">另有 '+(un.length-3)+' 条未读提醒</div>'):'';
+  el.innerHTML='<div class="fbn-bar-hd"><b>论坛有 '+un.length+' 条新提醒</b><span class="fbn-bar-all" onclick="fbnReadAll()">全部已读</span></div>'
+    +'<ul class="fbn-list">'+rows+'</ul>'+more;
+  el.style.display='';
+}
+function fbnOpen(pid){
+  var st=fbnLoad();
+  (st.list||[]).forEach(function(x){ if(String(x.pid)===String(pid))x.read=1; });
+  fbnSave(st); fbnBadgeRefresh(); fbnRender();
+  try{ applyTab('forum'); forumTab('discuss'); if(typeof fbOpen==='function')fbOpen(pid); }catch(e){}
+}
+function fbnReadAll(){
+  var st=fbnLoad();
+  (st.list||[]).forEach(function(x){ x.read=1; });
+  if(st.list&&st.list.length>50)st.list=st.list.slice(st.list.length-50);
+  fbnSave(st); fbnBadgeRefresh(); fbnRender();
+}
+if(typeof document!=='undefined'){
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',function(){ try{ fbnScan(); }catch(e){} }); }
+  else { try{ fbnScan(); }catch(e){} }
 }
 /*FBE-END*/
 

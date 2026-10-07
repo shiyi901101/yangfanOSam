@@ -1150,8 +1150,8 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(H.indexOf('data-id="ka-qual">深度经营 · 质量管理') >= 0 && H.indexOf('data-id="ka-comm">科普渗透 · 沟通管理') >= 0 && H.indexOf('到场把控 · 沟通管理') < 0 && H.indexOf('入营守成 · 执行过程组') < 0, 'GW16：学习路线 chips 四项新映射（删到场把控/入营守成，新增科普渗透）');
   assert(H.indexOf('20 站排第') < 0 && H.indexOf('｜20 站中位') < 0 && H.indexOf('六项能力条') < 0 && H.indexOf('短板有六项') < 0, 'GW17：「20 站/六项」静态写死根除');
   assert(gwSrcAll.indexOf("bk.n+' 站排第 <b>'") >= 0 && gwSrcAll.indexOf("GW.CAPS.length+' 项") >= 0, 'GW18：站数/项数随数据动态（bk.n / CAPS.length）');
-  /* ---- 对数修正批次（camp[0] 分母同源，PM 验证口径 1.522/0.674/1.744） ---- */
-  assert(GW_SRC.indexOf('camp0:camp[0]||0') >= 0, 'GW19：raw 携带 camp0（camp[0]=季累计入营）——四能力分母数据源');
+  /* ---- 季合计口径批次（分子分母同源逐月求和；旧「最新月单月」口径已废） ---- */
+  assert(GW_SRC.indexOf('camp0:q.camp0') >= 0 && /function seasonRec\(st\)/.test(GW_SRC), 'GW19：raw 携带 camp0（季合计·逐月求和）——四能力分母数据源');
   assert(GW_SRC.indexOf('cardper: m.camp0 ? m.card/m.camp0') >= 0 && GW_SRC.indexOf('m.r2 ? m.card/m.r2') < 0, 'GW20：转化设计分母 = camp0（与 PM 达标线/分布/相关性同源）');
   assert(GW_SRC.indexOf('arr.slice().sort(function(a,b){return a-b;})') >= 0 && GW_SRC.indexOf('arr.filter(function(x){return x>0;})') < 0, 'GW21：中位数含零值全站（PM 口径，剔零会虚高基准）');
   assert(gwSrcAll.indexOf('÷ 入营人数') < 0 && (gwSrcAll.match(/÷ 季累计入营人数/g) || []).length >= 4, 'GW22：CAPS fx/口径说明统一「季累计入营」表述（旧的「÷ 入营人数」根除）');
@@ -2058,7 +2058,7 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   const p0Left = (htmlMain.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu) || []);
   assert(p0Left.length === 0, 'ICO3：★反向——P0 口径全文 emoji 计数归零（实际 ' + p0Left.length + '，改前 60）');
   /* 调用点数量与清单一致（防漏改） */
-  assert(cntIn(htmlMain, "yfIco('") === 26, 'ICO4：yfIco 调用点数量与清单一致（=26；B2 新增 2 处 chev：时间线连接符 + 回看链接；B-4 新增 1 处 chev：Sprint 节奏时间线）');
+  assert(cntIn(htmlMain, "yfIco('") === 27, 'ICO4：yfIco 调用点数量与清单一致（=27；B2 新增 2 处 chev：时间线连接符 + 回看链接；B-4 新增 1 处 chev：Sprint 节奏时间线；B5 新增 1 处 x：经验广场录入弹窗关闭键）');
   assert(cntIn(htmlMain, '<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>') === 11,
     'ICO4：静态标记内联关闭图标数量与清单一致（=11）');
   assert(cntIn(htmlMain, '<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>') === 1,
@@ -2069,8 +2069,8 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
      原来靠文本「✕/×」撑着的按钮会变成无名控件（WCAG 4.1.2），AT 只会念「按钮」。
      ICO6 钉死已知 12 个关闭按钮；ICO7 是通用反向规则，管住后续新增的仅图标按钮。 */
   const XSVG = '<svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
-  assert(cntIn(htmlMain, 'class="um-x"') === 12, 'ICO6：um-x 关闭按钮 12 个（9 静态 + 3 JS 生成）');  assert((htmlMain.match(/class="um-x"[^>]*aria-label="关闭"/g) || []).length === 12,
-    'ICO6：★12 个 um-x 全部带可访问名 aria-label="关闭"（实际 ' + (htmlMain.match(/class="um-x"[^>]*aria-label="关闭"/g) || []).length + ' 个）');
+  assert(cntIn(htmlMain, 'class="um-x"') === 13, 'ICO6：um-x 关闭按钮 13 个（9 静态 + 4 JS 生成；B5 新增经验广场录入弹窗）');  assert((htmlMain.match(/class="um-x"[^>]*aria-label="关闭"/g) || []).length === 13,
+    'ICO6：★13 个 um-x 全部带可访问名 aria-label="关闭"（实际 ' + (htmlMain.match(/class="um-x"[^>]*aria-label="关闭"/g) || []).length + ' 个）');
   /* ICO7 通用反向：仅含图标、无任何文本的按钮，开标签里必须有 aria-label / title */
   const unnamed = [];
   const staticOnly = htmlMain.match(/<button[^>]*>(?:<svg[\s\S]{0,400}?<\/svg>)<\/button>/g) || [];
@@ -2087,7 +2087,7 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
     if (tag.indexOf('aria-label=') < 0 && tag.indexOf('title=') < 0) unnamed.push('JS: ' + b.slice(0, 90));
   });
   assert(staticOnly.length === 14, 'ICO7：静态仅图标按钮 14 个（9 um-x + ann-close + 4 处带 title 的图标位）——防断言空转（实际 ' + staticOnly.length + '）');
-  assert(jsOnly.length === 5, 'ICO7：JS 生成的仅图标按钮 5 个（实际 ' + jsOnly.length + ' 个：3 um-x 带 aria-label + 2 rule-del 靠 title）');
+  assert(jsOnly.length === 6, 'ICO7：JS 生成的仅图标按钮 6 个（实际 ' + jsOnly.length + ' 个：4 um-x 带 aria-label + 2 rule-del 靠 title；B5 新增经验广场录入弹窗关闭键）');
   assert(unnamed.length === 0, 'ICO7：★反向——仅含图标的按钮零无名控件（实际 ' + unnamed.length + ' 个：' + unnamed.join(' | ') + '）');
   /* 字符型关闭字形不得与内联图标在同一 affordance 家族里混用 */
   assert(cntIn(htmlMain, '>×</button>') === 3 && cntIn(htmlMain, XSVG) === 11,
