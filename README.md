@@ -16,9 +16,10 @@
 .
 ├── index.html                      # 主应用（单文件，五模块全在里面；组件库/学习系统/成长报告已 base64 内嵌）
 ├── 扬帆OS_综合平台v4.html          # 主平台（五个模块合一）
-├── 扬帆OS_学习系统v5.html          # 学习系统（内嵌于主平台，也可独立打开）
 ├── 扬帆OS_成长报告生成器.html      # 学生成长报告生成器（独立打开）
 ├── dash_data.js                    # 看板数据（各站上报的月度汇总）
+├── _archive/                       # 已弃用的历史文件（不参与运行时，勿改、勿据此比对）
+│   └── 扬帆OS_学习系统v5.html      # 旧独立学习页；学习系统运行时以 index.html 内嵌 learnSrc 为准
 ├── libs/
 │   ├── pptxgen.bundle.js           # PPT 生成组件（同源部署，无 CDN）
 │   └── xlsx.full.min.js            # Excel 解析组件（同源部署，无 CDN）
