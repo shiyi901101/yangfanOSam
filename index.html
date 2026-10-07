@@ -861,6 +861,24 @@ window.__yfLoadLib=(function(){
   .expf-row textarea{min-height:58px;resize:vertical}
   .expf-hint{font-size:11.5px;color:var(--muted);margin:-4px 0 8px;line-height:1.6}
   .exp-del{background:none;border:none;border-bottom:1px dashed #b9d6f2;font-family:inherit;font-size:12px;color:#8a6116;cursor:pointer;margin-left:auto;margin-right:8px;padding:2px 0;white-space:nowrap}
+  /* 经验广场·我的提交（浆站先审后发，2026-10-07）：待审/驳回徽标 + 驳回理由 + 改后重提入口 */
+  .expmine{margin:0 0 12px;border:1px solid #d3e2f0;border-radius:10px;background:#f4f9ff;padding:10px 14px}
+  .expmine-h{font-size:12.5px;font-weight:700;color:#0d2c4d;margin-bottom:6px;line-height:1.6}
+  .expmine-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px dashed #d3e2f0;flex-wrap:wrap}
+  .expmine-row:first-of-type{border-top:0;padding-top:2px}
+  .expmine-kd{font-size:11px;color:#14559c;background:#dceaf9;border-radius:8px;padding:1px 7px;white-space:nowrap}
+  .expmine-ti{font-size:13px;font-weight:600;color:#17324d;flex:1 1 160px;min-width:0;line-height:1.5}
+  .expmine-bd{font-size:11px;border-radius:8px;padding:1px 8px;white-space:nowrap}
+  .expmine-bd.p{background:#fffbe6;color:#8a6116;border:1px solid #ffe58f}
+  .expmine-bd.r{background:#fdecec;color:#c0392b}
+  .expmine-tm{font-size:11.5px;color:#5e7da0;white-space:nowrap}
+  .expmine-note{flex:1 1 100%;font-size:11.5px;color:#c0392b;background:#fdecec;border-left:3px solid #c0392b;border-radius:4px;padding:5px 9px;line-height:1.6}
+  /* 经验审核（管理端·论坛管理页）行样式复用 .fbe-pf-row，仅补徽标 */
+  .exa-bd{font-size:11px;border-radius:8px;padding:1px 8px;white-space:nowrap;margin-left:6px}
+  .exa-bd.p{background:#fffbe6;color:#8a6116;border:1px solid #ffe58f}
+  .exa-bd.r{background:#fdecec;color:#c0392b}
+  .exa-req{font-size:11.5px;color:#c0392b;line-height:1.6}
+  .exa-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:2px 0 8px}
   .exp-content{min-height:300px}
   /* 案例卡片 */
   .case-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
@@ -2409,11 +2427,15 @@ window.__yfLoadLib=(function(){
       <button class="estab" data-et="templates" onclick="expTab('templates')"><svg class="eic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8m8 4H8"/></svg> 方案模板 <span class="exp-cnt" id="cntTpls">0</span></button>
       <div class="exp-search"><input id="expQ" placeholder="搜索标题/标签/作者…" oninput="expRender()"></div>
     </div>
-    <!-- 管理端：录入经验（A 方案 2026-10-07）——录入后存云端 exp_cases，全站可见并可跨设备同步 -->
+    <!-- 经验录入入口（2026-10-07 双向）：管理端录入即发布（走 /data，服务端强制 admin）；
+         浆站提交进待审，管理端批准才发布（先审后发）。按钮文案由 expRender 按角色改写。 -->
     <div id="expAdminBar" style="display:none;margin:-4px 0 12px">
-      <button class="up-btn" onclick="expFormOpen()">＋ 录入经验</button>
-      <span class="muted" style="font-size:12px;margin-left:8px">录入后全站可见、跨设备同步；站点头像账号不可录入。</span>
+      <button class="up-btn" id="expFormBtn" onclick="expFormOpen()">＋ 录入经验</button>
+      <button class="mini-btn" id="expAuditBtn" style="display:none;margin-left:8px" onclick="expGoAudit()">经验审核</button>
+      <span class="muted" id="expAdminHint" style="font-size:12px;margin-left:8px"></span>
     </div>
+    <!-- 浆站本人「我的提交」：待审/驳回状态 + 驳回理由 + 改后重提（仅站点账号显示） -->
+    <div id="expMineWrap" style="display:none"></div>
     <div id="expContent" class="exp-content"></div>
   </div>
 
@@ -2629,10 +2651,11 @@ window.__yfLoadLib=(function(){
   <div class="fa-sec"><div class="fa-sec-t">版主与超级版主</div><div id="frRoles">加载中…</div></div>
   <div class="fa-sec"><div class="fa-sec-t">积分规则</div><div id="frRules">加载中…</div></div>
   <div class="fa-sec"><div class="fa-sec-t">勋章管理（增删改 + 授予 / 撤销）</div><div id="frMedals">加载中…</div></div>
-  <div class="fa-sec"><div class="fa-sec-t">档案与年度自报审核</div>
-    <div class="fa-tabs"><button class="fa-tab on" id="faTabPf" onclick="faAuditTab('pf')">档案审核</button><button class="fa-tab" id="faTabSr" onclick="faAuditTab('sr')">年度自报审核</button></div>
+  <div class="fa-sec"><div class="fa-sec-t">档案 / 年度自报 / 经验审核</div>
+    <div class="fa-tabs"><button class="fa-tab on" id="faTabPf" onclick="faAuditTab('pf')">档案审核</button><button class="fa-tab" id="faTabSr" onclick="faAuditTab('sr')">年度自报审核</button><button class="fa-tab" id="faTabEx" onclick="faAuditTab('ex')">经验审核</button></div>
     <div id="pfPendingList">加载中…</div>
     <div id="srPendingList" style="display:none">加载中…</div>
+    <div id="exPendingList" style="display:none">加载中…</div>
   </div>
 </section>
 
@@ -6917,9 +6940,23 @@ function expRender(){
   const q=(document.getElementById('expQ')?document.getElementById('expQ').value:'').trim().toLowerCase();
   const el=document.getElementById('expContent');
   if(!el)return;
-  /* 录入入口仅管理端可见（A 方案：仅管理端录入） */
-  const ab=document.getElementById('expAdminBar');
-  if(ab)ab.style.display=(typeof yfIsAdmin==='function'&&yfIsAdmin())?'':'none';
+  /* 录入入口按角色分叉（2026-10-07）：
+     · 管理端 —— 录入即发布（POST /data 整份覆写，服务端强制 admin）；
+     · 站点账号 —— 提交后进待审，管理端批准才发布（先审后发）。 */
+  var isAdm=(typeof yfIsAdmin==='function'&&yfIsAdmin());
+  var canSub=(typeof yfIsStation==='function'&&yfIsStation());
+  var ab=document.getElementById('expAdminBar');
+  if(ab){
+    ab.style.display=(isAdm||canSub)?'':'none';
+    var fb=document.getElementById('expFormBtn'); if(fb)fb.textContent=isAdm?'＋ 录入经验':'＋ 提交经验';
+    var au=document.getElementById('expAuditBtn');
+    if(au){ au.style.display=isAdm?'':'none'; au.textContent='经验审核'+(EXP_AUDIT_N>0?'（'+EXP_AUDIT_N+'）':''); }
+    var hg=document.getElementById('expAdminHint');
+    if(hg) hg.textContent=isAdm
+      ? (EXP_AUDIT_N>0?'有 '+EXP_AUDIT_N+' 条浆站提交待你审核。':'录入后全站可见、跨设备同步。')
+      : '提交后经管理员审核通过才全站可见；被驳回可修改后重提。';
+  }
+  expMineRender();
   if(EXP_TAB==='cases')el.innerHTML=expRenderCases(q);
   else if(EXP_TAB==='templates')el.innerHTML=expRenderTemplates(q);
   else if(EXP_TAB==='photos')el.innerHTML=expRenderPhotos(q);
@@ -7027,14 +7064,84 @@ function expInit(){
   if(c2)c2.textContent=expTplList().length;
   expRender();
   expCloudLoad();
+  /* 角色各自的数据：站点账号拉「我的提交」，管理端拉待审条数 */
+  if(expCanSubmit()) expMineLoad();
+  if(typeof yfIsAdmin==='function'&&yfIsAdmin()) expAuditCountLoad();
 }
 
-/* ============ 经验广场 · 云端录入（A 方案，2026-10-07） ============
+/* ============ 经验广场 · 先审后发（浆站提交 → 管理端审核，2026-10-07） ============
+   背景：A 方案（管理端录入 → exp_cases 直接发布）已上线；本轮放开浆站录入，
+   但浆站提交**不直接进 exp_cases**，而是进「按站分片」的待审存储（yf-data/exp_pending_{slug}.json），
+   管理端在「论坛管理 → 经验审核」批准后才写进 exp_cases（全站可见）。
+   可见性靠结构隔离：待审/驳回条目根本不在前端读的 exp_cases 里，故读已发布逻辑一行未改。
+   契约（与云函数并行，以后端实际落地为准）：
+     POST /v1/exp/submit  {id?,kind,category,title|name,…}      → {ok,pending:true,id}
+     GET  /v1/exp/mine                                          → {ok,items:[条目含 status/note]}
+     GET  /v1/exp/pending                                       → {ok,pending:[{station,slug,id,kind,title,status,note,submittedAt,by,entry}]}
+     POST /v1/exp/approve {decision,items:[{station,id}],note?}  → {ok,decision,done,skipped}
+   状态机：pending → approve 入册 / reject 标驳回+理由（留待审，本人可见理由）；
+   改后重提 = 覆盖式（带同 id 提交即原地覆盖，status 复位 pending、清空理由）。 */
+var EXP_AUDIT_N=-1;      // 管理端待审条数（-1=未知，用于按钮角标）
+var EXP_MINE=[];         // 站点账号本人的待审/驳回条目
+var EXP_EDIT_ID='';      // 正在「改后重提」覆盖的条目 id（空=新增）
+function expCanSubmit(){ return !!(typeof yfIsStation==='function'&&yfIsStation()); }
+function expAuditCountLoad(){
+  if(!(typeof yfIsAdmin==='function'&&yfIsAdmin()))return;
+  if(typeof yfApi!=='function')return;
+  yfApi('/v1/exp/pending','GET',null).then(function(j){
+    if(j&&j.ok&&Array.isArray(j.pending)){ EXP_AUDIT_N=j.pending.length; expRender(); }
+  }).catch(function(){});
+}
+function expMineLoad(cb){
+  if(!expCanSubmit()){ EXP_MINE=[]; expMineRender(); if(typeof cb==='function')cb(); return; }
+  if(typeof yfApi!=='function'){ if(typeof cb==='function')cb(); return; }
+  yfApi('/v1/exp/mine','GET',null).then(function(j){
+    EXP_MINE=(j&&j.ok&&Array.isArray(j.items))?j.items:[];
+    expMineRender();
+    if(typeof cb==='function')cb();
+  }).catch(function(){ EXP_MINE=[]; expMineRender(); if(typeof cb==='function')cb(); });
+}
+function expMineRender(){
+  var wrap=document.getElementById('expMineWrap'); if(!wrap)return;
+  if(!expCanSubmit()||!EXP_MINE.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+  var pad=function(n){ return (n<10?'0':'')+n; };
+  var nPending=0,nRej=0;
+  var rows=EXP_MINE.map(function(e){
+    var kd=(e.kind==='template')?'方案模板':'案例';
+    var ti=(e.kind==='template'?e.name:e.title)||'（无标题）';
+    var rej=(e.status==='rejected');
+    if(rej)nRej++; else nPending++;
+    var d=new Date(e.submittedAt||0);
+    var tm=pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    return '<div class="expmine-row"><span class="expmine-kd">'+kd+'</span>'
+      +'<span class="expmine-ti">'+esc(ti)+'</span>'
+      +(rej?'<span class="expmine-bd r">已驳回</span>':'<span class="expmine-bd p">待审中</span>')
+      +'<span class="expmine-tm">'+tm+'</span>'
+      +'<button class="mini-btn" onclick="expFormOpen(\''+e.id+'\')">'+(rej?'修改后重提':'查看并修改')+'</button>'
+      +'</div>'
+      +(rej&&e.note?'<div class="expmine-note">驳回理由：'+esc(e.note)+'（修改后重新提交即可覆盖本次）</div>':'');
+  }).join('');
+  wrap.style.display='';
+  wrap.innerHTML='<div class="expmine"><div class="expmine-h">我的提交（待审 '+nPending+' 条 · 已驳回 '+nRej+' 条）——审核通过后全站可见</div>'+rows+'</div>';
+}
+/* 管理端从经验广场一键跳到「论坛管理 → 经验审核」 */
+function expGoAudit(){
+  try{ applyTab('forumadmin'); }catch(e){}
+  try{ if(typeof faAuditTab==='function')faAuditTab('ex'); }catch(e){}
+}
+
+/* ============ 经验广场 · 云端读写（2026-10-07；当日再改：写路径收口） ============
    背景：原 SEED_CASES / SEED_TEMPLATES 硬编码在 index.html ⇒ 加一条经验必须改码 + 重新部署。
-   现改为「管理端录入 → 云端集合 exp_cases → 全站可见 + 跨设备同步」，内置种子保留作兜底。
-   写路径：POST /data {col:'exp_cases', data:<整份数组>} —— 走 body.data 整份覆写分支，
-   该分支服务端**强制 admin**，与「仅管理端录入」口径天然一致（站点账号写不进去）。
-   读路径：GET /data?col=exp_cases。云端不可达时 EXP_CLOUD 保持空数组，页面退化为纯种子，离线可用。 */
+   现改为「云端集合 exp_cases → 全站可见 + 跨设备同步」，内置种子保留作兜底。
+   读路径：GET /data?col=exp_cases。云端不可达时 EXP_CLOUD 保持空数组，页面退化为纯种子，离线可用。
+   写路径（**唯一**，均服务端加锁串行）：
+     · 管理端录入      POST /v1/exp/submit   （admin 分支 = 录入即发布）
+     · 站点提交        POST /v1/exp/submit   （站点分支 = 进待审分片，先审后发）
+     · 管理端审核通过  POST /v1/exp/approve  （移出待审 + append 进 exp_cases）
+     · 管理端删除      POST /v1/exp/delete
+   硬约束：不再使用 POST /data{col:'exp_cases',data:整份数组}：那是「读整份→改→写回」，
+   与「审核通过 append」并存时会互相抹掉对方刚写入的条目。云函数里该分支仍保留（仅 admin，兜底），
+   但前端已无调用方。 */
 var EXP_CLOUD=[];
 function expRefreshCounts(){
   const c1=document.getElementById('cntCases'),c2=document.getElementById('cntTpls');
@@ -7054,86 +7161,128 @@ function expCloudLoad(cb){
     if(typeof cb==='function')cb();
   }).catch(function(){ if(typeof cb==='function')cb(); });
 }
-function expCloudSave(cb){
-  yfApi('/data','POST',{ col:'exp_cases', data:EXP_CLOUD }).then(function(j){
-    if(j&&j.ok){ expRefreshCounts(); expRender(); if(typeof cb==='function')cb(true); }
-    else { toast('保存失败：'+((j&&j.msg)||(j&&j.error)||'云端未接受')); if(typeof cb==='function')cb(false); }
-  }).catch(function(){ toast('保存失败：网络不可达，请稍后重试'); if(typeof cb==='function')cb(false); });
-}
+/* 这里原先有一个 expCloudSave（POST /data {col:'exp_cases', data:<整份数组>}）。
+   2026-10-07 引入「站点提交 → 管理端先审后发」后，exp_cases 出现第二个写者（审核通过 append）；
+   两个「读整份→改→写回」的写者并发会互相抹掉对方的条目。故整条链收口到服务端唯一写路径：
+   录入/审核通过/删除分别走 POST /v1/exp/submit(admin) / /v1/exp/approve / /v1/exp/delete，
+   统一由服务端 expCasesMutate 加锁串行。该函数已无调用方，删除以免日后被误用重新引入竞争。 */
 function expFv(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; }
 function expFormType(v){
   var isTpl=(v==='template');
   var t=document.getElementById('expFTplOnly'); if(t)t.style.display=isTpl?'':'none';
   var c=document.getElementById('expFCaseOnly'); if(c)c.style.display=isTpl?'none':'';
 }
-function expFormOpen(){
-  if(!(typeof yfIsAdmin==='function'&&yfIsAdmin())){ toast('仅管理端可录入经验'); return; }
-  var h='<div class="um-head"><h3>录入经验</h3><button class="um-x" onclick="expFormClose()" aria-label="关闭">'+yfIco('x')+'</button></div>'
-    +'<div class="expf-hint">录入后存入云端 <b>exp_cases</b>，全站可见、跨设备同步；内置种子案例仍会一起展示。带（必填）的必须填。</div>'
-    +'<div class="expf-row"><label>类型<select id="expF_kind" onchange="expFormType(this.value)"><option value="case">案例（问题→做法→成效）</option><option value="template">方案模板（分章节）</option></select></label>'
-    +'<label>分类<span style="color:#d6463c">（必填）</span><input id="expF_cat" placeholder="如 招募面试 / 活动策划"></label></div>'
-    +'<div class="expf-row"><label class="wide">标题<span style="color:#d6463c">（必填）</span><input id="expF_title" placeholder="一句话说清做法"></label></div>'
-    +'<div class="expf-row"><label>浆站<input id="expF_station" placeholder="如 怀远"></label>'
-    +'<label>作者<input id="expF_author" placeholder="如 戴涛"></label>'
-    +'<label>标签<input id="expF_tags" placeholder="逗号分隔，如 学生自治，家长群"></label></div>'
+function expFormOpen(id){
+  var isAdm=(typeof yfIsAdmin==='function'&&yfIsAdmin());
+  if(!isAdm && !expCanSubmit()){ toast('当前账号无经验提交权限'); return; }
+  /* 改后重提：带 id 时从 EXP_MINE（本人待审/驳回条目）取原文预填 ⇒ 覆盖式提交 */
+  var edit=null;
+  if(id){ for(var i=0;i<EXP_MINE.length;i++){ if(EXP_MINE[i]&&EXP_MINE[i].id===id){ edit=EXP_MINE[i]; break; } } }
+  /* 找不到就明确报错并中止 —— 绝不能「静默降级成新建」：
+     那会让一次「改后重提」变成「又提交一条新的」，用户以为覆盖了、其实重复入册。 */
+  if(id && !edit){ toast('未找到这条提交记录，请刷新页面后重试'); return; }
+  EXP_EDIT_ID=edit?edit.id:'';
+  var kind=(edit&&edit.kind==='template')?'template':'case';
+  var isCase=!(edit&&edit.kind==='template');
+  var at=function(x){ return esc(x==null?'':String(x)); };
+  var lines=function(a){ return (Array.isArray(a)?a:[]).join('\n'); };
+  var resLines=function(o){ if(!o||typeof o!=='object')return ''; return Object.keys(o).map(function(k){ return k+'｜'+o[k]; }).join('\n'); };
+  var secLines=function(a){ return (Array.isArray(a)?a:[]).map(function(s){ return (s.title||'')+'｜'+(s.body||''); }).join('\n'); };
+  var stVal=isAdm?((edit&&edit.station)||''):(typeof yfMyStation==='function'?yfMyStation():'');
+  var h='<div class="um-head"><h3>'+(edit?'修改经验（改后重提）':'录入经验')+'</h3><button class="um-x" onclick="expFormClose()" aria-label="关闭">'+yfIco('x')+'</button></div>'
+    +'<div class="expf-hint">'+(isAdm
+      ? '录入后存入云端 <b>exp_cases</b>，全站可见、跨设备同步；内置种子案例仍会一起展示。带（必填）的必须填。'
+      : '提交后进入待审，管理员审核通过才全站可见；被驳回会看到理由，改完重提即覆盖上一次。带（必填）的必须填。')+'</div>'
+    +'<div class="expf-row"><label>类型<select id="expF_kind" onchange="expFormType(this.value)"><option value="case"'+(kind==='case'?' selected':'')+'>案例（问题→做法→成效）</option><option value="template"'+(kind==='template'?' selected':'')+'>方案模板（分章节）</option></select></label>'
+    +'<label>分类<span style="color:#d6463c">（必填）</span><input id="expF_cat" value="'+at(edit?edit.category:'')+'" placeholder="如 招募面试 / 活动策划"></label></div>'
+    +'<div class="expf-row"><label class="wide">标题<span style="color:#d6463c">（必填）</span><input id="expF_title" value="'+at(edit?((edit.kind==='template'?edit.name:edit.title)||''):'')+'" placeholder="一句话说清做法"></label></div>'
+    +'<div class="expf-row"><label>浆站<input id="expF_station" value="'+at(stVal)+'" '+(isAdm?'':'readonly ')+'placeholder="如 怀远"></label>'
+    +'<label>作者<input id="expF_author" value="'+at(edit?edit.author:'')+'" placeholder="如 戴涛"></label>'
+    +'<label>标签<input id="expF_tags" value="'+at(edit&&edit.tags?edit.tags.join('，'):'')+'" placeholder="逗号分隔，如 学生自治，家长群"></label></div>'
     +'<div id="expFCaseOnly">'
-    +'<div class="expf-row"><label class="wide">摘要<span style="color:#d6463c">（必填）</span><textarea id="expF_summary" placeholder="两三句说清这个做法是什么"></textarea></label></div>'
-    +'<div class="expf-row"><label class="wide">面临的挑战<textarea id="expF_challenge" placeholder="当时卡在哪"></textarea></label></div>'
-    +'<div class="expf-row"><label class="wide">解决方案<textarea id="expF_solution" placeholder="一行一条"></textarea></label></div>'
-    +'<div class="expf-row"><label class="wide">取得成果<textarea id="expF_results" placeholder="一行一条，写成 名称｜数值，如 累计邀约｜221人"></textarea></label></div>'
-    +'<div class="expf-row"><label class="wide">关键金句<textarea id="expF_quote" placeholder="一句原话"></textarea></label></div>'
-    +'<div class="expf-row"><label class="wide">可复用性<textarea id="expF_transfer" placeholder="什么样的站点可以直接照搬"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">摘要<span style="color:#d6463c">（必填）</span><textarea id="expF_summary" placeholder="两三句说清这个做法是什么">'+at(isCase&&edit?edit.summary:'')+'</textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">面临的挑战<textarea id="expF_challenge" placeholder="当时卡在哪">'+at(isCase&&edit?edit.challenge:'')+'</textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">解决方案<textarea id="expF_solution" placeholder="一行一条">'+at(isCase&&edit?lines(edit.solution):'')+'</textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">取得成果<textarea id="expF_results" placeholder="一行一条，写成 名称｜数值，如 累计邀约｜221人">'+at(isCase&&edit?resLines(edit.results):'')+'</textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">关键金句<textarea id="expF_quote" placeholder="一句原话">'+at(isCase&&edit?edit.quote:'')+'</textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">可复用性<textarea id="expF_transfer" placeholder="什么样的站点可以直接照搬">'+at(isCase&&edit?edit.transferable:'')+'</textarea></label></div>'
     +'</div>'
     +'<div id="expFTplOnly" style="display:none">'
-    +'<div class="expf-row"><label class="wide">说明<span style="color:#d6463c">（必填）</span><textarea id="expF_desc" placeholder="这套模板解决什么问题"></textarea></label></div>'
-    +'<div class="expf-row"><label class="wide">章节<textarea id="expF_sections" placeholder="一行一章，写成 标题｜正文，如 一、参会人员｜业务+质量+学生志愿者"></textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">说明<span style="color:#d6463c">（必填）</span><textarea id="expF_desc" placeholder="这套模板解决什么问题">'+at(!isCase&&edit?edit.desc:'')+'</textarea></label></div>'
+    +'<div class="expf-row"><label class="wide">章节<textarea id="expF_sections" placeholder="一行一章，写成 标题｜正文，如 一、参会人员｜业务+质量+学生志愿者">'+at(!isCase&&edit?secLines(edit.sections):'')+'</textarea></label></div>'
     +'</div>'
-    +'<div style="text-align:right;margin-top:12px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="expFormClose()">取消</button><button class="up-btn" id="expFSaveBtn" onclick="expFormSubmit()">保存到云端</button></div>';
+    +'<div style="text-align:right;margin-top:12px;display:flex;gap:10px;justify-content:flex-end"><button class="mini-btn" onclick="expFormClose()">取消</button><button class="up-btn" id="expFSaveBtn" onclick="expFormSubmit()">'+(isAdm?'保存到云端':'提交审核')+'</button></div>';
   var m=document.getElementById('expFMask');
   if(!m){ m=document.createElement('div'); m.id='expFMask'; m.className='um-mask'; m.innerHTML='<div class="um-modal" style="width:min(620px,94vw);max-height:88dvh;overflow:auto">'+h+'</div>'; document.body.appendChild(m); }
   else { m.querySelector('.um-modal').innerHTML=h; m.style.display=''; }
-  expFormType('case');
+  expFormType(kind);
 }
-function expFormClose(){ var m=document.getElementById('expFMask'); if(m)m.style.display='none'; }
+function expFormClose(){ var m=document.getElementById('expFMask'); if(m)m.style.display='none'; EXP_EDIT_ID=''; }
 function expLines(id){ return expFv(id).split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){return s;}); }
-function expFormSubmit(){
+function expBuildEntry(){
   var kind=expFv('expF_kind')||'case';
   var title=expFv('expF_title'), cat=expFv('expF_cat');
   var needs=(kind==='template')?[{v:expFv('expF_desc'),n:'说明'}]:[{v:expFv('expF_summary'),n:'摘要'}];
-  if(!title){ toast('请填写标题'); return; }
-  if(!cat){ toast('请填写分类'); return; }
-  for(var i=0;i<needs.length;i++){ if(!needs[i].v){ toast('请填写'+needs[i].n); return; } }
+  if(!title){ toast('请填写标题'); return null; }
+  if(!cat){ toast('请填写分类'); return null; }
+  for(var i=0;i<needs.length;i++){ if(!needs[i].v){ toast('请填写'+needs[i].n); return null; } }
   var station=expFv('expF_station'), author=expFv('expF_author');
   var tags=expFv('expF_tags').split(/[,，]/).map(function(s){return s.trim();}).filter(function(s){return s;});
-  var btn=document.getElementById('expFSaveBtn'); if(btn){ btn.disabled=true; btn.textContent='保存中…'; }
-  var ts=Date.now();
   if(kind==='template'){
     var sections=expLines('expF_sections').map(function(line){
       var p=line.split(/[｜|]/); var t=(p[0]||'').trim(); var b=(p.slice(1).join('｜')||'').trim();
       return { title:t||line, body:b, editable:false };
     }).filter(function(s){ return s.title; });
-    EXP_CLOUD.unshift({ id:'t-'+ts, kind:'template', cloudFlag:1, name:title, station:station, author:author, category:cat, tags:tags, desc:expFv('expF_desc'), sections:sections });
-  } else {
-    var results={}; expLines('expF_results').forEach(function(line){
-      var p=line.split(/[｜|]/); var k=(p[0]||'').trim(); var v=(p.slice(1).join('｜')||'').trim();
-      if(k)results[k]=v||'—';
-    });
-    EXP_CLOUD.unshift({ id:'c-'+ts, kind:'case', cloudFlag:1, title:title, station:station, author:author, category:cat, tags:tags, summary:expFv('expF_summary'), challenge:expFv('expF_challenge'), solution:expLines('expF_solution'), results:results, quote:expFv('expF_quote'), transferable:expFv('expF_transfer'), photos:[] });
+    return { kind:'template', name:title, station:station, author:author, category:cat, tags:tags, desc:expFv('expF_desc'), sections:sections };
   }
-  expCloudSave(function(ok){
-    if(btn){ btn.disabled=false; btn.textContent='保存到云端'; }
-    if(ok){ expFormClose(); toast('已保存，全站可见'); if(typeof expTab==='function')expTab(kind==='template'?'templates':'cases'); }
+  var results={}; expLines('expF_results').forEach(function(line){
+    var p=line.split(/[｜|]/); var k=(p[0]||'').trim(); var v=(p.slice(1).join('｜')||'').trim();
+    if(k)results[k]=v||'—';
   });
+  return { kind:'case', title:title, station:station, author:author, category:cat, tags:tags, summary:expFv('expF_summary'), challenge:expFv('expF_challenge'), solution:expLines('expF_solution'), results:results, quote:expFv('expF_quote'), transferable:expFv('expF_transfer'), photos:[] };
+}
+function expFormSubmit(){
+  var isAdm=(typeof yfIsAdmin==='function'&&yfIsAdmin());
+  var entry=expBuildEntry(); if(!entry)return;
+  var btn=document.getElementById('expFSaveBtn');
+  /* 管理端：录入即发布 —— 走 POST /v1/exp/submit 的 admin 分支（服务端 append）。
+     硬约束：不再用 POST /data{data:整份数组}：那条是「读整份→改→写回」，与「站点提交被审核通过」
+     并发时会互相抹掉对方刚写入的条目（无痕丢失）。收口到服务端唯一写路径后不存在该竞争。 */
+  if(isAdm){
+    entry.id=(entry.kind==='template'?'t-':'c-')+Date.now();
+    if(btn){ btn.disabled=true; btn.textContent='保存中…'; }
+    yfApi('/v1/exp/submit','POST',entry).then(function(j){
+      if(btn){ btn.disabled=false; btn.textContent='保存到云端'; }
+      if(j&&j.ok){
+        expFormClose(); toast('已保存，全站可见');
+        if(typeof expCloudLoad==='function') expCloudLoad();   // 以服务端为准重拉（本地不再自行 unshift）
+        if(typeof expTab==='function')expTab(entry.kind==='template'?'templates':'cases');
+      } else toast((j&&j.msg)||(j&&j.error)||'保存失败');
+    }).catch(function(){ if(btn){ btn.disabled=false; btn.textContent='保存到云端'; } toast('保存失败：网络不可达，请稍后重试'); });
+    return;
+  }
+  /* 站点账号：提交待审（先审后发）。带 EXP_EDIT_ID = 改后重提、覆盖式。 */
+  if(!expCanSubmit()){ toast('仅站点负责人与管理端可提交经验'); return; }
+  if(EXP_EDIT_ID) entry.id=EXP_EDIT_ID;
+  if(btn){ btn.disabled=true; btn.textContent='提交中…'; }
+  yfApi('/v1/exp/submit','POST',entry).then(function(j){
+    if(btn){ btn.disabled=false; btn.textContent='提交审核'; }
+    if(j&&j.ok){ expFormClose(); toast('已提交，待管理员审核'); expMineLoad(); }
+    else toast((j&&j.msg)||(j&&j.error)||'提交失败');
+  }).catch(function(){ if(btn){ btn.disabled=false; btn.textContent='提交审核'; } toast('提交失败：网络不可达，请稍后重试'); });
 }
 function expDelete(id,label){
   if(!(typeof yfIsAdmin==='function'&&yfIsAdmin())){ toast('仅管理端可删除'); return; }
+  if(EXP_CLOUD.filter(function(k){ return k.id===id; }).length===0)return;
   if(!confirm('删除这条云端'+label+'？内置种子不受影响。'))return;
-  var before=EXP_CLOUD.length;
-  EXP_CLOUD=EXP_CLOUD.filter(function(k){ return k.id!==id; });
-  if(EXP_CLOUD.length===before)return;
-  expCloudSave(function(ok){
-    if(ok){ if(typeof caseHide==='function')caseHide(); if(typeof tplHide==='function')tplHide(); toast('已删除'); }
-  });
+  /* 走服务端删除（与录入/审核共用同一把 exp_cases 写锁），不再整份覆写 */
+  yfApi('/v1/exp/delete','POST',{ id:id }).then(function(j){
+    if(j&&j.ok){
+      if(typeof caseHide==='function')caseHide(); if(typeof tplHide==='function')tplHide();
+      toast('已删除');
+      if(typeof expCloudLoad==='function') expCloudLoad();
+    } else toast((j&&j.msg)||(j&&j.error)||'删除失败');
+  }).catch(function(){ toast('删除失败：网络不可达'); });
 }
 
 /* ============ 话术库（解惑模块） ============ */
@@ -10303,7 +10452,9 @@ function applyTab(tab){
   try{ if(tab==='hq'&&typeof renderHQ==='function')renderHQ(); }catch(e){}
   try{ if(tab==='exp'&&typeof renderBench==='function')renderBench(); }catch(e){}
   try{ if(tab==='rhythm'&&typeof renderRhythm==='function')renderRhythm(); }catch(e){}
-  try{ if(tab==='forumadmin'&&typeof frLoadAdmin==='function'){ frLoadAdmin(); pfLoadPending(); if(typeof srLoadPending==='function') srLoadPending(); } }catch(e){}
+  /* 审核页：进页统一落到「档案审核」页签并只拉当前页签数据（2026-10-07：三页签后
+     改为按需加载——原先无论看哪个页签都并发拉 pf+sr，加经验审核会变 3 个请求）。 */
+  try{ if(tab==='forumadmin'&&typeof frLoadAdmin==='function'){ frLoadAdmin(); if(typeof faAuditTab==='function')faAuditTab('pf'); } }catch(e){}
   /* 智子：切进来直接停在最新一条（否则容器 scrollTop 归零，历史长了要手动翻） */
   try{ if(tab==='bot'&&typeof botScrollLatest==='function')botScrollLatest(); }catch(e){}
 }
@@ -13371,16 +13522,119 @@ function srSubmit(sec){
   });
 }
 /* ---------- 管理端：自报待审页签 + 全站总览 ---------- */
+/* ---------- 管理端：审核页签（档案 / 年度自报 / 经验，三页签互斥） ---------- */
 function faAuditTab(which){
-  var pf=document.getElementById('pfPendingList'), sr=document.getElementById('srPendingList');
+  var pf=document.getElementById('pfPendingList'), sr=document.getElementById('srPendingList'), ex=document.getElementById('exPendingList');
   if(!pf||!sr) return;
-  var showPf=(which!=='sr');
+  var showPf=(which!=='sr'&&which!=='ex');
+  var showSr=(which==='sr');
+  var showEx=(which==='ex');
   pf.style.display=showPf?'block':'none';
-  sr.style.display=showPf?'none':'block';
-  var tp=document.getElementById('faTabPf'), tsr=document.getElementById('faTabSr');
+  sr.style.display=showSr?'block':'none';
+  if(ex) ex.style.display=showEx?'block':'none';
+  var tp=document.getElementById('faTabPf'), tsr=document.getElementById('faTabSr'), tex=document.getElementById('faTabEx');
   if(tp) tp.className='fa-tab'+(showPf?' on':'');
-  if(tsr) tsr.className='fa-tab'+(showPf?'':' on');
-  if(!showPf&&typeof srLoadPending==='function') srLoadPending();
+  if(tsr) tsr.className='fa-tab'+(showSr?' on':'');
+  if(tex) tex.className='fa-tab'+(showEx?' on':'');
+  if(showPf&&typeof pfLoadPending==='function') pfLoadPending();
+  if(showSr&&typeof srLoadPending==='function') srLoadPending();
+  if(showEx&&typeof exLoadPending==='function') exLoadPending();
+}
+/* ---------- 管理端：经验审核（先审后发；按站分组，逐条/整站批量） ----------
+   契约：GET /v1/exp/pending → {ok,pending:[{station,slug,id,kind,title,status,note,submittedAt,by,entry}]}
+        POST /v1/exp/approve {decision,items:[{station,id}],note?} → {ok,decision,done,skipped}
+   通过 = 立刻写入 exp_cases（全站可见，故批准后顺手 expCloudLoad 刷新经验广场）；
+   驳回 = 标驳回态 + 理由留在待审，本人可在经验广场「我的提交」看到理由并改后重提。 */
+var EX_PEND=[];    // 最近一次待审原始行（供整站批量取 ids）
+function exLoadPending(){
+  if(typeof yfIsAdmin!=='function'||!yfIsAdmin()) return;
+  var box=document.getElementById('exPendingList'); if(!box) return;
+  box.innerHTML='<div class="fbe-dm-loading">加载经验待审中…</div>';
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/exp/pending','GET',null).then(function(j){
+    var b2=document.getElementById('exPendingList'); if(!b2) return;
+    if(!j||!j.ok){ b2.innerHTML='<div class="fbe-sec-msg">'+esc((j&&j.msg)||(j&&j.error)||'加载失败')+'</div>'; return; }
+    var rows=j.pending||[];
+    EX_PEND=rows;
+    EXP_AUDIT_N=rows.filter(function(r){ return r.status!=='rejected'; }).length;
+    if(!rows.length){ b2.innerHTML='<div style="color:var(--muted);font-size:12.5px;padding:6px 0">暂无待审经验</div>'; return; }
+    var byStation={}, order=[];
+    rows.forEach(function(r){
+      var k=r.station||'';
+      if(!byStation[k]){ byStation[k]={ list:[] }; order.push(k); }
+      byStation[k].list.push(r);
+    });
+    var pad=function(n){ return (n<10?'0':'')+n; };
+    b2.innerHTML=order.map(function(name){
+      var g=byStation[name];
+      var pend=g.list.filter(function(x){ return x.status!=='rejected'; });
+      var head='<div class="exa-bar"><b>'+esc(name)+'</b><span style="color:var(--muted);font-size:12px">共 '+g.list.length+' 条'+(pend.length!==g.list.length?'（其中已驳回 '+(g.list.length-pend.length)+' 条）':'')+'</span>'
+        +(pend.length?'<button class="mini-btn" onclick="exApproveAll(\''+fbeJ(name)+'\')">整站批准 '+pend.length+' 条</button>':'')+'</div>';
+      var body=g.list.map(function(r){
+        var rej=(r.status==='rejected');
+        var d=new Date(r.submittedAt||0);
+        var t=pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+        var kd=(r.kind==='template')?'方案模板':'案例';
+        var stEnc=fbeJ(name), idEnc=esc(r.id);
+        return '<div class="fbe-pf-row"><div class="fbe-pf-info"><b>'+esc(r.title||'（无标题）')+'</b>'
+          +'<span>'+kd+' · '+esc(r.category||'')+' · '+(r.by?esc(r.by)+' · ':'')+'提交于 '+t+'</span>'
+          +(rej?'<span class="exa-req">已驳回：'+esc(r.note||'（未填理由）')+'（等本人改后重提）</span>':'')
+          +'</div><div class="fbe-pf-acts">'
+          +(rej?'<span class="exa-bd r">已驳回</span>'
+            :'<input id="exNote_'+stEnc+'_'+idEnc+'" class="um-input" placeholder="驳回理由（可选）" style="font-size:12px;padding:4px 8px;max-width:130px">'
+             +'<span class="exa-bd p">待审</span>'
+             +'<button class="mini-btn" onclick="exApprove(\''+stEnc+'\',\''+idEnc+'\',\'approve\')">批准</button>'
+             +'<button class="mini-btn" onclick="exApprove(\''+stEnc+'\',\''+idEnc+'\',\'reject\')">驳回</button>')
+          +'</div></div>'
+          +'<div class="sr-pend-body">'+exPendDetail(r.entry)+'</div>';
+      }).join('');
+      return head+body;
+    }).join('');
+  }).catch(function(){ var b3=document.getElementById('exPendingList'); if(b3) b3.innerHTML='<div class="fbe-sec-msg">加载失败：网络不可达</div>'; });
+}
+function exPendDetail(e){
+  if(!e||typeof e!=='object') return '';
+  if(e.kind==='template'){
+    return '<div><b>说明</b>：'+esc(e.desc||'')+'</div>'
+      +(e.sections||[]).map(function(s){ return '<div><b>'+esc(s.title||'')+'</b>：'+esc(s.body||'')+'</div>'; }).join('');
+  }
+  var out='';
+  if(e.summary) out+='<div><b>摘要</b>：'+esc(e.summary)+'</div>';
+  if(e.challenge) out+='<div><b>挑战</b>：'+esc(e.challenge)+'</div>';
+  if(e.solution&&e.solution.length) out+='<div><b>解决方案</b>：'+e.solution.map(function(s){ return esc(s); }).join('；')+'</div>';
+  if(e.results&&Object.keys(e.results).length) out+='<div><b>成果</b>：'+Object.keys(e.results).map(function(k){ return esc(k)+' '+esc(e.results[k]); }).join('；')+'</div>';
+  if(e.quote) out+='<div><b>金句</b>：'+esc(e.quote)+'</div>';
+  if(e.transferable) out+='<div><b>可复用</b>：'+esc(e.transferable)+'</div>';
+  return out||'<div>（无正文）</div>';
+}
+function exApprove(stationEnc,id,decision){
+  var station='';
+  try{ station=decodeURIComponent(stationEnc); }catch(e){ station=String(stationEnc||''); }
+  var noteEl=document.getElementById('exNote_'+stationEnc+'_'+id);
+  var note=noteEl?(noteEl.value||'').trim():'';
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/exp/approve','POST',{ decision:decision, items:[{ station:station, id:id }], note:note }).then(function(j){
+    if(j&&j.ok){
+      toast(decision==='approve'?'已批准，已发布到经验广场':'已驳回，等本人改后重提');
+      if(decision==='approve'&&typeof expCloudLoad==='function') expCloudLoad();
+      exLoadPending(); if(typeof expAuditCountLoad==='function') expAuditCountLoad();
+    } else toast((j&&j.msg)||(j&&j.error)||'操作失败');
+  }).catch(function(){ toast('操作失败：网络不可达'); });
+}
+function exApproveAll(stationEnc){
+  var station='';
+  try{ station=decodeURIComponent(stationEnc); }catch(e){ station=String(stationEnc||''); }
+  var ids=EX_PEND.filter(function(r){ return r.station===station&&r.status!=='rejected'; }).map(function(r){ return r.id; });
+  if(!ids.length){ toast('该站没有可批准的条目'); return; }
+  if(!confirm('批准 '+station+' 的 '+ids.length+' 条经验？批准后立即发布到经验广场。'))return;
+  if(typeof yfApi!=='function') return;
+  yfApi('/v1/exp/approve','POST',{ decision:'approve', station:station, ids:ids }).then(function(j){
+    if(j&&j.ok){
+      toast('已批准 '+j.done+' 条'+(j.skipped&&j.skipped.length?'（'+j.skipped.length+' 条跳过）':''));
+      if(typeof expCloudLoad==='function') expCloudLoad();
+      exLoadPending(); if(typeof expAuditCountLoad==='function') expAuditCountLoad();
+    } else toast((j&&j.msg)||(j&&j.error)||'操作失败');
+  }).catch(function(){ toast('操作失败：网络不可达'); });
 }
 function srLoadPending(){
   if(typeof yfIsAdmin!=='function'||!yfIsAdmin()) return;
