@@ -24,7 +24,7 @@ bash tools/gates/run_gates_iso.sh [tag]
 | `test_rules.js` | **GATE3**：静态 + 行为级断言（在 jsdom 沙箱内加载被抽出的脚本块）。 |
 | `mk_shadow.js` | **GATE4 前置**：每轮生成**全新 virgin shadow store**（`yf-gates-shadow-<hash>/run_<ts>`）；后端 `index.js` 由**真实源复制**并 **md5 逐字节校验**；输出 `SHADOW=<dir>`。 |
 | `e2e_dual_role.js` | **GATE4**：jsdom 双角色（管理端 / 负责人端）端到端 26 场景；后端指向 `YF_API_DIR`（入口默认注入 shadow 目录）。管理专属控件清单 `ADMIN_ONLY_CTRLS` 现 **7** 项（新增「集团汇报 PPT 生成按钮 `hqPptBtn`」），S11/A7/S14 文案按 `ADMIN_ONLY_CTRLS.length` 自取，改清单不必再改文案。 |
-| `ppt_smoke.js` | **GATE5**（功能绿）：在 jsdom 里登录管理端，**真跑一次 `genHQPPT()`** 并抓回真实 `.pptx` 字节逐项验（9 页 / 原生表格 ≥2 / 原生柱+折线图 / 口径逐字且唯一 / 缺月不以 0 顶替 / 负责人端直调拿不到字节）。**零源码改动**：只 patch `PptxGenJS.prototype.writeFile` 换掉「最后一步落盘」。独立端口 `YF_PPT_PORT`（默认 9103）、独立 virgin shadow 库（自调 mk_shadow.js），与 GATE4 互不干扰。前置失败一律 `exit 3`（不静默跳过）。 |
+| `ppt_smoke.js` | **GATE5**（功能绿）：在 jsdom 里登录管理端，**真跑一次 `genHQPPT()`** 并抓回真实 `.pptx` 字节逐项验（14 页 / 原生表格 ≥2 / 原生柱+折线图 / 口径逐字且唯一 / 缺月不以 0 顶替 / 负责人端直调拿不到字节 / 整季口径=各月累计·单月=该月·势头恒按最新月）。**零源码改动**：只 patch `PptxGenJS.prototype.writeFile` 换掉「最后一步落盘」。独立端口 `YF_PPT_PORT`（默认 9103）、独立 virgin shadow 库（自调 mk_shadow.js），与 GATE4 互不干扰。前置失败一律 `exit 3`（不静默跳过）。 |
 | `p0_scan.js` | **P0 终检**（可独立跑，不在 iso 流水线内）：对 `<基线> → HEAD`（或传 `WORKTREE` 扫未提交工作区）的 `index.html` 新增行做确定性扫描——emoji 作图标 / 紫粉系 / 硬编码颜色（按**新增色值**判，见下「P0 扫描口径」）/ 外部 CDN / 中文字面量半角标点（判定前先剥 HTML 实体，见同节）。末尾自带 **14 条规则自检（SELFTEST）**，不通过即非 0 退出。<br>**基线（`BASE_CANDIDATES`，2026-09-28 事故后重锚）**：原基线 `f5949a4` 随 `.git` 事故丢失，改锚现存权威基线 **`c5f41fb`**（= 事故后从 GitHub 恢复的 master）。运行时按序解析第一个**可解析**的候选并打印实际使用的基线；全部解析不到 → **`exit 9` FATAL**（绝不静默降级）。`BASE` 是固定 SHA 而非 HEAD，故后续每笔提交仍相对它累计扫描，不会出现「基线=HEAD 导致新增行恒为 0」的假绿。 |
 
 ## 前置（运行环境）
@@ -41,9 +41,9 @@ bash tools/gates/run_gates_iso.sh [tag]
 |---|---|---|
 | GATE1 extract | **6 块** | `index.html` 内联 `<script>` 恰 6 个 |
 | GATE2 node --check | **6 / 6 OK** | `js_01..js_06` 语法全过 |
-| GATE3 test_rules | **pass=760 fail=0** | 见下「基线沿革」（2026-10-07 两笔：文案红线 `WX0`–`WX6` **+24**；归档旧学习件 `WX7` **+12**） |
+| GATE3 test_rules | **pass=787 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新） |
 | GATE4 e2e | **26 PASS / 0 FAIL / 0 SKIP**（≈50–55s） | 双角色 26 场景（S11/A7/S14 现覆盖 **7** 个管理专属控件） |
-| GATE5 ppt_smoke | **18 PASS / 0 FAIL / 0 SKIP**（≈18s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **679340 字节 / 9 页**；原生表格 2 张（总表 10 列 × 21 行）+ 原生柱/折线图各 1；口径三句逐字且唯一；缺月折不画线；负责人端直调 0 字节 |
+| GATE5 ppt_smoke | **26 PASS / 0 FAIL / 0 SKIP**（≈28s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **≈952KB / 14 页**；原生表格 3 张（能力总表 10 列 × 21 行 / 同比对照 / 风险预警）+ 原生柱状图 4 + 折线图 1；漏斗柱 3 个真实数值；口径三句逐字且唯一；缺月折不画线；**整季=各月累计、单月=该月、势头恒按最新月**；**D6 云刷新不冲掉用户选择 / D7 默认整季+记住选择 / D8 bench 缓存区分周期**；负责人端直调 0 字节 |
 | GATE-SW sw_selfcheck | **23 PASS / 0 FAIL**（≈0s） | **`sw.js` 是 `p0_scan` 的盲区**（不属 index.html 内联块），单列门禁。A 文件语法 / B 离线可用性 + **B6–B10 导航分支「缓存优先」防回归** / C 版本纪律。见下「GATE-SW 说明」 |
 
 入口末行固定输出 `RESULT: PASS (RC=0)`。
@@ -84,7 +84,7 @@ bash tools/gates/run_gates_iso.sh [tag]
   - **做法（`index.html` 零改动）**：jsdom 里登录管理端 → `__yfLoadLib('pptx')` 走页面自己的点击懒加载 → patch `PptxGenJS.prototype.writeFile`（内部改用 `this.write({outputType:'base64'})` 把字节交回门禁后解包校验；jsdom 域内没有 Node Buffer，走 `nodebuffer` 会报 not supported）→ 调 `genHQPPT()`。**构建路径（addSlide/addShape/addText/addTable/addChart/write）与生产完全一致，只替换最后一步落盘**。
   - **词法全局陷阱（实测，写下来免得后人再踩）**：`DASH_DB` 是脚本顶层 `let/const` 词法绑定，**不在 `window` 上**（`win.DASH_DB===undefined`），只能经 `win.eval(...)` 读写；`win.JSZip` 要等 `__yfLoadLib('pptx')` 之后才出现。
   - **隔离车道**：端口 `YF_PPT_PORT` 默认 **9103**（GATE4 用 9101；独立验证 worker 用 9102），自调 `mk_shadow.js` 造**独立** virgin shadow 库并 md5 校验真实后端；跑完 netstat+taskkill 清端口残留。前置失败（jsdom 缺失 / shadow 造不出 / 后端起不来 / 隔离校验不过）一律 **`exit 3` 并打印原因——绝不静默跳过**。
-  - **断言 17 条**（A 组 11 / B 组 3 / C 组 3），基线 `17 PASS / 0 FAIL / 0 SKIP`（≈18s）。基线产物：**679364 字节 / 9 页**（字节数随生成日期文本浮动，故门禁只设 20KB 下限，不钉死；页数/表格/图表/口径是硬钉）。
+  - **断言 17 条**（A 组 11 / B 组 3 / C 组 3），基线 `17 PASS / 0 FAIL / 0 SKIP`（≈18s）。基线产物：**679364 字节 / 9 页**（字节数随生成日期文本浮动，故门禁只设 20KB 下限，不钉死；页数/表格/图表/口径是硬钉）。**⚠️ 已被 2026-10-09 两笔覆盖：现 26 条（A 11 / B 3 / C 3 / D 8，D 组为整季口径 + 时间视图 + bench 缓存）、基线 14 页 —— 见上方「中台/汇报口径与看板同源」「时间视图 = 默认整季 + 记住选择」两条沿革。**
     - A 组（管理端真跑）：非空字节（>20KB）· 运行期零 JS 错误 · **9 页** · 原生表格 ≥2（`<a:tbl>`）· 总表 **10 列** × **21 行**（表头 + 20 站）· 原生**柱状图 + 折线图**各 1 · 柱状图 3 个真实数值（4469/3424/1758）· 口径三句逐字齐全 · 口径 `不以到场率、入营率评价好坏` 全文**仅 1 次**。
     - B 组（缺月不以 0 顶替）：注入「6/7 月有上报、8 月有键但无人上报」→ 折线**类目恰 2 个**（6 月/7 月）· 第 8 页写明「缺月 8 月…不以 0 顶替」。
     - C 组（负向）：负责人端按钮 `display:none` · **直调 `genHQPPT()` 拿不到字节** · 有明确「仅管理端」拒绝文案。
@@ -143,7 +143,23 @@ bash tools/gates/run_gates_iso.sh [tag]
   - **部署**：`sw.js` v4 blob `471df06321` 已推 GitHub Pages（`main` + `master` 双 ref，commit `d29346d7`）+ CloudBase（ETag 与本地 md5 逐字一致）。`index.html` **本笔零改动**（blob `8b11c743`）。
   - **本笔「全平台中文文案体检」（2026-10-07）**：新增文案红线 `WX0`–`WX6`（**+24**）——`WX0` 课文可解出（后续断言前提）；`WX1` 主文件内置种子禁词（`工艺义卖`/`摆卖`/`集中地址`/`收益互通`/`（待补充）`）**=0**；`WX2` 正控「公益义卖」**≥3**（防「全删了也算过」）；`WX3` 课文禁词（`图紙`/`第七版`/`146 亿`/`超支 220 亿`/`（1994）`/`4000 工人`）**=0**；`WX4` 课文正控（`第六版` ≥4 · `图纸` ≥1 · `4200 工人` ≥4 · `总成本约 220 亿` ≥1 · `第一大原因` **恰 1 处**）；`WX5` 陈旧副本 `data/seed_experience.js` 同禁词 =0（**文件不存在则视为通过**——归档本身即达标，不静默当绿）；`WX6` 主文件正文与课文**零繁体**（严格繁体集，只收「繁体形≠简体形」的字，排除 `案/行/面/程/件/查/告` 等简繁同形字误报）。GATE3 **724 → 748**。
   - **本笔「归档旧学习件同口径」（2026-10-07，同日续）**：`_archive/扬帆OS_学习系统v5.html`（106,897 B，git 已跟踪）是**同一份课文的独立可打开版本**，仍随站点公开（`/_archive/…`）。逐行归一化比对确认它与 `learnSrc` 仅 **13 行**不同：**3 行是有意保留的旧响应式布局**（`@media(max-width:880px)` vs `700px`、`.side` 移动端抽屉 vs `sticky` 侧栏、`@media(min-width:881px)` vs `701px`），**10 行是内容修正漏同步**（`第七版`×3 · `（1994）` · `146 亿/超支 5 倍` · `14 年完工/超支 220 亿` · `2006 基本完工（迟 8 年）` · `第一大原因` · `4000 工人` · `图紙`）。已按同一批措辞同步（`Δ+4` 字节），比对后**仅剩那 3 行**。新增 `WX7`（**+12**）把归档件也钉住（禁词 =0 + 正控 `第六版` ≥4 / `图纸` ≥2 / `4200 工人` ≥4 / `总成本约 220 亿` ≥1 / `第一大原因` 恰 1 + 零繁体）。GATE3 **748 → 760**。
+- **本笔「中台/汇报口径与看板同源 + 撤规模档 + PPT 深化改版」（2026-10-09）**：用户实测中台总览驾驶舱只出 **8 月单月**，与数据看板「整季（6-8 月累计）」选择不一致，且 PPT 总结浅薄。**根因（代码级）**：`GW.curKey()` 把「整季」映射成 `ms[ms.length-1]`（最新月=8 月）；`GW.raw()` 漏斗取 `db[curKey]=db['8']`（8 月单月），而能力取 `seasonRec()`（季累计）→ **同一页面漏斗=8 月、能力=6-8 月，混口径**。修复：
+  - **口径统一（三出口同源）**：`seasonRec()` 加 `r0/r1/r2` 季累计；新增 `isSeasonView()/latestKey()/periodLabel()`（`periodLabel()` = 整季返回 `spanLabel()`、单月返回 `monthLabel(curKey())`）；`raw()` 漏斗随周期（`season?q.r0..r2 : reg[0/1/2]`）；`momentum()` **恒按前一月→最新月**（防「季度合计减单月」荒谬）；`genHQPPT()`/`hqReportHTML()`/`renderHQ()` 三处 `GW.monthLabel(GW.curKey())` → `GW.periodLabel()`。**整季=各月求和（与看板 `dAll` 同口径）、单月=该月**。
+  - **撤规模档**：用户明确「不要去搞大站/中站/小站」。删 `hqReportHTML/genHQPPT` 的 `tier` 字段、去各页 `.tier` chip 与「规模档：」文案；`tier()` 改中性代码 `T1/T2/T3` **仅内部对标用、绝不吐中文标签**。
+  - **PPT 深化：9 → 14 页**（首页改数据总览图）：① 首页·数据总览（KPI + 各月入营柱状图 + 漏斗条）② 北极星与整体漏斗 ③ 月度节奏 ④ 能力健康度总表 ⑤ 同比对照 ⑥ 各站入营对比（条形图）⑦ 风险预警汇总 ⑧ 各月入营趋势（折线）⑨ 标杆做法 ⑩ 单站深钻 ⑪ 短板分布（表+条形图）⑫ 经验复用闭环 ⑬ 结论与下一步 ⑭ 口径与数据来源。全篇零「大/中/小站」。
+  - **GATE3 断言**：`GW9` 重写 + 新增 `GW9a`–`GW9g`（锁 `periodLabel()` 导出、`o.r0+=(rg[0]…)` 与 `r2: season?q.r2:(reg[2]||0)`、`isSeasonView` 判据、`m.m2-m.p2` 势头、≥4 处 `GW.periodLabel()`、`规模档：/档中位/'大站'/'中站'/'小站'` 全禁、`tier` 返 `T1/T2/T3`）**+7**；`PG8` 原位更新基线（**9→14 页**、漏斗页 `s3→s2`、原生表格 **2→3**）。GATE3 **760 → 767**。
+  - **GATE5 断言**：`BASE_SLIDES 9 → 14`；`G5-A4b` 改按类目名 `报名,面试,入营` 定位漏斗柱（改版后多个柱状图，取第一张会错）；新增 `scPeriod()` 场景 `G5-D1`–`G5-D5`（整季=6-8 月累计 Σ1200≠600 / 选 8 月=600 / 势头恒 7→8 月 / PPT 含「6-8 月」与 1200 / 周期标签恰「6-8 月累计」）。**18 → 23 PASS**。
+  - **本笔七道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=767 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **23 PASS / 0 FAIL / 0 SKIP**；**GATE-SW 23 PASS / 0 FAIL**。
     - **通用教训**：**「旁枝副本」必须逐行归一化比对，不能靠 grep 关键词判断同步与否**——归档件与主文件用的是同一份稿件、同一批错字，只比关键词会漏（本案 `2006 基本完工（迟 8 年）` 这条无关键词可循，靠 diff 才现形）。同理**别信 `git status` 干净**：该文件 git 视角 `M` 都没有，错字却实实在在。
+- **本笔「时间视图 = 默认整季 + 记住选择」（2026-10-09 同日续，用户拍板）**：渲染核验时发现**更深一层根因**——即使材料已跟随选择器，**选择器本身会被静默冲掉**：
+  - **根因**：`initDash()` 与 `dashApplyCloud()` 各有一句 `if(DASH_SEASON===curSeasonKey())DASH_CUR=dLatest()||'all';`。`dLatest()` = 最新单月，而 `dashApplyCloud()` 在**每次云端刷新、每次缓存回放、每次上报回填**时都会跑 → 用户手动切到「整季」，只要数据刷新一次就被冲回最新月，于是汇报材料又只剩最新一个月。
+  - **修复**：新增 `DASH_CUR_CHOICE_KEY='yf_dash_cur_choice'` + `loadDashCurChoice()/saveDashCurChoice()` + **`resolveDashCur()`（时间视图唯一判定出口）**。默认「整季」；用户显式选过就记本机，刷新/回填不再冲掉；仅当记住的月份本赛季已不存在才回退「整季」。`setDashMonth()` 落本机；两处 `dLatest()` 一律替换为 `resolveDashCur()`；**全文零 `DASH_CUR=dLatest()`**。
+  - **派生修复（同型口径 bug）**：`bench()` 缓存键原为 `赛季|月份|站点清单`，**不含周期维度**，而 `metrics()/raw()` 已随 `isSeasonView()` 分叉、`curKey()` 在整季下仍返回最新月 ⇒「整季」与「最新单月」算出**同一把键**，先算的口径被复用 → 健康度/预警/标杆随「先看哪个视图」漂移（实测风险站 **12 vs 11**）。键已补 `isSeasonView()?'season':'month-'+curKey()`。**同型教训：一个缓存只要有「两种口径共用一个键」，就必须把口径并进键里。**
+  - **汇报材料图形化（HQG）**：`hqReportHTML()` 新增 **3 张内联 SVG**（各月入营柱状图 / 整体漏斗 / 各站入营对比）+「二、数据图形总览」章节；数据取 **`GW.monthSeries()`**（GW 内新增 `monthAgg()/monthSeries()` 导出，与看板同源，汇报侧不再另算一套）；零外链、断网可用。
+  - **新增断言**：`DCUR1`–`DCUR11`（**+11**）、`HQG1`–`HQG9`（**+9**）；`TD14` 按原意图改写（赛季守卫仍在 + 改走 `resolveDashCur` + 全文零 `DASH_CUR=dLatest()`）；GATE5 新增 **D6（云刷新/回填不冲掉用户选择）/ D7（默认整季+记住选择+失效月份回退）/ D8（bench 缓存区分周期）**。GATE3 **767 → 787**，GATE5 **23 → 26**。
+  - **🔴 新增「新鲜度守卫」（`test_rules.js` 开头 `ensureFreshBlocks()`）**：`paths.js` 的 `BUILD_DIR` 键 = **前端仓库路径哈希**（非内容哈希），`js_0X.js` 会一直留在 tmp ⇒ **单独跑 `test_rules`（不先 `extract`）会读到旧块**。本笔实测踩到：改了 `dashApplyCloud` 单独跑 GATE3 仍报 `TD14` 绿，全量套件（先 extract）才红。守卫：`index.html` 比 `js_01.js` 新就地重抽一次（入口已先 extract，故为 no-op）。
+  - **变异测试（牙齿）**：① 云刷新改回 `DASH_CUR=dLatest()` → `TD14`+`DCUR5`+`DCUR6`+`DCUR7` **4 条红**；② `setDashMonth` 去掉落本机 → `DCUR8` 红；③ 删 `svgVBar` → `HQG2` 红；④ `bench()` 键去掉周期维度 → `DCUR11` + `G5-D8` **双红**。每轮跑完 `index.html` md5 逐字节校验还原。
+  - **本笔七道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=787 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **26 PASS / 0 FAIL / 0 SKIP**；**GATE-SW 23 PASS / 0 FAIL**。
 
 ## P0 扫描口径（三处精度修正 + 保真平移白名单 —— **降假阳性 / 补口径缺口，均不降强度**）
 

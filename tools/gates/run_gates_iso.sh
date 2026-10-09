@@ -5,7 +5,7 @@
 #   GATE2 node --check js_01..js_06
 #   GATE3 test_rules.js（静态 + 行为级断言）
 #   GATE4 e2e_dual_role.js（隔离车道：每轮全新 virgin shadow store + md5 校验）
-#   GATE5 ppt_smoke.js（功能绿：管理端真跑 genHQPPT 出 9 页 pptx；独立端口、独立影子库）
+#   GATE5 ppt_smoke.js（功能绿：管理端真跑 genHQPPT 出 14 页 pptx；独立端口、独立影子库）
 #   GATE-SW sw_selfcheck.js（PWA 离线可用性 + 版本纪律；sw.js 不属 index.html
 #                           内联块，是 p0_scan 的盲区——2026-10-03 新增补齐）
 # ---------------------------------------------------------------------
@@ -67,7 +67,7 @@ RC=0
     echo "e2e exit=$ERC"
     [ "$ERC" -ne 0 ] && RC=1
   fi
-  echo "=== [GATE5] ppt_smoke.js（功能绿：管理端真跑 genHQPPT 出 9 页 pptx · 端口 $PPT_PORT） ==="
+  echo "=== [GATE5] ppt_smoke.js（功能绿：管理端真跑 genHQPPT 出 14 页 pptx · 端口 $PPT_PORT） ==="
   YF_PPT_PORT="$PPT_PORT" "$NODE" ./ppt_smoke.js; PRC=$?
   echo "ppt_smoke exit=$PRC"
   [ "$PRC" -ne 0 ] && RC=1

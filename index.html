@@ -2598,12 +2598,13 @@ window.__yfLoadLib=(function(){
     <div class="gw-top">
     <div>
       <h2>中台总览 · 操盘驾驶舱</h2>
-      <p class="gw-sub">全站的健康度、风险预警与经验治理，一眼掌握全局。数据来自各站最新上报月份的真实漏斗；你在「我的成长」里回填的结果，也会实时回流到这里的经验复用看板。</p>
+      <p class="gw-sub">全站的健康度、风险预警与经验治理，一眼掌握全局。数据口径与「数据看板」的时间选择同源——看板选「整季」即 6-8 月累计，选单月即该月；你在「我的成长」里回填的结果，也会实时回流到这里的经验复用看板。</p>
     </div>
   </div>
   <div class="card" id="hqReportCard" style="border-left:4px solid var(--gold)">
     <h2 style="border-left:none;background:none;padding-left:0">成效总览 · 可上报集团</h2>
     <p class="gw-sub">本驾驶舱即集团上报口径：20 站健康度、风险预警、北极星指标与经验复用，均来自各站真实漏斗与「我的成长」回填结果。右上「导出」可一键生成集团汇报材料。</p>
+    <p class="gw-sub" style="margin-top:2px">当前口径：<b id="hqPeriodTxt">—</b>　<span class="muted">（跟随「数据看板」右上角的时间选择；要换周期，先到数据看板切换，再回到本页）</span></p>
     <div class="grid g3" style="margin:8px 0 14px">
       <div style="background:var(--ice);border:1px solid var(--line);border-radius:12px;padding:14px 16px">
         <div style="font-size:24px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums" id="hqStations">20</div>
@@ -2622,7 +2623,7 @@ window.__yfLoadLib=(function(){
       <button class="up-btn" onclick="hqExportReport()">导出集团汇报材料</button>
       <button class="up-btn" id="hqPptBtn" onclick="genHQPPT()">生成汇报 PPT</button>
       <button class="up-btn ghost" onclick="hqPreviewReport()">预览版式</button>
-      <span class="muted">「生成汇报 PPT」把数据看板与各站分析直接灌进 9 页 .pptx 并下载，拿去就能讲；「导出集团汇报材料」生成含 20 站健康度明细、风险预警、标杆做法的完整汇报页，可打印或另存 PDF</span>
+      <span class="muted">「生成汇报 PPT」把数据看板与各站分析直接灌进 14 页 .pptx 并下载（首页即数据总览图），拿去就能讲；「导出集团汇报材料」生成含 20 站健康度明细、风险预警、标杆做法、图形总览的完整汇报页，可打印或另存 PDF</span>
     </div>
   </div>
   <div id="hqBody"></div>
@@ -5580,10 +5581,28 @@ function setSeason(k){ // 切赛季：历史季只读 HIST，不碰 DASH_DB/云�
   DASH_CUR='all';
   refreshDashViews();
 }
-function setDashMonth(m){DASH_CUR=m;refreshDashViews();}
+function setDashMonth(m){DASH_CUR=m;saveDashCurChoice(m);refreshDashViews();}   /* 显式选择记进本机，刷新不再冲掉 */
 function setMonth(m){ // 上报成功回跳专用：回到今年赛季再定位月份
   DASH_SEASON=curSeasonKey();
   setDashMonth(m);
+}
+/* —— 时间视图选择（2026-10-09）：默认「整季」并**记住用户显式选择** ——
+   旧行为：initDash()/dashApplyCloud() 每次初始化、每次云端刷新或上报回填都把 DASH_CUR 重置成
+   dLatest()（最新单月）。后果：用户手动切到「整季」，只要数据刷新一次就被静默冲回最新月，
+   于是汇报材料又只剩最新一个月——这正是「材料和看板选择不一致」的最底层原因。
+   新行为：默认「整季」；用户一旦显式选过（整季/某月）就记在本机，刷新/回填都不再冲掉；
+   只有当记住的月份在本赛季已不存在时才回退「整季」。 */
+var DASH_CUR_CHOICE_KEY='yf_dash_cur_choice';
+function loadDashCurChoice(){
+  try{ var v=localStorage.getItem(DASH_CUR_CHOICE_KEY); return (v==='all'||/^\d{1,2}$/.test(v||''))?v:null; }catch(e){ return null; }
+}
+function saveDashCurChoice(v){ try{ localStorage.setItem(DASH_CUR_CHOICE_KEY,String(v)); }catch(e){} }
+function resolveDashCur(){
+  var want=DASH_CUR;
+  if(DASH_SEASON===curSeasonKey()){ var ch=loadDashCurChoice(); if(ch) want=ch; }
+  var mos=seasonOrder();
+  if(want!=='all' && mos.indexOf(want)<0) want='all';   /* 记住的月份本赛季已不存在 → 回退整季 */
+  return (want==='all')?'all':want;
 }
 function initDash(){
   DASH_DB={};DASH_ORDER=[];
@@ -5597,7 +5616,7 @@ function initDash(){
     if(!DASH_ORDER.length){DASH_DB['6']={};DASH_ORDER=['6'];}
   }
   DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
-  if(DASH_SEASON===curSeasonKey())DASH_CUR=dLatest()||'all';  /* 历史季只读视图不被云端刷新/初始化打断 */
+  if(DASH_SEASON===curSeasonKey())DASH_CUR=resolveDashCur();  /* 默认整季 + 记住用户选择（2026-10-09 不再冲回最新月） */
   renderMonthSwitch();
   dashKpi();dashGrid();renderDashYoy();
   applyDashView();renderDashCharts();
@@ -5638,7 +5657,7 @@ function dashApplyCloud(cloudData,source,updatedAt){
   DASH_DB=cloudData;
   DASH_ORDER=Object.keys(DASH_DB);
   DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
-  if(DASH_SEASON===curSeasonKey())DASH_CUR=dLatest()||'all';  /* 历史季只读视图不被云端刷新/初始化打断 */
+  if(DASH_SEASON===curSeasonKey())DASH_CUR=resolveDashCur();  /* 2026-10-09：云刷新/上报回填不再把用户的时间选择冲回最新月 */
   DASH_META={source:source,updatedAt:updatedAt||null,ts:Date.now()};
   if(source==='cloud')dashCacheSave(cloudData);   /* 云端数据顺手落缓存，断网也能恢复 */
   if(before!==after){
@@ -8376,6 +8395,17 @@ var GW = (function(){
   }
   function prevKey(){ var ms = months(); return ms.length>1 ? ms[ms.length-2] : null; }
   function monthLabel(k){ var n = parseInt(k,10); return isNaN(n) ? String(k) : n+' 月'; }
+  /* 周期视图（2026-10-09 口径统一）：看板选「整季」→ 季累计（与看板 dAll 同口径）；
+     看板选具体月 → 该月。这是中台卡片 / 汇报 HTML / 汇报 PPT 三处出口唯一的时间口径开关。 */
+  function isSeasonView(){
+    try{
+      var ms = months();
+      if(typeof DASH_CUR!=='undefined'&&DASH_CUR&&DASH_CUR!=='all'&&ms.indexOf(DASH_CUR)>=0) return false;
+    }catch(e){}
+    return true;
+  }
+  function latestKey(){ var ms = months(); return ms.length ? ms[ms.length-1] : null; }
+  function periodLabel(){ return isSeasonView() ? (spanLabel() || '整季合计') : monthLabel(curKey()); }
   /* 「6-7 月」式月区间（标题/导出物用） */
   function spanLabel(){
     var ns = months().map(function(k){ return parseInt(k,10); })
@@ -8383,6 +8413,30 @@ var GW = (function(){
                      .sort(function(a,b){ return a-b; });
     if(!ns.length) return '';
     return ns.length===1 ? ns[0]+' 月' : ns[0]+'-'+ns[ns.length-1]+' 月';
+  }
+  /* ---------- 单月聚合（逐站求和）：中台/汇报材料图形化用 ----------
+     与 seasonRec 同一条取源规则（权威 DASH_DB 优先；实时季可回落内置基线 M6/M7），
+     返回该月漏斗三项合计；该月无任何站上报（或整月缺席）时返回 null —— 绝不用 0 顶替。 */
+  function monthAgg(mk){
+    var db = dashDB();
+    var isLive=(typeof DASH_SEASON==='undefined')||!DASH_SEASON||DASH_SEASON===curSeasonKey();
+    var rec = (db && db[mk] && Object.keys(db[mk]).length) ? db[mk] : null;
+    if(!rec && isLive){
+      if(mk==='7'&&typeof M7!=='undefined'&&M7) rec=M7;
+      else if(mk==='6'&&typeof M6!=='undefined'&&M6) rec=M6;
+    }
+    if(!rec) return null;
+    var o={r0:0,r1:0,r2:0,any:false};
+    Object.keys(rec).forEach(function(st){
+      var c=rec[st]; if(!c||!c.reg) return; var rg=c.reg;
+      if(rg[0]!=null){o.r0+=rg[0];o.any=true;} if(rg[1]!=null)o.r1+=rg[1]; if(rg[2]!=null)o.r2+=rg[2];
+    });
+    return o.any?o:null;
+  }
+  /* 各月入营序列（逐月，供折线/柱状图；缺月跳过，不以 0 顶替） */
+  function monthSeries(){
+    return months().map(function(k){ var t=monthAgg(k); return {k:k,label:monthLabel(k),r2:t?t.r2:null,t:t}; })
+                   .filter(function(x){ return x.t; });
   }
 
   /* ---------- 四项能力：全部由真实漏斗反推，不做自评打分 ----------
@@ -8411,7 +8465,7 @@ var GW = (function(){
   function seasonRec(st){
     var db = dashDB(), ms = months();
     var isLive=(typeof DASH_SEASON==='undefined')||!DASH_SEASON||DASH_SEASON===curSeasonKey();
-    var o = {camp0:0, boy:0, girl:0, card:0, vol:0, free:0, sci:0, conv:0, pn:0};
+    var o = {camp0:0, boy:0, girl:0, card:0, vol:0, free:0, sci:0, conv:0, pn:0, r0:0, r1:0, r2:0};
     for(var i=0;i<ms.length;i++){
       var mk = ms[i];
       var rec = (db && db[mk] && db[mk][st]) ? db[mk][st] : null;
@@ -8426,6 +8480,7 @@ var GW = (function(){
       o.boy+=(cp[1]||0); o.girl+=(cp[2]||0);
       o.card+=(dv[0]||0); o.vol+=(dv[1]||0); o.free+=(dv[2]||0); o.sci+=(dv[3]||0); o.conv+=(dv[4]||0);
       o.pn+=(pr[0]||0);
+      o.r0+=(rg[0]||0); o.r1+=(rg[1]||0); o.r2+=(rg[2]||0);
     }
     return o;
   }
@@ -8443,14 +8498,24 @@ var GW = (function(){
           : (isLive && (typeof M6!=='undefined'&&M6[st]) ? M6[st] : {});
     var reg=a.reg||[0,0,0];
     var preg=b.reg||[0,0,0];
-    /* 能力口径（card/vol/free/sci/conv/pn/camp0）= 季累计（逐月求和，与「季累计入营」分母同源）；
-       漏斗（r0/r1/r2）与环比（p0/p1/p2）仍取最新月/前一月。 */
+    /* 能力口径（card/vol/free/sci/conv/pn/camp0）= 季累计（逐月求和，与「季累计入营」分母同源）。
+       漏斗 r0/r1/r2 = 当前周期：看板「整季」→ 逐月求和（= 看板 dAll 同口径）；选具体月 → 该月。
+       势头 m0/m1/m2 与 p0/p1/p2 恒为「最新月 / 前一月」——它们衡量「最近在涨还是在掉」，
+       与「你现在看哪个周期」无关，不能随周期选择漂移（否则整季视图会拿季度合计去减单月）。 */
     var q = seasonRec(st);
-    return {r0:reg[0]||0, r1:reg[1]||0, r2:reg[2]||0,
+    var season = isSeasonView();
+    var lk = latestKey();
+    return {r0: season ? q.r0 : (reg[0]||0),
+            r1: season ? q.r1 : (reg[1]||0),
+            r2: season ? q.r2 : (reg[2]||0),
             card:q.card, vol:q.vol, free:q.free, sci:q.sci, conv:q.conv,
     pn:q.pn, pp:q.camp0?q.pn/q.camp0:0, camp0:q.camp0, boy:q.boy, girl:q.girl,
+            m0:reg[0]||0, m1:reg[1]||0, m2:reg[2]||0,
             p0:preg[0]||0, p1:preg[1]||0, p2:preg[2]||0,
-            mKey:ck, pKey:pk, mLabel:monthLabel(ck), pLabel:pk?monthLabel(pk):''};
+            period: season?'season':'month',
+            mKey: season?'all':ck, pKey:pk,
+            mLabel:periodLabel(),
+            pLabel: lk?monthLabel(lk):'', pLabel2: pk?monthLabel(pk):''};
   }
   /* ---------- 能力值：四项进排名；到场/入营/环比只作参考输出 ---------- */
   function metrics(st){
@@ -8468,15 +8533,19 @@ var GW = (function(){
       _raw   : m
     };
   }
-  function tier(r2){ return r2>=100 ? '大站' : (r2>=40 ? '中站' : '小站'); }
+  /* 规模分组（2026-10-09）：只作内部「同规模对标」的分组键，**不出现在任何界面/汇报文案**。
+     返回值故意用中性代码 T1/T2/T3——任何地方想把「大站/中站/小站」这种标签漏到界面上，
+     都必须先手写中文，没法从函数直接吐出来。 */
+  function tier(r2){ return r2>=100 ? 'T1' : (r2>=40 ? 'T2' : 'T3'); }
   /* 势头：前一月→最新月入营环比。只作参考，不参与能力排名 */
   function momentum(st){
+    /* 势头恒按「前一月 → 最新月」环比，不随看板周期选择漂移（2026-10-09 口径统一时钉死）。 */
     var m = raw(st);
-    var pct = m.p2 ? (m.r2-m.p2)/m.p2*100 : (m.r2 ? 100 : 0);
+    var pct = m.p2 ? (m.m2-m.p2)/m.p2*100 : (m.m2 ? 100 : 0);
     var lv = pct>=100 ? '爬坡快' : (pct>=30 ? '稳步走' : (pct>0 ? '走得慢' : (pct===0 ? '原地踏步' : '掉了')));
-    return {prev:m.p2, cur:m.r2, pct:pct, lv:lv,
-            pLabel:m.pLabel, mLabel:m.mLabel,
-            arrive:m.r0 ? m.r1/m.r0*100 : 0, enroll:m.r1 ? m.r2/m.r1*100 : 0};
+    return {prev:m.p2, cur:m.m2, pct:pct, lv:lv,
+            pLabel:m.pLabel2, mLabel:m.pLabel,
+            arrive:m.m0 ? m.m1/m.m0*100 : 0, enroll:m.m1 ? m.m2/m.m1*100 : 0};
   }
   function stationList(){ return (typeof STATIONS!=='undefined'&&STATIONS.length)?STATIONS:[]; }
 
@@ -8492,8 +8561,14 @@ var GW = (function(){
   }
   function bench(){
     var list = stationList();
-    /* 缓存键 = 赛季 + 月份 + 站点清单：2026S/2025S 月份可能同名（都叫 6/7），只按月份做键会命中过期基准 */
-    var key = (typeof DASH_SEASON!=='undefined'&&DASH_SEASON?DASH_SEASON:'') + '|' + months().join(',') + '|' + list.join(',');
+    /* 缓存键 = 赛季 + **周期（整季/单月）** + 月份 + 站点清单。
+       2026-10-09 补「周期」维度：metrics()/raw() 已随 isSeasonView() 分叉（整季=逐月求和、单月=该月），
+       而 curKey() 在整季下仍返回最新月 —— 只用 赛季|月份 做键时，「整季」与「最新单月」会算出**同一把键**，
+       先算的那个口径被缓存下来复用，导致健康度/预警/标杆随「先看哪个视图」而漂移（实测风险站 12 vs 11）。
+       同型教训：一个缓存/集合只要有「两种口径共用一个键」，就必须把口径并进键里。 */
+    var key = (typeof DASH_SEASON!=='undefined'&&DASH_SEASON?DASH_SEASON:'') + '|'
+            + (isSeasonView()?'season':'month-'+curKey()) + '|'
+            + months().join(',') + '|' + list.join(',');
     if(_bench && _benchKey === key) return _bench;
     var all = {};
     list.forEach(function(s){ all[s] = metrics(s); });
@@ -8520,10 +8595,10 @@ var GW = (function(){
         order : sorted
       };
     });
-    // 同规模档中位
+    // 同规模分组中位（仅内部对标用，绝不出现在界面/汇报文案里）
     var byTier = {};
     list.forEach(function(s){
-      var t = tier(all[s]._raw.r2);
+      var t = tier(all[s]._raw.m2);
       (byTier[t] = byTier[t] || []).push(s);
     });
     var TB = {};
@@ -8677,7 +8752,8 @@ var GW = (function(){
   return {CAPS:CAPS, RX:RX, TYPES:TYPES, metrics:metrics, raw:raw, tier:tier, momentum:momentum,
           bench:bench, quadrant:quadrant, weakness:weakness, benchHow:benchHow,
           ownerOf:ownerOf, load:load, save:save, of:of, stationList:stationList,
-          months:months, curKey:curKey, prevKey:prevKey, monthLabel:monthLabel, spanLabel:spanLabel};
+          months:months, curKey:curKey, prevKey:prevKey, monthLabel:monthLabel, spanLabel:spanLabel,
+          periodLabel:periodLabel, isSeasonView:isSeasonView, monthAgg:monthAgg, monthSeries:monthSeries};
 })();
 
 /* ============ 智能预警规则引擎（#173） ============ */
@@ -8735,7 +8811,7 @@ function hqReportHTML(){
   var rows=list.map(function(s){
     var m=GW.metrics(s), r=m._raw;
     return {s:s, n:okcOf(s), m:m, r:r, w:YF_WARN.warns(s), wk:GW.weakness(s),
-            p:(typeof PROF!=='undefined'&&PROF[s])?PROF[s]:{}, tier:GW.tier(r.r2), mom:GW.momentum(s)};
+            p:(typeof PROF!=='undefined'&&PROF[s])?PROF[s]:{}, mom:GW.momentum(s)};
   });
   rows.sort(function(a,b){ return (b.n-a.n)||(b.r.r2-a.r.r2); });
   var capTh=''; GW.CAPS.forEach(function(c){ capTh+='<th>'+c.n+'</th>'; });
@@ -8748,7 +8824,7 @@ function hqReportHTML(){
       capsTd+='<td style="color:'+(good?'#1a7f37':'#c0392b')+';font-weight:'+(good?'600':'700')+'">'+gwFmt(v,c.u)+'</td>';
     });
     var wkName=(o.wk&&o.wk[0])?(GW.CAPS.filter(function(c){return c.k===o.wk[0].k;})[0]||{n:'—'}).n:'—';
-    bodyRows+='<tr><td class="rk">'+(i+1)+'</td><td class="stn">'+o.s+'<span class="tier">'+o.tier+'</span></td>'
+    bodyRows+='<tr><td class="rk">'+(i+1)+'</td><td class="stn">'+o.s+'</td>'
       +'<td>'+(o.p.owner||'—')+'</td><td class="num">'+o.r.r2+'</td>'+capsTd
       +'<td class="num" style="color:'+g[1]+';font-weight:800">'+g[0]+'</td>'
       +'<td class="num">'+(o.w.list?o.w.list.length:0)+'</td><td class="wk">'+wkName+'</td></tr>';
@@ -8765,17 +8841,73 @@ function hqReportHTML(){
   var benchH='', tops=rows.slice(0,3);
   tops.forEach(function(o){
     var how=(typeof GW.benchHow==='function')?GW.benchHow(o.s):'';
-    benchH+='<div class="bench"><div class="bn">'+o.s+'<span class="tier">'+o.tier+' · 健康度 '+grade(o.n)[0]+'</span></div>'
+    benchH+='<div class="bench"><div class="bn">'+o.s+'<span class="tier">健康度 '+grade(o.n)[0]+'</span></div>'
       +'<div class="bd">'+how+'</div></div>';
   });
   var tot={r0:0,r1:0,r2:0,camp0:0,card:0,vol:0,pn:0,sci:0,conv:0};
   list.forEach(function(s){ var r=GW.metrics(s)._raw; tot.r0+=r.r0;tot.r1+=r.r1;tot.r2+=r.r2;tot.camp0+=r.camp0;tot.card+=r.card;tot.vol+=r.vol;tot.pn+=r.pn;tot.sci+=r.sci;tot.conv+=r.conv; });
+  /* ---------- 内联 SVG 图形（零外链、断网可用）：把数据看板那页的图形搬进汇报材料 ---------- */
+  var mSeries=GW.monthSeries();
+  function hqEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  /* 纵向柱状图（各月入营） */
+  function svgVBar(items){
+    var w=660,h=200,padL=46,padR=16,padT=22,padB=34,iW=w-padL-padR,iH=h-padT-padB;
+    var mx=Math.max.apply(null,items.map(function(x){return x.v;}).concat([1]));
+    var step=iW/items.length,bw=Math.min(64,step*0.56),g='';
+    g+='<line x1="'+padL+'" y1="'+(padT+iH)+'" x2="'+(w-padR)+'" y2="'+(padT+iH)+'" stroke="#dbe5ee"/>';
+    items.forEach(function(it,i){
+      var bh=Math.max(2,iH*it.v/mx),x=padL+step*i+(step-bw)/2,y=padT+iH-bh;
+      g+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="3" fill="#2b7cd3"/>';
+      g+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-5).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#0d2c4d">'+it.v+'</text>';
+      g+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(padT+iH+17)+'" text-anchor="middle" font-size="12" fill="#5a6b7b">'+hqEsc(it.label)+'</text>';
+    });
+    return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:'+w+'px;display:block" role="img">'+g+'</svg>';
+  }
+  /* 横向条形图（各站对比） */
+  function svgHBar(items){
+    var w=660,rowH=23,padL=70,padR=54,padT=6,padB=6,h=padT+padB+items.length*rowH,iW=w-padL-padR;
+    var mx=Math.max.apply(null,items.map(function(x){return x.v;}).concat([1])),g='';
+    items.forEach(function(it,i){
+      var y=padT+i*rowH,bw=Math.max(2,iW*it.v/mx);
+      g+='<text x="'+(padL-8)+'" y="'+(y+rowH*0.66).toFixed(1)+'" text-anchor="end" font-size="12" fill="#1f3a5f">'+hqEsc(it.label)+'</text>';
+      g+='<rect x="'+padL+'" y="'+(y+3)+'" width="'+iW+'" height="'+(rowH-10)+'" rx="3" fill="#eef3f9"/>';
+      g+='<rect x="'+padL+'" y="'+(y+3)+'" width="'+bw.toFixed(1)+'" height="'+(rowH-10)+'" rx="3" fill="#2b7cd3"/>';
+      g+='<text x="'+(w-padR+4)+'" y="'+(y+rowH*0.66).toFixed(1)+'" font-size="12" font-weight="700" fill="#0d2c4d">'+it.v+'</text>';
+    });
+    return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:'+w+'px;display:block" role="img">'+g+'</svg>';
+  }
+  /* 漏斗横条（报名→面试→入营） */
+  function svgFunnel(items){
+    var w=660,rowH=34,padL=52,padR=70,padT=6,padB=6,h=padT+padB+items.length*rowH,iW=w-padL-padR;
+    var mx=Math.max.apply(null,items.map(function(x){return x.v;}).concat([1])),g='';
+    items.forEach(function(it,i){
+      var y=padT+i*rowH,bw=Math.max(3,iW*it.v/mx);
+      g+='<text x="'+(padL-8)+'" y="'+(y+rowH*0.62).toFixed(1)+'" text-anchor="end" font-size="12" fill="#1f3a5f">'+hqEsc(it.label)+'</text>';
+      g+='<rect x="'+padL+'" y="'+(y+5)+'" width="'+iW+'" height="'+(rowH-14)+'" rx="4" fill="#eef3f9" stroke="#dbe5ee"/>';
+      g+='<rect x="'+padL+'" y="'+(y+5)+'" width="'+bw.toFixed(1)+'" height="'+(rowH-14)+'" rx="4" fill="'+(i===items.length-1?'#2b7cd3':'#0d2c4d')+'"/>';
+      g+='<text x="'+(padL+bw+7).toFixed(1)+'" y="'+(y+rowH*0.62).toFixed(1)+'" font-size="12" font-weight="700" fill="#0d2c4d">'+it.v.toLocaleString()+'</text>';
+    });
+    return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:'+w+'px;display:block" role="img">'+g+'</svg>';
+  }
+  var chartMonth = mSeries.length ? svgVBar(mSeries.map(function(x){ return {label:x.label,v:x.r2}; })) : '';
+  var chartFunnel = (tot.r0||tot.r1||tot.r2) ? svgFunnel([{label:'报名',v:tot.r0},{label:'面试',v:tot.r1},{label:'入营',v:tot.r2}]) : '';
+  var topN = rows.slice().sort(function(a,b){ return b.r.r2-a.r.r2; }).slice(0,12);
+  var chartTop = topN.length ? svgHBar(topN.map(function(o){ return {label:o.s,v:o.r.r2}; })) : '';
+  var hqNoData='<div class="nodata">暂无数据：本期该口径下各站未上报相应数据。</div>';
+  var chartMonthBox = chartMonth ? chartMonth : hqNoData;
+  var chartFunnelBox = chartFunnel ? chartFunnel : hqNoData;
+  var chartTopBox = chartTop ? chartTop : hqNoData;
   var H='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>扬帆计划 · 集团汇报材料 '+dstr+'</title><style>'
    +'*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",sans-serif;max-width:1080px;margin:0 auto;padding:28px 24px 60px;color:#1f3a5f;background:#fff;line-height:1.65}'
    +'.hd{border-bottom:3px solid #0d2c4d;padding-bottom:14px;margin-bottom:6px}'
    +'.tt{font-size:25px;font-weight:800;color:#0d2c4d;letter-spacing:.5px}'
    +'.sb2{color:#5a6b7b;font-size:13px;margin-top:6px}'
    +'.cali{background:#f5f8fc;border-left:3px solid #2b7cd3;padding:9px 14px;font-size:12.5px;color:#4a5c6e;margin:14px 0 22px;border-radius:0 6px 6px 0}'
+   +'.chart{border:1px solid #dbe5ee;border-radius:10px;padding:14px 16px;background:#fff;margin:12px 0}'
+   +'.chart .ct{font-size:13px;font-weight:700;color:#0d2c4d;margin-bottom:8px}'
+   +'.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}'
+   +'@media(max-width:720px){.grid2{grid-template-columns:1fr}}'
+   +'.nodata{color:#8a9aab;font-size:12.5px;padding:26px 8px;text-align:center;background:#fafcff;border-radius:8px}'
    +'h2{font-size:17px;color:#0d2c4d;margin:30px 0 12px;padding-left:10px;border-left:4px solid #e08c2e}'
    +'.nk{display:flex;gap:12px;margin:12px 0 6px;flex-wrap:wrap}'
    +'.nkc{flex:1;min-width:150px;border:1px solid #dbe5ee;border-radius:10px;padding:13px 15px;background:#fafcff}'
@@ -8810,7 +8942,7 @@ function hqReportHTML(){
    +'<div class="sb2">数据周期：'+dashPeriodText()+' '+GW.spanLabel()+'　｜　覆盖 '+list.length+' 家浆站　｜　生成日期：'+dstr+'　｜　口径来源：扬帆OS 中台总览驾驶舱</div></div>'
    +'<div class="cali"><b>口径说明：</b>'+HQ_CALIB_HTML+'</div>'
    +'<h2>一、总体指标</h2><div class="nk">'
-   +'<div class="nkc"><div class="n">'+tot.r2.toLocaleString()+'</div><div class="l">'+GW.monthLabel(GW.curKey())+'入营总规模</div><div class="s">'+list.length+'站合计</div></div>'
+   +'<div class="nkc"><div class="n">'+tot.r2.toLocaleString()+'</div><div class="l">'+GW.periodLabel()+'入营总规模</div><div class="s">'+list.length+'站合计</div></div>'
    +'<div class="nkc"><div class="n">'+north.healthy+'<span style="font-size:15px;color:#8a9aab">/'+list.length+'</span></div><div class="l">能力健康站</div><div class="s">≥3/'+GW.CAPS.length+' 项达中位数，占 '+north.healthyPct+'%</div></div>'
    +'<div class="nkc"><div class="n">'+north.risk+'</div><div class="l">风险预警站</div><div class="s">红橙预警≥2 条，占 '+north.riskPct+'%</div></div>'
    +'<div class="nkc"><div class="n">'+Math.round(ref.reuse*100)+'%</div><div class="l">经验复用率</div><div class="s">已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条</div></div>'
@@ -8821,11 +8953,17 @@ function hqReportHTML(){
    +'<div class="nkc"><div class="n">'+(tot.camp0?(tot.card/tot.camp0).toFixed(2):0)+'</div><div class="l">人均新卡（张/人）</div><div class="s">新卡合计 '+tot.card.toLocaleString()+' 张 · 分母季累计入营</div></div>'
    +'<div class="nkc"><div class="n">'+(tot.camp0?(tot.vol/tot.camp0).toFixed(1):0)+'</div><div class="l">人均采浆（份/人）</div><div class="s">采浆合计 '+tot.vol.toLocaleString()+' 份 · 分母季累计入营</div></div>'
    +'</div>'
-   +'<h2>二、'+list.length+' 站能力健康度明细</h2>'
-   +'<table><thead><tr><th>#</th><th>浆站</th><th>负责人</th><th>'+GW.monthLabel(GW.curKey())+'入营</th>'+capTh+'<th>健康度</th><th>预警数</th><th>最弱项</th></tr></thead><tbody>'+bodyRows+'</tbody></table>'
-   +'<h2>三、风险预警汇总</h2>'
+   +'<h2>二、数据图形总览</h2>'
+   +'<div class="grid2">'
+   +'<div class="chart"><div class="ct">各月入营规模（逐站求和 · 人）</div>'+chartMonthBox+'</div>'
+   +'<div class="chart"><div class="ct">整体漏斗（'+GW.periodLabel()+' · 人）· 到场率与入营率仅作漏斗参考，不进能力排名</div>'+chartFunnelBox+'</div>'
+   +'</div>'
+   +'<div class="chart"><div class="ct">各站入营对比（'+GW.periodLabel()+' · 降序 · 前 12 站）</div>'+chartTopBox+'</div>'
+   +'<h2>三、'+list.length+' 站能力健康度明细</h2>'
+   +'<table><thead><tr><th>#</th><th>浆站</th><th>负责人</th><th>'+GW.periodLabel()+'入营</th>'+capTh+'<th>健康度</th><th>预警数</th><th>最弱项</th></tr></thead><tbody>'+bodyRows+'</tbody></table>'
+   +'<h2>四、风险预警汇总</h2>'
    +'<table><thead><tr><th style="width:70px">等级</th><th style="width:130px">浆站</th><th>预警内容</th></tr></thead><tbody>'+warnH+'</tbody></table>'
-   +'<h2>四、可抄作业的标杆站</h2>'+benchH
+   +'<h2>五、可抄作业的标杆站</h2>'+benchH
    +'<div class="ft"><span>扬帆OS 运营中枢 · 同路生物</span><span>本材料由平台依据各站真实数据自动生成，可直接用于集团上报</span></div>'
    +'</body></html>';
   return H;
@@ -8857,11 +8995,15 @@ function hqPreviewReport(){
     document.getElementById('hqModal').classList.add('show');
   }catch(e){ toast('预览失败：'+(e&&e.message||'未知错误')); }
 }
-/* ============ 管理端「生成汇报 PPT」：数据看板 + 各站分析 → 9 页 .pptx 直接下载 ============
+/* ============ 管理端「生成汇报 PPT」：数据看板 + 各站分析 → 14 页 .pptx 直接下载 ============
    与工厂里的手工单站 PPT（genPPT）完全独立：本函数只读平台真实数据，不读任何表单输入，
    因此 genPPT 函数体零改动、互不影响。PptxGenJS 仍走点击懒加载（__yfLoadLib('pptx')），不进首屏。
-   页面结构：1 封面 / 2 集团总览（北极星）/ 3 整体漏斗与人均 / 4 各站能力健康度总表 /
-            5 风险预警汇总 / 6 标杆做法 / 7 单站深钻 / 8 各月入营趋势 / 9 结论与下一步。
+   页面结构（2026-10-09 深化改版 9→14 页，首页改数据总览图）：
+            1 首页·数据总览（KPI+各月入营柱状图+漏斗）/ 2 北极星与整体漏斗 / 3 月度节奏 /
+            4 能力健康度总表 / 5 同比对照 / 6 各站入营对比 / 7 风险预警汇总 / 8 入营趋势 /
+            9 标杆做法 / 10 单站深钻 / 11 短板分布 / 12 经验复用闭环 / 13 结论与下一步 /
+            14 口径与数据来源（附录）。
+   口径：整季=各月求和（与看板 dAll 同源）、单月=该月，统一走 GW.periodLabel()。
    数据缺月、缺项时该页明确写「暂无数据」并把缺什么讲清楚，绝不用 0 冒充或留空壳。 */
 function genHQPPT(){
   var btn=document.getElementById('hqPptBtn');
@@ -8882,7 +9024,7 @@ function genHQPPT(){
       var dstr=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日';
       var fdate=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0');
       var periodTxt=dashPeriodText()+' '+GW.spanLabel();
-      var curLbl=GW.monthLabel(GW.curKey());
+      var curLbl=GW.periodLabel();
       function capName(k){ var c=CAPS.filter(function(x){return x.k===k;})[0]; return c?c.n:'—'; }
       function stripB(s){ return String(s==null?'':s).replace(/<\/?b>/g,'').replace(/\s+/g,' ').trim(); }
       function okcOf(s){ var m=GW.metrics(s), n=0; CAPS.forEach(function(c){ if(bk.B[c.k]&&m[c.k]>=bk.B[c.k].med*0.9) n++; }); return n; }
@@ -8893,7 +9035,7 @@ function genHQPPT(){
         var m=GW.metrics(s), r=m._raw, w=YF_WARN.warns(s);
         return {s:s, n:okcOf(s), m:m, r:r, w:w, wk:GW.weakness(s),
                 p:(typeof PROF!=='undefined'&&PROF[s])?PROF[s]:{},
-                tier:GW.tier(r.r2), q:GW.quadrant(s)};
+                q:GW.quadrant(s)};
       });
       rows.sort(function(a,b){ return (b.n-a.n)||(b.r.r2-a.r.r2); });
       var tot={r0:0,r1:0,r2:0,camp0:0,card:0,vol:0,sci:0,conv:0};
@@ -8982,55 +9124,154 @@ function genHQPPT(){
       function nextSlide(){ var s=p.addSlide(); s.background={color:C.bg}; slideCount++; return s; }
       var kw=(9.2-3*0.2)/4;
 
-      /* 第 1 页：封面 */
+      /* ===== 本轮新增数据：月度节奏 / 同比 / 短板分布（全部与看板口径同源） ===== */
+      function monthTotals(k){
+        var o=monthMap(k); if(!o) return null;
+        var t={r0:0,r1:0,r2:0,any:false};
+        Object.keys(o).forEach(function(st){ var c=o[st]; if(!c||!c.reg)return; var rg=c.reg;
+          if(rg[0]!=null){t.r0+=rg[0];t.any=true;} if(rg[1]!=null)t.r1+=rg[1]; if(rg[2]!=null)t.r2+=rg[2]; });
+        return t.any?t:null;
+      }
+      function periodTotal(key,idx){
+        var mos=GW.isSeasonView()?GW.months():[DASH_CUR], sum=null;
+        mos.forEach(function(k){ var o=monthMap(k); if(!o)return;
+          Object.keys(o).forEach(function(st){ var c=o[st]; if(!c||!c[key])return; var v=c[key][idx]; if(v!=null) sum=(sum===null?0:sum)+v; }); });
+        return sum;
+      }
+      var mAg=GW.months().map(function(k){ return {k:k, label:GW.monthLabel(k), t:monthTotals(k)}; });
+      var mHave=mAg.filter(function(x){ return !!x.t; });
+      var seasonSum=mHave.reduce(function(a,x){ return a+x.t.r2; },0);
+      var baseKey=null, baseRec=null, yoy=null;
+      try{
+        baseKey=(typeof histBaseSeason==='function')?histBaseSeason():null;
+        if(baseKey&&typeof HIST!=='undefined'&&HIST[baseKey]){
+          baseRec=GW.isSeasonView()?HIST[baseKey].season:(HIST[baseKey].months[DASH_CUR]||null);
+        }
+      }catch(e){ baseKey=null; baseRec=null; }
+      if(baseRec){
+        var _bsum=function(key,idx){ var v=null; Object.keys(baseRec).forEach(function(s){ var r=baseRec[s]; if(!r||!r[key])return; var x=r[key][idx]; if(x!=null)v=(v===null?0:v)+x; }); return v; };
+        yoy={label:(HIST[baseKey].label||baseKey), rows:[
+          {n:'入营人数',    c:tot.r2,               b:_bsum('reg',2)},
+          {n:'学生新卡',    c:periodTotal('dev',0), b:_bsum('dev',0)},
+          {n:'学生采量',    c:periodTotal('dev',1), b:_bsum('dev',1)},
+          {n:'科普人次',    c:periodTotal('dev',3), b:_bsum('dev',3)},
+          {n:'科普转化新卡',c:periodTotal('dev',4), b:_bsum('dev',4)}
+        ]};
+      }
+      var wkFreq={}; rows.forEach(function(o){ if(o.wk&&o.wk[0]) wkFreq[o.wk[0].k]=(wkFreq[o.wk[0].k]||0)+1; });
+      var wkKeys=Object.keys(wkFreq).sort(function(a,b){ return wkFreq[b]-wkFreq[a]; });
+      var byEnroll=rows.slice().sort(function(a,b){ return b.r.r2-a.r.r2; });
+      function pctOf(a,b){ return b?Math.round(a/b*100):0; }
+      function dlt(cur,base){ if(cur==null||base==null||base===0)return null; return (cur-base)/base*100; }
+      function dltTxt(d){ return (d==null)?'—':((d>=0?'+':'')+Math.round(d)+'%'); }
+      function dltColor(d){ return (d==null)?C.muted:(d>=0?C.green2:C.red); }
+
+      /* ===== 第 1 页：首页 · 数据总览（图表在前，不摆空封面） ===== */
       var s1=nextSlide();
       s1.addShape(R,{x:0,y:0,w:'100%',h:0.06,fill:{color:C.gold}});
-      s1.addShape(R,{x:0.35,y:1.35,w:0.07,h:2.55,fill:{color:C.navy}});
-      s1.addText('扬帆计划 · 集团运营汇报',{x:0.7,y:1.4,w:5.6,h:0.9,fontSize:30,bold:true,color:C.navy,fontFace:FF});
-      s1.addText('数据看板 + 各站能力分析 · 自动生成',{x:0.7,y:2.32,w:5.6,h:0.36,fontSize:13.5,bold:true,color:C.gold2,fontFace:FF});
-      s1.addShape(R,{x:0.72,y:2.8,w:1.6,h:0.04,fill:{color:C.gold}});
-      s1.addText('数据周期：'+periodTxt,{x:0.7,y:3.0,w:5.6,h:0.3,fontSize:12,color:C.text,fontFace:FF});
-      s1.addText('覆盖 '+list.length+' 家浆站　｜　生成日期：'+dstr,{x:0.7,y:3.32,w:5.6,h:0.3,fontSize:12,color:C.muted,fontFace:FF});
-      s1.addText('口径来源：扬帆OS 中台总览驾驶舱，指标全部由各站真实漏斗反推',{x:0.7,y:3.64,w:5.6,h:0.3,fontSize:11,color:C.muted,fontFace:FF});
-      s1.addShape(RR,{x:6.9,y:1.3,w:2.7,h:2.9,fill:{color:C.panel},line:{color:C.gold,width:1.2},rectRadius:0.14});
-      s1.addText('扬帆\n计划',{x:7.05,y:1.95,w:2.4,h:1.4,fontSize:28,bold:true,color:C.navy,align:'center',valign:'middle',fontFace:FF,lineSpacingMultiple:1.1});
-      s1.addText('同路生物\n原料血浆事业部',{x:7.05,y:3.42,w:2.4,h:0.6,fontSize:11,color:C.muted,align:'center',fontFace:FF,lineSpacingMultiple:1.2});
+      s1.addShape(R,{x:0,y:0.06,w:10,h:0.8,fill:{color:C.navy}});
+      s1.addText('扬帆计划 · 集团运营汇报',{x:0.42,y:0.14,w:6.4,h:0.4,fontSize:19,bold:true,color:'FFFFFF',fontFace:FF});
+      s1.addText('数据周期：'+periodTxt+'　｜　覆盖 '+list.length+' 家浆站　｜　生成日期：'+dstr,{x:0.42,y:0.52,w:7.4,h:0.26,fontSize:10,color:'CFE0F2',fontFace:FF});
+      s1.addText('同路生物\n原料血浆事业部',{x:7.9,y:0.14,w:1.7,h:0.64,fontSize:9.5,color:'CFE0F2',align:'right',valign:'middle',fontFace:FF,lineSpacingMultiple:1.15});
+      kpi(s1,0.4,0.98,kw,0.94,'入营总规模',String(tot.r2),curLbl+'累计 · '+list.length+' 站合计',C.navy);
+      kpi(s1,0.4+kw+0.2,0.98,kw,0.94,'能力健康站',north.healthy+'/'+list.length,'≥3/'+NC+' 项达全站中位 · 占 '+healthyPct+'%',C.green2);
+      kpi(s1,0.4+2*(kw+0.2),0.98,kw,0.94,'风险预警站',String(north.risk),'红橙预警≥2 条 · 占 '+north.riskPct+'%',C.red);
+      kpi(s1,0.4+3*(kw+0.2),0.98,kw,0.94,'经验复用率',reusePct+'%','已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条',C.cyan);
+      card(s1,0.4,2.06,5.6,2.92,{fill:C.white,line:C.line,lw:0.9});
+      s1.addText('各月入营规模（逐站求和 · 人）',{x:0.6,y:2.12,w:5.2,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+      if(mHave.length){
+        s1.addChart(p.ChartType.bar,[{name:'入营人数',labels:mHave.map(function(x){return x.label;}),values:mHave.map(function(x){return x.t.r2;})}],{
+          x:0.55,y:2.42,w:5.3,h:2.4,barDir:'col',showValue:true,
+          dataLabelPosition:'outEnd',dataLabelFontSize:10,dataLabelFontBold:true,dataLabelColor:C.navy,
+          chartColors:[C.cyan],catAxisLabelFontSize:10,catAxisLabelColor:C.text,valAxisLabelColor:C.muted,
+          valAxisMin:0,valAxisHidden:true,catGridLine:{style:'none'},valGridLine:{color:C.line,size:0.5},
+          barGapWidthPct:60,showLegend:false,chartArea:{fill:{color:'FFFFFF'}},plotArea:{fill:{color:'FFFFFF'}}
+        });
+      } else {
+        s1.addText('暂无数据：尚无任何月份上报入营数据。',{x:0.8,y:3.4,w:4.8,h:0.8,fontSize:12,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+      }
+      card(s1,6.2,2.06,3.4,2.92,{fill:C.panel,line:C.line,lw:0.9});
+      s1.addShape(R,{x:6.2,y:2.2,w:0.06,h:2.64,fill:{color:C.gold}});
+      s1.addText('整体漏斗（'+curLbl+'）',{x:6.42,y:2.14,w:3.0,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+      (function(){
+        var fnl=[['报名',tot.r0],['面试',tot.r1],['入营',tot.r2]], mx=Math.max(tot.r0,tot.r1,tot.r2,1);
+        fnl.forEach(function(it,i){
+          var y=2.48+i*0.56;
+          s1.addText(it[0],{x:6.42,y:y,w:0.6,h:0.26,fontSize:9.5,color:C.text,fontFace:FF});
+          s1.addShape(RR,{x:7.0,y:y+0.04,w:1.75,h:0.18,fill:{color:C.panel2},line:{color:C.line,width:0.5},rectRadius:0.09});
+          s1.addShape(RR,{x:7.0,y:y+0.04,w:Math.max(0.05,1.75*it[1]/mx),h:0.18,fill:{color:i===2?C.cyan:C.blue},line:{color:'FFFFFF',width:0.3},rectRadius:0.09});
+          s1.addText(String(it[1]),{x:8.78,y:y,w:0.72,h:0.26,fontSize:10,bold:true,color:C.navy,align:'right',fontFace:FF});
+        });
+        s1.addText('到场率 '+arrivePct+'%　｜　入营率 '+enrollPct+'%',{x:6.42,y:4.18,w:3.0,h:0.26,fontSize:9.5,color:C.text,fontFace:FF});
+        s1.addText('人均新卡 '+cardPer.toFixed(2)+' 张　｜　人均采浆 '+volPer.toFixed(1)+' 份',{x:6.42,y:4.44,w:3.0,h:0.26,fontSize:9.5,color:C.text,fontFace:FF});
+        s1.addText('漏斗与人均均以「'+curLbl+'」为口径，与数据看板同源。',{x:6.42,y:4.70,w:3.0,h:0.24,fontSize:8.5,color:C.muted,fontFace:FF});
+      })();
       footer(s1);
 
-      /* 第 2 页：集团总览（北极星） */
-      var s2=nextSlide(); header(s2,'集团总览','NORTH STAR','北极星指标与能力健康度');
-      kpi(s2,0.4,1.64,kw,1.05,curLbl+'入营总规模',String(tot.r2),list.length+' 站合计 · 漏斗终点',C.navy);
-      kpi(s2,0.4+kw+0.2,1.64,kw,1.05,'能力健康站',north.healthy+'/'+list.length,'≥3/'+NC+' 项达中位 · 占 '+healthyPct+'%',C.green2);
-      kpi(s2,0.4+2*(kw+0.2),1.64,kw,1.05,'风险预警站',String(north.risk),'红橙预警≥2 条 · 占 '+north.riskPct+'%',C.red);
-      kpi(s2,0.4+3*(kw+0.2),1.64,kw,1.05,'经验复用率',reusePct+'%','已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条',C.cyan);
-      card(s2,0.4,2.88,9.2,1.92,{fill:C.panel,line:C.line,lw:1});
-      s2.addShape(R,{x:0.4,y:3.02,w:0.06,h:1.64,fill:{color:C.blue}});
-      s2.addText('口径说明',{x:0.62,y:2.96,w:4,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
-      s2.addText(HQ_CALIB,{x:0.62,y:3.22,w:8.8,h:1.46,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.35});
-      footer(s2);
-
-      /* 第 3 页：整体漏斗与人均 */
-      var s3=nextSlide(); header(s3,'整体漏斗与人均','FUNNEL AND PER CAPITA','整体到场率、入营率与人均产出');
-      kpi(s3,0.4,1.62,kw,1.05,'整体到场率',arrivePct+'%','面试 '+tot.r1+' / 报名 '+tot.r0,C.cyan);
-      kpi(s3,0.4+kw+0.2,1.62,kw,1.05,'整体入营率',enrollPct+'%','入营 '+tot.r2+' / 面试 '+tot.r1,C.blue);
-      kpi(s3,0.4+2*(kw+0.2),1.62,kw,1.05,'人均新卡（张/人）',cardPer.toFixed(2),'新卡 '+tot.card+' 张 · 分母季累计入营 '+tot.camp0,C.gold2);
-      kpi(s3,0.4+3*(kw+0.2),1.62,kw,1.05,'人均采浆（份/人）',volPer.toFixed(1),'采浆 '+tot.vol+' 份 · 分母季累计入营 '+tot.camp0,C.green2);
-      card(s3,0.4,2.86,9.2,2.26,{fill:C.white,line:C.line,lw:0.9});
-      s3.addText('整体漏斗（人）· 到场率与入营率仅作漏斗参考，不进能力排名',{x:0.6,y:2.92,w:8.8,h:0.26,fontSize:10,bold:true,color:C.navy,fontFace:FF});
-      if(tot.r0>0||tot.r1>0||tot.r2>0){
-        s3.addChart(p.ChartType.bar,[{name:'人数',labels:['报名','面试','入营'],values:[tot.r0,tot.r1,tot.r2]}],{
-          x:0.55,y:3.2,w:8.9,h:1.82,barDir:'col',showValue:true,
+      /* ===== 第 2 页：北极星与整体漏斗 ===== */
+      var s2=nextSlide(); header(s2,'北极星与整体漏斗','NORTH STAR','北极星指标、能力健康度与整体漏斗');
+      kpi(s2,0.4,1.62,kw,1.0,'入营总规模',String(tot.r2),curLbl+'累计 · '+list.length+' 站合计',C.navy);
+      kpi(s2,0.4+kw+0.2,1.62,kw,1.0,'能力健康站',north.healthy+'/'+list.length,'≥3/'+NC+' 项达全站中位 · 占 '+healthyPct+'%',C.green2);
+      kpi(s2,0.4+2*(kw+0.2),1.62,kw,1.0,'风险预警站',String(north.risk),'红橙预警≥2 条 · 占 '+north.riskPct+'%',C.red);
+      kpi(s2,0.4+3*(kw+0.2),1.62,kw,1.0,'经验复用率',reusePct+'%','已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条',C.cyan);
+      card(s2,0.4,2.80,5.5,2.3,{fill:C.white,line:C.line,lw:0.9});
+      s2.addText('整体漏斗（人）· 到场率与入营率仅作漏斗参考，不进能力排名',{x:0.6,y:2.86,w:5.2,h:0.26,fontSize:9.5,bold:true,color:C.navy,fontFace:FF});
+      if(tot.r0||tot.r1||tot.r2){
+        s2.addChart(p.ChartType.bar,[{name:'人数',labels:['报名','面试','入营'],values:[tot.r0,tot.r1,tot.r2]}],{
+          x:0.55,y:3.14,w:5.2,h:1.86,barDir:'col',showValue:true,
           dataLabelPosition:'inEnd',dataLabelFontSize:11,dataLabelFontBold:true,dataLabelColor:'FFFFFF',
           chartColors:[C.cyan],catAxisLabelFontSize:10,catAxisLabelColor:C.text,valAxisLabelColor:C.muted,
           valAxisHidden:true,valAxisMin:0,catGridLine:{style:'none'},valGridLine:{color:C.line,size:0.5},
           barGapWidthPct:45,showLegend:false,chartArea:{fill:{color:'FFFFFF'}},plotArea:{fill:{color:'FFFFFF'}}
         });
       } else {
-        s3.addText('暂无数据：本期各站未上报报名与面试人数，漏斗图待有数据后自动生成。',{x:0.8,y:3.6,w:8.4,h:1.1,fontSize:12,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+        s2.addText('暂无数据：本期各站未上报报名与面试人数，漏斗图待有数据后自动生成。',{x:0.8,y:3.4,w:4.8,h:1.0,fontSize:11,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+      }
+      card(s2,6.1,2.80,3.5,2.3,{fill:C.panel,line:C.line,lw:0.9});
+      s2.addShape(R,{x:6.1,y:2.94,w:0.06,h:2.02,fill:{color:C.blue}});
+      s2.addText('口径说明',{x:6.32,y:2.88,w:3.0,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+      s2.addText(HQ_CALIB,{x:6.32,y:3.14,w:3.14,h:1.84,fontSize:7,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.28});
+      footer(s2);
+
+      /* ===== 第 3 页：月度节奏（各月在做什么、哪个月掉了） ===== */
+      var s3=nextSlide(); header(s3,'月度节奏','MONTHLY PACE','各月报名/面试/入营与环比、占季比');
+      if(mHave.length){
+        card(s3,0.4,1.6,6.0,2.5,{fill:C.white,line:C.line,lw:0.9});
+        s3.addText('各月漏斗三项（人）',{x:0.6,y:1.66,w:5.6,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+        s3.addChart(p.ChartType.bar,[
+          {name:'报名',labels:mHave.map(function(x){return x.label;}),values:mHave.map(function(x){return x.t.r0;})},
+          {name:'面试',labels:mHave.map(function(x){return x.label;}),values:mHave.map(function(x){return x.t.r1;})},
+          {name:'入营',labels:mHave.map(function(x){return x.label;}),values:mHave.map(function(x){return x.t.r2;})}
+        ],{
+          x:0.55,y:1.94,w:5.7,h:2.1,barDir:'col',showValue:false,
+          chartColors:[C.cyanLt,C.blue,C.navy],catAxisLabelFontSize:10,catAxisLabelColor:C.text,
+          valAxisLabelColor:C.muted,valAxisMin:0,catGridLine:{style:'none'},valGridLine:{color:C.line,size:0.5},
+          barGapWidthPct:40,showLegend:true,legendPos:'b',legendFontSize:8.5,
+          chartArea:{fill:{color:'FFFFFF'}},plotArea:{fill:{color:'FFFFFF'}}
+        });
+        card(s3,6.6,1.6,3.0,2.5,{fill:C.panel,line:C.line,lw:0.9});
+        s3.addText('各月入营：环比与占季比',{x:6.78,y:1.66,w:2.7,h:0.26,fontSize:10,bold:true,color:C.navy,fontFace:FF});
+        (function(){
+          var y0=1.96, prev=null;
+          mHave.forEach(function(x,i){
+            var d=dlt(x.t.r2,prev), share=seasonSum?Math.round(x.t.r2/seasonSum*100):0;
+            s3.addText(x.label,{x:6.78,y:y0+i*0.52,w:1.0,h:0.24,fontSize:9.5,bold:true,color:C.text,fontFace:FF});
+            s3.addText(String(x.t.r2)+' 人',{x:7.78,y:y0+i*0.52,w:1.7,h:0.24,fontSize:9.5,color:C.navy,align:'right',fontFace:FF});
+            s3.addText((i?'环比 '+dltTxt(d)+'　':'首月　')+'占季 '+share+'%',{x:6.78,y:y0+i*0.52+0.24,w:2.7,h:0.22,fontSize:8.5,color:i?dltColor(d):C.muted,fontFace:FF});
+            prev=x.t.r2;
+          });
+        })();
+        var peak=mHave.slice().sort(function(a,b){return b.t.r2-a.t.r2;})[0];
+        var last=mHave[mHave.length-1];
+        s3.addText('小结：'+(peak?('入营高峰在 '+peak.label+'（'+peak.t.r2+' 人）'):'—')+'；'+(mHave.length>1?('最新月 '+last.label+' 为 '+last.t.r2+' 人'):'仅一个月数据')+'。'
+          +'月度节奏读的是「开营早晚与批次安排」，不评价负责人做法——不要把月与月的高低直接当能力高低。',
+          {x:0.4,y:4.20,w:9.2,h:0.7,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      } else {
+        s3.addText('暂无数据：尚无可比较的月份，补齐月度上报后本页自动生成。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
       }
       footer(s3);
 
-      /* 第 4 页：各站能力健康度总表（原生表格） */
+      /* ===== 第 4 页：各站能力健康度总表（原生表格） ===== */
       var s4=nextSlide(); header(s4,'能力健康度总表','HEALTH MATRIX',list.length+' 站能力健康度与最弱项');
       if(rows.length){
         var hr=[cellH('浆站',{bold:true,color:'FFFFFF',fill:C.navy,align:'left'}),
@@ -9058,90 +9299,91 @@ function genHQPPT(){
         s4.addTable(t4,{x:0.25,y:1.64,w:9.5,colW:[1.05,0.75,0.7,1.02,1.02,1.02,1.02,0.87,0.55,1.5],
           rowH:0.163,fontFace:FF,fontSize:7,color:C.text,valign:'middle',align:'center',
           border:{type:'solid',pt:0.5,color:C.line},autoPage:false});
-        s4.addText('健康度 = 四项能力中达全站中位 90% 的项数（A≥3、B=2、C=1、D≤0）；能力值低于中位 90% 标红。',{x:0.3,y:5.08,w:9.4,h:0.2,fontSize:7.5,color:C.muted,fontFace:FF});
+        s4.addText('健康度 = 四项能力中达全站中位 90% 的项数（A≥3、B=2、C=1、D≤0）；能力值低于中位 90% 标红。入营列口径 = '+curLbl+'。',{x:0.3,y:5.08,w:9.4,h:0.2,fontSize:7.5,color:C.muted,fontFace:FF});
       } else {
         s4.addText('暂无数据：平台尚未接入在运营浆站，无法生成健康度总表。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
       }
       footer(s4);
 
-      /* 第 5 页：风险预警汇总（红 / 橙 / 蓝分级） */
-      var s5=nextSlide(); header(s5,'风险预警汇总','RISK ALERTS','红橙蓝三级预警与涉及浆站');
+      /* ===== 第 5 页：同比对照（与去年同季/同月比，看趋势不看单点） ===== */
+      var s5=nextSlide(); header(s5,'同比对照','YEAR ON YEAR','与去年同周期对照：五项硬指标');
+      if(yoy){
+        var t5=[[cellH('指标',{bold:true,color:'FFFFFF',fill:C.navy,align:'left'}),
+                 cellH(yoy.label,{bold:true,color:'FFFFFF',fill:C.navy}),
+                 cellH('本期（'+curLbl+'）',{bold:true,color:'FFFFFF',fill:C.navy}),
+                 cellH('同比',{bold:true,color:'FFFFFF',fill:C.navy})]];
+        yoy.rows.forEach(function(r){
+          var d=dlt(r.c,r.b);
+          t5.push([cellH(r.n,{bold:true,color:C.navy,align:'left'}),
+                   cellH(r.b==null?'—':r.b.toLocaleString('en-US'),{color:C.muted}),
+                   cellH(r.c==null?'—':r.c.toLocaleString('en-US'),{bold:true,color:C.navy}),
+                   cellH(dltTxt(d),{bold:true,color:dltColor(d)})]);
+        });
+        s5.addTable(t5,{x:0.25,y:1.64,w:9.5,colW:[2.3,2.2,2.2,2.8],rowH:0.34,fontFace:FF,fontSize:9,
+          color:C.text,valign:'middle',align:'center',border:{type:'solid',pt:0.5,color:C.line},autoPage:false});
+        card(s5,0.4,3.62,9.2,1.32,{fill:C.panel,line:C.line,lw:0.9});
+        s5.addShape(R,{x:0.4,y:3.76,w:0.06,h:1.04,fill:{color:C.blue}});
+        var yh=yoy.rows[0], yd=dlt(yh.c,yh.b);
+        var worse=yoy.rows.filter(function(r){ var d=dlt(r.c,r.b); return d!=null && d<0; }).map(function(r){ return r.n+'（'+dltTxt(dlt(r.c,r.b))+'）'; });
+        s5.addText('怎么读这一页',{x:0.62,y:3.70,w:4,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+        s5.addText('入营 '+(yh.b==null?'—':yh.b.toLocaleString('en-US'))+' → '+(yh.c==null?'—':yh.c.toLocaleString('en-US'))+'（'+dltTxt(yd)+'）；'
+          +(worse.length?('同比走低的是 '+worse.join('、')+'。'):'五项指标同比均未走低。')
+          +'同比是「同一周期对同一周期」，比环比更能说明趋势；但家长参与为今年新增统计项，无去年基线，不作同比。'
+          +'看同比先看结构：是整站盘子变小，还是某一环掉了。',
+          {x:0.62,y:3.96,w:8.8,h:0.88,fontSize:8.5,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      } else {
+        card(s5,0.4,1.8,9.2,1.6,{fill:C.panel,line:C.line,lw:0.9});
+        s5.addText('暂无同比基线',{x:0.6,y:1.96,w:5,h:0.4,fontSize:16,bold:true,color:C.muted,fontFace:FF});
+        s5.addText('同比需要同一周期（同季或同月）的去年数据基线。当前基线缺失，或看板处于历史季只读视图——本页不作推断，也不拿当年数据充当去年。',
+          {x:0.6,y:2.42,w:8.8,h:0.8,fontSize:10,color:C.muted,valign:'top',fontFace:FF,lineSpacingMultiple:1.35});
+      }
+      footer(s5);
+
+      /* ===== 第 6 页：各站入营对比（只比做法与结果，不比"大小站"） ===== */
+      var s6=nextSlide(); header(s6,'各站入营对比','STATION COMPARISON','各站'+curLbl+'入营规模（降序）');
+      if(byEnroll.length){
+        card(s6,0.4,1.6,9.2,3.3,{fill:C.white,line:C.line,lw:0.9});
+        s6.addChart(p.ChartType.bar,[{name:curLbl+'入营（人）',labels:byEnroll.map(function(o){return o.s;}),
+          values:byEnroll.map(function(o){return o.r.r2;})}],{
+          x:0.55,y:1.7,w:8.9,h:3.1,barDir:'bar',showValue:true,
+          dataLabelPosition:'outEnd',dataLabelFontSize:8,dataLabelFontBold:true,dataLabelColor:C.navy,
+          chartColors:[C.cyan],catAxisLabelFontSize:8,catAxisLabelColor:C.text,valAxisLabelColor:C.muted,
+          valAxisHidden:true,valAxisMin:0,catGridLine:{style:'none'},valGridLine:{color:C.line,size:0.5},
+          barGapWidthPct:30,showLegend:false,chartArea:{fill:{color:'FFFFFF'}},plotArea:{fill:{color:'FFFFFF'}}
+        });
+        s6.addText('口径：'+curLbl+'各站入营人数（reg[2]），仅作规模分布展示。规模差异主要由开营批次与集团容量调控决定，不用于评价负责人能力——能力看第 4 页四项指标。',
+          {x:0.4,y:4.96,w:9.2,h:0.28,fontSize:7.5,color:C.muted,fontFace:FF});
+      } else {
+        s6.addText('暂无数据：没有可对比的浆站。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+      }
+      footer(s6);
+
+      /* ===== 第 7 页：风险预警汇总（红 / 橙 / 蓝分级） ===== */
+      var s7=nextSlide(); header(s7,'风险预警汇总','RISK ALERTS','红橙蓝三级预警与涉及浆站');
       var bw=(9.2-2*0.2)/3;
-      kpi(s5,0.4,1.6,bw,0.9,'高危预警',String(wRed),'家长关过不去或同比负增长，需即刻介入',C.red);
-      kpi(s5,0.4+bw+0.2,1.6,bw,0.9,'重点预警',String(wOrange),'能力项垫底或链条未搭起',C.orange);
-      kpi(s5,0.4+2*(bw+0.2),1.6,bw,0.9,'关注预警',String(wBlue),'势头环比下滑，需复盘节奏',C.slate);
-      s5.addText('预警明细（涉及 '+wStations+' 站，按等级从高到低）',{x:0.4,y:2.58,w:6,h:0.24,fontSize:10,bold:true,color:C.navy,fontFace:FF});
-      var t5=[[cellH('等级',{bold:true,color:'FFFFFF',fill:C.navy}),cellH('浆站',{bold:true,color:'FFFFFF',fill:C.navy}),cellH('预警内容',{bold:true,color:'FFFFFF',fill:C.navy,align:'left'})]];
+      kpi(s7,0.4,1.6,bw,0.9,'高危预警',String(wRed),'家长关过不去或同比负增长，需即刻介入',C.red);
+      kpi(s7,0.4+bw+0.2,1.6,bw,0.9,'重点预警',String(wOrange),'能力项垫底或链条未搭起',C.orange);
+      kpi(s7,0.4+2*(bw+0.2),1.6,bw,0.9,'关注预警',String(wBlue),'势头环比下滑，需复盘节奏',C.slate);
+      s7.addText('预警明细（涉及 '+wStations+' 站，按等级从高到低）',{x:0.4,y:2.58,w:6,h:0.24,fontSize:10,bold:true,color:C.navy,fontFace:FF});
+      var t7=[[cellH('等级',{bold:true,color:'FFFFFF',fill:C.navy}),cellH('浆站',{bold:true,color:'FFFFFF',fill:C.navy}),cellH('预警内容',{bold:true,color:'FFFFFF',fill:C.navy,align:'left'})]];
       if(warnAll.length){
         warnAll.slice(0,12).forEach(function(o){
           var lv=o.x.sev===3?'高危':(o.x.sev===2?'重点':'关注');
           var lc=o.x.sev===3?C.red:(o.x.sev===2?C.orange:C.slate);
-          t5.push([cellH(lv,{bold:true,color:'FFFFFF',fill:lc}),
+          t7.push([cellH(lv,{bold:true,color:'FFFFFF',fill:lc}),
                    cellH(o.s,{bold:true,color:C.navy}),
                    cellH(o.x.t+'　'+o.x.d,{color:C.text,align:'left'})]);
         });
       } else {
-        t5.push([cellH('—',{color:C.muted}),cellH('—',{color:C.muted}),cellH('本期暂未发现高危预警，保持监测。',{color:C.muted,align:'left'})]);
+        t7.push([cellH('—',{color:C.muted}),cellH('—',{color:C.muted}),cellH('本期暂未发现高危预警，保持监测。',{color:C.muted,align:'left'})]);
       }
-      s5.addTable(t5,{x:0.25,y:2.86,w:9.5,colW:[0.6,0.85,8.05],rowH:0.166,fontFace:FF,fontSize:7.5,color:C.text,
+      s7.addTable(t7,{x:0.25,y:2.86,w:9.5,colW:[0.6,0.85,8.05],rowH:0.166,fontFace:FF,fontSize:7.5,color:C.text,
         valign:'middle',align:'center',border:{type:'solid',pt:0.5,color:C.line},autoPage:false});
       if(warnAll.length>12)
-        s5.addText('本期共 '+warnAll.length+' 条预警，本页列前 12 条；完整清单见「导出集团汇报材料」。',{x:0.3,y:5.04,w:9.4,h:0.22,fontSize:7.5,color:C.muted,fontFace:FF});
-      footer(s5);
-
-      /* 第 6 页：可抄作业的标杆做法 */
-      var s6=nextSlide(); header(s6,'标杆做法','BENCHMARK','可抄作业的标杆站与真实做法');
-      var tops=rows.slice(0,3);
-      if(tops.length){
-        tops.forEach(function(o,i){
-          var y=1.66+i*1.16;
-          card(s6,0.4,y,9.2,1.06,{fill:C.white,line:C.line,lw:1});
-          s6.addShape(R,{x:0.4,y:y+0.12,w:0.06,h:0.82,fill:{color:C.green2}});
-          s6.addText(String(i+1),{x:0.58,y:y+0.12,w:0.36,h:0.36,fontSize:15,bold:true,color:C.green2,fontFace:FF});
-          var ty=(GW.TYPES[o.q.key]&&GW.TYPES[o.q.key].n)||'—';
-          s6.addText(o.s,{x:1.0,y:y+0.06,w:3.2,h:0.3,fontSize:14,bold:true,color:C.navy,fontFace:FF});
-          s6.addText(o.tier+' ｜ '+ty+' ｜ 健康度 '+grade(o.n)[0]+'（'+o.n+'/'+NC+' 项达中位）｜ '+curLbl+'入营 '+o.r.r2+' 人',
-            {x:1.0,y:y+0.33,w:8.4,h:0.22,fontSize:8.5,color:C.muted,fontFace:FF});
-          var how=GW.benchHow(o.s); if(how.length>150) how=how.slice(0,150)+'…';
-          s6.addText(how,{x:1.0,y:y+0.56,w:8.4,h:0.46,fontSize:9,color:C.text,fontFace:FF,valign:'top',lineSpacingMultiple:1.25});
-        });
-      } else {
-        s6.addText('暂无数据：没有可评价的浆站，标杆做法待有在运营站点后自动生成。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
-      }
-      footer(s6);
-
-      /* 第 7 页：单站深钻（四项能力 vs 中位 / 最弱项 / 象限类型） */
-      var s7=nextSlide(); header(s7,'单站深钻','STATION DRILLDOWN','最需处理的那一站：能力对位与最弱项');
-      var drill=cands[0]||null;
-      if(drill){
-        var dm=GW.metrics(drill.s), dq=GW.quadrant(drill.s), dt=GW.TYPES[dq.key]||{n:'—',core:''};
-        var dwk=GW.weakness(drill.s), dw0=(dwk&&dwk[0])?dwk[0]:null;
-        card(s7,0.4,1.58,9.2,0.6,{fill:C.panel,line:C.line,lw:1});
-        s7.addText(drill.s,{x:0.56,y:1.62,w:1.9,h:0.52,fontSize:17,bold:true,color:C.navy,valign:'middle',fontFace:FF});
-        s7.addText('规模档：'+GW.tier(dm._raw.r2)+'　｜　负责人：'+GW.ownerOf(drill.s)+'　｜　象限类型：'+dt.n+'　｜　预警 '+drill.n+' 条',
-          {x:2.5,y:1.62,w:7.0,h:0.52,fontSize:10,color:C.muted,valign:'middle',fontFace:FF});
-        card(s7,0.4,2.26,9.2,0.84,{fill:C.white,line:C.line,lw:1});
-        s7.addText(stripB(dt.core),{x:0.58,y:2.32,w:8.9,h:0.72,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
-        s7.addText('四项能力 vs 全站中位',{x:0.4,y:3.18,w:4,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
-        CAPS.forEach(function(c,i){
-          var y=3.48+i*0.38;
-          var v=dm[c.k], med=bk.B[c.k]?bk.B[c.k].med:0;
-          var pct=med>0?Math.min(100, v/med*100):0;
-          var col=v>=med?C.green2:(v>=med*0.7?C.orange:C.red);
-          s7.addText(c.n,{x:0.4,y:y,w:1.15,h:0.24,fontSize:10,bold:true,color:C.text,valign:'middle',fontFace:FF});
-          s7.addShape(RR,{x:1.6,y:y+0.03,w:4.5,h:0.18,fill:{color:C.panel2},line:{color:C.line,width:0.5},rectRadius:0.09});
-          if(pct>0) s7.addShape(RR,{x:1.6,y:y+0.03,w:Math.max(0.06,4.5*pct/100),h:0.18,fill:{color:col},line:{color:col,width:0.5},rectRadius:0.09});
-          s7.addText(gwFmt(v,c.u)+' / 中位 '+gwFmt(med,c.u),{x:6.2,y:y,w:3.4,h:0.24,fontSize:9.5,bold:true,color:col,valign:'middle',fontFace:FF});
-        });
-        s7.addText(dw0?('最弱项：'+capName(dw0.k)+'（'+gwFmt(dw0.v,dw0.cap.u)+'，落后中位 '+Math.round(dw0.gap)+'%，全站第 '+dw0.rank+' 名）——本期只补这一环。')
-                      :'最弱项：暂无数据，该站四项能力数据不完整，建议先补齐上报。',
-          {x:0.4,y:4.94,w:9.2,h:0.26,fontSize:9.5,bold:true,color:C.red,valign:'middle',fontFace:FF});
-      } else {
-        s7.addText('暂无数据：没有可钻取的浆站。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
-      }
+        s7.addText('本期共 '+warnAll.length+' 条预警，本页列前 12 条；完整清单见「导出集团汇报材料」。',{x:0.3,y:5.04,w:9.4,h:0.22,fontSize:7.5,color:C.muted,fontFace:FF});
       footer(s7);
 
-      /* 第 8 页：各月入营趋势（原生折线图） */
+      /* ===== 第 8 页：各月入营趋势（原生折线图） ===== */
       var s8=nextSlide(); header(s8,'入营趋势','MONTHLY TREND','各月入营规模（逐站求和）');
       if(trend.length>=2){
         card(s8,0.4,1.58,9.2,3.3,{fill:C.white,line:C.line,lw:0.9});
@@ -9164,8 +9406,128 @@ function genHQPPT(){
       }
       footer(s8);
 
-      /* 第 9 页：结论与下一步 */
-      var s9=nextSlide(); header(s9,'结论与下一步','CONCLUSION','北极星达成情况、风险结论与本期行动计划');
+      /* ===== 第 9 页：可抄作业的标杆做法 ===== */
+      var s9=nextSlide(); header(s9,'标杆做法','BENCHMARK','可抄作业的标杆站与真实做法');
+      var tops=rows.slice(0,3);
+      if(tops.length){
+        tops.forEach(function(o,i){
+          var y=1.66+i*1.16;
+          card(s9,0.4,y,9.2,1.06,{fill:C.white,line:C.line,lw:1});
+          s9.addShape(R,{x:0.4,y:y+0.12,w:0.06,h:0.82,fill:{color:C.green2}});
+          s9.addText(String(i+1),{x:0.58,y:y+0.12,w:0.36,h:0.36,fontSize:15,bold:true,color:C.green2,fontFace:FF});
+          var ty=(GW.TYPES[o.q.key]&&GW.TYPES[o.q.key].n)||'—';
+          s9.addText(o.s,{x:1.0,y:y+0.06,w:3.2,h:0.3,fontSize:14,bold:true,color:C.navy,fontFace:FF});
+          s9.addText(ty+' ｜ 健康度 '+grade(o.n)[0]+'（'+o.n+'/'+NC+' 项达中位）｜ '+curLbl+'入营 '+o.r.r2+' 人',
+            {x:1.0,y:y+0.33,w:8.4,h:0.22,fontSize:8.5,color:C.muted,fontFace:FF});
+          var how=GW.benchHow(o.s); if(how.length>150) how=how.slice(0,150)+'…';
+          s9.addText(how,{x:1.0,y:y+0.56,w:8.4,h:0.46,fontSize:9,color:C.text,fontFace:FF,valign:'top',lineSpacingMultiple:1.25});
+        });
+      } else {
+        s9.addText('暂无数据：没有可评价的浆站，标杆做法待有在运营站点后自动生成。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+      }
+      footer(s9);
+
+      /* ===== 第 10 页：单站深钻（四项能力 vs 中位 / 最弱项 / 象限类型） ===== */
+      var s10=nextSlide(); header(s10,'单站深钻','STATION DRILLDOWN','最需处理的那一站：能力对位与最弱项');
+      var drill=cands[0]||null;
+      if(drill){
+        var dm=GW.metrics(drill.s), dq=GW.quadrant(drill.s), dt=GW.TYPES[dq.key]||{n:'—',core:''};
+        var dwk=GW.weakness(drill.s), dw0=(dwk&&dwk[0])?dwk[0]:null;
+        card(s10,0.4,1.58,9.2,0.6,{fill:C.panel,line:C.line,lw:1});
+        s10.addText(drill.s,{x:0.56,y:1.62,w:1.9,h:0.52,fontSize:17,bold:true,color:C.navy,valign:'middle',fontFace:FF});
+        s10.addText('负责人：'+GW.ownerOf(drill.s)+'　｜　象限类型：'+dt.n+'　｜　预警 '+drill.n+' 条',
+          {x:2.5,y:1.62,w:7.0,h:0.52,fontSize:10,color:C.muted,valign:'middle',fontFace:FF});
+        card(s10,0.4,2.26,9.2,0.84,{fill:C.white,line:C.line,lw:1});
+        s10.addText(stripB(dt.core),{x:0.58,y:2.32,w:8.9,h:0.72,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+        s10.addText('四项能力 vs 全站中位',{x:0.4,y:3.18,w:4,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+        CAPS.forEach(function(c,i){
+          var y=3.48+i*0.38;
+          var v=dm[c.k], med=bk.B[c.k]?bk.B[c.k].med:0;
+          var pct=med>0?Math.min(100, v/med*100):0;
+          var col=v>=med?C.green2:(v>=med*0.7?C.orange:C.red);
+          s10.addText(c.n,{x:0.4,y:y,w:1.15,h:0.24,fontSize:10,bold:true,color:C.text,valign:'middle',fontFace:FF});
+          s10.addShape(RR,{x:1.6,y:y+0.03,w:4.5,h:0.18,fill:{color:C.panel2},line:{color:C.line,width:0.5},rectRadius:0.09});
+          if(pct>0) s10.addShape(RR,{x:1.6,y:y+0.03,w:Math.max(0.06,4.5*pct/100),h:0.18,fill:{color:col},line:{color:col,width:0.5},rectRadius:0.09});
+          s10.addText(gwFmt(v,c.u)+' / 中位 '+gwFmt(med,c.u),{x:6.2,y:y,w:3.4,h:0.24,fontSize:9.5,bold:true,color:col,valign:'middle',fontFace:FF});
+        });
+        s10.addText(dw0?('最弱项：'+capName(dw0.k)+'（'+gwFmt(dw0.v,dw0.cap.u)+'，落后中位 '+Math.round(dw0.gap)+'%，全站第 '+dw0.rank+' 名）——本期只补这一环。')
+                      :'最弱项：暂无数据，该站四项能力数据不完整，建议先补齐上报。',
+          {x:0.4,y:4.94,w:9.2,h:0.26,fontSize:9.5,bold:true,color:C.red,valign:'middle',fontFace:FF});
+      } else {
+        s10.addText('暂无数据：没有可钻取的浆站。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+      }
+      footer(s10);
+
+      /* ===== 第 11 页：短板分布（全站最普遍的短板在哪，先补哪一环） ===== */
+      var s11=nextSlide(); header(s11,'短板分布','WEAKNESS MAP','全站最弱项的分布：先补最普遍的那一环');
+      if(wkKeys.length){
+        var b11=[[cellH('能力项',{bold:true,color:'FFFFFF',fill:C.navy,align:'left'}),
+                  cellH('把这项当最弱项的站数',{bold:true,color:'FFFFFF',fill:C.navy}),
+                  cellH('占在营站数',{bold:true,color:'FFFFFF',fill:C.navy}),
+                  cellH('全站中位',{bold:true,color:'FFFFFF',fill:C.navy})]];
+        wkKeys.forEach(function(k){
+          var cap=CAPS.filter(function(c){return c.k===k;})[0]||{n:k,u:''};
+          var med=(bk.B[k]&&bk.B[k].med)||0;
+          b11.push([cellH(cap.n,{bold:true,color:C.navy,align:'left'}),
+                    cellH(wkFreq[k],{bold:true,color:C.red}),
+                    cellH(pctOf(wkFreq[k],list.length)+'%',{color:C.text}),
+                    cellH(gwFmt(med,cap.u),{color:C.muted})]);
+        });
+        s11.addTable(b11,{x:0.25,y:1.64,w:5.5,colW:[1.5,1.6,0.95,1.45],rowH:0.3,fontFace:FF,fontSize:9,
+          color:C.text,valign:'middle',align:'center',border:{type:'solid',pt:0.5,color:C.line},autoPage:false});
+        card(s11,6.0,1.6,3.6,2.2,{fill:C.white,line:C.line,lw:0.9});
+        s11.addText('最弱项站数分布',{x:6.15,y:1.66,w:3.3,h:0.26,fontSize:10,bold:true,color:C.navy,fontFace:FF});
+        s11.addChart(p.ChartType.bar,[{name:'站数',labels:wkKeys.map(function(k){ var c=CAPS.filter(function(x){return x.k===k;})[0]; return c?c.n:k; }),
+          values:wkKeys.map(function(k){return wkFreq[k];})}],{
+          x:6.1,y:1.94,w:3.4,h:1.8,barDir:'bar',showValue:true,
+          dataLabelPosition:'outEnd',dataLabelFontSize:8.5,dataLabelFontBold:true,dataLabelColor:C.navy,
+          chartColors:[C.orange],catAxisLabelFontSize:8,catAxisLabelColor:C.text,valAxisLabelColor:C.muted,
+          valAxisHidden:true,valAxisMin:0,catGridLine:{style:'none'},valGridLine:{color:C.line,size:0.5},
+          barGapWidthPct:40,showLegend:false,chartArea:{fill:{color:'FFFFFF'}},plotArea:{fill:{color:'FFFFFF'}}
+        });
+        var top1=wkKeys[0];
+        var rx1=GW.RX[top1]||null;
+        s11.addText('结论：全站最普遍的短板是「'+capName(top1)+'」，'+wkFreq[top1]+' 站（'+pctOf(wkFreq[top1],list.length)+'%）的最弱项就是它。'
+          +(rx1?('本期集团层面优先补这一环——'+stripB(rx1.title)+'。配套学习锚点「'+rx1.learn+'」。'):'')
+          +'注意：这是"哪一环最普遍卡住"，不是给站排名；同一条处方给出的是可当天执行的动作，不是口号。',
+          {x:0.4,y:4.0,w:9.2,h:0.9,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      } else {
+        s11.addText('暂无数据：未能识别出普遍短板，补齐各站上报后本页自动生成。',{x:0.8,y:2.6,w:8.4,h:0.8,fontSize:13,color:C.muted,align:'center',valign:'middle',fontFace:FF});
+      }
+      footer(s11);
+
+      /* ===== 第 12 页：经验复用闭环（一条处方怎么变成全站的方法） ===== */
+      var s12=nextSlide(); header(s12,'经验复用闭环','KNOWLEDGE LOOP','处方 → 执行 → 回填 → 回流成可抄的经验');
+      card(s12,0.4,1.6,kw,1.0,{fill:C.panel,line:C.line,lw:1});
+      s12.addShape(R,{x:0.4,y:1.74,w:0.06,h:0.72,fill:{color:C.cyan}});
+      s12.addText(String(ref.cover),{x:0.56,y:1.68,w:kw-0.3,h:0.42,fontSize:20,bold:true,color:C.navy,fontFace:FF});
+      s12.addText('已接入成长引擎的站',{x:0.56,y:2.10,w:kw-0.3,h:0.24,fontSize:10,bold:true,color:C.text,fontFace:FF});
+      card(s12,0.4+kw+0.2,1.6,kw,1.0,{fill:C.panel,line:C.line,lw:1});
+      s12.addShape(R,{x:0.6+kw,y:1.74,w:0.06,h:0.72,fill:{color:C.blue}});
+      s12.addText(String(ref.evTotal),{x:0.56+kw+0.2,y:1.68,w:kw-0.3,h:0.42,fontSize:20,bold:true,color:C.navy,fontFace:FF});
+      s12.addText('已沉淀能力证据条',{x:0.56+kw+0.2,y:2.10,w:kw-0.3,h:0.24,fontSize:10,bold:true,color:C.text,fontFace:FF});
+      card(s12,0.4+2*(kw+0.2),1.6,kw,1.0,{fill:C.panel,line:C.line,lw:1});
+      s12.addShape(R,{x:0.6+2*(kw+0.2),y:1.74,w:0.06,h:0.72,fill:{color:C.gold}});
+      s12.addText(String(ref.rxDone)+'/'+String(ref.rxTotal),{x:0.56+2*(kw+0.2),y:1.68,w:kw-0.3,h:0.42,fontSize:20,bold:true,color:C.navy,fontFace:FF});
+      s12.addText('处方回填完成度',{x:0.56+2*(kw+0.2),y:2.10,w:kw-0.3,h:0.24,fontSize:10,bold:true,color:C.text,fontFace:FF});
+      card(s12,0.4+3*(kw+0.2),1.6,kw,1.0,{fill:C.panel,line:C.line,lw:1});
+      s12.addShape(R,{x:0.6+3*(kw+0.2),y:1.74,w:0.06,h:0.72,fill:{color:C.green2}});
+      s12.addText(reusePct+'%',{x:0.56+3*(kw+0.2),y:1.68,w:kw-0.3,h:0.42,fontSize:20,bold:true,color:C.navy,fontFace:FF});
+      s12.addText('经验复用率',{x:0.56+3*(kw+0.2),y:2.10,w:kw-0.3,h:0.24,fontSize:10,bold:true,color:C.text,fontFace:FF});
+      card(s12,0.4,2.80,9.2,2.0,{fill:C.white,line:C.line,lw:0.9});
+      s12.addShape(R,{x:0.4,y:2.94,w:0.06,h:1.72,fill:{color:C.cyan}});
+      s12.addText('闭环怎么转',{x:0.62,y:2.88,w:4,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+      s12.addText('① 「我的成长」按真实数据算出你站最弱的一项并开出处方；\n'
+        +'② 负责人按处方执行，把结果回填（含没做到的原因）；\n'
+        +'③ 回填沉淀成「能力证据条」，回流到中台，成为其他站可对照的真实做法；\n'
+        +'④ 中台据此识别全站最普遍的短板，下一期集团层面先补这一环。\n'
+        +'本页数字全部来自各站真实回填：回填一条，才多一条；不拿"计划做的事"充数。'
+        +(ref.cover<list.length?('\n当前仍有 '+(list.length-ref.cover)+' 站未接入成长引擎——没接入就没有证据条，也就抄不到别人的作业。'):''),
+        {x:0.62,y:3.16,w:8.8,h:1.5,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.32});
+      footer(s12);
+
+      /* ===== 第 13 页：结论与下一步（北极星 / 风险 / 行动） ===== */
+      var s13=nextSlide(); header(s13,'结论与下一步','CONCLUSION','北极星达成情况、风险结论与本期行动计划');
       var riskParts=[];
       cands.slice(0,3).forEach(function(o){
         var wk=GW.weakness(o.s), w0=(wk&&wk[0])?wk[0]:null;
@@ -9174,34 +9536,54 @@ function genHQPPT(){
       var riskTxt=warnAll.length
         ? ('本期共 '+warnAll.length+' 条预警（高危 '+wRed+'、重点 '+wOrange+'、关注 '+wBlue+'），涉及 '+wStations+' 站。最需处理的前三站：'+riskParts.join('；')+'。')
         : ('本期未发现高危预警，全部 '+list.length+' 站均在监测阈值内，保持现有节奏。');
-      var freq={};
-      rows.forEach(function(o){ if(o.wk&&o.wk[0]) freq[o.wk[0].k]=(freq[o.wk[0].k]||0)+1; });
-      var fk=Object.keys(freq).sort(function(a,b){ return freq[b]-freq[a]; });
+      card(s13,0.4,1.58,9.2,1.0,{fill:C.white,line:C.line,lw:1});
+      s13.addShape(R,{x:0.4,y:1.7,w:0.06,h:0.76,fill:{color:C.navy}});
+      s13.addText('一、北极星达成',{x:0.6,y:1.62,w:4,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
+      s13.addText('入营总规模 '+tot.r2+' 人（'+curLbl+'累计，'+list.length+' 站）；能力健康站 '+north.healthy+'/'+list.length+'（占 '+healthyPct+'%）；风险预警站 '+north.risk+' 个（占 '+north.riskPct+'%）；经验复用率 '+reusePct+'%，已回流 '+ref.cover+' 站、沉淀证据 '+ref.evTotal+' 条。'
+        +(yoy?('同比：'+yoy.rows[0].n+' '+dltTxt(dlt(yoy.rows[0].c,yoy.rows[0].b))+'（vs '+yoy.label+'）。'):''),
+        {x:0.6,y:1.88,w:8.8,h:0.64,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      card(s13,0.4,2.68,9.2,1.06,{fill:C.white,line:C.line,lw:1});
+      s13.addShape(R,{x:0.4,y:2.8,w:0.06,h:0.82,fill:{color:C.red}});
+      s13.addText('二、风险结论',{x:0.6,y:2.72,w:4,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
+      s13.addText(riskTxt,{x:0.6,y:2.98,w:8.8,h:0.7,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      card(s13,0.4,3.84,9.2,1.26,{fill:C.panel,line:C.line,lw:1});
+      s13.addShape(R,{x:0.4,y:3.96,w:0.06,h:1.02,fill:{color:C.gold}});
       var actTxt;
-      if(fk.length && GW.RX[fk[0]] && rows.length){
-        var rx=GW.RX[fk[0]];
-        actTxt='全站最普遍的短板是「'+capName(fk[0])+'」（'+freq[fk[0]]+' 站的最弱项就是它）：';
+      if(wkKeys.length&&GW.RX[wkKeys[0]]&&rows.length){
+        var rx=GW.RX[wkKeys[0]];
+        actTxt='全站最普遍的短板是「'+capName(wkKeys[0])+'」（'+wkFreq[wkKeys[0]]+' 站的最弱项就是它）：';
         (rx.acts||[]).slice(0,2).forEach(function(a,i){ actTxt+=(i+1)+'. '+stripB(a)+'　'; });
-        var bh=GW.benchHow(rows[0].s); if(bh.length>44) bh=bh.slice(0,44)+'…';
-        actTxt+='标杆参照：先看 '+rows[0].s+'（'+bh+'）；配套学习锚点「'+rx.learn+'」。';
+        var bh=GW.benchHow(byEnroll[0]?byEnroll[0].s:rows[0].s); if(bh.length>44) bh=bh.slice(0,44)+'…';
+        actTxt+='标杆参照：先看 '+(byEnroll[0]?byEnroll[0].s:rows[0].s)+'（'+bh+'）；配套学习锚点「'+rx.learn+'」。';
+        actTxt+='\n验收口径：本期只补这一环，期末按各站回填结果对照，未达成的如实写卡在哪一环——不允许用"已在推进"模糊过去。';
       } else {
         actTxt='本期未识别出普遍短板，按各站自查结果各自推进；集团层面维持现有监测节奏，下期复核。';
       }
-      card(s9,0.4,1.58,9.2,1.0,{fill:C.white,line:C.line,lw:1});
-      s9.addShape(R,{x:0.4,y:1.7,w:0.06,h:0.76,fill:{color:C.navy}});
-      s9.addText('一、北极星达成',{x:0.6,y:1.62,w:4,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
-      s9.addText('入营总规模 '+tot.r2+' 人（'+list.length+' 站合计）；能力健康站 '+north.healthy+'/'+list.length+'（占 '+healthyPct+'%）；风险预警站 '+north.risk+' 个（占 '+north.riskPct+'%）；经验复用率 '+reusePct+'%，已回流 '+ref.cover+' 站、沉淀证据 '+ref.evTotal+' 条。',
-        {x:0.6,y:1.88,w:8.8,h:0.64,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
-      card(s9,0.4,2.68,9.2,1.06,{fill:C.white,line:C.line,lw:1});
-      s9.addShape(R,{x:0.4,y:2.8,w:0.06,h:0.82,fill:{color:C.red}});
-      s9.addText('二、风险结论',{x:0.6,y:2.72,w:4,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
-      s9.addText(riskTxt,{x:0.6,y:2.98,w:8.8,h:0.7,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
-      card(s9,0.4,3.84,9.2,1.26,{fill:C.panel,line:C.line,lw:1});
-      s9.addShape(R,{x:0.4,y:3.96,w:0.06,h:1.02,fill:{color:C.gold}});
-      s9.addText('三、本期行动计划',{x:0.6,y:3.88,w:5,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
-      s9.addText(actTxt,{x:0.6,y:4.14,w:8.8,h:0.9,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
-      footer(s9);
+      s13.addText('三、本期行动计划',{x:0.6,y:3.88,w:5,h:0.26,fontSize:11,bold:true,color:C.navy,fontFace:FF});
+      s13.addText(actTxt,{x:0.6,y:4.14,w:8.8,h:0.9,fontSize:9,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      footer(s13);
 
+      /* ===== 第 14 页：口径与数据来源（附录） ===== */
+      var s14=nextSlide(); header(s14,'口径与数据来源','APPENDIX','本材料每个数字的来路');
+      card(s14,0.4,1.6,9.2,1.7,{fill:C.panel,line:C.line,lw:0.9});
+      s14.addShape(R,{x:0.4,y:1.74,w:0.06,h:1.42,fill:{color:C.blue}});
+      s14.addText('数据来源',{x:0.62,y:1.68,w:5,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+      s14.addText('· 规模与漏斗（报名/面试/入营）：各站在「数据看板」逐月上报的真实报表，按月份逐站求和；\n'
+        +'· 四项能力：全部由真实漏斗反推，分母统一为季累计入营；\n'
+        +'· 风险预警：由四项能力排名 + 半年度组织评价原文 + 最新月环比自动生成；\n'
+        +'· 标杆做法：取自各站半年度真实记录（原始文字，不改写）；\n'
+        +'· 经验复用：来自各站在「我的成长」里真实回填的结果。',
+        {x:0.62,y:1.94,w:8.8,h:1.24,fontSize:8.5,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      card(s14,0.4,3.42,9.2,1.66,{fill:C.white,line:C.line,lw:0.9});
+      s14.addShape(R,{x:0.4,y:3.56,w:0.06,h:1.38,fill:{color:C.gold}});
+      s14.addText('取数规则（防止口径漂移）',{x:0.62,y:3.50,w:6,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
+      s14.addText('· 时间周期跟随「数据看板」右上角的时间选择：选「整季」= 各月累计，选单月 = 该月；\n'
+        +'· 缺月数据不参与计算，也不以 0 顶替（页面上会写明缺哪个月）；\n'
+        +'· 到场率 / 入营率仅作漏斗参考，不进能力排名——面试与入营规模由中台按容量与批次主动调控；\n'
+        +'· 同比只在有去年同一周期基线时才显示，基线缺失就写「—」，绝不拿当年数据充当去年。\n'
+        +'口径全文见第 2 页「口径说明」。',
+        {x:0.62,y:3.76,w:8.8,h:1.24,fontSize:8.5,color:C.text,valign:'top',fontFace:FF,lineSpacingMultiple:1.3});
+      footer(s14);
       var fn='扬帆计划_集团运营汇报_'+fdate.replace(/\./g,'')+'.pptx';
       p.writeFile({fileName:fn}).then(function(){
         btnBusy(btn,false);
@@ -9228,9 +9610,11 @@ function renderHQ(){
     var kst=document.getElementById('hqStations'); if(kst)kst.textContent=String(list.length);
     var knps=document.getElementById('hqNps'); if(knps)knps.textContent=north.healthy+'/'+list.length;
     var krisk=document.getElementById('hqRisk'); if(krisk)krisk.textContent=String(north.risk);
+    /* 当前口径提示：与「数据看板」时间选择同源（2026-10-09）。整季=各月累计，单月=该月 */
+    var kper=document.getElementById('hqPeriodTxt'); if(kper)kper.textContent=GW.periodLabel()+(GW.isSeasonView()?'（各月累计）':'（单月）');
   }catch(e){}
   var northH='<div class="hq-north">'
-    + hqNk(north.campCur.toLocaleString(),GW.monthLabel(GW.curKey())+'入营总规模',list.length+'站合计 · 漏斗终点','')
+    + hqNk(north.campCur.toLocaleString(),GW.periodLabel()+'入营总规模',list.length+'站合计 · 漏斗终点','')
     + hqNk(north.healthy+'<span style="font-size:16px;color:var(--muted)">/'+list.length+'</span>','能力健康站','≥3/'+GW.CAPS.length+'项能力达中位',north.healthy>=list.length*0.6?'ok':'')
     + hqNk(north.risk,'风险站','红橙预警≥2条，占比'+north.riskPct+'%',north.risk<=3?'ok':'warn')
     + hqNk(Math.round(ref.reuse*100)+'%','经验复用率','已回流 '+ref.cover+' 站 · 沉淀证据 '+ref.evTotal+' 条',ref.reuse>=0.5?'ok':'warn')
@@ -9245,11 +9629,11 @@ function renderHQ(){
   list.forEach(function(s){
     var m=GW.metrics(s), q=GW.quadrant(s), w=YF_WARN.warns(s), wk=GW.weakness(s);
     var okc=0; GW.CAPS.forEach(function(c){if(m[c.k]>=bk.B[c.k].med*0.9)okc++;});
-    var t=GW.TYPES[q.key], tier=GW.tier(m._raw.r2);
+    var t=GW.TYPES[q.key];
     var badgeColor=q.key==='model'?'#12833f':q.key==='wide'?'var(--blue-800)':q.key==='sharp'?'var(--gold-ink)':'#c8161d';
     var hw=''; if(w.red)hw+='<span class="hw" style="background:#c0392b">红'+w.red+'</span>'; if(w.orange)hw+='<span class="hw" style="background:var(--gold-ink)">橙'+w.orange+'</span>'; if(w.blue)hw+='<span class="hw" style="background:var(--blue-800)">蓝'+w.blue+'</span>';
     gridH+='<div class="hq-st" data-s="'+s+'" onclick="hqOpen(this.dataset.s)">'
-      +'<div><span class="hn">'+s+'</span><span class="ht">'+tier+'</span></div>'
+      +'<div><span class="hn">'+s+'</span></div>'
       +'<div class="hrow"><span class="hq-badge" style="background:'+badgeColor+'">'+t.n+'</span><span style="font-size:12px;color:var(--muted)">能力 '+okc+'/'+GW.CAPS.length+'</span></div>'
       +'<div class="hq-prog"><i style="width:'+(okc/GW.CAPS.length*100)+'%"></i></div>'
       + (wk[0]?'<div class="hweak">最短板：'+wk[0].cap.n+'（'+gwFmt(wk[0].v,wk[0].cap.u)+'）</div>':'')
@@ -9269,7 +9653,7 @@ function hqOpen(st){
   var m=GW.metrics(st), q=GW.quadrant(st), w=YF_WARN.warns(st), t=GW.TYPES[q.key], bk=GW.bench();
   var ref=YF_FLOW.loadGrowth(), my=(ref.d&&ref.d[st])||null;
   var h='<h3>'+st+' · '+t.n+'</h3>';
-  h+='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">规模档：'+GW.tier(m._raw.r2)+' ｜ 负责人：'+GW.ownerOf(st)+' ｜ '+GW.monthLabel(GW.curKey())+'入营 '+Math.round(m._raw.r2)+' 人</div>';
+  h+='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">负责人：'+GW.ownerOf(st)+' ｜ '+GW.periodLabel()+'入营 '+Math.round(m._raw.r2)+' 人</div>';
   h+='<div style="background:var(--ice-2);border:1px solid var(--line);border-left:4px solid '+t.color+';border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px">'+t.core+'</div>';
   h+='<div class="hq-sec-t" style="margin-top:0">能力诊断（vs 全站中位）</div>';
   GW.CAPS.forEach(function(c){ var v=m[c.k], med=bk.B[c.k].med, pct=med>0?Math.min(100,v/med*100):0; var col=v>=med?'var(--ok-ink)':(v>=med*0.7?'var(--gold-ink)':'#c0392b'); h+='<div class="hq-cap-row"><span class="cn">'+c.n+'</span><div class="hq-cap-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div><span style="width:130px;text-align:right;color:'+col+';font-weight:700">'+gwFmt(v,c.u)+' / 中位'+gwFmt(med,c.u)+'</span></div>'; });
@@ -9620,7 +10004,7 @@ function gwDiag(st){
   var q  = GW.quadrant(st), T = GW.TYPES[q.key];
   var w  = GW.weakness(st);
   var worst = w[0], best = w[w.length-1];
-  var tr = GW.tier(r.r2), TB = bk.TB[tr] || {};
+  /* 规模档分层已从界面撤下（2026-10-09）：榜上不比大小站，只比能力 */
   var h = '';
   /* 历史季视图：未开展站早退，不以 0 冒充数据 */
   var isHistView=(typeof DASH_SEASON!=='undefined'&&DASH_SEASON&&DASH_SEASON!==curSeasonKey());
@@ -9687,7 +10071,7 @@ function gwDiag(st){
   h += '<div class="gw-ev2">';
   h += '<div class="c"><h4>数据侧诊断 <span>机器算的</span></h4><p>最短板是<b>'+worst.cap.n+'</b>（第 '+worst.rank+'/'+bk.n+'），落后全站中位 '
      + (worst.gap>0 ? Math.round(worst.gap)+'%' : '基本持平')
-     + '；最强项是<b>'+best.cap.n+'</b>（第 '+best.rank+'/'+bk.n+'）。同为'+tr+'的 '+(TB.n||0)+' 个站里，'+worst.cap.n+'的中位是 '+gwFmt(TB[worst.k]||0, worst.cap.u)+worst.cap.u+'。</p></div>';
+     + '；最强项是<b>'+best.cap.n+'</b>（第 '+best.rank+'/'+bk.n+'）。'+worst.cap.n+'的全站中位是 '+gwFmt(bk.B[worst.k].med||0, worst.cap.u)+worst.cap.u+'。</p></div>';
   if(!yfIsStation()){
     h += '<div class="c"><h4>组织侧评价 <span>半年度画像原文</span></h4><p>'
        + (s.weak ? '<b>已记录短板：</b>'+s.weak+'<br>' : '')
@@ -9722,7 +10106,7 @@ function gwDiag(st){
          + r.r2+' 人 vs '+r.r1+' 人），属于统计口径差异（例如有人未走面试直接入营、或跨月计入）。'
          + '这不代表转化能力超强，建议先把两张表的口径对齐再看这一项。</div>';
     }
-    h += '<div class="r3"><span>算法：'+c.fx+'</span><span>'+tr+'档中位 <b>'+gwFmt(TB[c.k]||0,c.u)+'</b></span>'
+    h += '<div class="r3"><span>算法：'+c.fx+'</span><span>全站中位 <b>'+gwFmt(B.med,c.u)+'</b></span>'
        + '<span>可学标杆：<b>'+B.sane+'</b>（'+GW.ownerOf(B.sane)+'）<b>'+gwFmt(B.sanev,c.u)+'</b></span>'
        + (B.odd ? '<span style="color:#a06a00">注：'+B.top+' '+gwFmt(B.topv,c.u)+' 超 100%，属统计口径差异，未取作标杆</span>' : '')
        + '</div>';
@@ -9935,14 +10319,14 @@ function gwDemo(){
   var w = GW.weakness(st);
   var pw = null;
   for(var i=0;i<w.length;i++){ if(w[i].k==='parent'){ pw = w[i]; break; } }
-  var tr = GW.tier(r.r2);
+  /* 规模档分层已从界面撤下（2026-10-09） */
   var h = '';
   h += '<div class="gw-demo-head"><div class="t">真实示范 · 一个负责人是怎么用这个台子长出本事的</div>';
   h += '<div class="n">主角：<b>'+st+'浆站</b>（'+GW.ownerOf(st)+'）｜ 这是基于 '+dashPeriodText()+' '+GW.spanLabel()+'真实数据的<b>推演示范</b>，未写入任何人的存档。看完把它换成你自己的站。</div></div>';
 
   h += '<div class="gw-step"><div class="num">1</div><div class="bx">';
   h += '<div class="st">诊断 · 数据说你最弱的是这一项</div>';
-  h += '<p class="fact">'+st+'站家长参与率 <b>'+gwFmt(m.parent,'%')+'</b>，'+bk.n+' 站排第 <b>'+pw.rank+'</b>。同为'+tr+'档的 '+(bk.TB[tr].n)+' 个站，家长参与中位是 '+gwFmt(bk.TB[tr].parent||0,'%')+'。</p>';
+  h += '<p class="fact">'+st+'站家长参与率 <b>'+gwFmt(m.parent,'%')+'</b>，'+bk.n+' 站排第 <b>'+pw.rank+'</b>。全站家长参与中位是 '+gwFmt(bk.B.parent.med||0,'%')+'。</p>';
   var semiWeak = (typeof SEMI!=='undefined' && SEMI[st] && SEMI[st].weak) ? SEMI[st].weak : '家庭献浆少、对父母沟通不足';
   h += '<p class="check">交叉验证：本平台把「数据诊断」和「组织半年评价」摆在一起 —— 半年度画像里对'+st+'的原文记录是 <i>"'+semiWeak+'"</i>。两条独立来源，同一个结论。这就不是拍脑袋说你不行，是数据摆在这。</p>';
   h += '</div></div>';

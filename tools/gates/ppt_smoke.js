@@ -62,9 +62,11 @@ const APP_TOKEN = 'yf-cloud-2026-shiyi';
 const ADMIN = { username: 'testadmin', password: 'test123456' };
 const STATION_ACC = { username: '王养运', password: 'sc1012', role: 'station', station: '五河' };
 const DUMP = !!process.env.YF_PPT_DUMP;
+const SAVE = process.env.YF_PPT_SAVE ? path.resolve(process.env.YF_PPT_SAVE) : null;
+const HQ_HTML_OUT = process.env.YF_HQ_HTML ? path.resolve(process.env.YF_HQ_HTML) : null;
 
 /* 基线（MANIFEST 写死；改动需同步 MANIFEST 并说明理由） */
-const BASE_SLIDES = 9;          /* 本轮页数 */
+const BASE_SLIDES = 14;         /* 本轮页数（2026-10-09 改版：9 → 14，首页改数据总览） */
 const BASE_MIN_BYTES = 20000;   /* 非空壳下限（实测约 679KB） */
 const BASE_TABLES = 2;          /* 原生表格页数（健康度总表 + 风险预警） */
 const BASE_CHART_KINDS = ['barChart', 'lineChart'];  /* 漏斗柱状图 + 趋势折线图 */
@@ -304,7 +306,12 @@ async function generateAndCapture(env) {
   const cap = { b64: null, fileName: null };
   win.PptxGenJS.prototype.writeFile = function (opt) {
     cap.fileName = opt && opt.fileName;
-    return this.write({ outputType: 'base64' }).then(b => { cap.b64 = b; return cap.fileName; });
+    return this.write({ outputType: 'base64' }).then(b => {
+      cap.b64 = b;
+      /* 渲染核验用：YF_PPT_SAVE=<路径> 时把真实 pptx 落盘（默认关闭，不影响门禁行为） */
+      if (SAVE) { try { fs.writeFileSync(SAVE, Buffer.from(b, 'base64')); } catch (e) {} }
+      return cap.fileName;
+    });
   };
   const toastsBefore = win.__toasts.length;
   const errsBefore = win.__errs.length;
@@ -333,6 +340,13 @@ async function scAdmin() {
       '文件=' + cap.fileName + ' · ' + (cap.b64 ? Buffer.from(cap.b64, 'base64').length : 0) + ' 字节 · 耗时 ' + ms + 'ms · toast=' + JSON.stringify(newToasts));
     if (!cap.b64) { report('G5-A2', '解包校验（无字节，后续跳过）', 'FAIL', '未取到字节，无法解包'); return; }
     assert('G5-A1b', '运行期零 JS 错误', newErrs.length === 0, 'window.error=' + JSON.stringify(newErrs.slice(0, 3)));
+    /* 渲染核验用：YF_HQ_HTML=<路径> 时把汇报 HTML 落盘（默认关闭，不影响门禁行为） */
+    if (HQ_HTML_OUT) {
+      try {
+        const probe = env.win.eval('JSON.stringify({cur:DASH_CUR,season:GW.isSeasonView(),label:GW.periodLabel(),months:GW.months(),span:GW.spanLabel()})');
+        fs.writeFileSync(HQ_HTML_OUT, '<!-- HQ_PROBE ' + probe + ' -->\n' + env.win.eval('hqReportHTML()'));
+      } catch (e) {}
+    }
 
     const zip = await env.win.JSZip.loadAsync(cap.b64, { base64: true });
     const names = Object.keys(zip.files);
@@ -365,12 +379,13 @@ async function scAdmin() {
     assert('G5-A4', '★原生图表存在（柱状图 + 折线图）',
       BASE_CHART_KINDS.every(k => kinds.has(k)),
       'chart part=' + chartFiles.length + ' · 类型=' + [...kinds].join(',') + ' · 期望含 ' + BASE_CHART_KINDS.join(','));
-    /* 柱状图必须带真实漏斗数值（不是空图） */
-    const barXml = chartXmls.filter(x => /<c:barChart>/.test(x))[0] || '';
+    /* 柱状图必须带真实漏斗数值（不是空图）。2026-10-09 改版后 PPT 里有多个柱状图
+       （月度入营 / 各站入营 / 短板分布），必须**按类目定位漏斗那一张**，不能取第一张。 */
+    const barXml = chartXmls.filter(x => /<c:barChart>/.test(x) && catVals(x).join(',') === '报名,面试,入营')[0] || '';
     const barVals = serVals(barXml);
-    assert('G5-A4b', '漏斗柱状图为 ' + BASE_BAR_POINTS + ' 个真实数值（报名/面试/入营）',
+    assert('G5-A4b', '★漏斗柱状图（报名/面试/入营）为 ' + BASE_BAR_POINTS + ' 个真实数值',
       barVals.length === BASE_BAR_POINTS && barVals.every(v => /^\d+(\.\d+)?$/.test(v)) && barVals.some(v => +v > 0),
-      '值=' + JSON.stringify(barVals) + (DUMP ? ' · barXml片段=' + barXml.slice(0, 400) : ''));
+      '类目=' + JSON.stringify(catVals(barXml)) + ' 值=' + JSON.stringify(barVals) + (DUMP ? ' · barXml片段=' + barXml.slice(0, 400) : ''));
 
     /* 口径逐字 + 唯一性 */
     const allText = slideXml.map(x => (x.match(/<a:t>[\s\S]*?<\/a:t>/g) || []).map(t => t.replace(/<\/?a:t>/g, '')).join('')).join('\n');
@@ -430,6 +445,88 @@ async function scGapMonth() {
   } finally { env.dom.window.close(); }
 }
 
+/* 口径统一回归（2026-10-09）：中台/汇报的漏斗必须**跟随看板的时间选择**——
+   看板「整季」= 各月累计（不是"最新月"，更不许"只有 8 月"）；看板选某月 = 该月；
+   势头恒按「前一月→最新月」，不随周期选择漂移。
+   用三个月 × 全站可控数据（reg[2] 分别 10/20/30）把「累计 vs 单月」变成可判定的数。 */
+async function scPeriod() {
+  const env = await makeBrowser();
+  try {
+    await pageLogin(env, ADMIN.username, ADMIN.password);
+    await env.win.__yfLoadLib('pptx');
+    const inj = env.win.eval('(function(){ try{'
+      + ' var v={"6":10,"7":20,"8":30};'
+      + ' Object.keys(v).forEach(function(m){ var o={};'
+      + '   STATIONS.forEach(function(s){ o[s]={reg:[v[m],v[m],v[m]],dev:[1,2,0,3,4],camp:[v[m],1,1],par:[2,0.5]}; });'
+      + '   DASH_DB[m]=o; });'
+      + ' DASH_CUR="all";'
+      + ' return Object.keys(DASH_DB).sort().join(",")+"|"+STATIONS.length; }catch(e){ return "ERR:"+e.message; } })()');
+    if (inj.indexOf('ERR') === 0) { report('G5-D0', '注入三个月可控数据（前置）', 'FAIL', inj); return; }
+    const nSt = env.win.eval('GW.stationList().length');
+    const seasonSum = nSt * (10 + 20 + 30);
+    const m8Sum = nSt * 30;
+
+    const s1 = JSON.parse(env.win.eval('JSON.stringify({label:GW.periodLabel(),isSeason:GW.isSeasonView(),sum:(function(){var t=0;GW.stationList().forEach(function(s){t+=GW.raw(s).r2;});return t;})()})'));
+    assert('G5-D1', '★看板「整季」→ 中台口径 = 6-8 月季累计（' + seasonSum + '），不是最新月',
+      s1.isSeason === true && s1.sum === seasonSum && s1.label === '6-8 月',
+      'isSeason=' + s1.isSeason + ' · label=' + s1.label + ' · Σ入营=' + s1.sum + '（若=' + m8Sum + ' 即回退成"只有 8 月"）');
+
+    const s2 = JSON.parse(env.win.eval('(function(){ DASH_CUR="8"; return JSON.stringify({label:GW.periodLabel(),isSeason:GW.isSeasonView(),sum:(function(){var t=0;GW.stationList().forEach(function(s){t+=GW.raw(s).r2;});return t;})()}); })()'));
+    assert('G5-D2', '看板选「8 月」→ 中台口径 = 该月（' + m8Sum + '）',
+      s2.isSeason === false && s2.sum === m8Sum && s2.label === '8 月',
+      'isSeason=' + s2.isSeason + ' · label=' + s2.label + ' · Σ入营=' + s2.sum);
+
+    const s3 = JSON.parse(env.win.eval('(function(){ DASH_CUR="all"; var mo=GW.momentum(GW.stationList()[0]); return JSON.stringify({cur:mo.cur,prev:mo.prev,pLabel:mo.pLabel,mLabel:mo.mLabel}); })()'));
+    assert('G5-D3', '★势头恒按「前一月→最新月」环比，不随周期选择漂移',
+      s3.cur === 30 && s3.prev === 20 && s3.mLabel === '8 月' && s3.pLabel === '7 月',
+      '势头=' + s3.pLabel + '→' + s3.mLabel + ' · ' + s3.prev + '→' + s3.cur + '（整季视图下必须仍是单月环比）');
+
+    const { cap } = await generateAndCapture(env);   /* DASH_CUR 保持 "all" */
+    if (!cap.b64) { report('G5-D4', '整季口径仍能出字节', 'FAIL', '未取到字节'); return; }
+    const zip = await env.win.JSZip.loadAsync(cap.b64, { base64: true });
+    const names = Object.keys(zip.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
+      .sort((a, b) => (+a.match(/(\d+)/)[1]) - (+b.match(/(\d+)/)[1]));
+    let allText = '';
+    for (const n of names) allText += (await zip.file(n).async('string')).replace(/<\/?a:t>/g, '');
+    assert('G5-D4', '★整季口径下 PPT 带「6-8 月」标签与季累计值（' + seasonSum + '）',
+      allText.indexOf('6-8 月') >= 0 && allText.indexOf(String(seasonSum)) >= 0,
+      '含「6-8 月」=' + (allText.indexOf('6-8 月') >= 0) + ' · 含「' + seasonSum + '」=' + (allText.indexOf(String(seasonSum)) >= 0));
+    const lbls = allText.match(/\d+(?:-\d+)? 月累计/g) || [];
+    assert('G5-D5', '★整季口径下周期标签恰为「6-8 月累计」——不是「8 月累计」（旧 bug 签名）',
+      lbls.length >= 1 && lbls.every(x => x === '6-8 月累计'),
+      '实测标签=' + JSON.stringify(lbls));
+
+    /* D6/D7：时间视图「默认整季 + 记住选择」——云刷新/上报回填不得把选择冲回最新月 */
+    const s6 = JSON.parse(env.win.eval('(function(){'
+      + ' localStorage.setItem("yf_dash_cur_choice","8"); DASH_CUR="all";'
+      + ' if(typeof dashApplyCloud==="function") dashApplyCloud(DASH_DB,"cloud",null);'
+      + ' return JSON.stringify({cur:DASH_CUR,label:GW.periodLabel(),season:GW.isSeasonView()}); })()'));
+    assert('G5-D6', '★云刷新/上报回填后，用户选择的「8 月」不被冲回（旧 bug：必被重置为最新月）',
+      s6.cur === '8' && s6.season === false && s6.label === '8 月',
+      'cur=' + s6.cur + ' · label=' + s6.label + '（若 cur="all" 即选择被静默冲掉）');
+
+    /* 只测判定函数（纯同步）——不调 initDash()：它会拉起异步云拉取，窗口关闭后会抛未处理异常。 */
+    const s7 = JSON.parse(env.win.eval('(function(){'
+      + ' localStorage.removeItem("yf_dash_cur_choice"); DASH_CUR="all"; DASH_CUR=resolveDashCur(); var d1=DASH_CUR;'
+      + ' localStorage.setItem("yf_dash_cur_choice","7"); DASH_CUR="all"; DASH_CUR=resolveDashCur(); var d2=DASH_CUR;'
+      + ' localStorage.setItem("yf_dash_cur_choice","9"); DASH_CUR="all"; DASH_CUR=resolveDashCur(); var d3=DASH_CUR;'
+      + ' localStorage.removeItem("yf_dash_cur_choice"); DASH_CUR="all";'
+      + ' return JSON.stringify({d1:d1,d2:d2,d3:d3}); })()'));
+    assert('G5-D7', '★默认整季 + 记住选择 + 失效月份回退整季（resolveDashCur 判定）',
+      s7.d1 === 'all' && s7.d2 === '7' && s7.d3 === 'all',
+      '无选择=' + s7.d1 + '（期望 all）· 选 7 月=' + s7.d2 + '（期望 7）· 选本赛季不存在的 9 月=' + s7.d3 + '（期望 all）');
+
+    /* D8：bench() 缓存键必须含「周期」维度——整季与最新单月不得共用一把键（否则口径随访问顺序漂移） */
+    const s8 = JSON.parse(env.win.eval('(function(){'
+      + ' DASH_CUR="all"; var b1=GW.bench();'
+      + ' DASH_CUR="8"; var b2=GW.bench();'
+      + ' return JSON.stringify({same:(b1===b2)}); })()'));
+    assert('G5-D8', '★标杆基准 bench() 缓存区分整季/单月（两视图不得命中同一个缓存对象）',
+      s8.same === false,
+      'b1===b2 → ' + s8.same + '（true = 整季与最新单月共用缓存，健康度/预警会随「先看哪个视图」而变）');
+  } finally { env.dom.window.close(); }
+}
+
 /* 权限：负责人端直调 genHQPPT() 必须拿不到字节（去掉 admin 守卫即红） */
 async function scStationDenied() {
   const env = await makeBrowser();
@@ -460,7 +557,9 @@ async function scStationDenied() {
     await scAdmin();
     console.log('---- B. 缺月不得以 0 顶替 ----');
     await scGapMonth();
-    console.log('---- C. 负责人端直调必须拿不到字节 ----');
+    console.log('---- C. 口径统一：整季=各月累计、单月=该月、势头恒按最新月 ----');
+    await scPeriod();
+    console.log('---- D. 负责人端直调必须拿不到字节 ----');
     await scStationDenied();
   } catch (e) {
     report('G5-EXC', '脚本异常', 'FAIL', (e && e.message) || String(e));

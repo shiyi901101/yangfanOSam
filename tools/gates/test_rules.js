@@ -6,6 +6,26 @@
 const fs = require('fs');
 const P = require('./paths');   /* 路径唯一权威出口（__dirname 基 / tmp 产物），见 paths.js 纳管红线 */
 
+/* ================================ 新鲜度守卫（2026-10-09 新增，防「假绿/假红」） ================================
+ * `paths.js` 的 BUILD_DIR 键 = **前端仓库路径哈希**，不是 index.html 内容哈希。
+ * 因此 extract.js 抽出的 js_0X.js 会一直留在 tmp：**单独跑 test_rules（不先 extract）会读到旧块** ——
+ * 实测踩到：改了 `dashApplyCloud` 后单独跑 GATE3 仍报 TD14 绿（读到的是改动前的块），
+ * 而全量套件（先 extract）立刻红。这类假象会让人误判「代码没问题」。
+ * 守卫：若 index.html 比已抽出的 js_01.js 新，就地重抽一次。入口 run_gates_iso.sh 已先 extract，此处为 no-op。 */
+(function ensureFreshBlocks(){
+  try {
+    const path = require('path');
+    const cp = require('child_process');
+    const j1 = P.jsBlock('01');
+    let stale = true;
+    try { stale = !fs.existsSync(j1) || fs.statSync(P.INDEX_HTML).mtimeMs > fs.statSync(j1).mtimeMs; } catch (e) { stale = true; }
+    if (stale) {
+      cp.execFileSync(process.execPath, [path.join(__dirname, 'extract.js')], { stdio: 'ignore' });
+      console.log('[guard] js 块比 index.html 旧 → 已自动重抽（防「改完仍绿」假象）');
+    }
+  } catch (e) { console.log('[guard] 自动重抽失败：' + e.message); }
+})();
+
 /* ================================ 第一部分：诊断卡规则引擎（js_03 → DG-RULES） ================================ */
 const src = fs.readFileSync(P.jsBlock('03'), 'utf8');
 const a = src.indexOf('/*DG-RULES-BEGIN*/');
@@ -1136,8 +1156,26 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(/function months\(\)/.test(GW_SRC) && GW_SRC.indexOf('DASH_DB') >= 0 && GW_SRC.indexOf('DASH_ORDER') >= 0, 'GW6：月份从看板实际数据动态生成（DASH_DB/DASH_ORDER，兜底内嵌 M6/M7）');
   assert(GW_SRC.indexOf('months:months, curKey:curKey, prevKey:prevKey, monthLabel:monthLabel, spanLabel:spanLabel') >= 0, 'GW7：GW 导出 months/curKey/prevKey/monthLabel/spanLabel');
   assert(GW_SRC.indexOf('_benchKey = key;') >= 0 && GW_SRC.indexOf("months().join(',')") >= 0, 'GW8：bench 缓存键含月份——换月自动重算基准');
-  assert(GW_SRC.indexOf('mLabel:monthLabel(ck)') >= 0 && GW_SRC.indexOf("pLabel:pk?monthLabel(pk):''") >= 0, 'GW9：raw 携带当前月/前一月标签（文案不写死）');
+  assert(GW_SRC.indexOf('mLabel:periodLabel()') >= 0 && GW_SRC.indexOf("pLabel2: pk?monthLabel(pk):''") >= 0, 'GW9：raw 的周期标签走 periodLabel()，势头标签=最新月/前一月（文案不写死）');
+  /* ---- 口径统一（2026-10-09 修复「中台/汇报只有 8 月」）：整季=季累计、单月=该月、势头恒按最新月 ---- */
+  assert(/function isSeasonView\(\)/.test(GW_SRC) && /function periodLabel\(\)/.test(GW_SRC) && GW_SRC.indexOf('periodLabel:periodLabel') >= 0,
+         'GW9a：GW 暴露 isSeasonView()/periodLabel() 作为唯一周期开关');
+  assert(GW_SRC.indexOf('o.r0+=(rg[0]||0); o.r1+=(rg[1]||0); o.r2+=(rg[2]||0);') >= 0
+         && GW_SRC.indexOf('r0: season ? q.r0 : (reg[0]||0)') >= 0
+         && GW_SRC.indexOf('r2: season ? q.r2 : (reg[2]||0)') >= 0,
+         'GW9b：整季时漏斗三数 = 逐月求和（与看板 dAll 同口径），单月时才取该月');
+  assert(GW_SRC.indexOf('if(typeof DASH_CUR!==\'undefined\'&&DASH_CUR&&DASH_CUR!==\'all\'&&ms.indexOf(DASH_CUR)>=0) return false;') >= 0,
+         'GW9c：isSeasonView 判据 = 看板选了具体月才是单月，否则（整季/未选）= 季累计');
+  assert(GW_SRC.indexOf('var pct = m.p2 ? (m.m2-m.p2)/m.p2*100') >= 0
+         && GW_SRC.indexOf('return {prev:m.p2, cur:m.m2,') >= 0,
+         'GW9d：势头恒按「前一月→最新月」环比，不随周期选择漂移（季度合计减单月会得出荒谬结论）');
+  assert(GW_SRC.indexOf("return r2>=100 ? 'T1' : (r2>=40 ? 'T2' : 'T3');") >= 0,
+         'GW9g：tier 只吐中性代码 T1/T2/T3——「大站/中站/小站」标签没法从函数漏到界面');
   const H = fs.readFileSync(P.INDEX_HTML, 'utf8');
+  assert((H.match(/GW\.periodLabel\(\)/g) || []).length >= 4,
+         'GW9e：三处出口（中台卡片/汇报 HTML/汇报 PPT）统一走 GW.periodLabel()，实测 ' + ((H.match(/GW\.periodLabel\(\)/g) || []).length) + ' 处');
+  assert(H.indexOf('规模档：') < 0 && H.indexOf('档中位') < 0 && H.indexOf("'大站'") < 0 && H.indexOf("'中站'") < 0 && H.indexOf("'小站'") < 0,
+         'GW9f：界面上不得再出现「规模档：/N 档中位/大站/中站/小站」文案');
   ['体检结论 · 基于 2026 年 6-7 月', '7 月你站', '6→7月入营势头下滑', '（7月入营 ', '7月入营总规模', '<th>7月入营',
    '数据周期：2026 年 6—7 月', '数据来自 6-7 月真实漏斗', '基于 2026 年 6-7 月真实数据'].forEach(t => {
     assert(H.indexOf(t) < 0, 'GW10：月份硬编码根除：「' + t + '」');
@@ -1178,7 +1216,10 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(TD_SRC.indexOf('function histBaseSeason()') >= 0 && TD_SRC.indexOf("histSeasonList().indexOf('2025S')>=0)?'2025S':null") >= 0, 'TD11：同比基线 = HIST 同类型历史季（2026S→2025S），逐月合计口径（HIST.season）');
   assert(TD_SRC.indexOf("'all'?'整季合计':(m+'月')") >= 0, 'TD12：dMonthLabel 标签语义 =「整季合计」');
   assert(TD_SRC.indexOf('function dashDB(){ /* 跟随看板赛季选择') >= 0 && TD_SRC.indexOf('ms.indexOf(DASH_CUR)>=0) return DASH_CUR;') >= 0, 'TD13：我的成长（GW）跟随看板赛季与月份选择');
-  assert(TD_SRC.indexOf('if(DASH_SEASON===curSeasonKey())DASH_CUR=dLatest()||\'all\';') >= 0, 'TD14：云端数据应用不打断历史季只读视图');
+  assert(TD_SRC.indexOf('if(DASH_SEASON===curSeasonKey())DASH_CUR=resolveDashCur();') >= 0
+      && TD_SRC.indexOf('function resolveDashCur(') >= 0
+      && TD_SRC.indexOf('DASH_CUR=dLatest()') < 0,
+    'TD14：云端数据应用不打断历史季只读视图（赛季守卫仍在；2026-10-09 起改走 resolveDashCur，不再把用户选择冲回最新月）');
   assert(TD_SRC.indexOf("payload={col:'dash_data',data:DASH_DB}") >= 0 && TD_SRC.indexOf('DASH_DB=HIST') < 0 && (TD_SRC.match(/HIST=(?!=)/g) || []).length === 1, 'TD15：HIST 只读——不进上传/云端（payload 原样），无任何 HIST 赋值');
   assert(TD_SRC.indexOf('const latestM=DASH_ORDER.length?DASH_ORDER[DASH_ORDER.length-1]:null;') >= 0, 'TD16：下载模版/上传链路永远读 2026 权威数据（不受赛季选择影响）');
   assert(TD_SRC.indexOf('function dCurTotN(key,idx)') >= 0 && TD_SRC.indexOf('function dRecVal(rec,key,idx){if(!rec||!rec[key])return null;') >= 0, 'TD17：null 语义取数（缺失字段=null→「—」，与 0 严格区分）');
@@ -2106,7 +2147,7 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
  *   ③ pptx 仍走点击懒加载，不得被改成首屏预载（首屏体积是硬约束）；
  *   ④ 口径文案单一事实源——HTML 汇报材料与 PPT 不许各写一份；
  *   ⑤ 缺数据页必须显式说「暂无数据」，禁止用 0 顶替或留空壳。
- * 另：本轮「执行期真能生成 9 页 pptx」由交付时的运行期验证脚本给出（非本文件职责，
+ * 另：本轮「执行期真能生成 14 页 pptx」由交付时的运行期验证脚本给出（非本文件职责，
  * 因为本文件不做真 PptxGenJS 构建）；此处只保证结构不被改坏。
  * ===================================================================== */
 {
@@ -2180,21 +2221,83 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
     'PG7：★趋势月度取数与 GW.raw 同一条优先级（db 优先，实时季回落内置基线 M6/M7）——否则会出现「各站页有数、趋势页说暂无数据」的自相矛盾');
   assert(pgFn.indexOf('trendFallback') >= 0, 'PG7：回落内置基线时页面显式告知数据源（不静默换口径）');
 
-  /* ⑦ 版式：9 页、原生图表与原生表格、配色沿用既有调色板（禁紫粉） */
+  /* ⑦ 版式：14 页（2026-10-09 深化改版：9→14 页）、原生图表与原生表格、配色沿用既有调色板（禁紫粉） */
   /* 只数调用点（`=nextSlide()`）：函数定义行是 `function nextSlide(){`，它也含 `nextSlide()` 子串，
      一起数会永远多 1（这正是「断言写错却看起来像产品坏了」的典型）。 */
   const pgPages = (pgFn.match(/=nextSlide\(\)/g) || []).length;
-  assert(pgPages === 9, 'PG8：本轮 9 页（实际 ' + pgPages + ' 页）');
-  assert(pgFn.indexOf('s3.addChart(p.ChartType.bar,') >= 0, 'PG8：漏斗页用 PptxGenJS 原生柱状图');
+  assert(pgPages === 14, 'PG8：本轮 14 页（实际 ' + pgPages + ' 页）');
+  assert(pgFn.indexOf('s2.addChart(p.ChartType.bar,') >= 0, 'PG8：漏斗页（北极星与整体漏斗）用 PptxGenJS 原生柱状图');
   assert(pgFn.indexOf('s8.addChart(p.ChartType.line,') >= 0, 'PG8：趋势页用 PptxGenJS 原生折线图');
   const pgTables = (pgFn.match(/\.addTable\(t\d,/g) || []).length;   /* 必须带 g：无 g 时 match 只返回首个匹配 */
-  assert(pgTables === 2, 'PG8：总表页与预警页用 PptxGenJS 原生表格（实际 ' + pgTables + ' 处，期望 2）');
+  assert(pgTables === 3, 'PG8：能力总表/同比对照/风险预警三页用 PptxGenJS 原生表格（实际 ' + pgTables + ' 处，期望 3）');
   assert(/purple|pink|A855F7|7C3AED|EC4899/i.test(pgFn) === false, 'PG8：零紫粉系色值（P0-2）');
   assert(pgFn.indexOf("navy:'0B2545'") >= 0 && pgFn.indexOf("gold:'C8A04B'") >= 0 && pgFn.indexOf("cyan:'389BE5'") >= 0,
     'PG8：调色板沿用 genPPT 既有藏蓝/金/青（与手工 PPT 同一视觉家族）');
   /* P0-1：PPT 文案零 emoji（全文口径已由 ICO3 把守，此处再钉新增函数的局部作用域） */
   assert((pgFn.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu) || []).length === 0,
     'PG8：genHQPPT 零 emoji（P0-1）');
+}
+
+/* ================ 看板时间视图「默认整季 + 记住选择」（DCUR，2026-10-09 新增） ================
+ * 根因（用户实测）：initDash() 与 dashApplyCloud() 每次都把 DASH_CUR 重置为 dLatest()（最新单月），
+ * 用户手动切到「整季」后，只要云端刷新/上报回填一次就被静默冲回最新月 —— 于是汇报材料又只剩最新一个月。
+ * 裁定（用户拍板 2026-10-09）：默认「整季」，并记住用户显式选择；仅当记住的月份本赛季不存在时才回退整季。
+ * 本组把这四条钉死：任何一次改动把 DASH_CUR=dLatest() 带回来，立即红。 */
+{
+  const H = fs.readFileSync(P.INDEX_HTML, 'utf8');
+  const body = (name) => {
+    const i = H.indexOf('function ' + name + '(');
+    if (i < 0) return '';
+    const j = H.indexOf('\nfunction ', i + 10);
+    return H.slice(i, j > 0 ? j : i + 4000);
+  };
+  const initD = body('initDash');
+  const applyC = body('dashApplyCloud');
+  const setM = body('setDashMonth');
+  assert(H.indexOf('function resolveDashCur(') >= 0, 'DCUR1：resolveDashCur 存在（时间视图唯一判定出口）');
+  assert(H.indexOf("DASH_CUR_CHOICE_KEY='yf_dash_cur_choice'") >= 0, 'DCUR2：选择持久化键存在');
+  assert(H.indexOf('function loadDashCurChoice(') >= 0 && H.indexOf('function saveDashCurChoice(') >= 0,
+    'DCUR3：选择读写函数齐备');
+  assert(initD.indexOf('DASH_CUR=resolveDashCur()') >= 0, 'DCUR4：★initDash 走 resolveDashCur（默认整季+记住选择）');
+  assert(applyC.indexOf('DASH_CUR=resolveDashCur()') >= 0, 'DCUR5：★dashApplyCloud 走 resolveDashCur（云刷新/回填不再冲掉选择）');
+  assert(initD.indexOf('DASH_CUR=dLatest()') < 0 && applyC.indexOf('DASH_CUR=dLatest()') < 0,
+    'DCUR6：★两处都不得再出现 DASH_CUR=dLatest()（旧 bug 签名）');
+  assert(H.indexOf('DASH_CUR=dLatest()') < 0, 'DCUR7：★全文零 DASH_CUR=dLatest()');
+  assert(setM.indexOf('saveDashCurChoice(m)') >= 0, 'DCUR8：setDashMonth 把显式选择落本机');
+  assert(/resolveDashCur[\s\S]{0,400}mos\.indexOf\(want\)<0/.test(H), 'DCUR9：记住的月份本赛季不存在时回退「整季」');
+  assert(H.indexOf("let DASH_CUR='all'") >= 0, 'DCUR10：DASH_CUR 初值 = 整季（默认口径）');
+  /* bench() 缓存键必须含「周期」维度：metrics()/raw() 已随 isSeasonView() 分叉，而 curKey() 在整季下
+     仍返回最新月 —— 只用 赛季|月份 做键时「整季」与「最新单月」会算出同一把键，先算的口径被复用，
+     导致健康度/预警/标杆随「先看哪个视图」漂移（实测风险站 12 vs 11）。 */
+  const benchFn = (() => { const i = H.indexOf('function bench(){'); const j = H.indexOf('function ', i + 20); return i < 0 ? '' : H.slice(i, j); })();
+  assert(/isSeasonView\(\)\?'season':'month-'\+curKey\(\)/.test(benchFn),
+    'DCUR11：★bench() 缓存键含周期维度（整季/单月不得共用一把键）');
+}
+
+/* ================ 汇报材料「图形化」（HQG，2026-10-09 新增） ================
+ * 用户要求：把数据看板那页的东西用图形展示，首页/总览必须是数据展示而不是一堆文字表格。
+ * 做法：hqReportHTML() 内置三张内联 SVG（各月入营柱状图 / 整体漏斗 / 各站入营对比），
+ *      **零外链**（断网可用），数据取 GW.monthSeries()（与看板同源）。本组钉死不回流。 */
+{
+  const H = fs.readFileSync(P.INDEX_HTML, 'utf8');
+  const rep = (() => {
+    const i = H.indexOf('function hqReportHTML(');
+    const j = H.indexOf('\nfunction ', i + 10);
+    return i < 0 ? '' : H.slice(i, j > 0 ? j : i + 4000);
+  })();
+  assert(rep.length > 0, 'HQG1：能切出 hqReportHTML 函数体');
+  assert(['svgVBar', 'svgHBar', 'svgFunnel'].every(f => rep.indexOf('function ' + f + '(') >= 0),
+    'HQG2：★三张内联 SVG 生成器齐备（柱状图/横条图/漏斗）');
+  assert((rep.match(/<svg /g) || []).length >= 3, 'HQG3：★函数体内真的产生 ≥3 张 SVG');
+  assert(rep.indexOf('<h2>二、数据图形总览</h2>') >= 0, 'HQG4：★新增「数据图形总览」章节');
+  assert(['chartMonthBox', 'chartFunnelBox', 'chartTopBox'].every(v => rep.indexOf(v) >= 0),
+    'HQG5：★三块图形容器均已接入（各月/漏斗/各站对比）');
+  assert(rep.indexOf('GW.monthSeries()') >= 0 && H.indexOf('monthSeries:monthSeries') >= 0,
+    'HQG6：★月度序列由 GW.monthSeries() 提供（看板同源，不在汇报里另算一套）');
+  assert(rep.indexOf('function monthAgg(') < 0 && H.indexOf('function monthAgg(') >= 0,
+    'HQG7：月度聚合只在 GW 内定义一处（汇报侧不得复制一份）');
+  assert(/大站|中站|小站|规模档/.test(rep) === false, 'HQG8：★汇报材料零「大/中/小站/规模档」');
+  assert(rep.indexOf('<line x1=') >= 0 && rep.indexOf('viewBox=') >= 0, 'HQG9：SVG 为内联矢量（无 <img src> 外链）');
 }
 
 /* ================================ 文案红线（WX 系列）：把 2026-10-07 内容体检的裁定「写死」，防回流 ================================
