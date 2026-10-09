@@ -2272,6 +2272,20 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   const benchFn = (() => { const i = H.indexOf('function bench(){'); const j = H.indexOf('function ', i + 20); return i < 0 ? '' : H.slice(i, j); })();
   assert(/isSeasonView\(\)\?'season':'month-'\+curKey\(\)/.test(benchFn),
     'DCUR11：★bench() 缓存键含周期维度（整季/单月不得共用一把键）');
+  /* 顶部 KPI（dashHero / dashKpis）必须随「时间口径」切换，不能写死月份 ——
+     这是「材料与看板选的时间不一致」最容易被误判成"没跟着变"的可见面。
+     实测（Edge 无头 + 本机静态基线）：
+       整季 → 标签「整季合计报名人数」、值 7666 = 3197(6月) + 4469(7月) ✓ 自洽；
+       单月 → 标签「6月/7月报名人数」、值 3197 / 4469。
+     标签由 C 拼、取值走 dCurTotN()，两者都必须口径感知，缺一即"标签对、值错"。 */
+  const kpiAt = H.indexOf('function dashKpi(');
+  const totAt = H.indexOf('function dCurTotN(');
+  const kpiFn = H.slice(kpiAt, kpiAt + 1200);
+  const totFn = H.slice(totAt, totAt + 900);
+  assert(kpiFn.indexOf("DASH_CUR==='all'?'整季合计'") >= 0,
+    'DCUR12：★看板顶部 KPI 标签随口径切换（整季=「整季合计…」/ 单月=「N月…」），不得写死月份');
+  assert(totFn.indexOf("DASH_CUR==='all'?seasonOrder():[DASH_CUR]") >= 0,
+    'DCUR13：★顶部 KPI 取值随口径分叉（整季=全季各月之和），与标签同源');
 }
 
 /* ================ 汇报材料「图形化」（HQG，2026-10-09 新增） ================
