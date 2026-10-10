@@ -41,7 +41,7 @@ bash tools/gates/run_gates_iso.sh [tag]
 |---|---|---|
 | GATE1 extract | **6 块** | `index.html` 内联 `<script>` 恰 6 个 |
 | GATE2 node --check | **6 / 6 OK** | `js_01..js_06` 语法全过 |
-| GATE3 test_rules | **pass=800 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新；同日复核：顶部 KPI 口径 `DCUR12`–`DCUR13` **+2**；2026-10-10：论坛图片保险丝 `FRM1`–`FRM9` **+9**、看板整季口径 `TD3b` **+1**、整季改读《整季汇总表》 `TD3c` **+1**、`GW19` 文案原位订正） |
+| GATE3 test_rules | **pass=801 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新；同日复核：顶部 KPI 口径 `DCUR12`–`DCUR13` **+2**；2026-10-10：论坛图片保险丝 `FRM1`–`FRM9` **+9**、看板整季口径 `TD3b` **+1**、整季改读《整季汇总表》 `TD3c` **+1**、PWA 版本自愈 `SWR1` **+1**，`GW19` 文案原位订正） |
 | GATE4 e2e | **26 PASS / 0 FAIL / 0 SKIP**（≈50–55s） | 双角色 26 场景（S11/A7/S14 现覆盖 **7** 个管理专属控件） |
 | GATE5 ppt_smoke | **27 PASS / 0 FAIL / 0 SKIP**（≈28s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **≈952KB / 14 页**；原生表格 3 张（能力总表 10 列 × 21 行 / 同比对照 / 风险预警）+ 原生柱状图 4 + 折线图 1；漏斗柱 3 个真实数值；口径三句逐字且唯一；缺月折不画线；**整季=《整季汇总表》（all 数据集，非逐月求和，缺失回退逐月求和）、单月=该月、势头恒按最新月**；**D6 云刷新不冲掉用户选择 / D7 默认整季+记住选择 / D8 bench 缓存区分周期**；负责人端直调 0 字节 |
 | GATE-SW sw_selfcheck | **23 PASS / 0 FAIL**（≈0s） | **`sw.js` 是 `p0_scan` 的盲区**（不属 index.html 内联块），单列门禁。A 文件语法 / B 离线可用性 + **B6–B10 导航分支「缓存优先」防回归** / C 版本纪律。见下「GATE-SW 说明」 |
@@ -208,6 +208,19 @@ bash tools/gates/run_gates_iso.sh [tag]
 - **原位修订**：`TD3b` 断言内容由「4 入口 `yfMonthKey` 过滤」升级为「`yfSeasonAdmit`/`yfIngest` + 云端/静态两入口 `yfIngest` + 上传 `p.m!==YF_SEASON_KEY && !yfMonthKey(p.m)`」；`DCUR13` 由断言 `seasonOrder()` 改断言 `/const mos=dScopeKeys\(\);/`；`GW19` 文案「逐月求和」→「整季优先《整季汇总表》，缺失回退逐月求和」（**条数不变**）。
 - **数据核对（用户表《整季》20 站合计）**：报名 **7998** / 面试 **5808** / 入营 **3071** / 新卡 **6821** / 采量 **75873** / 科普 **6539** / 科普转化 **2614** / 家长 **1876**（与旧 6+7+8 逐月求和的 9134/6345/3245/6886/75765/6252/2463 差异，即上轮已登记的「56 格明细」）。
 - **本笔七道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=800 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **27 PASS / 0 FAIL / 0 SKIP**（新增 `G5-D1b` 回退断言 + `G5-D1/D4` 改按 all 数据集）；**GATE-SW 23 PASS / 0 FAIL**。**P0 终检 5 类全 PASS**。
+
+### 2026-10-10 · PWA 版本自愈：`SWR1`（**+1**，GATE3 **800 → 801**）
+
+- **触发（用户实机截图）**：整季口径修订已上线且线上字节复验通过，但用户打开仍是**旧界面**——时间下拉里除「整季/6月/7月/8月」外还有**两个「NaN月」**，选「整季」显示错值，只有选最下面的「NaN月」才对。
+- **定性（复现坐实，非代码缺陷）**：`sw.js` 文档分支是**「缓存优先 + 后台静默更新」**（v3.1 的有意取舍：断网窗口从 10 分钟提升到无限期，代价＝**部署后首次打开仍回旧版**，靠后台更新在下一次生效）。用户正是**首次打开** ⇒ 拿到的是 SW 缓存里的旧 `index.html`。
+  - **反向复现（`output/_scratch/_render/_probe_cloud_dirty.js`，Edge 无头）**：把**真实脏云端**（6/7/8 ＋ 伪月份键「整季」「暑期三个」）喂给**新版** `index.html` ⇒ 下拉 `["all:整季","6:6月","7:7月","8:8月"]`、**nanCount=0**、`DASH_ORDER=["6","7","8"]`、`dbKeys=["6","7","8","all"]`。⇒ 新版对脏云端**已完全正确**，用户所见纯属旧版缓存。
+	（附带发现：`yfIngest` 会把云端现存的「整季」工作表**归位到 `all`** ⇒ 线上无需等新上传，整季即自动取到汇总表值。）
+- **修法（两处，最小面）**：
+  - `index.html`：`register('./sw.js',{scope:'./'})` → 追加 **`updateViaCache:'none'`**（sw.js 自身不吃 HTTP 缓存；GitHub Pages 只给 `max-age=600`，默认「imports」会让版本升级最多迟 10 分钟才被发现）；新增 **`controllerchange` 监听**——新 SW 经 `skipWaiting`+`clients.claim` 接管时**自动刷新一次**拿到新版（一次打开即新版，用户无需手动刷两次）；新增 `yfBusyEditing()` 守卫：**任一 `*-mask` 弹层可见则不打断**（避免丢失正在编辑/上传的内容，交给下次打开）。
+  - `sw.js`：`CACHE` **v4 → v5**（非策略改动，仅**强制清掉旧缓存**以配合自愈；该文件自身纪律要求 CACHE 随行为变更递增）。
+- **新增断言 `SWR1`**（`test_rules.js`，对 `H` 全源断言）：钉住 `register('./sw.js',{scope:'./',updateViaCache:'none'})` / `addEventListener('controllerchange'` / `function yfBusyEditing()` / `if(yfBusyEditing()) return;` / `location.reload();`。
+- **判据行为级验证（`output/_scratch/_render/_probe_swreload.js`，Edge 无头执行 index.html 原样抽出的函数源码）**：`cleanNoMask=false`（干净页允许刷新）· `withVisibleMask=true`（弹层可见即不打断）· `afterHideMask=false` ⇒ **三态 PASS**。（首次跑出 `cleanNoMask=true` 是探针自身漏做登录 stub、页面停在登录遮罩所致，非代码缺陷；补 stub 后归位。）
+- **本笔七道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=801 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **27 PASS / 0 FAIL / 0 SKIP**；**GATE-SW 23 PASS / 0 FAIL**（`CACHE = 'yf-os-v5'` 通过「含 v<数字>」断言）。**P0 终检 5 类全 PASS**。
 
 ## P0 扫描口径（三处精度修正 + 保真平移白名单 —— **降假阳性 / 补口径缺口，均不降强度**）
 

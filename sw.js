@@ -16,8 +16,13 @@
  * 版本升级纪律：**改任何 sw.js 行为都必须同步改 CACHE 常量**（yf-os-vN 递增），
  *   activate 会自动清掉旧缓存。否则老用户拿不到新策略——这是 v2→v3 踩到的点。
  *   该纪律由 tools/gates/sw_selfcheck.js 断言把守（CACHE 缺失 / 无 v 号 → 红）。
+ *
+ * v5（2026-10-10）：非策略改动，仅**版本递增以强制清缓存**——配套 index.html 新增的
+ *   「版本自愈」（controllerchange → 无弹层编辑时自动刷新一次）。用户实测：部署新版后
+ *   首次打开仍回旧版（本策略的既定取舍），需手动刷两次；自愈 + 本版递增后，
+ *   新 SW 接管（skipWaiting + clients.claim）即自动刷新，用户一次打开即新版。
  */
-const CACHE = 'yf-os-v4';
+const CACHE = 'yf-os-v5';
 
 /* 预缓存清单：**只放小体积、且导航分支之外仍需要的资产**。
    ⚠️ 刻意不含 './index.html'——导航请求由 fetch 处理器按需回写（见文首策略说明），

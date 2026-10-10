@@ -1227,6 +1227,16 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
       && GW_SRC.indexOf('sset && sset[st]') >= 0
       && TD_SRC.indexOf("if(!DASH_DB[YF_SEASON_KEY] && typeof MSEASON!=='undefined' && MSEASON) DASH_DB[YF_SEASON_KEY]=MSEASON;") >= 0,
     'TD3c：看板与成长引擎整季同源——dScopeKeys/dSeasonSet 归位 all，seasonRec 优先取 all，云端缺 all 时静态汇总兜底（3071 口径一致）');
+  /* SWR1：PWA 版本自愈（2026-10-10 用户实测「部署新版后首次打开仍回旧版/乱码选项」）。
+     sw.js 文档分支是「缓存优先」（离线兜底优先，有意取舍）⇒ 部署后首次打开仍回旧版。
+     修法：index.html 监听 controllerchange（新 SW 经 skipWaiting+clients.claim 接管即触发）→ 无弹层编辑时
+     自动刷新一次；并给 register 加 updateViaCache:'none'（sw.js 自身不吃 HTTP 缓存，GitHub 只给 max-age=600）。 */
+  assert(H.indexOf("navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'})") >= 0
+      && H.indexOf("addEventListener('controllerchange'") >= 0
+      && H.indexOf('function yfBusyEditing()') >= 0
+      && H.indexOf('if(yfBusyEditing()) return;') >= 0
+      && H.indexOf('location.reload();') >= 0,
+    'SWR1：PWA 版本自愈——新 SW 接管后自动刷新一次（编辑中不打断）+ sw.js 不吃 HTTP 缓存');
   assert(TD_SRC.indexOf('function renderMonthSwitch()') >= 0 && TD_SRC.indexOf('setSeason(') >= 0 && TD_SRC.indexOf('setDashMonth(') >= 0 && TD_SRC.indexOf('onchange="setSeason(this.value)"') >= 0 && TD_SRC.indexOf('onchange="setDashMonth(this.value)"') >= 0 && TD_SRC.indexOf('>整季</option>') >= 0 && TD_SRC.indexOf("class=\"tsel\"") >= 0, 'TD4：两级时间选择器（赛季 + 整季/单月）已实现——下拉形态，赛季/时间两个 select 的 onchange 直连 setSeason/setDashMonth');
   assert(TD_SRC.indexOf('histSeasonList()') >= 0 && TD_SRC.indexOf("Object.keys(HIST).filter") >= 0, 'TD5：历史季清单从 HIST 动态生成（不写死季列表）');
   assert(TD_SRC.indexOf('function dashYoyPairs(s)') >= 0 && TD_SRC.indexOf("['入营','reg',2],['学生新卡','dev',0],['学生采量','dev',1],['科普人次','dev',3],['科普转化新卡','dev',4]") >= 0, 'TD6：同比五指标 = 入营/学生新卡/采量/科普/科普转化新卡');

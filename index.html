@@ -53,12 +53,42 @@ window.__yfLoadLib=(function(){
   else { setTimeout(loadXLSX,2500); }
 })();
 /* PWA：可安装到桌面（独立窗口+图标）、二次打开秒开、断网可用。
-   仅在 https 下注册；本地 http 调试不触发，避免测试期缓存干扰。 */
+   仅在 https 下注册；本地 http 调试不触发，避免测试期缓存干扰。
+   2026-10-10 版本自愈（用户实测：部署新版后仍看到旧界面/乱码选项）：
+     · sw.js 的文档分支是「缓存优先 + 后台静默更新」（离线兜底优先）——部署新版后**首次打开仍回旧版**，
+       靠后台更新在下一次生效。为免用户手动刷两次，此处监听 controllerchange
+       （新 SW 经 skipWaiting + clients.claim 接管时即触发）→ 自动刷新一次拿到新版；
+       若此刻正有弹层可见（可能正在编辑/上传）则不打断，交给下次打开自然生效。
+     · updateViaCache 设为 none：sw.js 自身不走 HTTP 缓存，确保版本升级被及时探测
+       （GitHub Pages 只给 max-age=600，默认「imports」会让升级最多迟 10 分钟才被发现）。 */
 (function(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol!=='https:') return;
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});
+    navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'}).catch(function(){});
+  });
+  /* 编辑中判据：任一 *-mask 弹层当前可见（display 非 none、visibility 非 hidden 且占据面积） */
+  function yfBusyEditing(){
+    try{
+      var ms=document.querySelectorAll('[class*="-mask"]');
+      for(var i=0;i<ms.length;i++){
+        var el=ms[i], cs=window.getComputedStyle(el);
+        if(cs.display==='none'||cs.visibility==='hidden') continue;
+        var r=el.getBoundingClientRect();
+        if(r.width>8&&r.height>8) return true;
+      }
+      var um=document.getElementById('upMsg');
+      if(um&&/正在|同步中|写入中/.test(um.textContent||'')) return true;
+    }catch(e){}
+    return false;
+  }
+  window.__yfBusyEditing=yfBusyEditing;   /* 探针/门禁用测试钩子，无运行时副作用 */
+  var yfSwReloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(yfSwReloaded) return;
+    yfSwReloaded=true;
+    if(yfBusyEditing()) return;   /* 有未完成的编辑/上传 → 不打断，下次打开即新版 */
+    location.reload();
   });
 })();
 </script>
