@@ -2288,6 +2288,27 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
     'DCUR13：★顶部 KPI 取值随口径分叉（整季=全季各月之和），与标签同源');
 }
 
+/* ================ 论坛图片保险丝「强制拦截 + 明确提示，杜绝静默丢帖」（FRM，2026-10-10 新增） ================
+ * 根因：pushOne 的保险丝（整包超网关 100KB 上限，图片没能转存到云端时触发）原本是「无限静默重试」——
+ *   用户端 fbPost 立即弹「已发布」，但帖子其实没上云，只在第 1 次弹一次节流提示后归于沉默 → 静默丢帖。
+ * 裁定：保险丝命中后，前 IMG_FAIL_MAX 次退避重试（容忍 COS 抖动）；超出则置 st.failed=true，
+ *   停止自动重试，改由列表/详情的「未同步」标识 + 手动重试兜底；fbPost 在图片仍在传时弹诚实提示。
+ * 本组钉死：① 失败升级逻辑（st.failed=true / st.tries>IMG_FAIL_MAX）② pendingPosts 跳过 failed（不再无限自动重试）
+ *   ③ 手动重试入口 fbSyncRetryOne + YF_CLOUD.retrySync/syncFailedIds ④ 列表/详情渲染未同步标识。 */
+{
+  const H = fs.readFileSync(P.INDEX_HTML, 'utf8');
+  const pendFn = (() => { const i = H.indexOf('function pendingPosts('); const j = H.indexOf('\nfunction ', i + 10); return H.slice(i, j > 0 ? j : i + 900); })();
+  assert(H.indexOf('var IMG_FAIL_MAX=') >= 0, 'FRM1：保险丝重试上限常量 IMG_FAIL_MAX 存在');
+  assert(H.indexOf('st.failed=true') >= 0, 'FRM2：★保险丝超次 → 置 failed（停止静默无限重试）');
+  assert(H.indexOf('st.tries>IMG_FAIL_MAX') >= 0, 'FRM3：★保险丝命中后「前 N 次重试、超次判持久失败」分支存在');
+  assert(pendFn.indexOf('st.failed') >= 0, 'FRM4：★pendingPosts 跳过 failed 帖子（failed 不再被自动重试吞掉）');
+  assert(H.indexOf('function fbSyncRetryOne(') >= 0, 'FRM5：★手动重试入口 fbSyncRetryOne 存在（列表/详情的「未同步」走这里）');
+  assert(H.indexOf('retrySync:function') >= 0 && H.indexOf('syncFailedIds:function') >= 0, 'FRM6：★YF_CLOUD 暴露 retrySync / syncFailedIds（失败列表 + 重试落点）');
+  assert(H.indexOf('未同步·重试') >= 0 && H.indexOf('fb-sync-warn') >= 0, 'FRM7：★列表渲染「未同步·重试」标签 + 顶部常驻横幅');
+  assert(H.indexOf('重试同步') >= 0, 'FRM8：★详情页失败帖红横幅 + 「重试同步」按钮');
+  assert(H.indexOf('图片正在上传云端，稍后自动同步') >= 0, 'FRM9：★fbPost 在图片仍在传时弹诚实提示（不再误导成「已发布」）');
+}
+
 /* ================ 汇报材料「图形化」（HQG，2026-10-09 新增） ================
  * 用户要求：把数据看板那页的东西用图形展示，首页/总览必须是数据展示而不是一堆文字表格。
  * 做法：hqReportHTML() 内置三张内联 SVG（各月入营柱状图 / 整体漏斗 / 各站入营对比），
