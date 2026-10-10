@@ -1206,6 +1206,15 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(dashSrcDecoded.indexOf('var HIST=') >= 0 && dashSrcDecoded.indexOf('"2025S"') >= 0 && dashSrcDecoded.indexOf('"2025W"') >= 0, 'TD1：HIST 历史数据块已随 dashSrc 首屏注入（2025S/2025W）');
   assert(TD_SRC.indexOf("function curSeasonKey(){return (new Date().getFullYear())+'S';}") >= 0 && TD_SRC.indexOf('let DASH_SEASON=curSeasonKey();') >= 0, 'TD2：赛季状态声明——默认当年，赛季键由系统时钟推导（跨年自适应，不再写死 2026S）');
   assert(TD_SRC.indexOf('function seasonSrc()') >= 0 && TD_SRC.indexOf('HIST[DASH_SEASON].months') >= 0 && TD_SRC.indexOf('if(DASH_SEASON===curSeasonKey())return DASH_ORDER;') >= 0, 'TD3：数据访问层赛季感知——2026 读 DASH_DB，历史季只读 HIST.months');
+  /* TD3b：非月份键入口拦截（2026-10-10 根治「整季入营 9387」）。
+     历史 bug：上传《整季汇总》时月份键取自工作表名，sheet 名「整季」「暑期三个」匹配不到「N月」即成伪月份入库，
+     而看板「整季」= 逐月逐站求和 ⇒ 整季汇总被叠加两遍（实测入营 3245→9387）。
+     根治＝所有数据入口（静态 DASH_RAW / 云端+缓存 dashApplyCloud / 上传 dashConfirmApply / 备份恢复 fullRestore）统一用 yfMonthKey 拦截。 */
+  assert(TD_SRC.indexOf('function yfMonthKey(k)') >= 0
+      && TD_SRC.indexOf('if(yfMonthKey(k))DASH_DB[k]=DASH_RAW[k]') >= 0
+      && TD_SRC.indexOf('if(yfMonthKey(k))DASH_DB[k]=cloudData[k]') >= 0
+      && TD_SRC.indexOf('if(!yfMonthKey(p.m))') >= 0,
+    'TD3b：非月份键入口拦截——伪月份「整季」不入库求和（整季入营 9387→3245 根治）');
   assert(TD_SRC.indexOf('function renderMonthSwitch()') >= 0 && TD_SRC.indexOf('setSeason(') >= 0 && TD_SRC.indexOf('setDashMonth(') >= 0 && TD_SRC.indexOf('onchange="setSeason(this.value)"') >= 0 && TD_SRC.indexOf('onchange="setDashMonth(this.value)"') >= 0 && TD_SRC.indexOf('>整季</option>') >= 0 && TD_SRC.indexOf("class=\"tsel\"") >= 0, 'TD4：两级时间选择器（赛季 + 整季/单月）已实现——下拉形态，赛季/时间两个 select 的 onchange 直连 setSeason/setDashMonth');
   assert(TD_SRC.indexOf('histSeasonList()') >= 0 && TD_SRC.indexOf("Object.keys(HIST).filter") >= 0, 'TD5：历史季清单从 HIST 动态生成（不写死季列表）');
   assert(TD_SRC.indexOf('function dashYoyPairs(s)') >= 0 && TD_SRC.indexOf("['入营','reg',2],['学生新卡','dev',0],['学生采量','dev',1],['科普人次','dev',3],['科普转化新卡','dev',4]") >= 0, 'TD6：同比五指标 = 入营/学生新卡/采量/科普/科普转化新卡');

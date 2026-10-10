@@ -4871,6 +4871,12 @@ function dashRank(s,get,desc){
 let DASH_DB={};       // {'6':{站:{reg,dev,camp,par}},...} 上传哪个月就进哪个月
 let DASH_ORDER=[];    // 已存在月份（升序）
 let DASH_CUR='all';   // 当前视图：'all'=整季合计 或 具体月份
+/* 月份键白名单（P0 数据口径根治 2026-10-10）：只认 1–12 的阿拉伯数字月键。
+   历史 bug：上传时月份键取自工作表名，匹配不到「N月」就把整个工作表名当月份键——
+   《整季汇总》文件的 sheet 名「整季」「暑期三个」因此成了伪月份写进 dash_data，各带整季总数；
+   而看板「整季」= 对数据里每个月份逐站求和 ⇒ 把整季汇总又叠加两遍（实测入营 9387 = 6/7/8 3245 + 3071 + 3071）。
+   此函数在**所有数据入口**统一拦截非月份键，非月份键永不参与求和、不进月份下拉。 */
+function yfMonthKey(k){k=String(k==null?'':k).replace(/\s/g,'');return /^(1[0-2]|[1-9])$/.test(k)?k:null;}
 /* 当年赛季键：由系统时钟推导（2026→'2026S'，2027→'2027S'），跨年不失效。
    凡「是不是今年」的判断一律与它比对，绝不写死 '2026S'——否则跨年后当年数据会被当历史季读，看板整块空白。 */
 function curSeasonKey(){return (new Date().getFullYear())+'S';}
@@ -4886,10 +4892,10 @@ function seasonSrc(){
   }
   return DASH_DB;
 }
-function seasonOrder(){ // 当前赛季月份（升序）
+function seasonOrder(){ // 当前赛季月份（升序）——DASH_ORDER 已由各数据入口用 yfMonthKey 过滤，非月份键（如伪月份「整季」）永不入库
   if(DASH_SEASON===curSeasonKey())return DASH_ORDER;
   const src=seasonSrc();
-  return src?Object.keys(src).filter(m=>src[m]&&Object.keys(src[m]).length).sort((a,b)=>parseInt(a,10)-parseInt(b,10)):[];
+  return src?Object.keys(src).filter(m=>yfMonthKey(m)&&src[m]&&Object.keys(src[m]).length).sort((a,b)=>parseInt(a,10)-parseInt(b,10)):[];
 }
 function histSeasonList(){ // 可选历史季清单（从 HIST 动态生成，不写死）
   if(typeof HIST==='undefined'||!HIST)return[];
@@ -5619,8 +5625,8 @@ function resolveDashCur(){
 function initDash(){
   DASH_DB={};DASH_ORDER=[];
   if(typeof DASH_RAW!=='undefined'&&DASH_RAW&&Object.keys(DASH_RAW).length){
-    DASH_DB=DASH_RAW;
-    DASH_ORDER=Object.keys(DASH_RAW);
+    DASH_DB={};Object.keys(DASH_RAW).forEach(function(k){if(yfMonthKey(k))DASH_DB[k]=DASH_RAW[k];});
+    DASH_ORDER=Object.keys(DASH_DB);
   }else{
     if(typeof M6!=='undefined'&&M6)DASH_DB['6']=M6;
     if(typeof M7!=='undefined'&&M7)DASH_DB['7']=M7;
@@ -5666,8 +5672,10 @@ function dashCacheApply(){
 function dashApplyCloud(cloudData,source,updatedAt){
   var before='',after='';
   try{before=JSON.stringify(DASH_DB);}catch(e){}
-  try{after=JSON.stringify(cloudData);}catch(e){}
-  DASH_DB=cloudData;
+  /* 非月份键一律不入口（历史 bug：整季汇总表按工作表名成了伪月份，被「整季」求和重复叠加） */
+  DASH_DB={};
+  Object.keys(cloudData||{}).forEach(function(k){if(yfMonthKey(k))DASH_DB[k]=cloudData[k];});
+  try{after=JSON.stringify(DASH_DB);}catch(e){}
   DASH_ORDER=Object.keys(DASH_DB);
   DASH_ORDER.sort((a,b)=>{const na=parseInt(a,10),nb=parseInt(b,10);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a<b?-1:1;});
   if(DASH_SEASON===curSeasonKey())DASH_CUR=resolveDashCur();  /* 2026-10-09：云刷新/上报回填不再把用户的时间选择冲回最新月 */
@@ -6113,22 +6121,27 @@ function dashParseFile(){
   rd.onload=e=>{
     try{
       const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-      const parsed=[];let totalBad=0;const allMiss=[];let seenHdr='';
+      const parsed=[];const skipped=[];let totalBad=0;const allMiss=[];let seenHdr='';
       wb.SheetNames.forEach(sn=>{
         const aoa=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});
         const r=dashParseSheet(aoa);
         if(r.hdrs&&!seenHdr)seenHdr=r.hdrs;
         if(Object.keys(r.data).length===0)return; // 无站点数据（如附加小表）自动跳过
+        /* 月份键必须来自含「N月」的工作表名；匹配不到即跳过（绝不把工作表名当月份键）。
+           历史 bug（2026-10-10）：《整季汇总》sheet 名「整季」「暑期三个」曾被当伪月份入库，
+           看板「整季」对这些键一并求和 ⇒ 入营 3245 被重复叠加到 9387。 */
+        const m=String(sn).replace(/\s/g,'').match(/(\d{1,2})\s*月/);
+        if(!m){skipped.push(String(sn));return;}
+        const mNum=String(parseInt(m[1],10));
         totalBad+=r.bad;
         r.miss.forEach(x=>allMiss.push(x));
-        const m=String(sn).replace(/\s/g,'').match(/(\d{1,2})\s*月/);
-        const mNum=m?String(parseInt(m[1],10)):String(sn).trim();
         parsed.push({m:mNum,r});
       });
       if(!parsed.length){
         /* 报错回显实际识别到的列头清单，让用户能自救（P0-1） */
         const hdrEcho=seenHdr?('识别到的列头：「'+seenHdr+'」'):'未找到含「报名人数/入营人数」的列头行';
-        upMsg('<b class="err">没有解析出任何站点数据</b>。检测到的工作表：「'+upEsc(wb.SheetNames.join('、'))+'」；'+upEsc(hdrEcho)+'。请检查列头是否包含「站点/浆站」与「报名人数/入营人数」等，可点「下载模版」对照。');
+        const skipEcho=skipped.length?('；已跳过非月份工作表：「'+upEsc(skipped.join('、'))+'」（工作表名须含「N月」，如「6月」）'):'';
+        upMsg('<b class="err">没有解析出任何月份数据</b>。检测到的工作表：「'+upEsc(wb.SheetNames.join('、'))+'」；'+upEsc(hdrEcho)+skipEcho+'。请检查工作表名与列头，可点「下载模版」对照。');
         return;
       }
       if(totalBad){upMsg('<b class="err">有 '+totalBad+' 行站点名没认出来</b>，请检查站点名是否与表内一致。');return;}
@@ -6140,6 +6153,7 @@ function dashParseFile(){
         pv+='<br><b>'+upEsc(p.m)+'月</b>：本次将更新 '+Object.keys(p.r.data).length+' 个站'
           +(missU.length?('；缺失的站 '+missU.length+' 个（'+upEsc(missU.join('、'))+'）——保持云端原值不变'):'');
       });
+      if(skipped.length)pv+='<br><b class="err">已跳过非月份工作表：「'+upEsc(skipped.join('、'))+'」</b>（工作表名须含「N月」，如「6月」；整季汇总表请勿从此处上传）。';
       pv+='<br><button class="up-btn" id="dashConfirmApply">确认写入并同步云端</button> <button class="up-btn" id="dashCancelApply" style="background:var(--line);color:var(--ink)">取消</button>';
       upMsg(pv);
       document.getElementById('dashConfirmApply').onclick=dashConfirmApply;
@@ -6158,6 +6172,8 @@ function dashConfirmApply(){
   window.__pendingDash=null;
   const applied=[];
   pd.parsed.forEach(p=>{
+    /* 非月份键拒绝入库（双保险；正常路径已在上传解析处拦截） */
+    if(!yfMonthKey(p.m)){applied.push(p.m+'（非月份表，已忽略）');return;}
     /* 缺站不归零：本表没有的站保留当前看板（含云端拉取）该月原值 */
     const old=DASH_DB[p.m]||{};
     Object.keys(old).forEach(s=>{ if(!p.r.data[s])p.r.data[s]=old[s]; });
@@ -6869,8 +6885,8 @@ function fullRestore(inp){
         FB=d.forum;fbSave();restored.push('交流论坛('+d.forum.posts.length+'条帖)');
       }
       if(d.dashData&&typeof DASH_DB!=='undefined'){
-        Object.keys(d.dashData).forEach(function(k){DASH_DB[k]=d.dashData[k];});
-        if(d.dashOrder)DASH_ORDER=d.dashOrder.slice();
+        Object.keys(d.dashData).forEach(function(k){if(yfMonthKey(k))DASH_DB[k]=d.dashData[k];});  /* 非月份键（伪月份「整季」）不入库 */
+        if(d.dashOrder)DASH_ORDER=d.dashOrder.filter(yfMonthKey);
         localStorage.setItem('yangfan_dash',JSON.stringify({db:DASH_DB,order:DASH_ORDER}));
         restored.push('看板数据');
       }
