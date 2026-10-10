@@ -24,7 +24,7 @@ bash tools/gates/run_gates_iso.sh [tag]
 | `test_rules.js` | **GATE3**：静态 + 行为级断言（在 jsdom 沙箱内加载被抽出的脚本块）。 |
 | `mk_shadow.js` | **GATE4 前置**：每轮生成**全新 virgin shadow store**（`yf-gates-shadow-<hash>/run_<ts>`）；后端 `index.js` 由**真实源复制**并 **md5 逐字节校验**；输出 `SHADOW=<dir>`。 |
 | `e2e_dual_role.js` | **GATE4**：jsdom 双角色（管理端 / 负责人端）端到端 26 场景；后端指向 `YF_API_DIR`（入口默认注入 shadow 目录）。管理专属控件清单 `ADMIN_ONLY_CTRLS` 现 **7** 项（新增「集团汇报 PPT 生成按钮 `hqPptBtn`」），S11/A7/S14 文案按 `ADMIN_ONLY_CTRLS.length` 自取，改清单不必再改文案。 |
-| `ppt_smoke.js` | **GATE5**（功能绿）：在 jsdom 里登录管理端，**真跑一次 `genHQPPT()`** 并抓回真实 `.pptx` 字节逐项验（14 页 / 原生表格 ≥2 / 原生柱+折线图 / 口径逐字且唯一 / 缺月不以 0 顶替 / 负责人端直调拿不到字节 / 整季口径=各月累计·单月=该月·势头恒按最新月）。**零源码改动**：只 patch `PptxGenJS.prototype.writeFile` 换掉「最后一步落盘」。独立端口 `YF_PPT_PORT`（默认 9103）、独立 virgin shadow 库（自调 mk_shadow.js），与 GATE4 互不干扰。前置失败一律 `exit 3`（不静默跳过）。 |
+| `ppt_smoke.js` | **GATE5**（功能绿）：在 jsdom 里登录管理端，**真跑一次 `genHQPPT()`** 并抓回真实 `.pptx` 字节逐项验（14 页 / 原生表格 ≥2 / 原生柱+折线图 / 口径逐字且唯一 / 缺月不以 0 顶替 / 负责人端直调拿不到字节 / 整季口径=《整季汇总表》·单月=该月·势头恒按最新月）。**零源码改动**：只 patch `PptxGenJS.prototype.writeFile` 换掉「最后一步落盘」。独立端口 `YF_PPT_PORT`（默认 9103）、独立 virgin shadow 库（自调 mk_shadow.js），与 GATE4 互不干扰。前置失败一律 `exit 3`（不静默跳过）。 |
 | `p0_scan.js` | **P0 终检**（可独立跑，不在 iso 流水线内）：对 `<基线> → HEAD`（或传 `WORKTREE` 扫未提交工作区）的 `index.html` 新增行做确定性扫描——emoji 作图标 / 紫粉系 / 硬编码颜色（按**新增色值**判，见下「P0 扫描口径」）/ 外部 CDN / 中文字面量半角标点（判定前先剥 HTML 实体，见同节）。末尾自带 **14 条规则自检（SELFTEST）**，不通过即非 0 退出。<br>**基线（`BASE_CANDIDATES`，2026-09-28 事故后重锚）**：原基线 `f5949a4` 随 `.git` 事故丢失，改锚现存权威基线 **`c5f41fb`**（= 事故后从 GitHub 恢复的 master）。运行时按序解析第一个**可解析**的候选并打印实际使用的基线；全部解析不到 → **`exit 9` FATAL**（绝不静默降级）。`BASE` 是固定 SHA 而非 HEAD，故后续每笔提交仍相对它累计扫描，不会出现「基线=HEAD 导致新增行恒为 0」的假绿。 |
 
 ## 前置（运行环境）
@@ -41,9 +41,9 @@ bash tools/gates/run_gates_iso.sh [tag]
 |---|---|---|
 | GATE1 extract | **6 块** | `index.html` 内联 `<script>` 恰 6 个 |
 | GATE2 node --check | **6 / 6 OK** | `js_01..js_06` 语法全过 |
-| GATE3 test_rules | **pass=799 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新；同日复核：顶部 KPI 口径 `DCUR12`–`DCUR13` **+2**；2026-10-10：论坛图片保险丝 `FRM1`–`FRM9` **+9**、看板整季口径 `TD3b` **+1**） |
+| GATE3 test_rules | **pass=800 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新；同日复核：顶部 KPI 口径 `DCUR12`–`DCUR13` **+2**；2026-10-10：论坛图片保险丝 `FRM1`–`FRM9` **+9**、看板整季口径 `TD3b` **+1**、整季改读《整季汇总表》 `TD3c` **+1**、`GW19` 文案原位订正） |
 | GATE4 e2e | **26 PASS / 0 FAIL / 0 SKIP**（≈50–55s） | 双角色 26 场景（S11/A7/S14 现覆盖 **7** 个管理专属控件） |
-| GATE5 ppt_smoke | **26 PASS / 0 FAIL / 0 SKIP**（≈28s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **≈952KB / 14 页**；原生表格 3 张（能力总表 10 列 × 21 行 / 同比对照 / 风险预警）+ 原生柱状图 4 + 折线图 1；漏斗柱 3 个真实数值；口径三句逐字且唯一；缺月折不画线；**整季=各月累计、单月=该月、势头恒按最新月**；**D6 云刷新不冲掉用户选择 / D7 默认整季+记住选择 / D8 bench 缓存区分周期**；负责人端直调 0 字节 |
+| GATE5 ppt_smoke | **27 PASS / 0 FAIL / 0 SKIP**（≈28s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **≈952KB / 14 页**；原生表格 3 张（能力总表 10 列 × 21 行 / 同比对照 / 风险预警）+ 原生柱状图 4 + 折线图 1；漏斗柱 3 个真实数值；口径三句逐字且唯一；缺月折不画线；**整季=《整季汇总表》（all 数据集，非逐月求和，缺失回退逐月求和）、单月=该月、势头恒按最新月**；**D6 云刷新不冲掉用户选择 / D7 默认整季+记住选择 / D8 bench 缓存区分周期**；负责人端直调 0 字节 |
 | GATE-SW sw_selfcheck | **23 PASS / 0 FAIL**（≈0s） | **`sw.js` 是 `p0_scan` 的盲区**（不属 index.html 内联块），单列门禁。A 文件语法 / B 离线可用性 + **B6–B10 导航分支「缓存优先」防回归** / C 版本纪律。见下「GATE-SW 说明」 |
 
 入口末行固定输出 `RESULT: PASS (RC=0)`。
@@ -191,6 +191,23 @@ bash tools/gates/run_gates_iso.sh [tag]
 - **行为级复验**（`output/_scratch/_e2e_9387_fix.js`，**18 PASS / 0 FAIL**）：从 `index.html` 抽出**真实**数据层函数，注入 6/7/8 月真数据 + 两个伪月份 ⇒ 入口过滤后整季入营 **3245**（= 6/7/8 之和）、月份下拉 **`6,7,8`**；绕过过滤（旧路径）复现 **9387**。
 - **同步校正一处陈旧基线**：本表此前记 `pass=789`（HEAD `1073afc`），但本轮动手前实测已是 **`pass=798`**（同日「论坛图片保险丝」`FRM1`–`FRM9` **+9** 未回写本表）；本次以**实测**为准重记。
 - **本笔七道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=799 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **26 PASS / 0 FAIL / 0 SKIP**；**GATE-SW 23 PASS / 0 FAIL**。
+
+### 2026-10-10 · 整季改读《整季汇总表》：`dScopeKeys`/`dSeasonSet` + 成长引擎同源 `TD3c`（**+1**，GATE3 **799 → 800**）
+
+- **触发（用户口径修订）**：用户裁定「整季还是按我表格的数据来，因为这里面的口径有不一样的点。6-7-8 月单月是有特殊事情的。……暂时这几个表独立去核算」——即**看板「整季」不再等于 6/7/8 月逐月相加**，而是**直接采用用户《整季》汇总表**（单独核算）；6/7/8 单月各自独立。
+  - 由此 **`TD3b` 的旧结论「修复后整季入营 = 3245（6+7+8 之和）」被本笔取代**：新口径整季入营 = 《整季汇总表》值 **3071**。（3245 仍是「6/7/8 逐月求和」的值，不再是「整季」口径。）
+- **同批修的另一缺陷（用户截图）**：看板「入营性别结构」面板 **男+女 ≠ 总数**——根因是主 KPI 取招募块 `reg[2]`（入营人数），性别面板却取入营总人数块 `camp[1]+camp[2]`，**跨了两张源表**（用户表自身亦有小差：叶集 56 vs 60、五河 129 vs 128）。修法：性别面板合计**改与主 KPI 同源取 `reg[2]`**（3071），男/女照 `camp[1]/camp[2]`，差额以 `gNote` 明示「入营总人数表与招募表口径差异，以原始表为准」——**不粉饰、不藏差**。
+- **改法（共享访问层一处分叉，全出口自动跟随）**：
+  - 新增常量/函数：`YF_SEASON_KEY='all'`、`yfSeasonAdmit(k)`（识别「整季/暑期/季度/全季/汇总」类工作表名）、`yfIngest(src,dst)`（月份键原样入库、整季类键统一归位 `all`，「整季」优先）。
+  - 新增取值分叉：`dSeasonSet()`（取 `seasonSrc()['all']`）、`dScopeKeys()`（整季视图：有汇总表 → `[all]`；缺失 → 回退 `seasonOrder()` 逐月求和）。
+  - `dSumRec`/`seasonHasStation`/`dAll`/`dCurTotN`/站卡参与度**内部一律改用 `dScopeKeys()`**——顶部 KPI、地图、榜单、导出一处生效。
+  - 4 个数据入口（`initDash` 静态 / `dashApplyCloud` 云端+缓存 / `dashParseFile`+`dashConfirmApply` 上传 / `fullRestore` 备份恢复）统一走 `yfIngest`；上传解析侧 `N月`→月份键、整季类→`all`。
+  - `dashDownloadJs` 导出保留 `all` 键并追加 `var MSEASON=...`（离线静态兜底）；`dash_data.js` 经 `_bake_season.js` 写入 `MSEASON`（20 站）并重编码 `dashSrc`（R2-32 回环逐字节一致）。
+  - **成长引擎（GW 模块）同源**：`seasonRec(st)`（旁路，原逐月求和）改为**优先取 `dSeasonSet()[st]`**、缺失才逐月求和——否则「我的成长」整季仍显示 3245，与看板 3071 打架。
+- **新增断言 `TD3c`**（`test_rules.js`，紧随 `TD3b`）：钉住 `function dSeasonSet()` / `function dScopeKeys()` + GW 侧 `typeof dSeasonSet==='function'` / `sset && sset[st]`。
+- **原位修订**：`TD3b` 断言内容由「4 入口 `yfMonthKey` 过滤」升级为「`yfSeasonAdmit`/`yfIngest` + 云端/静态两入口 `yfIngest` + 上传 `p.m!==YF_SEASON_KEY && !yfMonthKey(p.m)`」；`DCUR13` 由断言 `seasonOrder()` 改断言 `/const mos=dScopeKeys\(\);/`；`GW19` 文案「逐月求和」→「整季优先《整季汇总表》，缺失回退逐月求和」（**条数不变**）。
+- **数据核对（用户表《整季》20 站合计）**：报名 **7998** / 面试 **5808** / 入营 **3071** / 新卡 **6821** / 采量 **75873** / 科普 **6539** / 科普转化 **2614** / 家长 **1876**（与旧 6+7+8 逐月求和的 9134/6345/3245/6886/75765/6252/2463 差异，即上轮已登记的「56 格明细」）。
+- **本笔七道门禁实测**：GATE1 `extracted 6 JS blocks`；GATE2 `js_01..js_06 : OK`；GATE3 **pass=800 fail=0**；GATE4 **26 PASS / 0 FAIL / 0 SKIP**；GATE5 **27 PASS / 0 FAIL / 0 SKIP**（新增 `G5-D1b` 回退断言 + `G5-D1/D4` 改按 all 数据集）；**GATE-SW 23 PASS / 0 FAIL**。**P0 终检 5 类全 PASS**。
 
 ## P0 扫描口径（三处精度修正 + 保真平移白名单 —— **降假阳性 / 补口径缺口，均不降强度**）
 

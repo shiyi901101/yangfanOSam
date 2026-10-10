@@ -1189,7 +1189,7 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(H.indexOf('20 站排第') < 0 && H.indexOf('｜20 站中位') < 0 && H.indexOf('六项能力条') < 0 && H.indexOf('短板有六项') < 0, 'GW17：「20 站/六项」静态写死根除');
   assert(gwSrcAll.indexOf("bk.n+' 站排第 <b>'") >= 0 && gwSrcAll.indexOf("GW.CAPS.length+' 项") >= 0, 'GW18：站数/项数随数据动态（bk.n / CAPS.length）');
   /* ---- 季合计口径批次（分子分母同源逐月求和；旧「最新月单月」口径已废） ---- */
-  assert(GW_SRC.indexOf('camp0:q.camp0') >= 0 && /function seasonRec\(st\)/.test(GW_SRC), 'GW19：raw 携带 camp0（季合计·逐月求和）——四能力分母数据源');
+  assert(GW_SRC.indexOf('camp0:q.camp0') >= 0 && /function seasonRec\(st\)/.test(GW_SRC), 'GW19：raw 携带 camp0（季合计——整季优先《整季汇总表》，缺失回退逐月求和）——四能力分母数据源');
   assert(GW_SRC.indexOf('cardper: m.camp0 ? m.card/m.camp0') >= 0 && GW_SRC.indexOf('m.r2 ? m.card/m.r2') < 0, 'GW20：转化设计分母 = camp0（与 PM 达标线/分布/相关性同源）');
   assert(GW_SRC.indexOf('arr.slice().sort(function(a,b){return a-b;})') >= 0 && GW_SRC.indexOf('arr.filter(function(x){return x>0;})') < 0, 'GW21：中位数含零值全站（PM 口径，剔零会虚高基准）');
   assert(gwSrcAll.indexOf('÷ 入营人数') < 0 && (gwSrcAll.match(/÷ 季累计入营人数/g) || []).length >= 4, 'GW22：CAPS fx/口径说明统一「季累计入营」表述（旧的「÷ 入营人数」根除）');
@@ -1206,15 +1206,27 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(dashSrcDecoded.indexOf('var HIST=') >= 0 && dashSrcDecoded.indexOf('"2025S"') >= 0 && dashSrcDecoded.indexOf('"2025W"') >= 0, 'TD1：HIST 历史数据块已随 dashSrc 首屏注入（2025S/2025W）');
   assert(TD_SRC.indexOf("function curSeasonKey(){return (new Date().getFullYear())+'S';}") >= 0 && TD_SRC.indexOf('let DASH_SEASON=curSeasonKey();') >= 0, 'TD2：赛季状态声明——默认当年，赛季键由系统时钟推导（跨年自适应，不再写死 2026S）');
   assert(TD_SRC.indexOf('function seasonSrc()') >= 0 && TD_SRC.indexOf('HIST[DASH_SEASON].months') >= 0 && TD_SRC.indexOf('if(DASH_SEASON===curSeasonKey())return DASH_ORDER;') >= 0, 'TD3：数据访问层赛季感知——2026 读 DASH_DB，历史季只读 HIST.months');
-  /* TD3b：非月份键入口拦截（2026-10-10 根治「整季入营 9387」）。
+  /* TD3b：非月份键入口拦截 + 整季汇总归位（2026-10-10）。
      历史 bug：上传《整季汇总》时月份键取自工作表名，sheet 名「整季」「暑期三个」匹配不到「N月」即成伪月份入库，
      而看板「整季」= 逐月逐站求和 ⇒ 整季汇总被叠加两遍（实测入营 3245→9387）。
-     根治＝所有数据入口（静态 DASH_RAW / 云端+缓存 dashApplyCloud / 上传 dashConfirmApply / 备份恢复 fullRestore）统一用 yfMonthKey 拦截。 */
+     根治＝① 白名单 yfMonthKey 只认规范化月份键；② 整季类工作表统一归位到 YF_SEASON_KEY（all）单独核算（口径调整）；
+     ③ 全部数据入口（静态 DASH_RAW / 云端+缓存 dashApplyCloud / 上传 dashConfirmApply / 备份恢复 fullRestore）统一走 yfIngest。 */
   assert(TD_SRC.indexOf('function yfMonthKey(k)') >= 0
-      && TD_SRC.indexOf('if(yfMonthKey(k))DASH_DB[k]=DASH_RAW[k]') >= 0
-      && TD_SRC.indexOf('if(yfMonthKey(k))DASH_DB[k]=cloudData[k]') >= 0
-      && TD_SRC.indexOf('if(!yfMonthKey(p.m))') >= 0,
-    'TD3b：非月份键入口拦截——伪月份「整季」不入库求和（整季入营 9387→3245 根治）');
+      && TD_SRC.indexOf('function yfSeasonAdmit(k)') >= 0
+      && TD_SRC.indexOf('function yfIngest(src,dst)') >= 0
+      && TD_SRC.indexOf('yfIngest(cloudData,DASH_DB)') >= 0
+      && TD_SRC.indexOf('yfIngest(DASH_RAW,DASH_DB)') >= 0
+      && TD_SRC.indexOf('p.m!==YF_SEASON_KEY && !yfMonthKey(p.m)') >= 0,
+    'TD3b：非月份键入口拦截 + 整季汇总归位 all（整季不再逐月叠加——9387 根治）');
+  /* TD3c：看板与成长引擎整季同源（2026-10-10 口径修订）。
+     用户裁定：整季直接采用《整季汇总表》单独核算（≠6/7/8 月逐月相加）。
+     看板经 dScopeKeys()/dSeasonSet() 归位 all；成长引擎 seasonRec() 同源优先取 all（否则我的成长仍显示 3245）。 */
+  assert(TD_SRC.indexOf('function dSeasonSet()') >= 0
+      && TD_SRC.indexOf('function dScopeKeys()') >= 0
+      && GW_SRC.indexOf("typeof dSeasonSet==='function'") >= 0
+      && GW_SRC.indexOf('sset && sset[st]') >= 0
+      && TD_SRC.indexOf("if(!DASH_DB[YF_SEASON_KEY] && typeof MSEASON!=='undefined' && MSEASON) DASH_DB[YF_SEASON_KEY]=MSEASON;") >= 0,
+    'TD3c：看板与成长引擎整季同源——dScopeKeys/dSeasonSet 归位 all，seasonRec 优先取 all，云端缺 all 时静态汇总兜底（3071 口径一致）');
   assert(TD_SRC.indexOf('function renderMonthSwitch()') >= 0 && TD_SRC.indexOf('setSeason(') >= 0 && TD_SRC.indexOf('setDashMonth(') >= 0 && TD_SRC.indexOf('onchange="setSeason(this.value)"') >= 0 && TD_SRC.indexOf('onchange="setDashMonth(this.value)"') >= 0 && TD_SRC.indexOf('>整季</option>') >= 0 && TD_SRC.indexOf("class=\"tsel\"") >= 0, 'TD4：两级时间选择器（赛季 + 整季/单月）已实现——下拉形态，赛季/时间两个 select 的 onchange 直连 setSeason/setDashMonth');
   assert(TD_SRC.indexOf('histSeasonList()') >= 0 && TD_SRC.indexOf("Object.keys(HIST).filter") >= 0, 'TD5：历史季清单从 HIST 动态生成（不写死季列表）');
   assert(TD_SRC.indexOf('function dashYoyPairs(s)') >= 0 && TD_SRC.indexOf("['入营','reg',2],['学生新卡','dev',0],['学生采量','dev',1],['科普人次','dev',3],['科普转化新卡','dev',4]") >= 0, 'TD6：同比五指标 = 入营/学生新卡/采量/科普/科普转化新卡');
@@ -2293,8 +2305,10 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   const totFn = H.slice(totAt, totAt + 900);
   assert(kpiFn.indexOf("DASH_CUR==='all'?'整季合计'") >= 0,
     'DCUR12：★看板顶部 KPI 标签随口径切换（整季=「整季合计…」/ 单月=「N月…」），不得写死月份');
-  assert(totFn.indexOf("DASH_CUR==='all'?seasonOrder():[DASH_CUR]") >= 0,
-    'DCUR13：★顶部 KPI 取值随口径分叉（整季=全季各月之和），与标签同源');
+  /* 2026-10-10 口径调整：整季不再固定＝逐月求和，改为**直接采用《整季汇总表》**（DASH_DB['all']），
+     缺失时回退逐月求和（兼容旧数据/离线）。取值统一走 dScopeKeys()，与标签同源。 */
+  assert(/const mos=dScopeKeys\(\);/.test(totFn) && H.indexOf('function dScopeKeys(') >= 0,
+    'DCUR13：★顶部 KPI 取值随口径分叉（整季＝《整季汇总表》；缺失回退逐月求和），与标签同源');
 }
 
 /* ================ 论坛图片保险丝「强制拦截 + 明确提示，杜绝静默丢帖」（FRM，2026-10-10 新增） ================

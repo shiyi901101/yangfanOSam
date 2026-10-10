@@ -445,10 +445,11 @@ async function scGapMonth() {
   } finally { env.dom.window.close(); }
 }
 
-/* 口径统一回归（2026-10-09）：中台/汇报的漏斗必须**跟随看板的时间选择**——
-   看板「整季」= 各月累计（不是"最新月"，更不许"只有 8 月"）；看板选某月 = 该月；
-   势头恒按「前一月→最新月」，不随周期选择漂移。
-   用三个月 × 全站可控数据（reg[2] 分别 10/20/30）把「累计 vs 单月」变成可判定的数。 */
+/* 口径统一回归（2026-10-09 首建 / 2026-10-10 口径修订）：中台/汇报的漏斗必须**跟随看板的时间选择**——
+   看板「整季」= 《整季汇总表》数据集（all 键，单独核算，**不是** 6-8 月逐月相加，更不是"最新月"）；
+   看板选某月 = 该月；势头恒按「前一月→最新月」，不随周期选择漂移。
+   用三个月 × 全站可控数据（reg[2] 分别 10/20/30）把「单月」变成可判定的数；
+   并显式注入 all 数据集 = 100/站（**故意 ≠ 逐月求和 60**），以钉死「整季读 all、不回退求和」。 */
 async function scPeriod() {
   const env = await makeBrowser();
   try {
@@ -459,17 +460,25 @@ async function scPeriod() {
       + ' Object.keys(v).forEach(function(m){ var o={};'
       + '   STATIONS.forEach(function(s){ o[s]={reg:[v[m],v[m],v[m]],dev:[1,2,0,3,4],camp:[v[m],1,1],par:[2,0.5]}; });'
       + '   DASH_DB[m]=o; });'
+      + ' var ao={}; STATIONS.forEach(function(s){ ao[s]={reg:[100,100,100],dev:[1,2,0,3,4],camp:[100,1,1],par:[2,0.5]}; });'
+      + ' DASH_DB["all"]=ao;'   /* 整季汇总表数据集：=100/站 ≠ 6+7+8 之和 60 */
       + ' DASH_CUR="all";'
       + ' return Object.keys(DASH_DB).sort().join(",")+"|"+STATIONS.length; }catch(e){ return "ERR:"+e.message; } })()');
-    if (inj.indexOf('ERR') === 0) { report('G5-D0', '注入三个月可控数据（前置）', 'FAIL', inj); return; }
+    if (inj.indexOf('ERR') === 0) { report('G5-D0', '注入三个月可控数据 + 整季汇总表（前置）', 'FAIL', inj); return; }
     const nSt = env.win.eval('GW.stationList().length');
-    const seasonSum = nSt * (10 + 20 + 30);
+    const seasonSum = nSt * 100;            /* 整季 = 《整季汇总表》all 数据集（2026-10-10 口径） */
+    const monthSum = nSt * (10 + 20 + 30);  /* 6+7+8 逐月求和——新口径下「整季」不应等于它 */
     const m8Sum = nSt * 30;
 
     const s1 = JSON.parse(env.win.eval('JSON.stringify({label:GW.periodLabel(),isSeason:GW.isSeasonView(),sum:(function(){var t=0;GW.stationList().forEach(function(s){t+=GW.raw(s).r2;});return t;})()})'));
-    assert('G5-D1', '★看板「整季」→ 中台口径 = 6-8 月季累计（' + seasonSum + '），不是最新月',
+    assert('G5-D1', '★看板「整季」→ 中台口径 = 《整季汇总表》值（' + seasonSum + '），不是最新月、也不是逐月求和',
       s1.isSeason === true && s1.sum === seasonSum && s1.label === '6-8 月',
-      'isSeason=' + s1.isSeason + ' · label=' + s1.label + ' · Σ入营=' + s1.sum + '（若=' + m8Sum + ' 即回退成"只有 8 月"）');
+      'isSeason=' + s1.isSeason + ' · label=' + s1.label + ' · Σ入营=' + s1.sum + '（=' + monthSum + ' 即错走逐月求和 · =' + m8Sum + ' 即回退成"只有 8 月"）');
+
+    /* D1b：无汇总表时「整季」回退逐月求和（兼容旧数据/历史季/尚未上传整季）——原子读写，免受异步云拉干扰 */
+    const s1b = JSON.parse(env.win.eval('(function(){ var bak=DASH_DB["all"]; delete DASH_DB["all"]; DASH_CUR="all"; var t=0; GW.stationList().forEach(function(s){t+=GW.raw(s).r2;}); DASH_DB["all"]=bak; return JSON.stringify({sum:t}); })()'));
+    assert('G5-D1b', '★无汇总表时「整季」回退逐月求和（' + monthSum + '）——兼容旧数据/历史季',
+      s1b.sum === monthSum, 'Σ入营=' + s1b.sum + '（期望 ' + monthSum + '，=0 即数据层被误清空）');
 
     const s2 = JSON.parse(env.win.eval('(function(){ DASH_CUR="8"; return JSON.stringify({label:GW.periodLabel(),isSeason:GW.isSeasonView(),sum:(function(){var t=0;GW.stationList().forEach(function(s){t+=GW.raw(s).r2;});return t;})()}); })()'));
     assert('G5-D2', '看板选「8 月」→ 中台口径 = 该月（' + m8Sum + '）',
@@ -488,7 +497,7 @@ async function scPeriod() {
       .sort((a, b) => (+a.match(/(\d+)/)[1]) - (+b.match(/(\d+)/)[1]));
     let allText = '';
     for (const n of names) allText += (await zip.file(n).async('string')).replace(/<\/?a:t>/g, '');
-    assert('G5-D4', '★整季口径下 PPT 带「6-8 月」标签与季累计值（' + seasonSum + '）',
+    assert('G5-D4', '★整季口径下 PPT 带「6-8 月」标签与《整季汇总表》值（' + seasonSum + '）',
       allText.indexOf('6-8 月') >= 0 && allText.indexOf(String(seasonSum)) >= 0,
       '含「6-8 月」=' + (allText.indexOf('6-8 月') >= 0) + ' · 含「' + seasonSum + '」=' + (allText.indexOf(String(seasonSum)) >= 0));
     const lbls = allText.match(/\d+(?:-\d+)? 月累计/g) || [];
