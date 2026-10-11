@@ -10,7 +10,23 @@
          HEAD（默认）= 基线 vs 已提交；WORKTREE = 基线 vs 工作区（提交前自检用，
          否则尚未 commit 的改动会被漏扫，等于提交前拿不到 P0 结论）。
    退出码：任一类命中 → 1（含自检失败），全部通过 → 0。 */
-const { execSync } = require('child_process');
+/* 2026-07-11：改用 execFileSync 直连 git.exe。原先 execSync('git …') 在 Windows 上要经
+   cmd.exe 中转，实测该环境 cmd.exe 持续返回 EBUSY（spawnSync cmd.exe EBUSY / errno -4082），
+   导致 P0 扫描完全跑不起来。直连 git.exe 可绕开 cmd.exe，且天然免掉参数转义问题。 */
+const { execFileSync } = require('child_process');
+const FSB = require('fs');
+/* 受限环境旁路（2026-07-11 实测）：某些环境下 node 对**任何**子进程 spawn 都返回 EBUSY
+   （spawnSync git EBUSY / errno -4082，去沙箱亦然），而本扫描必须取 git 的两样输出。
+   故允许由外部（bash 等能正常起进程的通道）预先把结果落盘，再通过环境变量喂进来：
+     P0_BASE_FILE  = git show <BASE>:index.html 的输出
+     P0_DIFF_FILE  = git diff -U0 <BASE> [-- <TARGET>] -- index.html 的输出
+     P0_TARGET_LABEL（可选，缺省沿用原逻辑）
+   规则本身一字未改，只是不再依赖 spawn。 */
+function gitOrFile(args, envVar) {
+  const p = process.env[envVar];
+  if (p && FSB.existsSync(p)) return FSB.readFileSync(p, 'utf8');
+  return execFileSync('git', args, { cwd: REPO, maxBuffer: 1 << 28 }).toString();
+}
 const fs = require('fs');
 const P = require('./paths');   /* 路径唯一权威出口：REPO 由 __dirname 推出，无硬编码绝对路径 */
 const REPO = P.FRONT_ROOT;
@@ -23,7 +39,11 @@ const REPO = P.FRONT_ROOT;
 const BASE_CANDIDATES = ['c5f41fb', 'f5949a4'];
 let BASE = null;
 for (const c of BASE_CANDIDATES) {
-  try { execSync('git cat-file -e ' + c, { cwd: REPO, stdio: 'ignore' }); BASE = c; break; }
+  try {
+    if (process.env.P0_BASE_FILE && FSB.existsSync(process.env.P0_BASE_FILE)) BASE = c;
+    else execFileSync('git', ['cat-file', '-e', c], { cwd: REPO, stdio: 'ignore' });
+    BASE = c; break;
+  }
   catch (e) { /* 该候选对象不存在，试下一个 */ }
 }
 if (!BASE) {
@@ -36,13 +56,14 @@ if (BASE !== BASE_CANDIDATES[0]) {
 const TARGET = (process.argv[2] || 'HEAD').trim().toUpperCase();
 const IS_WORKTREE = TARGET === 'WORKTREE';
 
-function git(args) { return execSync('git ' + args, { cwd: REPO, maxBuffer: 1 << 28 }).toString(); }
+function git(args) { return execFileSync('git', args, { cwd: REPO, maxBuffer: 1 << 28 }).toString(); }
 
-const baseHtml = execSync('git show ' + BASE + ':index.html', { cwd: REPO, maxBuffer: 1 << 28 }).toString();
+const baseHtml = gitOrFile(['show', BASE + ':index.html'], 'P0_BASE_FILE');
 
-const diff = git('diff -U0 ' + BASE + (IS_WORKTREE ? '' : ' ' + TARGET) + ' -- index.html');
+const diff = gitOrFile(['diff', '-U0', BASE].concat(IS_WORKTREE ? [] : [TARGET], ['--', 'index.html']), 'P0_DIFF_FILE');
 const added = diff.split(/\r?\n/).filter(l => l[0] === '+' && l.indexOf('+++') !== 0).map(l => l.slice(1));
-const targetLabel = IS_WORKTREE ? '工作区(未提交)' : git('rev-parse --short ' + TARGET).trim();
+const targetLabel = process.env.P0_TARGET_LABEL
+  || (IS_WORKTREE ? '工作区(未提交)' : git(['rev-parse', '--short', TARGET]).trim());
 console.log('新增行数 = ' + added.length + '（基线 ' + BASE + ' → ' + targetLabel + '）');
 
 const EMOJI = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE0F}]/u;

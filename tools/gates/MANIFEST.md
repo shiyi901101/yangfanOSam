@@ -12,7 +12,7 @@ bash tools/gates/run_gates_iso.sh [tag]
 - **任意 cwd 均可**：脚本自定位（`cd "$(dirname "$0")"` 后所有路径由 `paths.js` 以 `__dirname` 解析），提取产物写 `os.tmpdir()`。
 - **退出码**：`0` = 全绿；非 `0` = 有门禁红（供调用方/CI 判定，**不靠人读日志**）。
 - **日志**：`${TMPDIR}/yf-gates-iso_<tag>.log`（脚本末行回显 `log=<路径>`）。
-- **环境变量**：`YF_NODE`（node 可执行，默认下方 22.22.2-2）、`YF_TEST_PORT`（GATE4 隔离端口，默认 9101）、`YF_PPT_PORT`（GATE5 隔离端口，默认 9103，与 GATE4 分开，两条车道不抢端口）。
+- **环境变量**：`YF_NODE`（node 可执行；未设时由脚本**自动探测最新 22.22.x**，见下「node 运行时纪律」）、`YF_TEST_PORT`（GATE4 隔离端口，默认 9101）、`YF_PPT_PORT`（GATE5 隔离端口，默认 9103，与 GATE4 分开，两条车道不抢端口）。
 
 ## 目录内文件职责
 
@@ -29,7 +29,8 @@ bash tools/gates/run_gates_iso.sh [tag]
 
 ## 前置（运行环境）
 
-- **node `22.22.2-2`**（基线）。**v22.12.0 会 SEGFAULT，不得降级。** 默认路径写在 `run_gates_iso.sh` 的 `YF_NODE`，可用环境变量覆盖。
+- **node 基线＝22.22.x（版本族，非固定目录）**。**v22.12.0 会 SEGFAULT，不得降级。**
+  🔴 **运行时目录会随 WorkBuddy 升级漂移**（2026-07-11 实测 `22.22.2-2` → `22.22.2-6`，旧硬编码路径直接失效、门禁入口跑不起来）。故 `run_gates_iso.sh` 改为**三级探测**、不再写死版本目录：⓪ `YF_NODE` 环境变量 → ① 自动取 `~/.workbuddy/binaries/node/versions/` 下**版本排序最新**的 `22.22.*` → ② 裸 `node` 兜底；全失败 `exit 9` 并打印原因（不静默降级）。
 - **jsdom**：`C:/Users/Administrator/.workbuddy/binaries/node/workspace/node_modules/jsdom`（e2e 依赖，见 `e2e_dual_role.js` 的 `NODE_PATH_VAL`）。
 - **跨仓库依赖**：GATE4 需要后端 `yangfan-cloud/yf-api/index.js`。`mk_shadow.js` 经 `paths.js:findYfApiDir()` 定位**工作区仓库**的该文件（**不是**本仓库内的副本），逐字节复制 + md5 校验后再播种。定位不到 → GATE4 直接 `exit 9` 报 FATAL。
 - **端口**：GATE4 默认 `9101`（`YF_TEST_PORT` 可覆盖）、GATE5 默认 `9103`（`YF_PPT_PORT` 可覆盖），避免与真实服务冲突，且两条车道互不抢端口。
@@ -41,7 +42,7 @@ bash tools/gates/run_gates_iso.sh [tag]
 |---|---|---|
 | GATE1 extract | **6 块** | `index.html` 内联 `<script>` 恰 6 个 |
 | GATE2 node --check | **6 / 6 OK** | `js_01..js_06` 语法全过 |
-| GATE3 test_rules | **pass=801 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新；同日复核：顶部 KPI 口径 `DCUR12`–`DCUR13` **+2**；2026-10-10：论坛图片保险丝 `FRM1`–`FRM9` **+9**、看板整季口径 `TD3b` **+1**、整季改读《整季汇总表》 `TD3c` **+1**、PWA 版本自愈 `SWR1` **+1**，`GW19` 文案原位订正） |
+| GATE3 test_rules | **pass=802 fail=0** | 见下「基线沿革」（2026-10-07：文案红线 `WX0`–`WX6` **+24**、归档件 `WX7` **+12**；2026-10-09：口径统一 `GW9a`–`GW9g` **+7**、时间视图 `DCUR1`–`DCUR11` **+11**、汇报图形化 `HQG1`–`HQG9` **+9**，`PG8` 基线 9→14 页原位更新；同日复核：顶部 KPI 口径 `DCUR12`–`DCUR13` **+2**；2026-10-10：论坛图片保险丝 `FRM1`–`FRM9` **+9**、看板整季口径 `TD3b` **+1**、整季改读《整季汇总表》 `TD3c` **+1**、PWA 版本自愈 `SWR1` **+1**、整季口径文案同源 `TD3d` **+1**，`GW19` 文案原位订正） |
 | GATE4 e2e | **26 PASS / 0 FAIL / 0 SKIP**（≈50–55s） | 双角色 26 场景（S11/A7/S14 现覆盖 **7** 个管理专属控件） |
 | GATE5 ppt_smoke | **27 PASS / 0 FAIL / 0 SKIP**（≈28s） | 功能绿：管理端真跑 `genHQPPT()` → 真实 pptx **≈952KB / 14 页**；原生表格 3 张（能力总表 10 列 × 21 行 / 同比对照 / 风险预警）+ 原生柱状图 4 + 折线图 1；漏斗柱 3 个真实数值；口径三句逐字且唯一；缺月折不画线；**整季=《整季汇总表》（all 数据集，非逐月求和，缺失回退逐月求和）、单月=该月、势头恒按最新月**；**D6 云刷新不冲掉用户选择 / D7 默认整季+记住选择 / D8 bench 缓存区分周期**；负责人端直调 0 字节 |
 | GATE-SW sw_selfcheck | **23 PASS / 0 FAIL**（≈0s） | **`sw.js` 是 `p0_scan` 的盲区**（不属 index.html 内联块），单列门禁。A 文件语法 / B 离线可用性 + **B6–B10 导航分支「缓存优先」防回归** / C 版本纪律。见下「GATE-SW 说明」 |

@@ -2628,7 +2628,7 @@ window.__yfLoadLib=(function(){
     <div class="gw-top">
     <div>
       <h2>中台总览 · 操盘驾驶舱</h2>
-      <p class="gw-sub">全站的健康度、风险预警与经验治理，一眼掌握全局。数据口径与「数据看板」的时间选择同源——看板选「整季」即 6-8 月累计，选单月即该月；你在「我的成长」里回填的结果，也会实时回流到这里的经验复用看板。</p>
+      <p class="gw-sub">全站的健康度、风险预警与经验治理，一眼掌握全局。数据口径与「数据看板」的时间选择同源——看板选「整季」即采用《整季汇总表》单独核算（不是 6-8 月相加），选单月即该月；你在「我的成长」里回填的结果，也会实时回流到这里的经验复用看板。</p>
     </div>
   </div>
   <div class="card" id="hqReportCard" style="border-left:4px solid var(--gold)">
@@ -5230,7 +5230,7 @@ function renderDashYoy(){
   const bk=isCur?histBaseSeason():null;
   if(isCur&&!bk){el.style.display='none';return;} // 无历史基线数据时整块隐藏
   el.style.display='block';
-  const scope=DASH_CUR==='all'?'整季（逐月合计口径）':(DASH_CUR+'月');
+  const scope=DASH_CUR==='all'?'整季（《整季汇总表》口径）':(DASH_CUR+'月');
   const fN=v=>v===null?'—':dashFmt(v);
   let head,note;
   if(isCur){
@@ -8630,7 +8630,7 @@ var GW = (function(){
     var reg=a.reg||[0,0,0];
     var preg=b.reg||[0,0,0];
     /* 能力口径（card/vol/free/sci/conv/pn/camp0）= 季累计（逐月求和，与「季累计入营」分母同源）。
-       漏斗 r0/r1/r2 = 当前周期：看板「整季」→ 逐月求和（= 看板 dAll 同口径）；选具体月 → 该月。
+       漏斗 r0/r1/r2 = 当前周期：看板「整季」→ 取《整季汇总表》（缺失才逐月求和）；选具体月 → 该月。
        势头 m0/m1/m2 与 p0/p1/p2 恒为「最新月 / 前一月」——它们衡量「最近在涨还是在掉」，
        与「你现在看哪个周期」无关，不能随周期选择漂移（否则整季视图会拿季度合计去减单月）。 */
     var q = seasonRec(st);
@@ -8693,7 +8693,7 @@ var GW = (function(){
   function bench(){
     var list = stationList();
     /* 缓存键 = 赛季 + **周期（整季/单月）** + 月份 + 站点清单。
-       2026-10-09 补「周期」维度：metrics()/raw() 已随 isSeasonView() 分叉（整季=逐月求和、单月=该月），
+       2026-10-09 补「周期」维度：metrics()/raw() 已随 isSeasonView() 分叉（整季=《整季汇总表》、单月=该月），
        而 curKey() 在整季下仍返回最新月 —— 只用 赛季|月份 做键时，「整季」与「最新单月」会算出**同一把键**，
        先算的那个口径被缓存下来复用，导致健康度/预警/标杆随「先看哪个视图」而漂移（实测风险站 12 vs 11）。
        同型教训：一个缓存/集合只要有「两种口径共用一个键」，就必须把口径并进键里。 */
@@ -9134,7 +9134,7 @@ function hqPreviewReport(){
             4 能力健康度总表 / 5 同比对照 / 6 各站入营对比 / 7 风险预警汇总 / 8 入营趋势 /
             9 标杆做法 / 10 单站深钻 / 11 短板分布 / 12 经验复用闭环 / 13 结论与下一步 /
             14 口径与数据来源（附录）。
-   口径：整季=各月求和（与看板 dAll 同源）、单月=该月，统一走 GW.periodLabel()。
+   口径：整季=《整季汇总表》（缺失才逐月求和，与看板 dScopeKeys 同源）、单月=该月，统一走 GW.periodLabel()。
    数据缺月、缺项时该页明确写「暂无数据」并把缺什么讲清楚，绝不用 0 冒充或留空壳。 */
 function genHQPPT(){
   var btn=document.getElementById('hqPptBtn');
@@ -9708,7 +9708,7 @@ function genHQPPT(){
       card(s14,0.4,3.42,9.2,1.66,{fill:C.white,line:C.line,lw:0.9});
       s14.addShape(R,{x:0.4,y:3.56,w:0.06,h:1.38,fill:{color:C.gold}});
       s14.addText('取数规则（防止口径漂移）',{x:0.62,y:3.50,w:6,h:0.26,fontSize:10.5,bold:true,color:C.navy,fontFace:FF});
-      s14.addText('· 时间周期跟随「数据看板」右上角的时间选择：选「整季」= 各月累计，选单月 = 该月；\n'
+      s14.addText('· 时间周期跟随「数据看板」右上角的时间选择：选「整季」= 采用《整季汇总表》单独核算，选单月 = 该月；\n'
         +'· 缺月数据不参与计算，也不以 0 顶替（页面上会写明缺哪个月）；\n'
         +'· 到场率 / 入营率仅作漏斗参考，不进能力排名——面试与入营规模由中台按容量与批次主动调控；\n'
         +'· 同比只在有去年同一周期基线时才显示，基线缺失就写「—」，绝不拿当年数据充当去年。\n'
@@ -9742,7 +9742,7 @@ function renderHQ(){
     var knps=document.getElementById('hqNps'); if(knps)knps.textContent=north.healthy+'/'+list.length;
     var krisk=document.getElementById('hqRisk'); if(krisk)krisk.textContent=String(north.risk);
     /* 当前口径提示：与「数据看板」时间选择同源（2026-10-09）。整季=各月累计，单月=该月 */
-    var kper=document.getElementById('hqPeriodTxt'); if(kper)kper.textContent=GW.periodLabel()+(GW.isSeasonView()?'（各月累计）':'（单月）');
+    var kper=document.getElementById('hqPeriodTxt'); if(kper)kper.textContent=GW.periodLabel()+(GW.isSeasonView()?'（整季汇总表口径）':'（单月口径）');
   }catch(e){}
   var northH='<div class="hq-north">'
     + hqNk(north.campCur.toLocaleString(),GW.periodLabel()+'入营总规模',list.length+'站合计 · 漏斗终点','')
@@ -12713,7 +12713,7 @@ function closeReport(){ var m=document.getElementById('reportModal'); if(m) m.st
 /* ============ 浆站自主月上报（station 专属 · 用户 Excel 模板原字段，4 步 14 字段） ============ */
 /* 字段映射（与用户模板一致）：reg[0]=报名 reg[1]=面试 reg[2]=入营；
    dev[0]=全站学生新卡 dev[1]=全站学生采量 dev[2]=在营学生无偿献浆 dev[3]=在营学生科普数 dev[4]=科普转化新卡；
-   camp[0]=入营总人数(当月值·季值=逐月求和) camp[1]=男 camp[2]=女；par[0]=家长参与人数 par[1]=家长参与度%。
+   camp[0]=入营总人数(当月值；整季值取《整季汇总表》，缺失才逐月求和) camp[1]=男 camp[2]=女；par[0]=家长参与人数 par[1]=家长参与度%。
    月锁：POST /v1/dash/records 过截止返回 403 → 明确提示「已过上报截止，联系管理员」。
    admin 不用此表单（管理端批量入口保留现状）。 */
 var RP_FIELDS=[

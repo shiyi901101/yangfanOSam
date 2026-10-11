@@ -1237,6 +1237,18 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
       && H.indexOf('if(yfBusyEditing()) return;') >= 0
       && H.indexOf('location.reload();') >= 0,
     'SWR1：PWA 版本自愈——新 SW 接管后自动刷新一次（编辑中不打断）+ sw.js 不吃 HTTP 缓存');
+  /* TD3d：整季口径文案与新定义同源（2026-07-11 用户实测「整季统计看不懂」）。
+     口径已改为「整季＝《整季汇总表》单独核算」，但界面/PPT 仍有 4 处用户可见文案写着
+     「整季（逐月合计口径）」「（各月累计）」「即 6-8 月累计」——说的和显示的对不上。
+     这里用「旧表述必须为 0 + 新表述必须存在」双向钉死，防回退。 */
+  assert(H.indexOf('整季（逐月合计口径）') < 0
+      && H.indexOf('（各月累计）') < 0
+      && H.indexOf('即 6-8 月累计') < 0
+      && H.indexOf('选「整季」= 各月累计') < 0
+      && H.indexOf('整季（《整季汇总表》口径）') >= 0
+      && H.indexOf('（整季汇总表口径）') >= 0
+      && H.indexOf('看板选「整季」即采用《整季汇总表》单独核算') >= 0,
+    'TD3d：整季口径文案同源——界面/PPT 零「逐月合计/各月累计」旧表述，且明示《整季汇总表》口径');
   assert(TD_SRC.indexOf('function renderMonthSwitch()') >= 0 && TD_SRC.indexOf('setSeason(') >= 0 && TD_SRC.indexOf('setDashMonth(') >= 0 && TD_SRC.indexOf('onchange="setSeason(this.value)"') >= 0 && TD_SRC.indexOf('onchange="setDashMonth(this.value)"') >= 0 && TD_SRC.indexOf('>整季</option>') >= 0 && TD_SRC.indexOf("class=\"tsel\"") >= 0, 'TD4：两级时间选择器（赛季 + 整季/单月）已实现——下拉形态，赛季/时间两个 select 的 onchange 直连 setSeason/setDashMonth');
   assert(TD_SRC.indexOf('histSeasonList()') >= 0 && TD_SRC.indexOf("Object.keys(HIST).filter") >= 0, 'TD5：历史季清单从 HIST 动态生成（不写死季列表）');
   assert(TD_SRC.indexOf('function dashYoyPairs(s)') >= 0 && TD_SRC.indexOf("['入营','reg',2],['学生新卡','dev',0],['学生采量','dev',1],['科普人次','dev',3],['科普转化新卡','dev',4]") >= 0, 'TD6：同比五指标 = 入营/学生新卡/采量/科普/科普转化新卡');
