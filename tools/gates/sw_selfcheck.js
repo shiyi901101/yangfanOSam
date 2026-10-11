@@ -180,6 +180,14 @@ if (/function\s+netFirst\s*\(/.test(swSrc)) {
     'netFirst 内部出现 addEventListener / respondWith —— 已不再是纯函数');
 }
 
+/* B11（2026-07-11）：版本自检旁路。页面用 build.json?_=<时间戳> 取版本戳，
+   查询参数每次都不同 ⇒ 若仍走「缓存优先」就会拿到旧戳、自检形同虚设。
+   必须在 origin/protocol 检查之后、同源静态分支之前 return 放行。 */
+chk('B11 版本自检 build.json 带随机参数时不接管（直走网络，版本戳才拿得到真值）',
+  /if \(\/[^)]*\.test\(url\.search\)\) return;/.test(swSrc)
+  && /if \(url\.origin !== self\.location\.origin\) return;[\s\S]{0,800}url\.search\)\) return;/.test(swSrc),
+  '未找到「查询参数命中即 return 放行」的旁路 —— 版本自检会被 SW 缓存喂旧戳，提示条永远不出现');
+
 /* ---------- 可选增强（存在即校验，不存在不红——属提示） ---------- */
 if (mf) {
   if (!mf.display) console.log('ADVISORY manifest.display 缺失（建议 standalone）');

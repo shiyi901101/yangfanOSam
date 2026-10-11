@@ -91,6 +91,45 @@ window.__yfLoadLib=(function(){
     location.reload();
   });
 })();
+/* —— 版本自检（2026-07-11 用户连续三次看到旧界面后加）——
+   上一轮「controllerchange 自动刷新」只在新 SW 真正接管时才触发；而新 SW 的探测本身要走 HTTP 缓存
+   （GitHub Pages max-age=600），且**页面一直开着不刷新时连探测都不会发生** ⇒ 用户可以无限期停留在旧版。
+   本块改为**不依赖 SW 更新**：直接向网络取 build.json，且带随机查询参数（?_=<时间戳>），
+   使任何版本的 SW 缓存都必然 miss ⇒ 拿到的永远是线上真版本。与本地记录比对，不同就挂常驻提示条，
+   由用户点按钮刷新 —— **不做自动刷新**（自动刷新会打断正在填的表和登录态，上一版已因此被挡）。 */
+(function(){
+  if(typeof fetch!=='function') return;
+  var KEY='yf_build_v';
+  var seen=null; try{ seen=localStorage.getItem(KEY); }catch(e){}
+  function tip(v){
+    if(document.getElementById('yfUpdTip')) return;
+    var d=document.createElement('div'); d.id='yfUpdTip';
+    d.style.cssText='position:fixed;right:16px;bottom:16px;z-index:99999;background:var(--navy);color:#fff;'
+      +'padding:12px 14px;border-radius:10px;border:1px solid var(--line);font-size:14px;'
+      +'display:flex;gap:10px;align-items:center;max-width:min(92vw,420px);line-height:1.5';
+    var t=document.createElement('span'); t.textContent='发现新版本（'+v+'），你当前看的还是旧版界面';
+    var b=document.createElement('button'); b.textContent='立即刷新';
+    b.style.cssText='background:#fff;color:var(--navy);border:0;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:600;flex:none';
+    b.onclick=function(){ location.reload(); };
+    var x=document.createElement('button'); x.textContent='×'; x.setAttribute('aria-label','关闭提示');
+    x.style.cssText='background:transparent;border:0;color:inherit;opacity:.7;font-size:18px;cursor:pointer;line-height:1;flex:none';
+    x.onclick=function(){ if(d.parentNode) d.parentNode.removeChild(d); };
+    d.appendChild(t); d.appendChild(b); d.appendChild(x);
+    document.body.appendChild(d);
+  }
+  function check(){
+    if(typeof DASH_CUR!=='undefined'&&document.getElementById('loginGate')&&getComputedStyle(document.getElementById('loginGate')).display!=='none') return; /* 登录中不打扰 */
+    fetch('./build.json?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;})
+      .then(function(j){
+        if(!j||!j.v) return;
+        if(seen&&seen!==j.v) tip(j.v);
+        else if(!seen){ try{ localStorage.setItem(KEY,j.v); }catch(e){} }
+      }).catch(function(){});
+  }
+  window.__yfCheckBuild=check;
+  window.addEventListener('load',function(){ setTimeout(check,2000); });
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) setTimeout(check,300); });
+})();
 </script>
 
 

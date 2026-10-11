@@ -81,6 +81,10 @@ self.addEventListener('fetch', (e) => {
   try { url = new URL(req.url); } catch (_) { return; }
   if (url.origin !== self.location.origin) return;     // 跨源（云函数 API / COS 图）直连
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  /* 版本自检专用旁路（2026-07-11）：页面用 build.json?_=<时间戳> 取版本戳，查询参数每次都不同
+     ⇒ 任何缓存都不可能命中，若仍走「缓存优先」就会拿到旧版本戳、自检形同虚设。
+     这里直接 return 不接管，让浏览器原样走网络。 */
+  if (/[?&]_=\d+/.test(url.search)) return;
 
   const isDoc = req.mode === 'navigate'
     || url.pathname.endsWith('/index.html')

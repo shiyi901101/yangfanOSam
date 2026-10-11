@@ -1237,6 +1237,16 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
       && H.indexOf('if(yfBusyEditing()) return;') >= 0
       && H.indexOf('location.reload();') >= 0,
     'SWR1：PWA 版本自愈——新 SW 接管后自动刷新一次（编辑中不打断）+ sw.js 不吃 HTTP 缓存');
+  /* SWR2：版本自检（2026-07-11 用户连续三次看到旧界面后加）。
+     controllerchange 自愈只在新 SW 接管时触发，而页面一直开着不刷新 ⇒ 连 SW 探测都不发生，用户可无限期停留旧版。
+     故补一条**不依赖 SW 更新**的自检：带随机查询参数取 build.json（任何缓存必 miss ⇒ 必是线上真版本），
+     与本地记录不符则挂常驻提示条，由用户点按钮刷新（不做自动刷新，避免打断登录态/正在填的表）。 */
+  assert(H.indexOf("fetch('./build.json?_='+Date.now()") >= 0
+      && H.indexOf("window.__yfCheckBuild=check") >= 0
+      && H.indexOf("id='yfUpdTip'") >= 0
+      && H.indexOf('发现新版本（') >= 0
+      && H.indexOf('var KEY=\'yf_build_v\';') >= 0,
+    'SWR2：版本自检——不依赖 SW 更新即可发现旧版并提示刷新（build.json 带随机参数走网络）');
   /* TD3d：整季口径文案与新定义同源（2026-07-11 用户实测「整季统计看不懂」）。
      口径已改为「整季＝《整季汇总表》单独核算」，但界面/PPT 仍有 4 处用户可见文案写着
      「整季（逐月合计口径）」「（各月累计）」「即 6-8 月累计」——说的和显示的对不上。
