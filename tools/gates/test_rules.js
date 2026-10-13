@@ -2362,6 +2362,17 @@ const htmlFixIdx = fsFix.readFileSync(P.INDEX_HTML, 'utf8').indexOf('id="dashWea
   assert(H.indexOf('未同步·重试') >= 0 && H.indexOf('fb-sync-warn') >= 0, 'FRM7：★列表渲染「未同步·重试」标签 + 顶部常驻横幅');
   assert(H.indexOf('重试同步') >= 0, 'FRM8：★详情页失败帖红横幅 + 「重试同步」按钮');
   assert(H.indexOf('图片正在上传云端，稍后自动同步') >= 0, 'FRM9：★fbPost 在图片仍在传时弹诚实提示（不再误导成「已发布」）');
+  /* FRM10（2026-10-13 用户实测故障根治：管理员与舒城同事各发帖，互相反复刷新都看不到）。
+     链路：ensurePostImages 对上传失败的图片**保留 base64** → 整包破 90KB 保险丝 → throw tooBig
+     → 退避 6 次 → 置 failed 停自动重试 → 该帖永远上不了云（本机能看到、同事看不到）。
+     图片是可选内容，不该阻断内容本身 ⇒ 推送前剥离 base64 保内容上云 + 发版自动解锁补传。 */
+  assert(H.indexOf('function stripInlineImages(p)') >= 0
+      && H.indexOf('var dropped=stripInlineImages(p);') >= 0
+      && H.indexOf('p._imgDropped=dropped;') >= 0
+      && H.indexOf('function recoverForum()') >= 0
+      && H.indexOf('delete pend[k].failed') >= 0
+      && H.indexOf('缺图') >= 0,
+    'FRM10：图片转传失败不再丢帖——剥离 base64 保内容上云（记「缺图」）+ 发版自动解锁补传历史卡住的帖');
 }
 
 /* ================ 汇报材料「图形化」（HQG，2026-10-09 新增） ================

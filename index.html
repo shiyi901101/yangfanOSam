@@ -100,6 +100,7 @@ window.__yfLoadLib=(function(){
 (function(){
   if(typeof fetch!=='function') return;
   var KEY='yf_build_v';
+  var SEEN_V='';
   var seen=null; try{ seen=localStorage.getItem(KEY); }catch(e){}
   function tip(v){
     if(document.getElementById('yfUpdTip')) return;
@@ -117,12 +118,32 @@ window.__yfLoadLib=(function(){
     d.appendChild(t); d.appendChild(b); d.appendChild(x);
     document.body.appendChild(d);
   }
+  /* 发版后自动补传本地未同步的帖子（2026-10-13）。发新版本＝用户本机跑的就是新逻辑，
+     此时把历史 failed 标记清掉并全量标脏，让卡住的帖子借新逻辑重推一次
+     （图片会被剥离，内容不再丢）。每个版本只做一次，避免反复重推。
+     未发版的老用户不会有任何动作——这是设计如此：没拿到新逻辑，重推还是会失败。 */
+  function recoverForum(){
+    try{
+      if(localStorage.getItem('yf_sync_recovered_v')===SEEN_V)return;
+      localStorage.setItem('yf_sync_recovered_v',SEEN_V);
+      var pend=JSON.parse(localStorage.getItem('yf_forum_pend')||'{}'),n=0;
+      Object.keys(pend).forEach(function(k){ if(pend[k]&&pend[k].failed){delete pend[k].failed;pend[k].tries=0;pend[k].next=0;n++;} });
+      localStorage.setItem('yf_forum_pend',JSON.stringify(pend));
+      var fb=JSON.parse(localStorage.getItem('yf_forum_v1')||'{}');
+      var posts=(fb&&Array.isArray(fb.posts))?fb.posts:[];
+      if(posts.length){
+        localStorage.setItem('yf_forum_dirty',JSON.stringify(posts.map(function(p){return p.id;})));
+        setTimeout(function(){ try{ if(typeof YF_CLOUD!=='undefined'&&YF_CLOUD&&YF_CLOUD.pushForum)YF_CLOUD.pushForum(); }catch(e){} },800);
+      }
+      if(n)console.log('[扬帆OS] 新版本：已解锁 '+n+' 条卡住的帖子并补传');
+    }catch(e){}
+  }
   function check(){
     if(typeof DASH_CUR!=='undefined'&&document.getElementById('loginGate')&&getComputedStyle(document.getElementById('loginGate')).display!=='none') return; /* 登录中不打扰 */
     fetch('./build.json?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;})
       .then(function(j){
         if(!j||!j.v) return;
-        if(seen&&seen!==j.v) tip(j.v);
+        if(seen&&seen!==j.v){ tip(j.v); SEEN_V=j.v; recoverForum(); }
         else if(!seen){ try{ localStorage.setItem(KEY,j.v); }catch(e){} }
       }).catch(function(){});
   }
@@ -3789,14 +3810,32 @@ var YF_CLOUD=(function(){
     });
     return out;
   }
+  /* 2026-10-13 根治「图片转存失败 ＝ 整帖丢失」（用户实测故障：本机和舒城同事各发了帖，
+     本机看得到、同事反复刷新都看不到）。
+     链路：ensurePostImages 对上传失败的图片**保留原 base64**（只有拿到 fileID 才替换）
+     → 整包轻易突破下面 90KB 保险丝 → throw tooBig → 退避重试 6 次 → 置 failed 停自动重试
+     → 该帖**永远上不了云**。而图片是可选内容，不该阻断内容本身。
+     修法：推送前剥离残留 base64，剥离条数记在 p._imgDropped（界面据此提示「缺图」）。 */
+  function stripInlineImages(p){
+    var n=0;
+    if(Array.isArray(p.images))p.images=p.images.filter(function(v){
+      if(typeof v==='string'&&v.indexOf('data:')===0){n++;return false;}return true;});
+    (p.replies||[]).forEach(function(r){
+      if(Array.isArray(r.images))r.images=r.images.filter(function(v){
+        if(typeof v==='string'&&v.indexOf('data:')===0){n++;return false;}return true;});
+    });
+    return n;
+  }
   function pushOne(p,opts){
     opts=opts||{};
     return Promise.resolve()
       .then(function(){return ensurePostImages(p);})
       .then(function(){
+        var dropped=stripInlineImages(p);
+        if(dropped>0){ p._imgDropped=dropped; try{ if(typeof fbSave==='function')fbSave(); }catch(e){} }
         var size=0;
         try{size=JSON.stringify({col:'forum_posts',doc:{_id:p.id,post:p,station:'',_updated:0}}).length;}catch(e){}
-        /* 保险丝：整包仍超网关 100KB 上限（图片没能转存成功时）→ 明确排队重试，不做静默失败 */
+        /* 保险丝：剥离图片后仍超网关 100KB 上限（极端大文本）→ 明确排队重试，不做静默失败 */
         if(size>90000)throw{tooBig:size};
         return fetch(window.YF_API_URL+'/data',{method:'POST',headers:hdr(),body:JSON.stringify({col:'forum_posts',doc:{_id:p.id,post:p,station:(typeof yfMyStation==='function'?yfMyStation():''),_updated:Date.now()}})});
       })
@@ -6462,6 +6501,7 @@ function fbList(){
     const b=fbB(p.bid);const rc=p.replies.length;const ri=fbRankInfo(fbStats(p.author||'匿名').rep);
     const lw=p.replies.length?p.replies[p.replies.length-1].author:'';
     const st=(failedIds.indexOf(p.id)>=0?'<span class="ftag" style="background:#fdeceb;color:#d6463c;border:1px solid #f4b6b1" onclick="fbSyncRetryOne(\''+p.id+'\')">未同步·重试</span>':'')+
+              (Number(p._imgDropped)>0?'<span class="ftag" style="background:#fff2e2;color:#e08c2e;border:1px solid #f3cfa6" title="有 '+p._imgDropped+' 张图片未能上传，帖子内容已正常发布">缺图</span>':'')+
               (p.top?'<span class="ftag f-top-tag">置顶</span>':'')+
               (p.hl===1?'<span class="ftag" style="background:#e7f1fb;color:#14559c;border:1px solid #b9d6f2">精</span>':'')+
               (p.hl===2?'<span class="ftag" style="background:#fff2e2;color:#e08c2e;border:1px solid #f3cfa6">优</span>':'')+
